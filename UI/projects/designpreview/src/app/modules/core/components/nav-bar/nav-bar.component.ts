@@ -144,7 +144,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.router.navigateByUrl('/preview');
 			break;
 		case (BuildMode.Presale):
-			this.router.navigate(['presale'], { queryParams: { presale: sessionStorage.getItem('presale_token')} });
+			this.router.navigate(['presale'], { queryParamsHandling: 'merge' });
 			break;
 		default:
 			this.router.navigateByUrl('/home');
@@ -155,7 +155,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onViewFavorites()
 	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token')} })
+		this.router.navigate(['favorites', 'summary'], { queryParamsHandling: 'merge' })
 	}
 
 	getImageSrc()

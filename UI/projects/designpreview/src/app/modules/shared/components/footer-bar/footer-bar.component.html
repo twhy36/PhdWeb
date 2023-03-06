@@ -1,14 +1,21 @@
 <div class="phd-footer">
-	Copyright &#169; 2021-{{currentYear}} PulteGroup, Inc.<div class="phd-hspacer"></div>|<div class="phd-hspacer">
+	Copyright &#169; 2021-{{currentYear}} PulteGroup, Inc.<div class="phd-spacer"></div>|<div class="phd-spacer">
 	</div>
 	<a href="{{brandUrl}}/terms-of-use/" target="_blank">Terms of Use</a>
-	<div class="phd-hspacer"></div>
+	<div class="phd-spacer"></div>
 	<a href="{{brandUrl}}/privacy-policy" target="_blank">Privacy Policy</a>
-	<div class="phd-hspacer"></div>
+	<div class="phd-spacer"></div>
+	<button class="phd-disclaimer">
+		<a (click)="onDisclaimerClick()" target="_blank">Disclaimer</a>
+	</button>
+	<div class="phd-spacer"></div>
 	<img src="{{accessibilityImgSrc}}" alt="">
-	<div class="phd-hspacer"></div>
+	<div class="phd-spacer"></div>
 	<img src="{{equalHousingImgSrc}}" alt="">
-	<div class="phd-hspacer"></div>
-	<a href="https://allyant.com"><img src="assets/Logo_Allyant_small.png"
-			alt="Reviewed by Allant for accessibility"></a>
+	<div class="phd-spacer"></div>
+	<ng-container *ngIf="!isPresale">
+		<a href="https://allyant.com">
+			<img src="assets/Logo_Allyant_small.png" alt="Reviewed by Allyant for accessibility">
+		</a>
+	</ng-container>
 </div>

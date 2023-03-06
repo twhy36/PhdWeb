@@ -1,187 +1,189 @@
-<div class="modal-header">
-	<span *ngIf="disabledByRulesExist(true) && !disabledByRulesExist(false)" class="modal-title">Before this can be selected</span>
-	<span *ngIf="disabledByRulesExist(false) && !disabledByRulesExist(true)" class="modal-title">Disabled due to</span>
-	<span *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)" class="modal-title"></span>
-	<button type="button" class="close" aria-label="Close" (click)="this.closeClicked()">
-		<span aria-hidden="true">&times;</span>
-	</button>
-</div>
-<div class="phd-disabled-rules">
-	<!-- MUST HAVE -->
-	<ng-container *ngIf="disabledByRulesExist(true)">
-		<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
-			Before this can be selected:
-		</div>
-		<!-- From DP -->
-		<ul class="phd-blocked-list">
-			<li *ngIf="!!pointDisabledByMustHaveRules?.andPoints?.length || !!pointDisabledByMustHaveRules?.andChoices?.length">
-				<!-- AND -->
-				<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.andPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="pointDisabledByMustHaveRules.andPoints?.length > 1 && itemIndex < pointDisabledByMustHaveRules.andPoints?.length - 1 ? 'and' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.andChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="pointDisabledByMustHaveRules.andChoices?.length > 1 && itemIndex < pointDisabledByMustHaveRules.andChoices?.length - 1 ? 'and' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-			<li *ngIf="!!pointDisabledByMustHaveRules?.orPoints?.length || !!pointDisabledByMustHaveRules?.orChoices?.length">
-				<!-- OR -->
-				<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.orPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="pointDisabledByMustHaveRules.orPoints?.length > 1 && itemIndex < pointDisabledByMustHaveRules.orPoints?.length - 1 ? 'or' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.orChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="pointDisabledByMustHaveRules.orChoices?.length > 1 && itemIndex < pointDisabledByMustHaveRules.orChoices?.length - 1 ? 'or' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-		</ul>
-		<!-- From Choice -->
-		<ul class="phd-blocked-list">
-			<li *ngIf="!!choiceDisabledByMustHaveRules?.andPoints?.length || !!choiceDisabledByMustHaveRules?.andChoices?.length">
-				<!-- AND -->
-				<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.andPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="choiceDisabledByMustHaveRules.andPoints?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.andPoints?.length - 1 ? 'and' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.andChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="choiceDisabledByMustHaveRules.andChoices?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.andChoices?.length - 1 ? 'and' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-			<li *ngIf="!!choiceDisabledByMustHaveRules?.orPoints?.length || !!choiceDisabledByMustHaveRules?.orChoices?.length">
-				<!-- OR -->
-				<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.orPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="choiceDisabledByMustHaveRules.orPoints?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.orPoints?.length - 1 ? 'or' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.orChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="choiceDisabledByMustHaveRules.orChoices?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.orChoices?.length - 1 ? 'or' : ''"
-									[hiddenChoices]="hiddenChoices"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-		</ul>
-	</ng-container>
-
-	<!-- MUST NOT HAVE -->
-	<ng-container *ngIf="disabledByRulesExist(false)">
-		<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
-			Disabled due to:
-		</div>
-		<!-- From DP -->
-		<ul class="phd-blocked-list">
-			<li *ngIf="!!pointDisabledByMustNotHaveRules?.andPoints?.length || !!pointDisabledByMustNotHaveRules?.andChoices?.length">
-				<!-- OR -->
-				<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.andPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="pointDisabledByMustNotHaveRules.andPoints?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.andPoints?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.andChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="pointDisabledByMustNotHaveRules.andChoices?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.andChoices?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-			<li *ngIf="!!pointDisabledByMustNotHaveRules?.orPoints?.length || !!pointDisabledByMustNotHaveRules?.orChoices?.length">
-				<!-- AND -->
-				<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.orPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="pointDisabledByMustNotHaveRules.orPoints?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.orPoints?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.orChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="(pointDisabledByMustNotHaveRules.orChoices?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.orChoices?.length - 1) || (!!choiceDisabledByMustNotHaveRules?.andPoints?.length || !!choiceDisabledByMustNotHaveRules?.andChoices?.length) ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>						
-		</ul>
-		<!-- From Choice -->
-		<ul class="phd-blocked-list">
-			<li *ngIf="!!choiceDisabledByMustNotHaveRules?.andPoints?.length || !!choiceDisabledByMustNotHaveRules?.andChoices?.length">
-				<!-- OR -->
-				<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.andPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="choiceDisabledByMustNotHaveRules.andPoints?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.andPoints?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.andChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="choiceDisabledByMustNotHaveRules.andChoices?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.andChoices?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-			<li *ngIf="!!choiceDisabledByMustNotHaveRules?.orPoints?.length || !!choiceDisabledByMustNotHaveRules?.orChoices?.length">
-				<!-- AND -->
-				<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.orPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="choiceDisabledByMustNotHaveRules.orPoints?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.orPoints?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-
-				<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.orChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="choiceDisabledByMustNotHaveRules.orChoices?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.orChoices?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>						
-		</ul>
-	</ng-container>
+<div aria-label="Blocked Choice Modal">
+	<div class="modal-header">
+		<h1 *ngIf="disabledByRulesExist(true) && !disabledByRulesExist(false)" class="modal-title">Before this can be selected</h1>
+		<h1 *ngIf="disabledByRulesExist(false) && !disabledByRulesExist(true)" class="modal-title">Disabled due to</h1>
+		<h1 *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)" class="modal-title"></h1>
+		<button type="button" class="close" aria-label="Close" (click)="this.closeClicked()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div class="phd-disabled-rules">
+		<!-- MUST HAVE -->
+		<ng-container *ngIf="disabledByRulesExist(true)">
+			<h1 class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
+				Before this can be selected:
+			</h1>
+			<!-- From DP -->
+			<ul class="phd-blocked-list">
+				<li *ngIf="!!pointDisabledByMustHaveRules?.andPoints?.length || !!pointDisabledByMustHaveRules?.andChoices?.length">
+					<!-- AND -->
+					<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.andPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="pointDisabledByMustHaveRules.andPoints?.length > 1 && itemIndex < pointDisabledByMustHaveRules.andPoints?.length - 1 ? 'and' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.andChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="pointDisabledByMustHaveRules.andChoices?.length > 1 && itemIndex < pointDisabledByMustHaveRules.andChoices?.length - 1 ? 'and' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>
+				<li *ngIf="!!pointDisabledByMustHaveRules?.orPoints?.length || !!pointDisabledByMustHaveRules?.orChoices?.length">
+					<!-- OR -->
+					<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.orPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="pointDisabledByMustHaveRules.orPoints?.length > 1 && itemIndex < pointDisabledByMustHaveRules.orPoints?.length - 1 ? 'or' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of pointDisabledByMustHaveRules.orChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="pointDisabledByMustHaveRules.orChoices?.length > 1 && itemIndex < pointDisabledByMustHaveRules.orChoices?.length - 1 ? 'or' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>
+			</ul>
+			<!-- From Choice -->
+			<ul class="phd-blocked-list">
+				<li *ngIf="!!choiceDisabledByMustHaveRules?.andPoints?.length || !!choiceDisabledByMustHaveRules?.andChoices?.length">
+					<!-- AND -->
+					<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.andPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="choiceDisabledByMustHaveRules.andPoints?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.andPoints?.length - 1 ? 'and' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.andChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="choiceDisabledByMustHaveRules.andChoices?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.andChoices?.length - 1 ? 'and' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>
+				<li *ngIf="!!choiceDisabledByMustHaveRules?.orPoints?.length || !!choiceDisabledByMustHaveRules?.orChoices?.length">
+					<!-- OR -->
+					<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.orPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="choiceDisabledByMustHaveRules.orPoints?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.orPoints?.length - 1 ? 'or' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of choiceDisabledByMustHaveRules.orChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="choiceDisabledByMustHaveRules.orChoices?.length > 1 && itemIndex < choiceDisabledByMustHaveRules.orChoices?.length - 1 ? 'or' : ''"
+										[hiddenChoices]="hiddenChoices"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>
+			</ul>
+		</ng-container>
+	
+		<!-- MUST NOT HAVE -->
+		<ng-container *ngIf="disabledByRulesExist(false)">
+			<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
+				Disabled due to:
+			</div>
+			<!-- From DP -->
+			<ul class="phd-blocked-list">
+				<li *ngIf="!!pointDisabledByMustNotHaveRules?.andPoints?.length || !!pointDisabledByMustNotHaveRules?.andChoices?.length">
+					<!-- OR -->
+					<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.andPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="pointDisabledByMustNotHaveRules.andPoints?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.andPoints?.length - 1 ? 'or' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.andChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="pointDisabledByMustNotHaveRules.andChoices?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.andChoices?.length - 1 ? 'or' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>
+				<li *ngIf="!!pointDisabledByMustNotHaveRules?.orPoints?.length || !!pointDisabledByMustNotHaveRules?.orChoices?.length">
+					<!-- AND -->
+					<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.orPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="pointDisabledByMustNotHaveRules.orPoints?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.orPoints?.length - 1 ? 'and' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of pointDisabledByMustNotHaveRules.orChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="(pointDisabledByMustNotHaveRules.orChoices?.length > 1 && itemIndex < pointDisabledByMustNotHaveRules.orChoices?.length - 1) || (!!choiceDisabledByMustNotHaveRules?.andPoints?.length || !!choiceDisabledByMustNotHaveRules?.andChoices?.length) ? 'and' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>						
+			</ul>
+			<!-- From Choice -->
+			<ul class="phd-blocked-list">
+				<li *ngIf="!!choiceDisabledByMustNotHaveRules?.andPoints?.length || !!choiceDisabledByMustNotHaveRules?.andChoices?.length">
+					<!-- OR -->
+					<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.andPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="choiceDisabledByMustNotHaveRules.andPoints?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.andPoints?.length - 1 ? 'or' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.andChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="choiceDisabledByMustNotHaveRules.andChoices?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.andChoices?.length - 1 ? 'or' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>
+				<li *ngIf="!!choiceDisabledByMustNotHaveRules?.orPoints?.length || !!choiceDisabledByMustNotHaveRules?.orChoices?.length">
+					<!-- AND -->
+					<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.orPoints; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="false"
+										[conjunction]="choiceDisabledByMustNotHaveRules.orPoints?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.orPoints?.length - 1 ? 'and' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+	
+					<div *ngFor="let disabledByItem of choiceDisabledByMustNotHaveRules.orChoices; let itemIndex=index">
+						<blocked-item 	[disabledByItem]="disabledByItem"
+										[isChoiceItem]="true"
+										[conjunction]="choiceDisabledByMustNotHaveRules.orChoices?.length > 1 && itemIndex < choiceDisabledByMustNotHaveRules.orChoices?.length - 1 ? 'and' : ''"
+										(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
+						</blocked-item>
+					</div>
+				</li>						
+			</ul>
+		</ng-container>
+	</div>
 </div>

@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import { TreeFilter, DesignToolAttribute, Tree, TreeVersionRules, PlanOption, OptionImage, LotExt, SalesCommunity, FloorPlanImage } from 'phd-common';
+import { TreeFilter, DesignToolAttribute, Tree, TreeVersionRules, PlanOption, OptionImage, LotExt, SalesCommunity } from 'phd-common';
 import { LoadSalesAgreement, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted, LoadError } from '../actions';
 
 export enum ScenarioActionTypes
@@ -10,22 +10,21 @@ export enum ScenarioActionTypes
 	SelectChoices = 'Select Choices',
 	SetTreeFilter = 'Set Tree filter',
 	SetStatusForPointsDeclined = 'Set Status For Points Declined',
-	TreeLoaded = 'Tree Loaded',
-	SaveFloorPlanImages = "Floor Plan Images Saved"
+	TreeLoaded = 'Tree Loaded'
 }
 
 export class LoadPreview implements Action
 {
 	readonly type = ScenarioActionTypes.LoadPreview;
 
-	constructor(public treeVersionId: number) { }
+	constructor(public treeVersionId: number, public clearState: boolean = true) { }
 }
 
 export class LoadPresale implements Action
 {
 	readonly type = ScenarioActionTypes.LoadPresale;
 
-	constructor(public planCommunityId: number) { }
+	constructor(public planCommunityId: number, public clearState: boolean = true) { }
 }
 
 export class SelectChoices implements Action
@@ -62,13 +61,6 @@ export class TreeLoaded implements Action
 	constructor(public tree: Tree, public rules: TreeVersionRules, public options: PlanOption[], public optionImages: OptionImage[], public salesCommunity: SalesCommunity, public lot?: LotExt) { }
 }
 
-export class SaveFloorPlanImages implements Action
-{
-	readonly type = ScenarioActionTypes.SaveFloorPlanImages;
-	
-	constructor(public floorPlanImages: FloorPlanImage[]) {	}
-}
-
 export type ScenarioActions =
 	LoadPreview |
 	LoadPresale |
@@ -79,5 +71,4 @@ export type ScenarioActions =
 	SetStatusForPointsDeclined |
 	TreeLoaded |
 	MyFavoritesChoiceAttributesDeleted |
-	SaveFloorPlanImages |
 	LoadError;

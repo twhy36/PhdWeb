@@ -5,13 +5,13 @@
 			<img class="phd-logo-image" [src]="getImageSrc()">
 		</div>
 		<div class="phd-vertical-line"></div>
-		<div *ngIf="isLoadPresaleInactiveNoPublish; else defaultErrorSection"
+		<div *ngIf="isLoadPresaleInactiveNoPublish || isTimeout; else defaultErrorSection"
 			class="d-flex flex-column align-items-center phd-message-section">
 			<div class="phd-message-title-big">
 				...We're Sorry...
 			</div>
 			<div class="phd-message-desc">
-				{{errMessage}} <a class="phd-link-text" href="{{defaultUrl}}">{{defaultUrl}}</a>
+				{{errMessage}} <a *ngIf="!isTimeout" class="phd-link-text" href="{{defaultUrl}}">{{defaultUrl}}</a>
 			</div>
 		</div>
 	</div>

@@ -1,0 +1,42 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../scss/sizes.scss";
+
+.modal-header {
+	background: var(--popup-ribbon-background-color) !important;
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: white;
+}
+
+.modal-title {
+	font-size: $modal-title-size;
+}
+
+.modal-body {
+	text-align: left;
+    height: 260px;
+    overflow-y: scroll;
+}
+
+.phd-footer-disclaimer {
+	margin-bottom: 12px;
+}
+
+.modal-footer {
+	justify-content: center;
+}
+
+.modal-button {
+	width: 25%;
+	text-align: center;
+
+	span {
+		font-size: $modal-button-text-size;
+	}
+}
+
+.btn-primary {
+	border-radius: 35px;
+	background: var(--primary-button-color) !important;
+	border-color: var(--primary-button-color) !important;
+}

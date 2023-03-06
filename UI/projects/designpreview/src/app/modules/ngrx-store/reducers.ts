@@ -46,7 +46,7 @@ export const filteredTree = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	(scenario, favorite, sag) =>
 	{
-		let tree = _.cloneDeep(scenario?.tree);
+		const tree = _.cloneDeep(scenario?.tree);
 		const treeFilter = scenario?.treeFilter;
 		let filteredTree: TreeVersion;
 
@@ -61,12 +61,12 @@ export const filteredTree = createSelector(
 				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
 			};
 
-			let treeMatched = { subGroup: false, point: false };
+			const treeMatched = { subGroup: false, point: false };
 
 			filteredTree = {
 				...tree.treeVersion, groups: tree.treeVersion.groups.map(g =>
 				{
-					let subGroups = g.subGroups.map(sg =>
+					const subGroups = g.subGroups.map(sg =>
 					{
 						treeMatched.subGroup = filter(sg.label);
 
@@ -75,9 +75,9 @@ export const filteredTree = createSelector(
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
 							const contractedChoices = p.choices.filter(c => favorite?.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 
-							let choices = p.choices.filter(c =>
+							const choices = p.choices.filter(c =>
 							{
-								let isValid = treeMatched.point || filter(c.label);
+								const isValid = treeMatched.point || filter(c.label);
 
 								let isIncluded = true;
 								const isContractedChoice = contractedChoices?.includes(c);
@@ -100,12 +100,12 @@ export const filteredTree = createSelector(
 
 										if (p.choices.find(ch => contractedChoices?.includes(ch)))
 										{
-											switch (p.pointPickTypeId)
+											switch (p.pointPickTypeId) 
 											{
-												case PickType.Pick1:
-													isIncluded = false;
-												case PickType.Pick0or1:
-													isIncluded = false;
+											case PickType.Pick1:
+												isIncluded = false;
+											case PickType.Pick0or1:
+												isIncluded = false;
 											}
 										}
 									}
@@ -176,7 +176,7 @@ export const contractedTree = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	(scenario, favorite, sag) =>
 	{
-		let tree = _.cloneDeep(scenario?.tree);
+		const tree = _.cloneDeep(scenario?.tree);
 		const treeFilter = scenario?.treeFilter;
 		let contractedTree: TreeVersion;
 
@@ -190,12 +190,12 @@ export const contractedTree = createSelector(
 				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
 			};
 
-			let treeMatched = { subGroup: false, point: false };
+			const treeMatched = { subGroup: false, point: false };
 
 			contractedTree = {
 				...tree.treeVersion, groups: tree.treeVersion.groups.map(g =>
 				{
-					let subGroups = g.subGroups.map(sg =>
+					const subGroups = g.subGroups.map(sg =>
 					{
 						treeMatched.subGroup = filter(sg.label);
 
@@ -204,9 +204,9 @@ export const contractedTree = createSelector(
 							treeMatched.point = treeMatched.subGroup || filter(p.label);
 							const contractedChoices = p.choices.filter(c => favorite?.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 
-							let choices = p.choices.filter(c =>
+							const choices = p.choices.filter(c =>
 							{
-								let isValid = treeMatched.point || filter(c.label);
+								const isValid = treeMatched.point || filter(c.label);
 
 								const isContractedChoice = contractedChoices?.includes(c);
 
@@ -295,14 +295,16 @@ export const priceBreakdown = createSelector(
 	selectedPlanPrice,
 	(scenario, salesAgreement, currentChangeOrder, job, favorite, planPrice) =>
 	{
-		let breakdown = new PriceBreakdown();
+		const breakdown = new PriceBreakdown();
 
 		if (salesAgreement && scenario)
 		{
+			const isDesignComplete = salesAgreement.isDesignComplete;
+
 			breakdown.baseHouse = planPrice;
 			breakdown.homesite = scenario.lotPremium;
 
-			let base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
+			const base = scenario.options ? scenario.options.find(o => o.isBaseHouse) : null;
 			if (base && scenario.tree)
 			{
 				const treePoints = _.flatMap(scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
@@ -402,7 +404,7 @@ export const priceBreakdown = createSelector(
 				}
 			}
 
-			let changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
+			const changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			let salesPrice = salesAgreement.salePrice || 0;
 
 			if (salesPrice === 0 && scenario.buildMode === BuildMode.Preview)
@@ -433,7 +435,7 @@ export const priceBreakdown = createSelector(
 				}
 			});
 
-			breakdown.totalPrice = salesPrice + changePrice + breakdown.favoritesPrice;
+			breakdown.totalPrice = salesPrice + changePrice + (!isDesignComplete ? breakdown.favoritesPrice : 0);
 		}
 
 		return breakdown;
@@ -491,7 +493,7 @@ export const elevationImageUrl = createSelector(
 	{
 		let imageUrl = '';
 		let elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouseElevation) : null;
-		if (!!!elevationOption)
+		if (!!!elevationOption) 
 		{
 			elevationOption = scenario && scenario.options ? scenario.options.find(x => x.isBaseHouse) : null;
 		}
@@ -499,7 +501,7 @@ export const elevationImageUrl = createSelector(
 		if (dp)
 		{
 			const selectedChoice = dp.choices.find(x => x.quantity > 0);
-			let option: PlanOption = null;
+			const option: PlanOption = null;
 
 			if (selectedChoice)
 			{

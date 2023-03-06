@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { switchMap, map, scan, withLatestFrom, tap, filter } from 'rxjs/operators';
-import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
+import { combineLatest, Observable, of, forkJoin, from, TimeoutError } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
@@ -26,6 +26,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable()
 export class CommonEffects
@@ -80,7 +81,7 @@ export class CommonEffects
 							{
 								_.flatMap(currentChangeOrderGroup.jobChangeOrders, co => co.jobChangeOrderChoices).forEach(ch =>
 								{
-									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
+									const ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
 									if (ch1)
 									{
@@ -112,7 +113,7 @@ export class CommonEffects
 							{
 								_.flatMap(newResult.myFavorites, fav => fav.myFavoritesChoice).forEach(ch =>
 								{
-									let ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
+									const ch1 = choices.find(c => c.dpChoiceId === ch.dpChoiceId);
 
 									if (ch1)
 									{
@@ -122,7 +123,7 @@ export class CommonEffects
 
 								_.flatMap(newResult.myFavorites, fav => fav.myFavoritesPointDeclined).forEach(pt =>
 								{
-									let ptDeclined = pointsDeclined.find(p => p.dPointId === pt.dPointId);
+									const ptDeclined = pointsDeclined.find(p => p.dPointId === pt.dPointId);
 
 									if (ptDeclined)
 									{
@@ -265,7 +266,7 @@ export class CommonEffects
 					mergeTreeChoiceImages(result.choiceImages, result.tree);
 
 					//make sure base price is locked in.
-					let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
+					const baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
 
 					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
@@ -277,7 +278,7 @@ export class CommonEffects
 
 						if (result.changeOrder && result.changeOrder.salesStatusDescription !== 'Pending')
 						{
-							let co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
+							const co = result.changeOrder.jobChangeOrders.find(co => co.jobChangeOrderPlanOptions && co.jobChangeOrderPlanOptions.some(po => po.integrationKey === '00001' && po.action === 'Add'));
 
 							if (co)
 							{
@@ -295,47 +296,57 @@ export class CommonEffects
 		);
 	});
 
-	showLoadingSpinner$: Observable<any> = createEffect(
-		() => this.actions$.pipe(
-			withLatestFrom(this.store.pipe(select(showSpinner))),
-			map(([action, showSpinner]) =>
-			{
-				return showSpinner;
-			}),
-			scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
-			tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
-			{
-				if (showSpinnerScan.prev !== showSpinnerScan.current)
+	showLoadingSpinner$: Observable<{
+		prev: boolean;
+		current: boolean;
+	}> = createEffect(
+			() => this.actions$.pipe(
+				withLatestFrom(this.store.pipe(select(showSpinner))),
+				map(([action, showSpinner]) =>
 				{
-					this.spinnerService.showSpinner(showSpinnerScan.current);
-				}
-			})),
-		{ dispatch: false }
-	);
+					return showSpinner;
+				}),
+				scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
+				tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
+				{
+					if (showSpinnerScan.prev !== showSpinnerScan.current)
+					{
+						this.spinnerService.showSpinner(showSpinnerScan.current);
+					}
+				})),
+			{ dispatch: false }
+		);
 
 	hasError$: Observable<Action> = createEffect(
 		() => this.actions$.pipe(
 			scan((prev, action) =>
-			({
-				prev: prev.action,
-				action: action instanceof (ErrorAction),
-				err: action
-			}),
-				{ prev: false, action: false, err: <ErrorAction>null }
+				({
+					prev: prev.action,
+					action: action instanceof (ErrorAction),
+					err: action
+				}),
+			{ prev: false, action: false, err: <ErrorAction>null }
 			),
 			filter((errorScan: { prev: boolean; action: boolean; err: null; }) => !errorScan.prev && errorScan.action),
 			map((errorScan: { prev: boolean; action: boolean; err: null; }) =>
 			{
-				//todo: implement logging for production ???
 				this.router.navigate(['error']);
 
 				if (errorScan.err)
 				{
-					let errStack = (<ErrorAction>errorScan.err).error ?
+					const err = errorScan.err as LoadError
+					const httpError = err.error as HttpErrorResponse;
+					const errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
-					let errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
+					const errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
 					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
+					const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
+
+					if (httpError.status === 408)
+					{
+						errFrom = timeoutErrName;
+					}
 
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}

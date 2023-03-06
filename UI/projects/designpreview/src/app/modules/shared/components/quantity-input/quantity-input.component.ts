@@ -35,20 +35,20 @@ export class QuantityInputComponent
 			if (value < this.min)
 			{
 				this.currentQty = this.min;
+				this.quantityChange.emit(this.currentQty);
 			}
 			else if (value > this.max)
 			{
-				this.currentQty = null;
+				this.quantityChange.emit(null);
 			}
 			else
 			{
 				this.currentQty = value;
+				this.quantityChange.emit(this.currentQty);
 			}
 
-			this.quantityChange.emit(this.currentQty);
 			this.element.nativeElement.value = this.currentQty;
 			this.cd.detectChanges();
 		}
 	}
-
 }

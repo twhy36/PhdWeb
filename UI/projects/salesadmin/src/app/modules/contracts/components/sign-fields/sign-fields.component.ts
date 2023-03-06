@@ -170,7 +170,7 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 				signField.id = this.existingSignField ? this.existingSignField.id : 0; // ContactFinancialCommunityAuthorizedAgentAssocId
 				signField.financialCommunityId = this.selectedCommunity.id;
 
-				return this.existingSignField.authorizedAgentFullName === null ? this._contractService.saveESignField(signField) : this._contractService.updateESignField(signField);
+				return !this.existingSignField.orgId ? this._contractService.saveESignField(signField) : this._contractService.updateESignField(signField);
 			})
 		).subscribe((eSignData) =>
 		{

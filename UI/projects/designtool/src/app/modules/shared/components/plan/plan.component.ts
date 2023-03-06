@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
-import { Observable, ReplaySubject } from 'rxjs';
-import { combineLatest, map, filter, take } from 'rxjs/operators';
+import { Observable, ReplaySubject, combineLatest } from 'rxjs';
+import { map, filter, take } from 'rxjs/operators';
 
 import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity, ModalService, LotChoiceRules, ChoiceRules, PointRules, Choice, ConfirmModalComponent } from 'phd-common';
 
@@ -17,6 +17,7 @@ import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
+import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
@@ -126,15 +127,35 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.scenario.financialCommunityFilter)
 		).subscribe(filter => this.selectedFilterBy$.next(filter));
 
-		this.plans$ = this.store.pipe(
+		this.selectedPlan$ = this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.plan.plans),
-			filter(plans => !!plans),
-			combineLatest(this.store.pipe(select(state => state.lot.selectedLot ? state.lot.selectedLot.id : null)), this.selectedFilterBy$, this.selectedSortBy$),
+			select(state =>
+				{
+					this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
+
+					if (!this.selectedPlan && state.plan.selectedPlan)
+					{
+						this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
+					}
+
+					return this.selectedPlan;
+				})
+		);
+
+		this.plans$ = combineLatest([
+			this.store.pipe(select(state => state.plan.plans), filter(plans => !!plans)),
+			this.store.pipe(select(state => state.lot.selectedLot ? state.lot.selectedLot.id : null)),
+			this.selectedFilterBy$, 
+			this.selectedSortBy$
+		]).pipe(
+			this.takeUntilDestroyed(),
 			map(([plans, selectedLot, financialCommunity, sortBy]) =>
 			{
 				return plans
-					.filter(p => (financialCommunity === 0 || p.communityId === financialCommunity) && p.lotAssociations.length > 0)
+					.filter(p => {
+						return (financialCommunity === 0 || p.communityId === financialCommunity) 
+							&& p.lotAssociations.length > 0;
+					})
 					.sort(function (a, b)
 					{
 						// first group by plans that have the selected lot in its lotAssocation
@@ -167,21 +188,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.selectedPlan$ = this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state =>
-				{
-					this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
-
-					if (!this.selectedPlan && state.plan.selectedPlan)
-					{
-						this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
-					}
-
-					return this.selectedPlan;
-				})
-		);
-
 		this.selectedLot$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(selectSelectedLot)
@@ -212,14 +218,18 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromSalesAgreement.salesAgreementState),
-			combineLatest(
-				this.store.pipe(select(fromRoot.priceBreakdown)),
-				this.store.pipe(select(fromJob.jobState)),
-				this.isChangingOrder$,
-				this.selectedPlan$
-			)
-		).subscribe(([sag, pb, job, inChangeOrder, selectedPlan]) =>
+			select(state => state.lite)
+		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
+
+		combineLatest([
+			this.store.pipe(select(fromSalesAgreement.salesAgreementState)),
+			this.store.pipe(select(fromRoot.priceBreakdown)),
+			this.store.pipe(select(fromJob.jobState)),
+			this.isChangingOrder$,
+			this.selectedPlan$
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([sag, pb, job, inChangeOrder, selectedPlan]) =>
 		{
 			this.job = job;
 			this.jobPlanId = job.planId;
@@ -240,11 +250,6 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.lite)
-		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
 			select(fromRoot.priceBreakdown)
 		).subscribe(price => this.totalPrice = price.totalPrice);
 
@@ -258,15 +263,18 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.pointRules = rules?.pointRules;
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario.tree),
-			map(tree =>
-			{
-				return _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-			}),
-			combineLatest(this.selectedLot$)
-		).subscribe(([choices, lot]) =>
+		combineLatest([
+			this.store.pipe(
+				select(state => state.scenario.tree),
+				map(tree =>
+				{
+					return _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+				})			
+			),
+			this.selectedLot$
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([choices, lot]) =>
 		{
 			this.currentChoices = choices;
 
@@ -437,5 +445,12 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.router.navigate(['/edit-home', (state.scenarioId || ''), state.divDPointCatalogId]);
 		});
+	}
+
+	isLitePlanDisabled(plan: Plan) : boolean
+	{
+		return this.inChangeOrder
+			? this.isPhdLite && !!plan.treeVersionId || !this.isPhdLite && !plan.treeVersionId
+			: false;
 	}
 }

@@ -18,14 +18,14 @@ export class AttributeListComponent extends UnsubscribeOnDestroy
 	@Input() isLocationAttribute: boolean;
 	@Input() isReadonly: boolean;
 
-	@Output() onAttributeClick = new EventEmitter<Attribute>();
-	@Output() onToggleAttribute = new EventEmitter<Attribute>();
+	@Output() attributeClick = new EventEmitter<Attribute>();
+	@Output() toggleAttribute = new EventEmitter<Attribute>();
 
 	constructor() { super() }
 
-	attributeClick(attribute: Attribute)
+	clickAttributeClick(attribute: Attribute)
 	{
-		this.onAttributeClick.emit(attribute);
+		this.attributeClick.emit(attribute);
 	}
 
 	getImageSrc(attribute: Attribute): string
@@ -37,16 +37,16 @@ export class AttributeListComponent extends UnsubscribeOnDestroy
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		event.srcElement.src = 'assets/attribute-image-not-available.png';
 	}	
 
-	toggleAttribute(attribute: Attribute) 
+	clickToggleAttribute(attribute: Attribute) 
 	{
 		if (!this.isReadonly)
 		{
-			this.onToggleAttribute.emit(attribute);
+			this.toggleAttribute.emit(attribute);
 		}
 	}
 }

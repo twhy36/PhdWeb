@@ -63,9 +63,8 @@
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
-					<span class="phd-icon-selected">
-						<i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoiceClicked()"></i>
-						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoiceClicked()"></i>
+					<span>
+						<i [ngClass]="choice.isFavorite ? 'fa fa-heart phd-icon-selected' : 'fa fa-heart-o'" (click)="toggleChoiceClicked()"></i>
 					</span>
 				</div>
 			</ng-container>
@@ -102,9 +101,9 @@
 													[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
 													[isReadonly]="isReadonly"
 													[isDesignComplete]="isDesignComplete"
-													(onLocationAttributeClick)="locationAttributeClick($event)"
-													(onToggleAttribute)="toggleAttribute($event)"
-													(onQuantiyChange)="changeQuantiy($event)">
+													(locationAttributeClick)="locationAttributeClick($event)"
+													(toggleAttribute)="toggleAttribute($event)"
+													(quantityChange)="changeQuantiy($event)">
 								</attribute-location>
 							</div>
 						</ng-container>
@@ -117,8 +116,8 @@
 											[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
 											[isReadonly]="isReadonly"
 											[isDesignComplete]="isDesignComplete"
-											(onAttributeClick)="attributeClick($event)"
-											(onToggleAttribute)="toggleAttribute($event)">
+											(attributeClick)="attributeClick($event)"
+											(toggleAttribute)="toggleAttribute($event)">
 							</attribute-group>
 						</div>
 					</div>

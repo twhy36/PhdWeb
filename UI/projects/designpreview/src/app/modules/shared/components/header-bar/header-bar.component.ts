@@ -12,15 +12,15 @@ export class HeaderBarComponent extends UnsubscribeOnDestroy
 	@Input() communityName: string;
 	@Input() planName: string;
 
-	@Output() onSetTreeFilter = new EventEmitter();
+	@Output() setTreeFilter = new EventEmitter();
 	
 	constructor()
 	{
 		super();
 	}
 
-	setTreeFilter()
+	clickSetTreeFilter()
 	{
-		this.onSetTreeFilter.emit();
+		this.setTreeFilter.emit();
 	}
 }

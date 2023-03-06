@@ -19,7 +19,7 @@ export class ClickDirective
 		}
 
 		const container = this.getContainerName(targetElement);
-		let text, element;
+		let text: string, element: string;
 
 		if (targetElement?.className?.includes('phd-empty-checkbox') || targetElement?.className?.includes('fa-check-square'))
 		{

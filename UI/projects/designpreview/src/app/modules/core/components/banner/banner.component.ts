@@ -11,7 +11,8 @@ export class BannerComponent
 {
 	constructor(private brandService: BrandService) { }
 
-	getBannerImage(position: number) {
+	getBannerImage(position: number) 
+	{
 		return this.brandService.getBannerImage(position);
 	}
 }

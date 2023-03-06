@@ -22,6 +22,7 @@
 		color: var(--nav-bar-text-color);
 		margin-left: 30px;
 		width: max-content;
+		margin-top: 9px;
 
 		.phd-nav-bar-label {
 			font-size: 14px;
@@ -78,6 +79,10 @@
 		}
 	}
 
+	.phd-links-list {
+		margin-top: 19px;
+	}
+
 	.phd-active-link-collapsed {
 		background: $twilight-blue;
 	}
@@ -93,7 +98,6 @@
 	z-index: 100;
 	overflow-x: hidden;
 	transition: 0.5s;
-	padding-bottom: 15px;
 
 	a {
 		font-size: 20px;
@@ -101,7 +105,8 @@
 		display: block;
 		text-transform: uppercase;
 		text-decoration: none;
-		padding: 15px 8px 15px 32px;
+		padding: 15px 8px 15px 0px;
+		margin-left: -10px;
 	}
 
 	.phd-collapsable-menu-link-full {

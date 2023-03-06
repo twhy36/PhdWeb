@@ -31,6 +31,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	releaseForm: FormGroup;
 	agreementLocked: boolean;
+	isQMIIncentive: boolean = false;
 
 	// Is the side panel open...
 	isOpen: boolean = true;
@@ -59,6 +60,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	ngOnInit()
 	{
 		this.agreementLocked = this.selectedSalesProgram ? this.selectedSalesProgram.agreementLocked : false;
+		this.isQMIIncentive = this?.selectedSalesProgram?.name === 'Quick Move-in Incentive';
 		this.createForm();
 	}
 
@@ -69,7 +71,18 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	get canSave(): boolean
 	{
-		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving;
+		return this.releaseForm.pristine || !this.releaseForm.valid || this.saving || this.validateIfSpecDiscount();
+	}
+
+	//Check to see if the name of the Sales Program contains 'Quick Move In Incentive'
+	validateIfSpecDiscount(): boolean
+	{
+		const hasQuick = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('quick') > -1;
+		const hasMove = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('move') > -1;
+		const hasIn = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('in') > -1;
+		const hasIncentive = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('incentive') > -1;
+
+		return hasQuick && hasMove && hasIn && hasIncentive;
 	}
 
 	convertDate(date)
@@ -113,6 +126,14 @@ export class SalesProgramsSidePanelComponent implements OnInit
 			this.releaseForm.get('salesProgramType').disable();
 			this.releaseForm.get('maximumAmount').disable();
 			this.releaseForm.get('name').disable();
+		}
+		else if (this.isQMIIncentive)
+		{
+			this.releaseForm.get('salesProgramType').disable();
+			this.releaseForm.get('name').disable();
+			this.releaseForm.get('startDate').disable();
+			this.releaseForm.get('endDate').disable();
+			this.releaseForm.get('isPMCAffiliate').disable();
 		}
 
 		// we have to set the min date AFTER creating the form controls,

@@ -1,6 +1,7 @@
 <div>
-	<header-bar [communityName]="communityName"
-			   [planName]="planName">
+	<header-bar
+		[communityName]="communityName"
+		[planName]="planName">
 	</header-bar>
 </div>
 
@@ -10,8 +11,8 @@
 			<included-decision-bar
 				[tree]="filteredTree"
 				[points]="points"
-				(onSelectDecisionPoint)="selectDecisionPoint($event)" 
-				(onSelectSubGroup)="selectSubGroup($event)">
+				(selectDecisionPoint)="selectDecisionPoint($event)" 
+				(selectSubGroup)="selectSubGroup($event)">
 			</included-decision-bar>
 		</div>
 		<div class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
@@ -44,8 +45,7 @@
 														[isPresale]="buildMode === 'presale'"
 														[isIncludedOptions]="true"
 														(toggled)="choiceToggleHandler($event)"
-														(onSelectDecisionPoint)="selectDecisionPoint($event)"
-														(onViewChoiceDetail)="viewChoiceDetail($event)">
+														(viewChoiceDetail)="viewChoiceDetail($event)">
 												</choice-card>
 											</ng-container>
 										</div>

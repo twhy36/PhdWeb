@@ -1,20 +1,20 @@
 <div id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
 	<div class="d-flex flex-row flex-grow-1 phd-action-icons">
-		<div class="d-flex phd-clickable" (click)="onHomePage()">
+		<a href="" (click)="$event.preventDefault(); onHomePage();" class="d-flex phd-clickable">
 			<i class="fa fa-home fa-2x"></i>
 			<span class="align-self-center">Home</span>
-		</div>
+		</a>
 
-		<div *ngIf="showPrint" class="d-flex phd-clickable" (click)="onPrint()">
+		<button *ngIf="showPrint" class="d-flex phd-clickable" (click)="onPrint()">
 			<i class="fa fa-print fa-2x"></i>
 			<span class="align-self-center">Print</span>
-		</div>
+		</button>
 
-		<div *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
+		<a href="" *ngIf="showFavorites" class="d-flex phd-clickable" (click)="$event.preventDefault(); onViewFavorites();">
 			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
-		</div>
-		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options" (click)="toggleContractedOptions()">
+		</a>
+		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options" (click)="clickToggleContractedOptions()">
 			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }">
 				<button 
 					class="btn btn-sm btn-toggle btn-auto-approval"
@@ -44,7 +44,7 @@
 		</div>
 	</ng-container>
 	<div *ngIf="primaryAction">
-		<button #btnActionBar title="{{isEllipsisActive() ? primaryAction : null}}" [class.phd-btn-fixed-width]="isFixedWidth" class="btn btn-lg phd-action-bar-action-btn" (click)="onPrimaryCallToActionClick()">{{primaryAction}}</button>
+		<a #btnActionBar href="" title="{{isEllipsisActive() ? primaryAction : null}}" [class.phd-btn-fixed-width]="isFixedWidth" class="btn btn-lg phd-action-bar-action-btn" (click)="$event.preventDefault(); onPrimaryCallToActionClick();">{{primaryAction}}</a>
 	</div>
 </div>
 

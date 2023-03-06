@@ -12,7 +12,7 @@ export class PlanCommunity
 	brandId: number;
 
 
-	constructor(dto: any)
+	constructor(dto)
 	{
 		this.planCommunityId = dto.id;
 		this.dTreeVersionId = dto.dTreeVersionId;

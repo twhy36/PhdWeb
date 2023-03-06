@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { Observable, of } from 'rxjs';
-import { switchMap, map, combineLatest } from 'rxjs/operators';
+import { combineLatest, Observable, of } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 import { PlanActionTypes, LoadSelectedPlan, SelectedPlanLoaded, LoadError } from './actions';
 import { ErrorFrom, tryCatch } from '../error.action';
@@ -20,61 +20,74 @@ export class PlanEffects
 		private treeService: TreeService
 	) { }
 
-	loadSelectedPlan$: Observable<Action> = createEffect(() => {
+	loadSelectedPlan$: Observable<Action> = createEffect(() => 
+	{
 		return this.actions$.pipe(
 			ofType<LoadSelectedPlan>(PlanActionTypes.LoadSelectedPlan),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action => 
+				{
 					return this.planService.getSelectedPlan(action.planId).pipe(
-						map(plans => {
+						map(plans => 
+						{
 							return { plans, planPrice: action.planPrice }
 						})
 					);
 				}),
-				switchMap(result => {
-					if (result.plans && result.plans.length) {
+				switchMap(result => 
+				{
+					if (result.plans && result.plans.length) 
+					{
 						let includedPlanOptions: string[] = [];
 						const baseHouseKey = '00001';
 						const plan = result.plans[0];
 
 						return this.treeService.getTreeVersions(plan.integrationKey, plan.communityId).pipe(
-							switchMap(treeVersions => {
-								if (treeVersions && treeVersions.length) {
+							switchMap(treeVersions => 
+							{
+								if (treeVersions && treeVersions.length) 
+								{
 									includedPlanOptions = treeVersions[0].includedOptions;
 									plan.treeVersionId = treeVersions[0].id;
 									includedPlanOptions.push(baseHouseKey);
 
-									return this.optionService.getPlanOptions(plan.id, includedPlanOptions, true)
-										.pipe(
-											combineLatest(this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)),
-											map(([optionsResponse, optionImages]) => {
-												if (optionsResponse && optionsResponse.length > 0) {
-													// DEVNOTE: currently only returning where baseHouseKey = '00001'
-													// In a future sprint, we'll be pushing more id's from the treeVersion.include options.
-													plan.price = result.planPrice || optionsResponse[0].listPrice;
-												}
+									return combineLatest([
+										this.optionService.getPlanOptions(plan.id, includedPlanOptions, true),
+										this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)
+									]).pipe(
+										map(([optionsResponse, optionImages]) => 
+										{
+											if (optionsResponse && optionsResponse.length > 0) 
+											{
+												// DEVNOTE: currently only returning where baseHouseKey = '00001'
+												// In a future sprint, we'll be pushing more id's from the treeVersion.include options.
+												plan.price = result.planPrice || optionsResponse[0].listPrice;
+											}
 
-												plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
-													? optionImages[0].imageURL : '';
+											plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
+												? optionImages[0].imageURL : '';
 
-												return result.plans;
-											})
-										);
+											return result.plans;
+										})
+									);
 								}
-								else {
+								else 
+								{
 									return of(result.plans);
 								}
 							})
 						);
 					}
-					else {
+					else 
+					{
 						return of(result.plans);
 					}
 				}),
-				switchMap(plans => {
+				switchMap(plans => 
+				{
 					return <Observable<Action>>of(new SelectedPlanLoaded(plans));
 				})
-			), LoadError, "Error loading selected plan!!", ErrorFrom.LoadSelectedPlan)
+			), LoadError, 'Error loading selected plan!!', ErrorFrom.LoadSelectedPlan)
 		);
 	});
 }

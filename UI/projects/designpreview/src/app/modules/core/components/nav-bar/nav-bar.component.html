@@ -4,21 +4,21 @@
 			<div class="phd-nav-bar-header phd-clickable">
 				<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="onHomePage()">
 			</div>
-			<div class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
+			<h1 class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
 				<span class="phd-nav-bar-label">Design Preview</span>
 				<span class="phd-nav-bar-config">{{welcomeText}}</span>
-			</div>
+			</h1>
 		</div>
 
 		<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)" *ngIf="displayBrandedMenu">
-			<div>
+			<ul class="phd-links-list">
 				<a *ngIf="showMyFavoritesLink"
 					id="myFavoritesLink"
 					class="phd-nav-page phd-page-separator"
 					[class.phd-active-link-full]="isLaunchedInBuyerPreview"
 					[routerLink]="['/favorites/summary']"
-					[queryParams]="{ presale: sessionStorage.getItem('presale_token') }"
 					[routerLinkActive]="['phd-active-link-full']"
+					queryParamsHandling="merge"
 					(click)="toFavoritesPage ? onViewFavorites() : false">
 					My Favorites
 				</a>
@@ -27,25 +27,27 @@
 					class="phd-nav-page"
 					[ngClass]="showContractedOptionsLink ? 'phd-page-separator' : ''"
 					[routerLink]="['/floorplan']"
-					[routerLinkActive]="['phd-active-link-full']">
+					[routerLinkActive]="['phd-active-link-full']"
+					queryParamsHandling="merge">
 					Floorplan
 				</a>
 				<a *ngIf="showContractedOptionsLink"
 					id="contractedOptionsLink"
 					class="phd-nav-page"
 					[routerLink]="['/contracted']" 
-					[routerLinkActive]="['phd-active-link-full']">
+					[routerLinkActive]="['phd-active-link-full']"
+					queryParamsHandling="merge">
 					Contracted Options
 				</a>
 				<a *ngIf="showIncludedOptionsLink"
 					id="includedOptionsLink"
 					class="phd-nav-page"
 					[routerLink]="['/included']"
-					[queryParams]="{ presale: sessionStorage.getItem('presale_token') }"
-					[routerLinkActive]="['phd-active-link-full']">
+					[routerLinkActive]="['phd-active-link-full']"
+					queryParamsHandling="merge">
 					Included Options
 				</a>
-			</div>
+			</ul>
 		</div>
 		<div class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu">
 			<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
@@ -55,15 +57,23 @@
 </nav>
 
 <div *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
-	<div [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
-		<a *ngIf="showMyFavoritesLink" [routerLink]="['/favorites/summary']"
+	<ul [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
+		<a *ngIf="showMyFavoritesLink"
+			[routerLink]="['/favorites/summary']"
 			[routerLinkActive]="['phd-collapsable-menu-link-full']"
-			[class.phd-collapsable-menu-link-full]="isLaunchedInBuyerPreview">My Favorites</a>
-		<a *ngIf="showFloorplanLink" [routerLink]="['/floorplan']"
-			[routerLinkActive]="['phd-collapsable-menu-link-full']">Floorplan</a>
-		<a *ngIf="showContractedOptionsLink" [routerLink]="['/contracted']"
-			[routerLinkActive]="['phd-collapsable-menu-link-full']">Contracted Options</a>
-		<a *ngIf="showIncludedOptionsLink" [routerLink]="['/included']"
-			[routerLinkActive]="['phd-collapsable-menu-link-full']">Included Options</a>
-	</div>
+			[class.phd-collapsable-menu-link-full]="isLaunchedInBuyerPreview"
+			queryParamsHandling="merge">My Favorites</a>
+		<a *ngIf="showFloorplanLink"
+			[routerLink]="['/floorplan']"
+			[routerLinkActive]="['phd-collapsable-menu-link-full']"
+			queryParamsHandling="merge">Floorplan</a>
+		<a *ngIf="showContractedOptionsLink"
+			[routerLink]="['/contracted']"
+			[routerLinkActive]="['phd-collapsable-menu-link-full']"
+			queryParamsHandling="merge">Contracted Options</a>
+		<a *ngIf="showIncludedOptionsLink"
+			[routerLink]="['/included']"
+			[routerLinkActive]="['phd-collapsable-menu-link-full']"
+			queryParamsHandling="merge">Included Options</a>
+	</ul>
 </div>

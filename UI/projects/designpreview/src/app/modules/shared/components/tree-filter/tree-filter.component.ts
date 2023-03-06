@@ -14,7 +14,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 })
 export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	@Output() onSetTreeFilter = new EventEmitter();
+	@Output() setTreeFilter = new EventEmitter();
 
 	keyword: string = '';
 	filterType: string = 'All';
@@ -27,7 +27,8 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromScenario.selectScenario),
-		).subscribe(scenario => {
+		).subscribe(scenario => 
+		{
 			this.treeFilter = scenario.treeFilter || { filterType: 'All', keyword: '' };
 			this.filterType = this.treeFilter.filterType;
 			this.keyword = this.treeFilter.keyword;
@@ -41,7 +42,7 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			const search = { filterType: this.filterType, keyword: this.keyword };
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(search));
-			this.onSetTreeFilter.emit();
+			this.setTreeFilter.emit();
 		}
 	}
 
@@ -50,10 +51,11 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 		this.keyword = '';
 		this.filterType = 'All';
 
-		if (!this.treeFilter || this.treeFilter.keyword !== this.keyword) {
+		if (!this.treeFilter || this.treeFilter.keyword !== this.keyword) 
+		{
 			const clearFilter = { filterType: this.filterType, keyword: this.keyword };
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(clearFilter));
-			this.onSetTreeFilter.emit();
+			this.setTreeFilter.emit();
 		}
 	}
 

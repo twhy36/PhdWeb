@@ -15,10 +15,9 @@ export class GroupBarComponent extends UnsubscribeOnDestroy
 	@Input() groups: Group[];
 	@Input() selectedSubGroupId: number;
 
-	@Output() onSubgroupSelected = new EventEmitter<number>();
-	@Output() onSetTreeFilter = new EventEmitter();
+	@Output() subgroupSelected = new EventEmitter<number>();
+	@Output() setTreeFilter = new EventEmitter();
 
-	highlightedStyle: any = { 'font-weight': 'bold' };
 	completedStatuses = [PointStatus.COMPLETED, PointStatus.PARTIALLY_COMPLETED];
 	widthLimit: number = 1025;
 	currInnerWidth: number = this.widthLimit;
@@ -28,20 +27,24 @@ export class GroupBarComponent extends UnsubscribeOnDestroy
 	@ViewChild('hamburgerMenuTrigger') hamburgerTrigger; 
 	@ViewChildren(MatMenuTrigger) trigger: QueryList<MatMenuTrigger>;
 	
-	@HostListener("window:resize", ["$event"])
+	@HostListener('window:resize', ['$event'])
 
-	onResize(event) {
+	onResize(event) 
+	{
 		this.currInnerWidth = event.target.innerWidth;
 		
-		//Catch the resize event of when the standard group-bar links disappear and the hamburger menu appears
-		if ((this.prevInnerWidth >= this.widthLimit) && (this.currInnerWidth < this.widthLimit)) {
-			for (let item of this.trigger.toArray()) {	//Close any open sub-menu's from the standard group-bar links
+		// Catch the resize event of when the standard group-bar links disappear and the hamburger menu appears
+		if ((this.prevInnerWidth >= this.widthLimit) && (this.currInnerWidth < this.widthLimit)) 
+		{
+			for (const item of this.trigger.toArray()) 
+			{	//Close any open sub-menu's from the standard group-bar links
 				item.closeMenu();
 			}
 		}
 		
-		//Catch the resize event of when the hamburger menu disappears and the standard group-bar links appear
-		if ((this.prevInnerWidth < this.widthLimit) && (this.currInnerWidth >= this.widthLimit)) {
+		// Catch the resize event of when the hamburger menu disappears and the standard group-bar links appear
+		if ((this.prevInnerWidth < this.widthLimit) && (this.currInnerWidth >= this.widthLimit)) 
+		{
 			this.hamburgerTrigger.closeMenu();	//When the hamburger menu disappears, make its sub-menus also disappear
 		}
 		
@@ -49,20 +52,22 @@ export class GroupBarComponent extends UnsubscribeOnDestroy
 	}
 	
 	constructor()
-    {
+	{
 		super();
 	}
 
-	selectSubgroup(sgId: number) {
-		this.onSubgroupSelected.emit(sgId);
+	selectSubgroup(sgId: number) 
+	{
+		this.subgroupSelected.emit(sgId);
 	}
 
-	isGroupSelected(groupId: number) : boolean {
+	isGroupSelected(groupId: number) : boolean 
+	{
 		return this.groups.some(g => g.id === groupId && g.subGroups.some(sg => sg.id === this.selectedSubGroupId));
 	}
 
-	setTreeFilter()
+	clickSetTreeFilter()
 	{
-		this.onSetTreeFilter.emit();
+		this.setTreeFilter.emit();
 	}
 }

@@ -75,7 +75,7 @@
 .phd-ifp {
 	margin: auto;
 	padding-top: 30px;
-	height: 80vh;
+	height: 76vh;
 }
 
 .phd-floorplan-disclaimer {
@@ -143,6 +143,10 @@
 		margin-top: 0cm;
 	}
 
+	.group {
+		page-break-inside: avoid;
+	}
+
 	.point {
 		page-break-inside: avoid;
 	}
@@ -166,8 +170,12 @@
 		height: 9in;
 	}
 
-	.phd-print-footer, .phd-print-footer-space {
+	.phd-print-footer {
 		height: 1.5in;
+	}
+
+	.phd-print-footer-space {
+		height: 2in;
 	}
 
 	.phd-print-footer {

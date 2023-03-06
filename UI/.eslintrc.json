@@ -4,20 +4,13 @@
 	"overrides": [
 		{
 			"files": [
-				"*.action.ts",
-				"*.class.ts",
-				"*.directive.ts",
-				"*.component.ts",
-				"*.model.ts",
-				"*.module.ts",
-				"*.pipe.ts",
-				"*.service.ts",
-				"*.util.ts"
+				"*.ts"
 			],
 			"parserOptions": {
 				"project": [
-					"tsconfig.json"
+					"tsconfig.*.json"
 				],
+				"sourceType": "module",
 				"createDefaultProgram": true
 			},
 			"extends": [
@@ -28,8 +21,8 @@
 				"brace-style": ["error", "allman", { "allowSingleLine": true }],
 				"camelcase": ["error", { "properties": "always" }],
 				"indent": ["error", "tab"],
-				"quotes": ["error", "single"],
 				"prefer-const": "error",
+				"quotes": ["error", "single"],
 				"@angular-eslint/component-selector": [
 					"error",
 					{

@@ -85,7 +85,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 			combineLatest([
 				this.store.pipe(select(state => state?.favorite)),
 				this.store.pipe(select(fromRoot.filteredTree)),
-					this.store.pipe(select(state => state.nav)),
+				this.store.pipe(select(state => state.nav)),
 			]).subscribe(([fav, tree, nav]) =>
 			{
 				if (fav && tree && !this.pageLoadExecuted)
@@ -113,6 +113,10 @@ export class AdobeService extends UnsubscribeOnDestroy
 					else if (page === 'FavoritesSummary')
 					{
 						this.setPageLoadEvent(this.pageLoadExecuted, 'Favorites Summary Page', 'Favorites Summary', '', '');
+					}
+					else if (page === 'IncludedOptions')
+					{
+						this.setPageLoadEvent(this.pageLoadExecuted, 'Included Options Page', 'Included Options', '', '');
 					}
 					else if (page === 'ChoiceDetail')
 					{
@@ -160,8 +164,8 @@ export class AdobeService extends UnsubscribeOnDestroy
 			{
 				if (!adobeLoadInitialized && org?.salesCommunity?.market?.name && communityName && communityId && planData)
 				{
-					let pageLoadEvent = new PageLoadEvent();
-					let baseUrl = window.location.host;
+					const pageLoadEvent = new PageLoadEvent();
+					const baseUrl = window.location.host;
 
 					pageLoadEvent.page.pageType = pageType;
 					pageLoadEvent.page.pageURL = baseUrl + window.location.pathname;
@@ -241,7 +245,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 			postSaveFavoriteChoices.forEach(res =>
 			{
-				let resChoice = res as MyFavoritesChoice;
+				const resChoice = res as MyFavoritesChoice;
 
 				if (resChoice)
 				{
@@ -258,8 +262,8 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setFavoriteEvent(choice: AdobeChoice, groups: Group[], favoriteChoices: MyFavoritesChoice[])
 	{
-		let favoriteEvent = new FavoriteEvent();
-		let favoriteUpdateEvent = new FavoriteUpdateEvent();
+		const favoriteEvent = new FavoriteEvent();
+		const favoriteUpdateEvent = new FavoriteUpdateEvent();
 
 		window['appEventData'] = window['appEventData'] || [];
 
@@ -283,7 +287,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 			}
 			else if (choice.attributes.length > 0 && choice.locations.length === 0 && !choice.attributes[0].removed)
 			{
-				let attribute = choice.attributes[0];
+				const attribute = choice.attributes[0];
 				favoriteUpdateEvent.favorite = favoriteEvent.favorite;
 
 				favoriteUpdateEvent.favorite.attribute = attribute.attributeGroupLabel + ' | ' + attribute.attributeName;
@@ -299,8 +303,8 @@ export class AdobeService extends UnsubscribeOnDestroy
 			}
 			else if (choice.attributes.length === 0 && choice.locations.length > 0 && !choice.locations[0].removed)
 			{
-				let location = choice.locations[0];
-				let nestedAttribute = location.attributes[0];
+				const location = choice.locations[0];
+				const nestedAttribute = location.attributes[0];
 
 				favoriteUpdateEvent.favorite = favoriteEvent.favorite;
 
@@ -324,7 +328,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 	{
 		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
 		{
-			let errorEvent = new ErrorEvent(error);
+			const errorEvent = new ErrorEvent(error);
 
 			window['appEventData'] = window['appEventData'] || [];
 

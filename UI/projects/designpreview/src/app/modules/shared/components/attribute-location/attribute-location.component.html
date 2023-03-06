@@ -21,8 +21,8 @@
 							[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
 							[isReadonly]="isReadonly"
 							[isDesignComplete]="isDesignComplete"
-							(onAttributeClick)="attributeClick($event)"
-							(onToggleAttribute)="attributeGroupSelected($event)">
+							(attributeClick)="attributeClick($event)"
+							(toggleAttribute)="attributeGroupSelected($event)">
 			</attribute-group>
 		</ng-container>
 	</div>
@@ -30,18 +30,17 @@
 </div>
 
 <ng-template #maxQuantityModal let-c="close" let-d="dismiss">
-	<div class="modal-header">
-		<span class="modal-title"></span>
-		<button type="button" class="close" aria-label="Close" (click)="closeClicked()">
-			<span aria-hidden="true">&times;</span>
-		</button>
+	<div aria-label="Max Quantity Modal">
+		<div class="modal-header">
+			<span class="modal-title"></span>
+			<button type="button" class="close" aria-label="Close" (click)="closeClicked()">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="modal-body">
+			<div>You won't need that many for your home. Max quantity is {{maxQuantity !== null ? maxQuantity : 0}}.</div>
+		</div>
+		<div class="modal-footer">
+		</div>
 	</div>
-	<div class="modal-body">
-		<div>You won't need that many for your home. Max quantity is {{maxQuantity !== null ? maxQuantity : 0}}.</div>
-	</div>
-	<div class="modal-footer">
-	</div>
-
-
-
 </ng-template>

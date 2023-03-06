@@ -40,7 +40,6 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
-	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
 	selectedOption: PlanViewModel = null;
@@ -147,7 +146,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 							this._orgService.getFinancialCommunityInfo(this.orgId),
 							this._orgService.getWebsiteCommunity(comm?.salesCommunityId),
 							this._orgService.getSalesCommunity(comm?.salesCommunityId),
-							this._brandService.getFinancialBrand(this.financialCommunity.financialBrandId, this.environment.apiUrl)
+							this._brandService.getFinancialBrand(this.financialCommunity.financialBrandId, environment.apiUrl)
 						]);
 					}
 				}
@@ -240,12 +239,12 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this.commmunityLinkEnabledDirty = false;
 		this.previewEnabledDirty = false;
 
-		let ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
-		let earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
+		const ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
+		const earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
 
 		this.communitySettingsForm = new FormGroup({
 			'ecoeMonths': new FormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
-			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern("^[0-9]*$")])
+			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern('^[0-9]*$')])
 		}, []);
 	}
 
@@ -255,8 +254,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty) && this.communitySettingsForm.valid)
 		{
-			let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
-			let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
+			const ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
+			const earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
 
 			if (this.financialCommunityInfo)
 			{
@@ -392,7 +391,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	private loadPlansAndHomeSites()
 	{
-		let fc = this.selectedCommunity;
+		const fc = this.selectedCommunity;
 
 		if (!fc.inited)
 		{
@@ -404,9 +403,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId);
 
 			// get promise plans for the financial community
-			let plansObs = this._planService.getCommunityPlans(commId);
+			const plansObs = this._planService.getCommunityPlans(commId);
 
-			let obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
+			const obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
 			{
 				fc.lots = lotDto.filter(l => l.lotStatusDescription !== 'Closed').map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
 				fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);

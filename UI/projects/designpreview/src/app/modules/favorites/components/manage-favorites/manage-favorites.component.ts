@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Router } from "@angular/router";
+import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -24,7 +24,7 @@ import { AdobeService } from '../../../core/services/adobe.service';
 export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	favoriteForm: FormGroup;
-	favoriteNameInput: string = "";
+	favoriteNameInput: string = '';
 	favoriteList: MyFavorite[];
 	isDuplicateName: boolean = false;
 	salesAgreementId: number = 0;
@@ -36,22 +36,25 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		private modalService: NgbModal,
 		private favoriteService: FavoriteService,
 		private adobeService: AdobeService)
-    {
+	{
 		super();
 	}
 
-	ngOnInit() {
+	ngOnInit() 
+	{
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromSalesAgreement.salesAgreementState)
-		).subscribe(sag => {
+		).subscribe(sag => 
+		{
 			this.salesAgreementId = sag ? sag.id : 0;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.favoriteState)
-		).subscribe(fav => {
+		).subscribe(fav => 
+		{
 			this.favoriteList = fav.myFavorites;
 		});
 
@@ -59,29 +62,38 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		this.store.dispatch(new CommonActions.ResetFavorites());
 	}
 
-	createForm() {
+	createForm() 
+	{
 		this.favoriteForm = new FormGroup({
 			'favoriteName': new FormControl(this.favoriteNameInput,
 				[Validators.maxLength(50), Validators.required])
 		});
 	}
 
-	createFavorite() {
+	createFavorite() 
+	{
 		const favoriteName = this.favoriteForm.get('favoriteName').value.trim();
 
-		if (favoriteName && favoriteName.length > 0) {
-			if (this.favoriteList?.findIndex(x => x.name.toLowerCase() === favoriteName.toLowerCase()) > -1) {
+		if (favoriteName && favoriteName.length > 0) 
+		{
+			if (this.favoriteList?.findIndex(x => x.name.toLowerCase() === favoriteName.toLowerCase()) > -1) 
+			{
 				this.isDuplicateName = true;
-			} else {
+			}
+			else 
+			{
 				this.favoriteService.saveMyFavorite(0, favoriteName, this.salesAgreementId)
-					.subscribe(favorite => {
-						if (favorite) {
+					.subscribe(favorite => 
+					{
+						if (favorite) 
+						{
 							this.favoriteForm.reset();
 							this.store.dispatch(new FavoriteActions.MyFavoriteCreated(favorite));
 							this.router.navigateByUrl(`/favorites/my-favorites/${favorite.id}`);
 						}
 					},
-					error => {
+					error => 
+					{
 						const msg = 'Failed to create favorites list!';
 						this.toastr.error(msg, 'Error');
 						this.adobeService.setErrorEvent(msg);
@@ -90,11 +102,13 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		}
 	}
 
-	onKeyup() {
+	onKeyup() 
+	{
 		this.isDuplicateName = false;
 	}
 
-	get saveDisabled(): boolean {
+	get saveDisabled(): boolean 
+	{
 		return this.favoriteList && this.favoriteList.length >= 3;
 	}
 
@@ -107,21 +121,21 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 
 	deleteFavorite(fav: MyFavorite)
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		const ngbModalOptions: NgbModalOptions = {
 			centered: true,
 			backdrop: 'static',
 			keyboard: false
 		};
 
-		let msgBody = 'This will permanently delete your list.';
+		const msgBody = 'This will permanently delete your list.';
 
-		let confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
+		const confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
 
 		confirm.componentInstance.title = 'WARNING';
 		confirm.componentInstance.body = msgBody;
 		confirm.componentInstance.defaultOption = 'Continue';
 
-		this.adobeService.setAlertEvent(confirm.componentInstance.title + " " + confirm.componentInstance.body, 'Delete Favorite List Alert');
+		this.adobeService.setAlertEvent(confirm.componentInstance.title + ' ' + confirm.componentInstance.body, 'Delete Favorite List Alert');
 
 		confirm.result.then((result) =>
 		{
@@ -130,9 +144,9 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 				this.store.dispatch(new FavoriteActions.DeleteMyFavorite(fav));
 			}
 		}, (reason) =>
-			{
+		{
 
-			});
+		});
 	}
 
 }

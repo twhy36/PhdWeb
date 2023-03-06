@@ -109,11 +109,17 @@
 						}
 					}
 
-					.phd-additional-selections {
+					.phd-summary-additional-selections {
+						font-size: 10px;
 						cursor: pointer;
 						color: var(--link-color);
 						text-decoration: underline;
+					}
+
+					.phd-contracted-additional-selections {
 						font-size: 10px;
+						text-decoration: none;
+						color: black;
 					}
 
 					.phd-choice-action-label {

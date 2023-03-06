@@ -1,14 +1,18 @@
 <ng-container>
-	<div class="modal-header" [class.modal-center-title]="isTitleCentered">
-		<span class="modal-title">{{title}}</span>
-		<button *ngIf="isCloseable" type="button" class="close" aria-label="Close" (click)="activeModal.close()">
-			<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	<div class="modal-body">
-		<div [innerHTML]="body"></div>
-		<button type="button" class="btn btn-md modal-button" (click)="activeModal.close('Back')" [class.btn-secondary]="defaultOption !== 'Back'" [class.btn-primary]="defaultOption === 'Back'">
-			<span>{{ buttonText }}</span>
-		</button>
+	<div aria-label="Info Modal">
+		<div class="modal-header" [class.modal-center-title]="isTitleCentered">
+			<h1 class="modal-title">{{title}}</h1>
+			<button *ngIf="isCloseable" type="button" class="close" aria-label="Close" (click)="activeModal.close()">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="modal-body">
+			<div [innerHTML]="body"></div>
+			<a>
+				<button type="button" class="btn btn-md modal-button" (click)="activeModal.close('Back')" [class.btn-secondary]="defaultOption !== 'Back'" [class.btn-primary]="defaultOption === 'Back'">
+					<span>{{ buttonText }}</span>
+				</button>
+			</a>
+		</div>
 	</div>
 </ng-container>

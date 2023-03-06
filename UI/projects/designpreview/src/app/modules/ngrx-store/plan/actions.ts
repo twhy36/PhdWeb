@@ -15,37 +15,43 @@ export enum PlanActionTypes
 	SetWebPlanMapping = 'Set Web Plan Mapping',
 }
 
-export class SelectPlan implements Action {
-    readonly type = PlanActionTypes.SelectPlan;
+export class SelectPlan implements Action 
+{
+	readonly type = PlanActionTypes.SelectPlan;
 
-    constructor(public planId: number, public treeVersionId: number, public marketingPlanId?: number[]) { }
+	constructor(public planId: number, public treeVersionId: number, public marketingPlanId?: number[]) { }
 }
 
-export class PlansLoaded implements Action {
-    readonly type = PlanActionTypes.PlansLoaded;
+export class PlansLoaded implements Action 
+{
+	readonly type = PlanActionTypes.PlansLoaded;
 
-    constructor(public plans: Array<Plan>) { }
+	constructor(public plans: Array<Plan>) { }
 }
 
-export class LoadSelectedPlan implements Action {
+export class LoadSelectedPlan implements Action 
+{
 	readonly type = PlanActionTypes.LoadSelectedPlan;
 
 	constructor(public planId: number, public planPrice?: number) { }
 }
 
-export class SelectedPlanLoaded implements Action {
+export class SelectedPlanLoaded implements Action 
+{
 	readonly type = PlanActionTypes.SelectedPlanLoaded;
 
 	constructor(public plans: Array<Plan>) { }
 }
 
-export class LoadError extends ErrorAction {
+export class LoadError extends ErrorAction 
+{
 	readonly type = PlanActionTypes.LoadError;
 
 	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
 }
 
-export class SetWebPlanMapping implements Action {
+export class SetWebPlanMapping implements Action 
+{
 	readonly type = PlanActionTypes.SetWebPlanMapping;
 
 	constructor(public marketingPlanId: number[]) { }

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, R
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import * as _ from 'lodash';
-import { Choice, DecisionPoint, DesignToolAttribute, flipOver, FloorPlanImage, loadScript, ModalRef, ModalService, MyFavoritesChoice, PriceBreakdown, ScenarioStatusType, SubGroup, TreeFilter, unloadScript, UnsubscribeOnDestroy } from 'phd-common';
+import { Choice, DecisionPoint, DesignToolAttribute, flipOver, FloorPlanImage, loadScript, ModalRef, ModalService, MyFavoritesChoice, PriceBreakdown, ScenarioStatusType, SubGroup, TreeFilter, unloadScript, UnsubscribeOnDestroy, DecisionPointFilterType } from 'phd-common';
 import { Subject, Subscription, timer } from 'rxjs';
 import { combineLatest, flatMap, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
@@ -15,7 +15,6 @@ import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/acti
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
-import { DecisionPointFilterType } from '../../models/decisionPointFilter';
 
 declare var AVFloorplan: any;
 
@@ -75,14 +74,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	useDefaultFP: boolean = false;
 	jobId: number;
 	buildMode: string;
-	favoriteChoices: MyFavoritesChoice[];	
+	favoriteChoices: MyFavoritesChoice[];
 
 	get fpFloors()
 	{
 		return this.isValidFp ? this.fp.floors : [];
 	}
 
-	get isValidFp() : boolean
+	get isValidFp(): boolean
 	{
 		return this.fpLoaded && this.fp?.graphic;
 	}
@@ -106,21 +105,25 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioId)),
 					this.store.pipe(select(state => state.job.id))
 				)
-			).subscribe(([first, agreementId, scenarioId, jobId]) => {
+			).subscribe(([first, agreementId, scenarioId, jobId]) =>
+			{
 				this.jobId = jobId;
 				this.salesAgreementId = agreementId;
-				this.scenarioId = scenarioId;				
+				this.scenarioId = scenarioId;
 
-				if (!this.canEditAgreement && !this.fpLoaded) {
+				if (!this.canEditAgreement && !this.fpLoaded)
+				{
 					if (!this.jobId)
 					{
-						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p => {
+						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p =>
+						{
 							this.handleStaticImages(p);
 						});
 					}
 					else
 					{
-						this.jobService.getFloorPlanImages(this.jobId, false).subscribe(p => {
+						this.jobService.getFloorPlanImages(this.jobId, false).subscribe(p =>
+						{
 							this.handleStaticImages(p);
 						});
 					}
@@ -128,7 +131,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			});
 		});
 
-		
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped),
@@ -147,10 +150,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec),
-			withLatestFrom(				
+			withLatestFrom(
 				this.store.pipe(select((fromRoot.canConfigure)))
 			)
-		).subscribe(([canEditAgreement,canConfigure]) =>
+		).subscribe(([canEditAgreement, canConfigure]) =>
 		{
 
 			this.canEditAgreement = canEditAgreement && (canConfigure);
@@ -273,7 +276,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		// The div container causes magnification of the SVG, so append the pure SVG element instead
 		this.renderer.appendChild(this.img.nativeElement, svgContainer.firstChild);
-	}	
+	}
 
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)
 	{
@@ -438,7 +441,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	}
 
 	swapHanding()
-	{		
+	{
 		// If there is a sales agreement, save the flipped preference
 		if (this.salesAgreementId && this.salesAgreementId > 0)
 		{
@@ -462,11 +465,11 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			this.store.dispatch(new ScenarioActions.IsFloorplanFlippedScenario(!this.isFloorplanFlipped));
 		}
-		
+
 	}
 
 	handleFlip(isAgreementFlipped: boolean, isScenarioFlipped: boolean)
-	{				
+	{
 		const isFlipped: boolean = (!!this.salesAgreementId ? isAgreementFlipped : isScenarioFlipped) || false;
 
 		// we need to set the floorplan direction, but if there's a salesagreementinfo value for it, then override the value scenario might have set
@@ -594,7 +597,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			const svgs = this.fp.exportStaticSVG();
 
-			this.fp.floors.forEach((f, idx) => {
+			this.fp.floors.forEach((f, idx) =>
+			{
 				f.svg = svgs[idx].outerHTML;
 			});
 
@@ -651,5 +655,5 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.fp.setOptionsColor('#48A5F1');
 		this.fp.addHomeFootPrint('#eaf1fc');
 	}
-	
+
 }

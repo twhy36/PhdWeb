@@ -14,6 +14,7 @@
 					   [isJobPlan]="!inChangeOrder && jobPlanId === plan.id"
 					   [isSpecSelected]="!inChangeOrder && job && job.id !== 0"
 					   [canConfigure]="canConfigure"
+					   [isLitePlanDisabled]="isLitePlanDisabled(plan)"
 			           (onTogglePlan)="toggleSelection($event)"></plan-card>
 		</div>
 	</ng-container>

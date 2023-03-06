@@ -1,16 +1,15 @@
-import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef } from '@angular/core';
 import * as _ from 'lodash';
-import { Observable, Subject, timer } from 'rxjs';
-import { combineLatest, flatMap, map, switchMap } from 'rxjs/operators';
+import { combineLatest, Observable, Subject, timer } from 'rxjs';
+import { map, mergeMap, switchMap } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group, FloorPlanImage } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
-import { JobService } from '../../../core/services/job.service';
 
-declare var AVFloorplan: any;
+declare var AVFloorplan;
 
 @Component({
 	selector: 'floor-plan',
@@ -19,34 +18,33 @@ declare var AVFloorplan: any;
 })
 export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, OnDestroy, OnChanges
 {
-	@ViewChild('av_floor_plan') img: any;
+	@ViewChild('av_floor_plan') img: ElementRef;
 
 	@Input() height: string = '100%';
 	@Input() planId$: Observable<number>;
-	@Input() selectedFloor: any;
+	@Input() selectedFloor;
 	@Input() subGroup: SubGroup;
 	@Input() isFlipped: boolean;
 	@Input() isPresavedFloorplan: boolean = false;
 	@Input() isPlainFloorplan: boolean = false;
-	@Input() ifpID: string = "av-floor-plan";
+	@Input() ifpID: string = 'av-floor-plan';
 
-	@Output() onFloorPlanLoaded = new EventEmitter();
-	@Output() onFloorPlanSaved = new EventEmitter<FloorPlanImage[]>();
+	@Output() floorPlanLoaded = new EventEmitter();
+	@Output() floorPlanSaved = new EventEmitter<FloorPlanImage[]>();
 
-	fp: any;
+	fp;
 	private readonly avAPISrc = '//apps.alpha-vision.com/api/floorplanAPIv2.3.js';
 	private readonly jquerySrc = '//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js';
 	planId: number = 0;
 	subGroup$ = new Subject<SubGroup>();
-	initialized$ = new Subject<any>();
+	initialized$ = new Subject();
 	jobId: number;
 	enabledOptions: number[] = [];
 	unfilteredGroups: Group[];
 	floorPlanImages: FloorPlanImage[] = [];
 
 	constructor(
-		private store: Store<fromRoot.State>,
-		private jobService: JobService
+		private store: Store<fromRoot.State>
 	)
 	{
 		super();
@@ -54,13 +52,11 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	ngOnInit(): void
 	{
-		let wd: any = window;
-
-		wd.message = function (str) { };
+		window['message'] = function (str) { };
 
 		loadScript(this.jquerySrc).pipe(
-			flatMap(() => loadScript(this.avAPISrc)),
-			flatMap(() => this.planId$)
+			mergeMap(() => loadScript(this.avAPISrc)),
+			mergeMap(() => this.planId$)
 		).subscribe(planId =>
 		{
 			if (planId > 0 && this.planId !== planId)
@@ -69,9 +65,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 				try
 				{
-					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
+					this.fp = window['fp'] = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
 
-					if (this.floorPlanImages.length === 0) {
+					if (this.floorPlanImages.length === 0) 
+					{
 						this.saveFloorPlanImages();
 					}
 				}
@@ -93,7 +90,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		})
 
 		// On subGroup Changes (ie when a choice is favorited) this can modify the ifp image based on the options
-		this.subGroup$.pipe(combineLatest(this.initialized$),
+		combineLatest([
+			this.subGroup$,
+			this.initialized$
+		]).pipe(
 			switchMap(([subGroup]) =>
 				this.store.pipe(
 					select(state => state.scenario),
@@ -122,19 +122,28 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 					}
 				});
 
+				let changed = false;
+
 				_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
 				{
+					changed = true;
 					this.fp.disableOption(opt);
 				});
 
 				_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
 				{
+					changed = true;
 					this.fp.enableOption(opt);
 				});
 
 				if (this.selectedFloor && this.selectedFloor.id)
 				{
 					this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
+				}
+
+				if (changed)
+				{
+					this.saveFloorPlanImages();
 				}
 			}
 		});
@@ -150,12 +159,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		unloadScript('code.jquery.com', 'jQuery', '$');
 		unloadScript('alpha-vision.com', 'AVFloorplan');
 
-		this.saveFloorPlanImages();
-
-		let wd: any = window;
-
-		delete wd.message;
-		delete wd.fp;
+		delete window['message'];
+		delete window['fp'];
 
 		super.ngOnDestroy();
 	}
@@ -178,7 +183,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.fp.setRoomsColor('#080049');
 		this.fp.setOptionsColor('#48A5F1');
 		this.fp.addHomeFootPrint('#eaf1fc');
-		this.onFloorPlanLoaded.emit(this.fp);
+		this.floorPlanLoaded.emit(this.fp);
 		this.fp.graphic.flip(this.isFlipped || false);
 		this.initialized$.next();
 		this.initialized$.complete();
@@ -186,15 +191,24 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	saveFloorPlanImages()
 	{
-		// floor plan image save functionality in here
+		if (!this.fp)
+		{
+			return;
+		}
+
+		// save floorplan images to onFloorPlanSaved event
 		timer(1000).subscribe(() =>
 		{
-			let floorPlanSvgs = this.fp?.exportStaticSVG();
-			let floorPlanImages = [];
-
+			const floorPlanSvgs = this.fp?.exportStaticSVG();
+			const floorPlanImages = [];
 			this.fp.floors.forEach(floor =>
+			{
+				if (!floorPlanSvgs[floor.index]?.outerHTML)
 				{
-				let image = new FloorPlanImage({
+					return;
+				}
+
+				const image = new FloorPlanImage({
 					floorName: floor.name,
 					floorIndex: floor.index,
 					svg: floorPlanSvgs[floor.index]?.outerHTML
@@ -202,9 +216,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 				floorPlanImages.push(image);
 			})
-			this.floorPlanImages = floorPlanImages;
 
-			this.store.dispatch(new ScenarioActions.SaveFloorPlanImages(this.floorPlanImages));
+			if (!floorPlanImages.length)
+			{
+				return;
+			}
+
+			this.floorPlanImages = floorPlanImages;
+			this.floorPlanSaved.emit(floorPlanImages);
 		});
 	}
 }

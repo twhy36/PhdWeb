@@ -22,13 +22,12 @@ import
 {
 	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice, DecisionPointFilterType
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
 
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
-import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 
 // PHD Lite
@@ -905,7 +904,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					const choice = treeChoices.find(c => c.divChoiceCatalogId === comparedOpt.divChoiceCatalogID);
 
-					if (choice && choice.quantity && choice.divChoiceCatalogId !== deselectedChoice.divChoiceCatalogId)
+					if (choice && choice.quantity && choice.divChoiceCatalogId !== deselectedChoice?.divChoiceCatalogId)
 					{
 						// #364540 This choice is only impacted if no replace rule is satisfied
 						const option = this.options.find(opt => opt.id === comparedOpt.edhPlanOptionID);
@@ -920,11 +919,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							const clonedChoices = _.cloneDeep(treeChoices.filter(tc => _.flatMap(replaceRules, rr => rr.choices).map(rrc => rrc.id).includes(tc.id)))
 								.map(cc =>
 								{
-									if (cc.id === deselectedChoice.id)
+									if (cc.id === deselectedChoice?.id)
 									{
 										cc.quantity = 0;
 									}
-									else if (cc.id === selectedChoice.id && selectedChoice.id !== deselectedChoice.id)
+									else if (cc.id === selectedChoice.id && selectedChoice.id !== deselectedChoice?.id)
 									{
 										cc.quantity = 1;
 									}

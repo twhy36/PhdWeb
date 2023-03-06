@@ -17,14 +17,14 @@ export function reducer(state: State = initialState, action: Action): State
 {
 	switch (action.type)
 	{
-		case CommonActionTypes.SalesAgreementLoaded:
-			{
-				const saAction = action as SalesAgreementLoaded;
-				return { ...state, ...saAction.job, jobLoading: false, loadError: false };
-			}
+	case CommonActionTypes.SalesAgreementLoaded:
+	{
+		const saAction = action as SalesAgreementLoaded;
+		return { ...state, ...saAction.job, jobLoading: false, loadError: false };
+	}
 
-		default:
-			return state;
+	default:
+		return state;
 	}
 }
 

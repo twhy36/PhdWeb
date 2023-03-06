@@ -1794,11 +1794,11 @@ export class TreeService
 	muChoiceUpdate(selectedPlans: DivCatWizPlan[], selectedChoices: DivCatWizChoice[]): Observable<DivCatWizPlan[]>
 	{
 		const body = {
-			"plans": selectedPlans.map(plan =>
+			'plans': selectedPlans.map(plan =>
 			{
 				return { financialCommunityId: plan.financialCommunityId, financialPlanIntegrationKey: plan.financialPlanIntegrationKey };
 			}),
-			"choices": selectedChoices.map(c =>
+			'choices': selectedChoices.map(c =>
 			{
 				return { id: c.id, action: c.action.toString() };
 			})

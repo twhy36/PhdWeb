@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ActionReducer } from '@ngrx/store';
 
 import { LoadSalesAgreement } from './actions';
@@ -10,16 +11,23 @@ import * as fromSalesAgreement from './sales-agreement/reducer';
 import * as fromJob from './job/reducer';
 import * as fromChangeOrder from './change-order/reducer';
 import * as fromFavorite from './favorite/reducer';
+import { LoadPresale, LoadPreview } from './scenario/actions';
 
 /**
  * Reset action to its initial state excluding 'app' for LoadSalesAgreement
  * @param reducer
  */
-export function stateReset(reducer: ActionReducer<any>): ActionReducer<any> {
-	return function (state, action) {
+export function stateReset(reducer: ActionReducer<any>): ActionReducer<any>
+{
+	return function (state, action)
+	{
 		let newState = state;
 
-		if ((action instanceof LoadSalesAgreement && action.clearState)) {
+		if ((action instanceof LoadSalesAgreement
+			|| action instanceof LoadPreview
+			|| action instanceof LoadPresale)
+			&& action.clearState)
+		{
 			newState = {
 				...state,
 				salesAgreement: fromSalesAgreement.initialState,

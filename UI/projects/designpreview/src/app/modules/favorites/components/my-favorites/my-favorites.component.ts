@@ -1,6 +1,8 @@
+import { Location } from '@angular/common';
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
+import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 import { BehaviorSubject } from 'rxjs';
 import { map, filter, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators';
@@ -18,11 +20,13 @@ import
 	JobChoice,
 	getDependentChoices,
 	DecisionPoint,
-	ChoiceImageAssoc,
 	MyFavoritesChoice,
 	MyFavoritesPointDeclined,
 	Choice,
-	PickType
+	PickType,
+	ModalRef,
+	ModalService,
+	NavigationService
 }
 	from 'phd-common';
 
@@ -39,9 +43,9 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 import { GroupBarComponent } from '../../../shared/components/group-bar/group-bar.component';
 import { NormalExperienceComponent } from './normal-experience/normal-experience.component';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
-import { TreeService } from '../../../core/services/tree.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
-import { Location } from '@angular/common';
+
+import { TermsAndConditionsComponent } from '../../../core/components/terms-and-conditions/terms-and-conditions.component';
 
 @Component({
 	selector: 'my-favorites',
@@ -82,6 +86,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	noVisibleGroups: boolean = false;
 	noVisibleFP: boolean = false;
 	unfilteredPoints: DecisionPoint[] = [];
+	termsAndConditionsModal: ModalRef;
+	showTermsAndConditionsModal: boolean = true;
+	previousUrl: string;
 
 	get nextSubGroup(): SubGroup
 	{
@@ -103,14 +110,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
-		private treeService: TreeService,
-		private location: Location)
+		private modalService: ModalService,
+		private location: Location,
+		private navService: NavigationService)
 	{
 		super();
 	}
 
 	ngOnInit()
 	{
+		this.previousUrl = this.navService.getPreviousUrl();
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
@@ -129,6 +139,26 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			distinctUntilChanged(),
+			select(fromApp.showTermsAndConditions),
+		).subscribe(showTermsAndConditions => 
+		{
+			this.showTermsAndConditionsModal = showTermsAndConditions;
+		});
+
+		if (this.showTermsAndConditionsModal) 
+		{
+			const ngbModalOptions: NgbModalOptions =
+			{
+				centered: true,
+				backdrop: 'static',
+				keyboard: false
+			};
+			this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
+		}
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(fromRoot.filteredTree)
 		).subscribe(tree =>
 		{
@@ -138,7 +168,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				if (!this.groups.length)
 				{
 					this.noVisibleGroups = true;
-				} else
+				}
+				else
 				{
 					this.noVisibleGroups = false;
 				}
@@ -200,11 +231,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 						//this happens if the subgroup has been filtered out of the tree - find a new subgroup to navigate to
 						if (!!this.selectedSubgroupId)
 						{
-							let origGroup = groups.find(g => g.subGroups.some(sg => sg.id === this.selectedSubgroupId));
+							const origGroup = groups.find(g => g.subGroups.some(sg => sg.id === this.selectedSubgroupId));
 
 							if (origGroup)
 							{
-								let origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
+								const origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
 
 								if (origSg)
 								{
@@ -216,7 +247,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
-						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
+						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
 					}
 					else
 					{
@@ -252,7 +283,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				const subGroup = filteredTree.groups[0].subGroups[0];
 
-				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
+				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
 			}
 		});
 
@@ -277,10 +308,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				if (!!this.selectedSubGroup)
 				{
-					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
-				} else
+					this.router.navigate(['..', this.selectedSubGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
+				}
+				else
 				{
-					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParams: { presale: sessionStorage.getItem('presale_token') } });
+					this.router.navigate(['..', subGroup?.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
 				}
 			}
 		});
@@ -342,15 +374,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 					if (fpSubGroup)
 					{
 						this.marketingPlanId$.next(plan.marketingPlanId[0]);
-					} else
+					}
+					else
 					{
 						this.noVisibleFP = true;
 					}
-				} else
+				}
+				else
 				{
 					this.noVisibleFP = true;
 				}
-			} else
+			}
+			else
 			{
 				this.noVisibleFP = true;
 			}
@@ -395,16 +430,17 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (!!this.nextSubGroup)
 		{
 			this.groupBar.selectSubgroup(this.nextSubGroup.id);
-		} else
+		}
+		else
 		{
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-			this.router.navigate(['favorites', 'summary'], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'summary'], { queryParamsHandling: 'merge' });
 		}
 	}
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		const selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
@@ -435,7 +471,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	deselectPointChoices(declinedPointCatalogId: number)
 	{
-		let deselectedChoices = [];
+		const deselectedChoices = [];
 
 		const points = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
 		const pointDeclined = points.find(p => p.divPointCatalogId === declinedPointCatalogId);
@@ -472,7 +508,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	viewChoiceDetail(choice: ChoiceExt)
 	{
-		this.router.navigate(['..', this.selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { relativeTo: this.route, queryParams: { presale: sessionStorage.getItem('presale_token') } });
+		this.router.navigate(['..', this.selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { relativeTo: this.route, queryParamsHandling: 'merge' });
 	}
 
 	hideDetails(sgId?: number)
@@ -485,18 +521,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const newSubgroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === sgId);
 			const firstPoint = newSubgroup?.points[0] || null;
 
-			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(sgId, firstPoint.id, null));
 		}
 		else
 		{
 			if (this.router.url.includes('included/options/'))
 			{
-				this.router.navigate(['included'], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+				this.router.navigate(['included'], { queryParamsHandling: 'merge' });
 			}
 			else
 			{
-				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 			}
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
 		}
@@ -514,6 +550,18 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let subGroupName = '';
 		let pointName = '';
+		if (this.previousUrl && this.previousUrl.length)
+		{
+			if (this.previousUrl.includes('favorites/summary'))
+			{
+				return 'My Favorites';
+			}
+
+			if (this.previousUrl.includes('/included'))
+			{
+				return 'Included Options';
+			}
+		}
 
 		if (this.selectedSubGroup)
 		{
@@ -590,7 +638,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
-		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)

@@ -1,5 +1,5 @@
+import { PointStatusFilter } from 'phd-common';
 import { SummaryActions, SummaryActionTypes } from './actions';
-import { PointStatusFilter } from '../../shared/models/decisionPointFilter';
 
 export interface State
 {

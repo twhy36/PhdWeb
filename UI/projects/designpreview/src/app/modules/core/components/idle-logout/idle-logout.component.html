@@ -1,18 +1,20 @@
-<div class="modal-header">
-	<span class="modal-title">You're About To Be Signed Out</span>
-</div>
-<div class="modal-body">
-	<div >You've been inactive for a while. For your security, you will be signed out in:</div>
-	<div class="phd-signout-countdown">: {{countdown | number:'2.0'}}</div>
-</div>
-
-<div class="modal-footer">
-	<button type="button" class="btn btn-sm btn-primary" (click)="close('Continue')">
-		<span class="fa fa-fw fa-check"></span>
-		<span class="">Stay Signed In</span>
-	</button>
-	<button type="button" class="btn btn-sm ml-auto btn-secondary" (click)="close('Logout')">
-		<span class="fa fa-fw fa-close"></span>
-		<span class="phd-signout-text">Sign Out</span>
-	</button>
+<div aria-label="Idle Logout Modal">
+	<div class="modal-header">
+		<h1 class="modal-title">You're About To Be Signed Out</h1>
+	</div>
+	<div class="modal-body">
+		<div >You've been inactive for a while. For your security, you will be signed out in:</div>
+		<div class="phd-signout-countdown">: {{countdown | number:'2.0'}}</div>
+	</div>
+	
+	<div class="modal-footer">
+		<button type="button" class="btn btn-sm btn-primary" (click)="close('Continue')">
+			<span class="fa fa-fw fa-check" aria-hidden="true"></span>
+			<span class="">Stay Signed In</span>
+		</button>
+		<button type="button" class="btn btn-sm ml-auto btn-secondary" (click)="close('Logout')">
+			<span class="fa fa-fw fa-close" aria-hidden="true"></span>
+			<span class="phd-signout-text">Sign Out</span>
+		</button>
+	</div>
 </div>

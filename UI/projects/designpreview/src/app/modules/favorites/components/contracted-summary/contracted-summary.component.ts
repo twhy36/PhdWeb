@@ -28,17 +28,20 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>, 
-		private location: Location) {
-			super();
-		}
+		private location: Location) 
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.contractedTree)
-		).subscribe(tree => {
-			if (tree) {
+		).subscribe(tree => 
+		{
+			if (tree) 
+			{
 				this.groups = this.getGroupExts(tree.groups);
 			}
 		});
@@ -51,14 +54,16 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.favoriteState)
-		).subscribe(fav => {
+		).subscribe(fav => 
+		{
 			this.salesChoices = fav && fav.salesChoices;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
-		).subscribe((scenario) => {
+		).subscribe((scenario) => 
+		{
 			this.isPreview = scenario.buildMode === BuildMode.Preview;
 			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
@@ -71,7 +76,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 
 	displayPoint(dp: DecisionPoint)
 	{
-		if (dp.isHiddenFromBuyerView) {
+		if (dp.isHiddenFromBuyerView) 
+		{
 			return false;
 		}
 		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
@@ -81,7 +87,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 
 	getGroupExts(groups: Group[]) : GroupExt[]
 	{
-		return groups.map(g => {
+		return groups.map(g => 
+		{
 			return new GroupExt(g);
 		})
 	}

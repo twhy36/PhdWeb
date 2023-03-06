@@ -4,7 +4,7 @@ import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { select, Store } from '@ngrx/store';
 
-import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy } from 'phd-common';
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService } from 'phd-common';
 import { withLatestFrom } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
@@ -12,11 +12,9 @@ import { default as build } from './build.json';
 
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
 import { InfoModalComponent } from './modules/shared/components/info-modal/info-modal.component';
-import { TermsAndConditionsComponent } from './modules/core/components/terms-and-conditions/terms-and-conditions.component';
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 import * as fromRoot from './modules/ngrx-store/reducers';
-import * as fromApp from './modules/ngrx-store/app/reducer';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
 import { BuildMode } from './modules/shared/models/build-mode.model';
 
@@ -44,7 +42,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		return build.version;
 	}
-
+	
+	//navService is needed here to initalize the routing history, please do not remove
 	constructor(
 		private idle: Idle,
 		private store: Store<fromRoot.State>,
@@ -52,7 +51,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
-		@Inject(DOCUMENT) private doc: any) 
+		private navService: NavigationService, // This needs to be initialized here to properly trace browser history
+		@Inject(DOCUMENT) private doc: Document) 
 	{
 		super();
 
@@ -80,22 +80,6 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
 			}
 		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromApp.showTermsAndConditions)
-		).subscribe(showTermsAndConditions => 
-		{
-			if (showTermsAndConditions) 
-			{
-				const ngbModalOptions: NgbModalOptions = {
-					centered: true,
-					backdrop: 'static',
-					keyboard: false
-				};
-				this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
-			}
-		});
 	}
 
 	ngOnInit()
@@ -105,7 +89,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		this.setAdobeAnalytics();
 
 		//popup warning only once when user browser is not supported
-		let needBrowserCheck = sessionStorage.getItem('supportedBrowserChecked') == null ||
+		const needBrowserCheck = sessionStorage.getItem('supportedBrowserChecked') == null ||
 			(sessionStorage.getItem('supportedBrowserChecked') && sessionStorage.getItem('supportedBrowserChecked').toLowerCase() !== 'true');
 		if (needBrowserCheck && !this.isSupportedBrowser() && !this.isDevEnvironment()) 
 		{
@@ -131,7 +115,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.idle.clearInterrupts();
 
-			let ngbModalOptions: NgbModalOptions = {
+			const ngbModalOptions: NgbModalOptions =
+			{
 				centered: true,
 				backdrop: 'static',
 				keyboard: false
@@ -208,7 +193,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 	displayBrowserModal(): void 
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		const ngbModalOptions: NgbModalOptions =
+		{
 			centered: true,
 			backdrop: true,
 			beforeDismiss: () => false

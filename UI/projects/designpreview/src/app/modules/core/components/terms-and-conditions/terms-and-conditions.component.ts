@@ -23,7 +23,7 @@ export class TermsAndConditionsComponent extends ModalContent implements OnInit
 
 	get headerText(): string 
 	{
-		return this.isPresale ? 'Welcome and we hope you enjoy personalizing your future home!' : 'Welcome!' 
+		return this.isPresale ? 'Welcome and we hope you enjoy personalizing your future home!' : 'Welcome!'  
 	}
 
 	ngOnInit()
@@ -44,7 +44,7 @@ export class TermsAndConditionsComponent extends ModalContent implements OnInit
 		});
 	}
 
-	close(result?: any)
+	close(result?: string)
 	{
 		if (result === 'Got It') 
 		{

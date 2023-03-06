@@ -19,6 +19,7 @@ export class PlanCardComponent implements OnInit
 	@Input() isJobPlan: boolean;
 	@Input() canConfigure: boolean;
 	@Input() isSpecSelected: boolean;
+	@Input() isLitePlanDisabled: boolean;
 
 	@Output() onTogglePlan = new EventEmitter<{ plan: Plan, lot: LotExt, isSelected: boolean }>();
 
@@ -69,6 +70,10 @@ export class PlanCardComponent implements OnInit
 		{
 			btnLabel = 'Unselect';
 		}
+		else if (this.isLitePlanDisabled)
+		{
+			btnLabel = 'Disabled';
+		}		
 		else if (!this.isJobPlan || this.isSpecSelected)
 		{
 			btnLabel = 'CHOOSE';

@@ -28,10 +28,10 @@
 						[isPresale]="isPresale"
 						[isDesignComplete]="isDesignComplete"
 						[unfilteredPoints]="unfilteredPoints"
-						(onToggleChoice)="choiceToggleHandler($event)"
-						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onDeclineDecisionPoint)="declineDecisionPoint($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)">
+						(toggleChoice)="choiceToggleHandler($event)"
+						(viewChoiceDetail)="viewChoiceDetailHandler($event)"
+						(declineDecisionPoint)="declineDecisionPointHandler($event)"
+						(selectDecisionPoint)="selectDecisionPointHandler($event)">
 					</detailed-decision-bar>
 				</ng-container>
 			</div>
@@ -58,7 +58,7 @@
 					[selectedFloor]="selectedFloor"
 					[subGroup]="subGroup"
 					[isFlipped]="isFloorplanFlipped"
-					(onFloorPlanLoaded)="loadFloorPlan($event)"
+					(floorPlanLoaded)="loadFloorPlan($event)"
 				>
 				</floor-plan>
 			</ng-container>

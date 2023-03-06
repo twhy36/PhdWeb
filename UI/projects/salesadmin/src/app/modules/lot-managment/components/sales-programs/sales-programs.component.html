@@ -18,8 +18,7 @@
 	<div class="phd-page-body">
 		<div class="my-3 phd-filter-body">
 			<div class="pull-right mr-3">
-				<button class="btn btn-primary" (click)="create();" [disabled]="loading" *ngIf="canEdit">Create Sales
-					Program</button>
+				<button class="btn btn-primary" (click)="create();" [disabled]="loading" *ngIf="canEdit">Create Sales Program</button>
 			</div>
 		</div>
 
@@ -37,7 +36,11 @@
 							*ngIf="canEdit"></i>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Sales Program Name" field="name"></phd-column>
+				<phd-column header="Sales Program Name" field="name">
+					<ng-template #body let-item>
+						<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''">{{item.name}}</span>
+					</ng-template>
+				</phd-column>
 				<phd-column header="Type" field="salesProgramType"></phd-column>
 				<phd-column header="Discount" field="maximumAmount">
 					<ng-template #body let-item>

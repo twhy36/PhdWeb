@@ -6,14 +6,16 @@ import { BrandDisplayMode, BrandService } from '../../core/services/brand.servic
 
 export class AuthConfigSelector extends Observable<AuthConfig> 
 {
-    constructor(private authService: AuthService, private brandService: BrandService)
-    {
-        super(subscriber => {
-            this.authService.getAuthConfig().subscribe(config => {
-                config.logoutUrl = this.brandService.getBrandName(BrandDisplayMode.LogoutUrl);
-                subscriber.next(config);
-                subscriber.complete();
-            })
-        });
-    }
+	constructor(private authService: AuthService, private brandService: BrandService)
+	{
+		super(subscriber => 
+		{
+			this.authService.getAuthConfig().subscribe(config => 
+			{
+				config.logoutUrl = this.brandService.getBrandName(BrandDisplayMode.LogoutUrl);
+				subscriber.next(config);
+				subscriber.complete();
+			})
+		});
+	}
 }

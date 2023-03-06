@@ -9,6 +9,7 @@ import { isChoiceAttributesComplete } from '../utils/utils.class';
 
 import * as _ from 'lodash';
 import { TimeOfSaleOptionPrice } from '../models/time-of-sale-option-price.model';
+import { DecisionPointFilterType } from '../models/decisionPointFilter';
 
 export function findPoint(tree: Tree, predicate: (point: DecisionPoint) => boolean)
 {
@@ -722,12 +723,18 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--)
 			{
-				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
+				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions?.length
 					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
-					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
+					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity))
+						|| (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))
+					// #389738
+					// If a replacing option is locked in to a choice, disregard this replace rule
+					// since the rule may have been added to the tree after the agreement
+					&& optRule.choices.some(c => !find(c.id)?.lockedInOptions?.map(lio => lio.optionId).includes(optRule.optionId))
+				);
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
-				if (filteredOptRules && filteredOptRules.length) 
+				if (filteredOptRules?.length) 
 				{
 					const removedMapping = choice.lockedInOptions.splice(i, 1);
 
@@ -1020,25 +1027,40 @@ export function setPointStatus(point: DecisionPoint)
 	}
 }
 
-export function setSubgroupStatus(subGroup: SubGroup)
+function getFilteredPoint(p: DecisionPoint, selectedPointFilter: DecisionPointFilterType)
 {
-	if (!subGroup.points || subGroup.points.every(p => !p.enabled))
+	switch (selectedPointFilter)
+	{
+		case DecisionPointFilterType.QUICKQUOTE:
+			return p.isQuickQuoteItem;
+		case DecisionPointFilterType.DESIGN:
+			return !p.isStructuralItem;
+		case DecisionPointFilterType.STRUCTURAL:
+			return p.isStructuralItem;
+		default: // if filter type not provided, assume FULL
+			return p;
+	}
+}
+
+export function setSubgroupStatus(subGroup: SubGroup, selectedPointFilter?: DecisionPointFilterType)
+{
+	if (!subGroup.points || subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => !p.enabled))
 	{
 		subGroup.status = PointStatus.CONFLICTED;
 	}
-	else if (subGroup.points.some(p => p.status === PointStatus.REQUIRED))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).some(p => p.status === PointStatus.REQUIRED))
 	{
 		subGroup.status = PointStatus.REQUIRED;
 	}
-	else if (subGroup.points.some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).some(p => p.status === PointStatus.PARTIALLY_COMPLETED))
 	{
 		subGroup.status = PointStatus.PARTIALLY_COMPLETED;
 	}
-	else if (subGroup.points.every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.status === (PointStatus.COMPLETED) || p.status === (PointStatus.CONFLICTED)))
 	{
 		subGroup.status = PointStatus.COMPLETED;
 	}
-	else if (subGroup.points.every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
 	{
 		subGroup.status = PointStatus.VIEWED;
 	}

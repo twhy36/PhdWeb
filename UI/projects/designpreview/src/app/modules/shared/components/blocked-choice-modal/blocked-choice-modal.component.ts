@@ -14,7 +14,7 @@ import { BlockedByItemList } from '../../models/blocked-by.model';
 export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() disabledByList: { pointDisabledByList: BlockedByItemList, choiceDisabledByList: BlockedByItemList }
-	= { pointDisabledByList: null, choiceDisabledByList: null };
+		= { pointDisabledByList: null, choiceDisabledByList: null };
 	@Input() choiceLabel: string;
 
 	@Output() closeModal = new EventEmitter();
@@ -26,20 +26,21 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	choices: Choice[];
 
 	constructor(private adobeService: AdobeService,
-				private store: Store<fromRoot.State>) {
-					super();
+				private store: Store<fromRoot.State>) 
+	{
+		super();
 				 }
 
 	ngOnInit(): void
 	{
-		let modalText =
+		const modalText =
 			this.choiceLabel
 			+ ' Blocked by: '
 			+ this.disabledByList?.pointDisabledByList?.andChoices?.map(c => c.label)?.join(', ')
 			+ this.disabledByList?.pointDisabledByList?.andPoints?.map(p => p.label)?.join(', ')
 			+ this.disabledByList?.pointDisabledByList?.orChoices?.map(c => c.label)?.join(', ')
 			+ this.disabledByList?.pointDisabledByList?.orPoints?.map(p => p.label)?.join(', ');
-			+ ' AND '
+		+ ' AND '
 			+ this.disabledByList?.choiceDisabledByList?.andChoices?.map(c => c.label)?.join(', ')
 			+ this.disabledByList?.choiceDisabledByList?.andPoints?.map(p => p.label)?.join(', ')
 			+ this.disabledByList?.choiceDisabledByList?.orChoices?.map(c => c.label)?.join(', ')
@@ -50,8 +51,10 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state?.scenario),
-		).subscribe((scenario) => {
-			if (scenario && scenario.tree?.treeVersion) {
+		).subscribe((scenario) => 
+		{
+			if (scenario && scenario.tree?.treeVersion) 
+			{
 				// check for unfiltered tree 
 				this.tree = scenario.tree.treeVersion;
 				this.points = _.flatMap(this.tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];

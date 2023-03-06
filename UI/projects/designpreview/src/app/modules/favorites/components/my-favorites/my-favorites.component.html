@@ -3,8 +3,8 @@
 			   [planName]="planName"
 			   [groups]="groups"
 			   [selectedSubGroupId]="selectedSubgroupId"
-			   (onSubgroupSelected)="onSubgroupSelected($event)"
-			   (onSetTreeFilter)="treeFilterChanged()">
+			   (subgroupSelected)="onSubgroupSelected($event)"
+			   (setTreeFilter)="treeFilterChanged()">
 	</group-bar>
 </div>
 <div class="phd-my-favorites">
@@ -22,10 +22,10 @@
 						[isPresale]="isPresale"
 						[noVisibleGroups]="noVisibleGroups"
 						[unfilteredPoints]="unfilteredPoints"
-						(onToggleChoice)="toggleChoice($event)"
-						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)"
-						(onDeclineDecisionPoint)="declineDecisionPoint($event)"
+						(toggleChoice)="toggleChoice($event)"
+						(viewChoiceDetail)="viewChoiceDetail($event)"
+						(selectDecisionPoint)="selectDecisionPoint($event)"
+						(declineDecisionPoint)="declineDecisionPoint($event)"
 						>
 		</normal-experience>
 	</ng-container>
@@ -48,10 +48,10 @@
 						[noVisibleGroups]="noVisibleGroups"
 						[noVisibleFP]="noVisibleFP"
 						[unfilteredPoints]="unfilteredPoints"
-						(onToggleChoice)="toggleChoice($event)"
-						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)"
-						(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+						(toggleChoice)="toggleChoice($event)"
+						(viewChoiceDetail)="viewChoiceDetail($event)"
+						(selectDecisionPoint)="selectDecisionPoint($event)"
+						(declineDecisionPoint)="declineDecisionPoint($event)">
 		</floor-plan-experience>
 	</ng-container>
 	<ng-container *ngIf="showDetails">
@@ -80,5 +80,5 @@
 			[hideContractedToggle]="showDetails"
 			[isFixedWidth]="nextSubGroup && nextSubGroup.label.length > 0"		
 			(callToAction)="showDetails ? onBackClicked() : onNextClicked()"
-			(onToggleContractedOptions)="toggleContractedOptions()">
+			(toggleContractedOptions)="toggleContractedOptions()">
 </action-bar>

@@ -19,9 +19,9 @@ export class JobService
 
 	loadJob(jobId: number, salesAgreementId?: number): Observable<Job>
 	{
-		let newRequest = (filter: string, select: string, expand: string): Observable<IJob> =>
+		const newRequest = (filter: string, select: string, expand: string): Observable<IJob> =>
 		{
-			let url = `${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`;
+			const url = `${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`;
 
 			return withSpinner(this._http).get(url).pipe(
 				map(response => response['value'][0] as IJob),
@@ -68,7 +68,7 @@ export class JobService
 			newRequest(filter, 'id', `jobChoices($select=${jobChoicesSelect};$expand=jobChoiceAttributes($select=id),jobChoiceLocations($select=id;$expand=jobChoiceLocationAttributes($select=id)),jobChoiceJobPlanOptionAssocs($select=id))`),
 			newRequest(filter, 'id', `jobChoices($select=id;$filter=jobChoiceAttributes/any();$expand=jobChoiceAttributes($select=${jobChoiceAttributesSelect}))`),
 			newRequest(filter, 'id', `jobChoices($select=id;$expand=jobChoiceLocations($select=${jobChoiceLocationsSelect};$expand=jobChoiceLocationAttributes($select=${jobChoiceLocationAttributesSelect})))`),
-			newRequest(filter, 'id', `jobChoices($select=id;$expand=jobChoiceJobPlanOptionAssocs)`),
+			newRequest(filter, 'id', 'jobChoices($select=id;$expand=jobChoiceJobPlanOptionAssocs)'),
 			newRequest(filter, 'id', `jobPlanOptions($select=${jobPlanOptionsSelect};$expand=jobPlanOptionAttributes($select=id),jobPlanOptionLocations($select=id;$expand=jobPlanOptionLocationAttributes($select=id)),planOptionCommunity($select=${planOptionCommunitySelect};$expand=optionCommunity($select=${optionCommunitySelect};$expand=option($select=${optionSelect}))))`),
 			newRequest(filter, 'id', `jobPlanOptions($select=id;$expand=jobPlanOptionAttributes($select=${jobPlanOptionAttributesSelect}))`),
 			newRequest(filter, 'id', `jobPlanOptions($select=id;$expand=jobPlanOptionLocations($select=${jobPlanOptionLocationsSelect};$expand=jobPlanOptionLocationAttributes($select=${jobPlanOptionLocationAttributesSelect})))`),
@@ -81,7 +81,7 @@ export class JobService
 			]) =>
 			{
 				// find the main job record
-				let iJob = mainJob;
+				const iJob = mainJob;
 				iJob.jobChoices = jobWithChoices?.jobChoices;
 
 				iJob.jobChoices.map(jobChoice =>
@@ -102,9 +102,9 @@ export class JobService
 				iJob.jobPlanOptions.map(jobPlanOption =>
 				{
 					// get matching location/attributes for the current jobPlanOption
-					const attributes = _.flatMap(jobPlanOptionsWithAttributes?.jobPlanOptions.filter(jpo=>jpo.id === jobPlanOption.id), x => x.jobPlanOptionAttributes);
-					const locations = _.flatMap(jobPlanOptionsWithLocations?.jobPlanOptions.filter(jpo=>jpo.id === jobPlanOption.id), x => x.jobPlanOptionLocations);
-					const integrationKey = (jobPlanOptionsWithPlanOptionCommunity?.jobPlanOptions.filter(jpo=>jpo.id === jobPlanOption.id).find(x => (x as any)?.planOptionCommunity?.optionCommunity?.option?.financialOptionIntegrationKey) as any).planOptionCommunity?.optionCommunity?.option?.financialOptionIntegrationKey;
+					const attributes = _.flatMap(jobPlanOptionsWithAttributes?.jobPlanOptions.filter(jpo => jpo.id === jobPlanOption.id), x => x.jobPlanOptionAttributes);
+					const locations = _.flatMap(jobPlanOptionsWithLocations?.jobPlanOptions.filter(jpo => jpo.id === jobPlanOption.id), x => x.jobPlanOptionLocations);
+					const integrationKey = jobPlanOptionsWithPlanOptionCommunity?.jobPlanOptions.filter(jpo => jpo.id === jobPlanOption.id).length > 0 ? new JobPlanOption(jobPlanOptionsWithPlanOptionCommunity?.jobPlanOptions.filter(jpo => jpo.id === jobPlanOption.id)[0]).integrationKey : '';
 
 					jobPlanOption.jobPlanOptionAttributes = attributes ?? [];
 					jobPlanOption.jobPlanOptionLocations = locations ?? [];
@@ -126,9 +126,9 @@ export class JobService
 
 	getJobChangeOrderGroups(jobDto: IJob, salesAgreementId?: number): Observable<IJob>
 	{
-		let newRequest = (filter: string, select: string, expand: string): Observable<ChangeOrderGroup[]> =>
+		const newRequest = (filter: string, select: string, expand: string): Observable<ChangeOrderGroup[]> =>
 		{
-			let url = `${environment.apiUrl}changeOrderGroups?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`;
+			const url = `${environment.apiUrl}changeOrderGroups?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`;
 
 			return this._http.get(url).pipe(
 				map(response => response['value'] as ChangeOrderGroup[]),
@@ -155,11 +155,11 @@ export class JobService
 		// job change orders
 		return forkJoin([
 			newRequest(filter, '*', expand),
-			newRequest(filter, 'id', `jobChangeOrders($expand=jobChangeOrderChoices($select=id),jobChangeOrderPlanOptions($select=id),jobChangeOrderHandings,jobChangeOrderNonStandardOptions,jobChangeOrderPlans,jobChangeOrderLots,jobSalesChangeOrderBuyers($select=id),jobSalesChangeOrderPriceAdjustments,jobSalesChangeOrderSalesPrograms($select=id),jobSalesChangeOrderTrusts)`),
+			newRequest(filter, 'id', 'jobChangeOrders($expand=jobChangeOrderChoices($select=id),jobChangeOrderPlanOptions($select=id),jobChangeOrderHandings,jobChangeOrderNonStandardOptions,jobChangeOrderPlans,jobChangeOrderLots,jobSalesChangeOrderBuyers($select=id),jobSalesChangeOrderPriceAdjustments,jobSalesChangeOrderSalesPrograms($select=id),jobSalesChangeOrderTrusts)'),
 			newRequest(filter, 'id', `jobChangeOrders($select=id;$expand=jobChangeOrderChoices($select=${jobChangeOrderChoicesSelect};$expand=jobChangeOrderChoiceAttributes($select=${jobChangeOrderChoiceLocationAttributesSelect}),jobChangeOrderChoiceLocations($select=${jobChangeOrderChoiceLocationsSelect};$expand=jobChangeOrderChoiceLocationAttributes($select=${jobChangeOrderChoiceLocationAttributesSelect})),jobChangeOrderChoiceChangeOrderPlanOptionAssocs($select=${jobChangeOrderChoiceChangeOrderPlanOptionAssocsSelect};$filter=${jobChangeOrderChoiceChangeOrderPlanOptionAssocsFilter})))`),
 			newRequest(filter, 'id', `jobChangeOrders($select=id;$expand=jobChangeOrderPlanOptions($select=${jobChangeOrderPlanOptionsSelect};$expand=jobChangeOrderPlanOptionAttributes,jobChangeOrderPlanOptionLocations,planOptionCommunity($expand=optionCommunity($expand=option($select=financialOptionIntegrationKey)))))`),
-			newRequest(filter, 'id', `jobChangeOrders($select=id;$expand=jobSalesChangeOrderBuyers($expand=opportunityContactAssoc($expand=opportunity)))`),
-			newRequest(filter, 'id', `jobChangeOrders($select=id;$expand=jobSalesChangeOrderSalesPrograms($expand=salesProgram($select=id, salesProgramType, name)))`),
+			newRequest(filter, 'id', 'jobChangeOrders($select=id;$expand=jobSalesChangeOrderBuyers($expand=opportunityContactAssoc($expand=opportunity)))'),
+			newRequest(filter, 'id', 'jobChangeOrders($select=id;$expand=jobSalesChangeOrderSalesPrograms($expand=salesProgram($select=id, salesProgramType, name)))'),
 		]).pipe(
 			map(([iChangeOrderGroupArray, groupWithJobChangeOrders, groupWithChoices, groupWithPlanOptions, groupWithBuyers, groupWithSalesPrograms]) =>
 			{
@@ -204,7 +204,7 @@ export class JobService
 				// Fetch OFS date for change order choices/change order plan options
 				_.sortBy(iChangeOrderGroupArray, 'createdUtcDate').forEach(cog =>
 				{
-					let coOutForSignatureDate = cog.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
+					const coOutForSignatureDate = cog.jobChangeOrderGroupSalesStatusHistories.find(t => t.salesStatusId === 6);
 
 					if (coOutForSignatureDate)
 					{
@@ -214,7 +214,7 @@ export class JobService
 							{
 								jcoc.outForSignatureDate = coOutForSignatureDate.salesStatusUtcDate;
 
-								let index = jobDto.jobChoices.findIndex(jc => jc.dpChoiceId === jcoc.decisionPointChoiceID);
+								const index = jobDto.jobChoices.findIndex(jc => jc.dpChoiceId === jcoc.decisionPointChoiceID);
 
 								if (index > -1)
 								{
@@ -226,7 +226,7 @@ export class JobService
 							{
 								jcop.outForSignatureDate = coOutForSignatureDate.salesStatusUtcDate;
 
-								let index = jobDto.jobPlanOptions.findIndex(jc => jc.integrationKey === jcop.integrationKey);
+								const index = jobDto.jobPlanOptions.findIndex(jc => jc.integrationKey === jcop.integrationKey);
 
 								if (index > -1)
 								{

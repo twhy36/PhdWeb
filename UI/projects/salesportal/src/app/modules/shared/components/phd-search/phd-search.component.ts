@@ -622,4 +622,12 @@ export class PHDSearchComponent
 
 		return lot.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
+
+	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement) : boolean
+	{
+		return agreement 
+			&& agreement.salesAgreementNumber 
+			&& agreement.isOnFinalLot 
+			&& (!!lot.buyers?.length || agreement.status === 'Cancel' || agreement.status === 'Void');
+	}
 }

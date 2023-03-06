@@ -1,18 +1,16 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
-import { combineLatest as combineLatestOperator, take, distinctUntilChanged, switchMap, withLatestFrom } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { Observable, of } from 'rxjs';
-import { BehaviorSubject } from 'rxjs';
+import { take, distinctUntilChanged, switchMap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import * as _ from 'lodash';
 
 import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement,
-	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef
+	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite
 } from 'phd-common';
 
 import { Store, select } from '@ngrx/store';
@@ -53,7 +51,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	includeContractedOptions: boolean = false;
 	favoritesId: number;
 	salesChoices: JobChoice[];
-	myFavorites: any[];
+	myFavorites: MyFavorite[];
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
 	options: PlanOption[];
@@ -63,13 +61,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	isEmptyFavorites: boolean;
 	isDesignComplete: boolean = false;
 	isFloorplanFlipped: boolean;
-	floors: any[];
+	floors;
 	marketingPlanId = new BehaviorSubject<number>(0);
 	noVisibleFP: boolean = false;
 	IFPsubGroup: SubGroup;
-	firstDisplayedFloor: any;
+	firstDisplayedFloor;
 	showNextIFP: number = 0;
-	floorPlanImages: FloorPlanImage[];
+	floorPlanImages: FloorPlanImage[] = [];
 	emptyFavoritesModal: ModalRef;
 	confirmModal: ModalRef;
 	showFloorplan: boolean = true;
@@ -90,64 +88,78 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	get disclaimerText()
 	{
-		return "This Design Preview is a tool designed to give our customers a general understanding of home options, material and finish upgrades and option/upgrade pricing (where provided) and prepare them for making actual option and upgrade selections in the future. No selections are being made using this tool, nor is this a contract for a home or reservation of a lot. The terms and conditions pertaining to a home purchase, including option and upgrade selections, will be contained only within a fully-executed Home Purchase Agreement or a Change Order to that agreement. Lots, home plans, elevations, options, upgrades, features and specifications and the availability and pricing of each may change without notice. Images are for marketing purposes only and may not reflect exact home designs or dimensions, specific components or materials used in home construction, specific manufacturer or models of components, or exact colors or textures of materials, all of which may vary in the course of actual construction and all of which seller has the right to change. Model homes may vary significantly in design, décor and available options and materials from homes available to purchase in a community.";
+		return 'This Design Preview is a tool designed to give our customers a general understanding of home options, material and finish upgrades and option/upgrade pricing (where provided) and prepare them for making actual option and upgrade selections in the future. No selections are being made using this tool, nor is this a contract for a home or reservation of a lot. The terms and conditions pertaining to a home purchase, including option and upgrade selections, will be contained only within a fully-executed Home Purchase Agreement or a Change Order to that agreement. Lots, home plans, elevations, options, upgrades, features and specifications and the availability and pricing of each may change without notice. Images are for marketing purposes only and may not reflect exact home designs or dimensions, specific components or materials used in home construction, specific manufacturer or models of components, or exact colors or textures of materials, all of which may vary in the course of actual construction and all of which seller has the right to change. Model homes may vary significantly in design, décor and available options and materials from homes available to purchase in a community.';
+	}
+
+	get floorPlanDisclaimer()
+	{
+		return this.isPresale 
+			? '*Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.'
+			: '*Floorplan may show options you selected as well as previously contracted options. Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.';
 	}
 
 	ngOnInit()
 	{
-		this.activatedRoute.paramMap
-			.pipe(
-				combineLatestOperator(this.store.pipe(select(state => state.salesAgreement))),
-				switchMap(([params, salesAgreementState]) =>
-				{
-					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
-					{
-						return new Observable<never>();
-					}
-
-					// if sales agreement is not in the store and the id has been passed in to the url
-					// or the passed in sales agreement id is different than that of the id in the store...
-					const salesAgreementId = +params.get('salesAgreementId');
-
-					if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId)
-					{
-						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
-
-						return new Observable<never>();
-					}
-
-					return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
-				}),
-				switchMap(() => combineLatest([
-					this.store.pipe(select(state => state.scenario)),
-					this.store.pipe(select(state => state.favorite)),
-					this.store.pipe(select(state => state.salesAgreement)),
-					this.store.pipe(select(fromRoot.favoriteTitle)),
-				]).pipe(take(1))),
-				this.takeUntilDestroyed(),
-				distinctUntilChanged()
-			)
-			.subscribe(([scenario, fav, sag, title]) =>
+		combineLatest([
+			this.activatedRoute.paramMap,
+			this.store.pipe(select(state => state.salesAgreement)),
+			this.store.pipe(select(state => state.scenario))
+		]).pipe(
+			switchMap(([params, salesAgreementState, scenarioState]) =>
 			{
-				this.isPreview = scenario.buildMode === BuildMode.Preview;
-				this.isPresale = scenario.buildMode === BuildMode.Presale;
-				if (this.isPresale)
+				if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
 				{
-					this.showFloorplan = true
+					return new Observable<never>();
 				}
-				this.isDesignComplete = sag?.isDesignComplete || false;
-				this.buildMode = scenario.buildMode;
-				this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
 
-				if (this.isPreview || this.isPresale)
+				// if sales agreement is not in the store and the id has been passed in to the url
+				// or the passed in sales agreement id is different than that of the id in the store...
+				const salesAgreementId = +params.get('salesAgreementId');
+
+				//reload data in BuyerPreview mode when valid passing querystring sales agreement ID changes, 
+				//or current store buildMode is not BuyerPreview (assuming BuyerPreview entry with FavoritesSummary)
+				if (salesAgreementId > 0 &&
+						(salesAgreementState.id !== salesAgreementId
+							|| !scenarioState.buildMode
+							|| scenarioState.buildMode !== BuildMode.BuyerPreview)
+				)
 				{
-					this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
+					this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
+
+					return new Observable<never>();
 				}
-				else if (!fav.selectedFavoritesId)
-				{
-					this.store.dispatch(new FavoriteActions.LoadMyFavorite());
-				}
-			});
+
+				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
+			}),
+			switchMap(() => combineLatest([
+				this.store.pipe(select(state => state.scenario)),
+				this.store.pipe(select(state => state.favorite)),
+				this.store.pipe(select(state => state.salesAgreement)),
+				this.store.pipe(select(fromRoot.favoriteTitle)),
+			]).pipe(take(1))),
+			this.takeUntilDestroyed(),
+			distinctUntilChanged()
+		).subscribe(([scenario, fav, sag, title]) =>
+		{
+			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
+			if (this.isPresale)
+			{
+				this.showFloorplan = true
+			}
+			this.isDesignComplete = sag?.isDesignComplete || false;
+			this.buildMode = scenario.buildMode;
+			this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
+
+			if (this.isPreview || this.isPresale)
+			{
+				this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
+			}
+			else if (!fav.selectedFavoritesId)
+			{
+				this.store.dispatch(new FavoriteActions.LoadMyFavorite());
+			}
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -155,14 +167,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(favorites =>
 		{
 			this.favoritesId = favorites && favorites.id;
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromScenario.floorPlanImages)
-		).subscribe(ifpImages =>
-		{
-			this.floorPlanImages = ifpImages;
 		});
 
 		this.store.pipe(
@@ -259,15 +263,18 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					if (fpSubGroup)
 					{
 						this.marketingPlanId.next(plan.marketingPlanId[0]);
-					} else
+					}
+					else
 					{
 						this.noVisibleFP = true;
 					}
-				} else
+				}
+				else
 				{
 					this.noVisibleFP = true;
 				}
-			} else
+			}
+			else
 			{
 				this.noVisibleFP = true;
 			}
@@ -318,11 +325,11 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		const selectedSubGroup = subGroups.find(sg => sg.id === id);
 		if (selectedSubGroup)
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 		else
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId], { queryParamsHandling: 'merge' });
 		}
 	}
 
@@ -357,18 +364,19 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	onViewFavorites(point: DecisionPoint)
 	{
-		const subGroup = _.flatMap(this.groups, g => g.subGroups).find(sg => sg.id === point.subGroupId);
+		const subGroup = _.flatMap(this.groups, g => g.subGroups).find(sg => (sg.subGroupCatalogId === point.subGroupCatalogId || sg.id === point.subGroupId));
 
 		if (subGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(point.subGroupId, point.id));
-			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 	}
 
 	onRemoveFavorites(choice: Choice)
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		const ngbModalOptions: NgbModalOptions =
+		{
 			centered: true,
 			backdrop: true,
 			keyboard: false,
@@ -380,7 +388,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.confirmModal.componentInstance.body = 'This will delete this item from your list';
 		this.confirmModal.componentInstance.defaultOption = 'Continue';
 
-		this.adobeService.setAlertEvent(this.confirmModal.componentInstance.title + " " + this.confirmModal.componentInstance.body, 'Remove Favorite Alert');
+		this.adobeService.setAlertEvent(this.confirmModal.componentInstance.title + ' ' + this.confirmModal.componentInstance.body, 'Remove Favorite Alert');
 
 		this.confirmModal.result.then((result) =>
 		{
@@ -388,7 +396,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			if (result == 'Continue')
 			{
 
-				let removedChoices = [];
+				const removedChoices = [];
 
 				if (!this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === choice.divChoiceCatalogId) === -1)
 				{
@@ -417,7 +425,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					this.cd.detectChanges();
 				}, 50);
 			}
-
 		}, (reason) =>
 		{
 
@@ -434,13 +441,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	checkForEmptyFavorites()
 	{
-		let favorites = _.flatMap(this.myFavorites, fav => fav.myFavoritesChoice);
+		const favorites = _.flatMap(this.myFavorites, fav => fav.myFavoritesChoice);
 		this.isEmptyFavorites = favorites.length === 0;
 	}
 
 	displayEmptyFavoritesModal()
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		const ngbModalOptions: NgbModalOptions =
+		{
 			centered: true,
 			backdrop: true,
 			beforeDismiss: () => false
@@ -457,7 +465,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.emptyFavoritesModal.componentInstance.defaultOption = 'Back';
 
 
-		this.adobeService.setAlertEvent(this.emptyFavoritesModal.componentInstance.title + " " + this.emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
+		this.adobeService.setAlertEvent(this.emptyFavoritesModal.componentInstance.title + ' ' + this.emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
 
 		this.emptyFavoritesModal.result.then((result) =>
 		{
@@ -479,38 +487,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	}
 
-	loadFloorPlan(fp)
+	onFloorPlanSaved(images: FloorPlanImage[])
 	{
-		// load floors
-		this.floors = fp.floors;
-
-		//Decide the first floor to display
-		let floorIndex = this.floors.findIndex(floor => floor.name === 'Basement');
-		if (floorIndex > -1)
+		if (!images || !images.length)
 		{
-			this.firstDisplayedFloor = this.floors[floorIndex];
-			this.floors.splice(floorIndex, 1);
-		}
-		else
-		{
-			floorIndex = this.floors.findIndex(floor => floor.name === 'Floor 1');
-			if (floorIndex > -1)
-			{
-				this.firstDisplayedFloor = this.floors[floorIndex];
-				this.floors.splice(floorIndex, 1);
-			}
-			else
-			{
-				this.firstDisplayedFloor = this.floors[0];
-				this.floors.splice(0, 1);
-			}
+			return;
 		}
 
-		//There needs to be a short delay between displaying floorplans, or the floorplan.component gets confused
-		setTimeout(() =>
-		{
-			this.showNextIFP++;
-		}, 200);
+		this.floorPlanImages = images;
 	}
 
 	getIfpId(image: FloorPlanImage)

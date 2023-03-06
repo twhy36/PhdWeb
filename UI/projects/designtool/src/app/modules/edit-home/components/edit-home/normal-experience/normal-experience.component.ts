@@ -7,16 +7,15 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../../ngrx-store/reducers';
 import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
 
-import {
+import
+{
 	UnsubscribeOnDestroy, flipOver, Scenario, ScenarioStatusType, PriceBreakdown, TreeFilter, DecisionPoint,
-	PickType, SubGroup, Choice
+	PickType, SubGroup, Choice, DecisionPointFilterType
 } from 'phd-common';
 
 import { ScenarioService } from '../../../../core/services/scenario.service';
 
 import { ActionBarCallType } from '../../../../shared/classes/constants.class';
-
-import { DecisionPointFilterType } from '../../../../shared/models/decisionPointFilter';
 
 @Component({
 	selector: 'normal-experience',

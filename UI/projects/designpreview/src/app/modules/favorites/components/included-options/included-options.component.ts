@@ -3,11 +3,11 @@ import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
 import { combineLatest } from 'rxjs';
-import { debounceTime, filter, map, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'lodash';
 import
 {
-	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined
+	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, MyFavoritesPointDeclined, ModalRef, ModalService
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -21,7 +21,8 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
-import { TreeService } from '../../../core/services/tree.service';
+import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { TermsAndConditionsComponent } from '../../../core/components/terms-and-conditions/terms-and-conditions.component';
 
 @Component({
 	selector: 'included-options',
@@ -49,9 +50,11 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	myFavoriteId: number;
 	myFavoritesChoices: MyFavoritesChoice[];
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
+	termsAndConditionsModal: ModalRef;
+	showTermsAndConditionsModal: boolean = true;
 
 	constructor(private store: Store<fromRoot.State>,
-		private treeService: TreeService,
+		private modalService: ModalService,
 		private router: Router) { super(); }
 
 	ngOnInit()
@@ -111,6 +114,26 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		{
 			this.buildMode = scenario.buildMode;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			distinctUntilChanged(),
+			select(fromApp.showTermsAndConditions),
+		).subscribe(showTermsAndConditions => 
+		{
+			this.showTermsAndConditionsModal = showTermsAndConditions;
+		});
+
+		if (this.showTermsAndConditionsModal) 
+		{
+			const ngbModalOptions: NgbModalOptions =
+			{
+				centered: true,
+				backdrop: 'static',
+				keyboard: false
+			};
+			this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
+		}
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -203,7 +226,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	toggleChoice(choice: ChoiceExt)
 	{
-		let selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
+		const selectedChoices = [{ choiceId: choice.id, divChoiceCatalogId: choice.divChoiceCatalogId, quantity: !choice.quantity ? 1 : 0, attributes: choice.selectedAttributes }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
@@ -235,7 +258,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
-		let choiceStatus = 'Available';
+		const choiceStatus = 'Available';
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
 
@@ -244,7 +267,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const pointCardElement = <HTMLElement><any>document?.getElementById(`included-point-${pointId?.toString()}`);
+		const pointCardElement = <HTMLElement>document?.getElementById(`included-point-${pointId?.toString()}`);
 		if (pointCardElement)
 		{
 			if (isFirstPoint)
@@ -279,7 +302,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	scrollSubGroupIntoView(subGroupId: number, isFirstSubGroup: boolean)
 	{
-		const subGroupElement = <HTMLElement><any>document?.getElementById(`included-subgroup-${subGroupId?.toString()}`);
+		const subGroupElement = <HTMLElement>document?.getElementById(`included-subgroup-${subGroupId?.toString()}`);
 		if (subGroupElement)
 		{
 			if (isFirstSubGroup)
@@ -317,7 +340,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
 		const selectedSubGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId));
 		this.selectDecisionPoint(pointId);
-		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParamsHandling: 'merge' });
 	}
 
 	defaultChoicePresent(subGroup: SubGroup)
@@ -336,7 +359,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		if (point.isHiddenFromBuyerView)
 		{
 			return false;
-		} else
+		}
+		else
 		{
 			const choices = _.flatMap(point.choices).filter(c => c.isDecisionDefault);
 			let displayChoice = false;
@@ -353,7 +377,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	onNextClicked()
 	{
-		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId], { queryParamsHandling: 'merge' });
 	}
 
 	onViewDecisionPoint(point: DecisionPoint)
@@ -362,7 +386,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		this.selectDecisionPoint(point.id);
 
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(sg.id, point.id));
-		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParams: { presale: sessionStorage.getItem('presale_token') } });
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParamsHandling: 'merge' });
 
 	}
 }
