@@ -1,7 +1,7 @@
 <div id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
-	<div class="d-flex flex-row flex-grow-1 phd-action-icons">
+	<ul class="d-flex flex-row flex-grow-1 phd-action-icons">
 		<a href="" (click)="$event.preventDefault(); onHomePage();" class="d-flex phd-clickable">
-			<i class="fa fa-home fa-2x"></i>
+			<span aria-hidden="true"><i class="fa fa-home fa-2x"></i></span>
 			<span class="align-self-center">Home</span>
 		</a>
 
@@ -10,7 +10,7 @@
 			<span class="align-self-center">Print</span>
 		</button>
 
-		<a href="" *ngIf="showFavorites" class="d-flex phd-clickable" (click)="$event.preventDefault(); onViewFavorites();">
+		<a *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
 			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
 		</a>
@@ -24,7 +24,7 @@
 			</div>
 			<span class="phd-contracted-options-label">Display My Contracted Options</span>
 		</div>
-	</div>
+	</ul>
 
 	<ng-container *ngIf="!isPresale && !isContractedPage">
 		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
