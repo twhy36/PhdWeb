@@ -10,6 +10,15 @@
 	padding: 5px 20px;
 	align-items: center;
 	justify-content: flex-end;
+
+	.phd-links-list {
+		padding: 0;
+		margin-top: 16px;
+
+		.phd-link {
+			padding-right: 10px;
+		}
+	}
 }
 
 .phd-footer a:hover {
