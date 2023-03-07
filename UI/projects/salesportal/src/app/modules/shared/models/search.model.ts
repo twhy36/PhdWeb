@@ -71,7 +71,7 @@ export class SearchResult
 
 			if (dto.lotBuildTypeDesc === 'Spec')
 			{
-				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1);
+				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1 || cog.salesStatusDescription === 'Approved' && cog.constructionStatusDescription !== 'Approved');
 
 				let buyerChangeOrders = activeCOG ? activeCOG.jobChangeOrders.filter(jco => jco.jobChangeOrderTypeDescription === 'BuyerChangeOrder') : [];
 
