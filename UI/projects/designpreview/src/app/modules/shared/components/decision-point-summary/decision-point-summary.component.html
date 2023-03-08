@@ -5,14 +5,13 @@
 		<div class="phd-choice">
 			<ng-container *ngFor="let choice of choicesCustom">
 				<div class="phd-choice-detail phd-choice-detail-presale-print" *ngIf="choice.quantity > 0">
-					<button class="phd-choice-expand">
-						<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
-							<span *ngIf="!choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
-							<span *ngIf="choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
-						</div>
-					</button>
-
 					<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
+						<button class="phd-choice-expand">
+							<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
+								<span *ngIf="!choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
+								<span *ngIf="choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
+							</div>
+						</button>
 						<span>{{ choice.label }}</span>
 						<div class="phd-choice-body">
 							<div class="my-3 phd-choice-attributes">
