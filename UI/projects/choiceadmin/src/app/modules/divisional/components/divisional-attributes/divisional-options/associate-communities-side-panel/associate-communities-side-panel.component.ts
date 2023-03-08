@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 
 import { Message } from 'primeng/api';
 import { isEqual, differenceBy } from "lodash";
@@ -178,7 +178,10 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 	{
 		const attrGroups = this.groups as AttributeGroupMarket[];
 
-		return this._attrService.updateAttributeGroupsCommunitiesAssocs(this.option.id,	associatedCommunityIds, disassociatedCommunityIds, attrGroups);
+		// splits into multiple calls by attributeGroupMarkets for speed.
+		let requests = attrGroups.map(group => this._attrService.updateAttributeGroupsCommunitiesAssocs(this.option.id, associatedCommunityIds, disassociatedCommunityIds, [group]));
+
+		return combineLatest(requests);
 	}
 
 	saveLocationGroupsAssocs(associatedCommunityIds: number[], disassociatedCommunityIds: number[]): Observable<any>
