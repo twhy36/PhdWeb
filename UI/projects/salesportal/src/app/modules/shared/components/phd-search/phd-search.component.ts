@@ -195,7 +195,7 @@ export class PHDSearchComponent
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
 
-		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString).subscribe(results =>
+		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
 		{
 			let filteredLots = this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0 || this.lastName || this.firstName ? [] : null;
 
@@ -260,7 +260,6 @@ export class PHDSearchComponent
 
 			this.searchResults = filteredLots ? filteredLots : results;
 
-			this.populateIsPhdLiteEnabled();
 		}, error =>
 		{
 			this.searchResults = [];
@@ -331,7 +330,7 @@ export class PHDSearchComponent
 		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
-		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString).subscribe(results =>
+		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
 		{
 			
 			let filteredLots = [];
