@@ -77,51 +77,49 @@
 			</ng-container>
 		</div>
 	</div>
-	<div>
-		<div class="phd-info-section">
-			<div class="d-flex flex-column flex-1 phd-choice-desc-section" [ngClass]="{'phd-choice-desc-section-long' : !hasAttributes}">
-				<div class="phd-choice-label">{{choice?.label}}</div>
-				<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
-					<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
-				</div>
+	<div class="phd-info-section">	
+		<div class="d-flex flex-column flex-1 phd-choice-desc-section" [ngClass]="{'phd-choice-desc-section-long' : !hasAttributes}">
+			<div class="phd-choice-label">{{choice?.label}}</div>
+			<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
+				<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
 			</div>
-			<div class="d-flex flex-column flex-1 phd-selections-section" *ngIf="hasAttributes">
-				<div class="phd-available-selections">
-					<span>{{isDesignComplete ? 'SELECTIONS:' : 'AVAILABLE SELECTIONS:'}}</span>
+		</div>
+		<div class="d-flex flex-column flex-1 phd-selections-section" *ngIf="hasAttributes">
+			<div class="phd-available-selections">
+				<span>{{isDesignComplete ? 'SELECTIONS:' : 'AVAILABLE SELECTIONS:'}}</span>
+			</div>
+
+			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
+				<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
+					<ng-container *ngFor="let group of locationGroups">
+						<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
+							<attribute-location [currentChoice]="choice"
+												[attributeLocation]="attributeLocation"
+												[attributeLocationGroup]="group"
+												[currentAttributeGroups]="attributeGroups"
+												[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
+												[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
+												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
+												[isReadonly]="isReadonly"
+												[isDesignComplete]="isDesignComplete"
+												(locationAttributeClick)="locationAttributeClick($event)"
+												(toggleAttribute)="toggleAttribute($event)"
+												(quantityChange)="changeQuantiy($event)">
+							</attribute-location>
+						</div>
+					</ng-container>
 				</div>
 
-				<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
-					<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
-						<ng-container *ngFor="let group of locationGroups">
-							<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
-								<attribute-location [currentChoice]="choice"
-													[attributeLocation]="attributeLocation"
-													[attributeLocationGroup]="group"
-													[currentAttributeGroups]="attributeGroups"
-													[maxQuantity]="getLocationMaxQuantity(attributeLocation.id)"
-													[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
-													[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
-													[isReadonly]="isReadonly"
-													[isDesignComplete]="isDesignComplete"
-													(locationAttributeClick)="locationAttributeClick($event)"
-													(toggleAttribute)="toggleAttribute($event)"
-													(quantityChange)="changeQuantiy($event)">
-								</attribute-location>
-							</div>
-						</ng-container>
-					</div>
-
-					<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
-						<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
-							<attribute-group [attributeGroup]="attributeGroup"
-											[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
-											[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
-											[isReadonly]="isReadonly"
-											[isDesignComplete]="isDesignComplete"
-											(attributeClick)="attributeClick($event)"
-											(toggleAttribute)="toggleAttribute($event)">
-							</attribute-group>
-						</div>
+				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
+					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
+						<attribute-group [attributeGroup]="attributeGroup"
+										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
+										[isReadonly]="isReadonly"
+										[isDesignComplete]="isDesignComplete"
+										(attributeClick)="attributeClick($event)"
+										(toggleAttribute)="toggleAttribute($event)">
+						</attribute-group>
 					</div>
 				</div>
 			</div>
