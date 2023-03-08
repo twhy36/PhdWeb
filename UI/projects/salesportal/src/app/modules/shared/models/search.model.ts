@@ -1,3 +1,5 @@
+import { IFeatureSwitchOrgAssoc } from 'phd-common';
+
 export interface ISearchResults
 {
 	value?: Array<ISearchResult>;
@@ -38,7 +40,7 @@ export class SearchResult
 		return this.buyers && this.buyers.length > 0 ? this.buyers.map(fm => fm.firstName + ' ' + fm.lastName).join(', ') : '';
 	}
 
-	constructor(dto: ISearchResult)
+	constructor(dto: ISearchResult, featureSwitchOrgAssoc?: IFeatureSwitchOrgAssoc[])
 	{
 		this.buildType = dto.lotBuildTypeDesc || 'Dirt';
 		this.buildTypeDisplayName = dto.lotBuildTypeDesc || 'Dirt';
@@ -56,6 +58,11 @@ export class SearchResult
 		this.plans = this.getPlans(dto);
 		this.postalCode = dto.postalCode || null;
 		this.premium = dto.premium || null;
+
+		this.isPhdLiteEnabled = !!featureSwitchOrgAssoc?.find(r =>
+			this.financialCommunityId === r.org.edhFinancialCommunityId
+			&& r.state === true
+		);		
 
 		// Get the sales agreements for each jobChangeOrderGroupSalesAgreementAssocs in each changeOrderGroup in each job
 		dto.jobs.map(job =>

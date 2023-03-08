@@ -6,7 +6,7 @@ import { map, catchError, mergeMap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders } from 'phd-common';
+import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders, IFeatureSwitchOrgAssoc } from 'phd-common';
 import { SearchEntities, SearchResult, ISearchResults, IFilterItems } from '../../shared/models/search.model';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class SearchService
 	* Searches homesites
 	* @param searchParams
 	*/
-	public searchHomeSites(filters: Array<IFilterItems>, financialCommunityId?: string, salesCommunityId?: string): Observable<Array<SearchResult>>
+	public searchHomeSites(filters: Array<IFilterItems>, financialCommunityId?: string, salesCommunityId?: string, featureSwitchOrgAssoc?: IFeatureSwitchOrgAssoc[]): Observable<Array<SearchResult>>
 	{
 		let filter: string = "financialCommunity/" + (financialCommunityId ? `id eq ${financialCommunityId}` : `salesCommunityId eq ${salesCommunityId}`);
 
@@ -129,7 +129,7 @@ export class SearchService
 		return this._http.post<any>(`${environment.apiUrl}${this._batch}`, batchBody, { headers: headers, responseType: 'json' }).pipe(
 			map(batchResponse =>
 			{
-				return _.flatMap(batchResponse.responses, response => response.body.value).map(value => new SearchResult(value));
+				return _.flatMap(batchResponse.responses, response => response.body.value).map(value => new SearchResult(value, featureSwitchOrgAssoc));
 			}),
 			mergeMap(result =>
 			{
