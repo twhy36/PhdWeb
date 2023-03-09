@@ -1,5 +1,5 @@
-import { ReplaySubject, Observable } from 'rxjs';
-import { map, distinctUntilChanged, combineLatest } from 'rxjs/operators';
+import { ReplaySubject, Observable, of } from 'rxjs';
+import { map, distinctUntilChanged, combineLatest, switchMap } from 'rxjs/operators';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
@@ -78,59 +78,62 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
             this.takeUntilDestroyed(),
             map(params => ({ jobId: +params.get('jobId') })),
             distinctUntilChanged()
-        ).subscribe(params => this.params$.next(params));
-
-        this.store.pipe(
-            this.takeUntilDestroyed(),
-            select(state => state.job),
-            combineLatest(this.params$)).subscribe(([job, params]) =>
-            {
-                if (job.plan)
-                {
-                    this.job = job;
-                    this.jobId = job.id;
-                    this.projectedFinalDate = job.projectedFinalDate && !isNaN(job.projectedFinalDate.getTime()) ? job.projectedFinalDate : null;
-                    this.fullBathsDefault = this.job.plan.fullBaths;
-                    this.halfBathsDefault = this.job.plan.halfBaths;
-                    this.bedroomsDefault = this.job.plan.bedrooms;
-                    this.squareFeetDefault = this.job.plan.squareFeet;
-                    this.numberOfGaragesDefault = this.job.plan.garageConfiguration;
-                } else if (!this.loadingJob)
-                {
-                    this.jobId = params.jobId;
-                    this.loadingJob = true;
-                    this.store.dispatch(new JobActions.LoadJobForJob(this.jobId));
-                }
-			});
+		).subscribe(params => this.params$.next(params));
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.job.specInformation),
-			combineLatest(this.store.pipe(select(state => state.job.id)), this.salesInfoService.getSalesPrograms(this.job.financialCommunityId))).subscribe(([pulteInfo, jobId, programs]) =>
+			select(state => state.job),
+			combineLatest(this.params$, this.store.pipe(select(state => state.job.specInformation))),
+			switchMap(([job, params, pulteInfo]) =>
 			{
-				if (pulteInfo)
-				{
-					if (pulteInfo.jobId)
+				const getSalesPrograms = !!job?.financialCommunityId ? this.salesInfoService.getSalesPrograms(job.financialCommunityId) : of([]);
+				return getSalesPrograms.pipe(
+					map(programs =>
 					{
-						this.getMonthList();
+						return { job, params, pulteInfo, programs };
+					})
+				);
+			})
+		).subscribe(({ job, params, pulteInfo, programs }) =>
+		{
+			if (job.plan)
+			{
+				this.job = job;
+				this.jobId = job.id;
+				this.projectedFinalDate = job.projectedFinalDate && !isNaN(job.projectedFinalDate.getTime()) ? job.projectedFinalDate : null;
+				this.fullBathsDefault = this.job.plan.fullBaths;
+				this.halfBathsDefault = this.job.plan.halfBaths;
+				this.bedroomsDefault = this.job.plan.bedrooms;
+				this.squareFeetDefault = this.job.plan.squareFeet;
+				this.numberOfGaragesDefault = this.job.plan.garageConfiguration;
+			}
+			else if (!this.loadingJob)
+			{
+				this.jobId = params.jobId;
+				this.loadingJob = true;
+				this.store.dispatch(new JobActions.LoadJobForJob(this.jobId));
+			}
 
-						this.pulteInfo = new SpecInformation(pulteInfo);
-						this.pulteInfo.discountExpirationDate = new Date('12/31/9999');
-					}
-
-					this.qmiSalesProgram = programs.find(x => x.name === 'Quick Move-in Incentive');
-					this.pulteInfoSet = true;
-					this.createForm();
-				}
-				else
+			if (pulteInfo)
+			{
+				if (pulteInfo.jobId)
 				{
-					if (jobId && !this.loadingInfo)
-					{
-						this.loadingInfo = true;
-						this.store.dispatch(new JobActions.LoadPulteInfo(jobId));
-					}
+					this.getMonthList();
+
+					this.pulteInfo = new SpecInformation(pulteInfo);
+					this.pulteInfo.discountExpirationDate = new Date('12/31/9999');
 				}
-			});
+
+				this.qmiSalesProgram = programs.find(x => x.name === 'Quick Move-in Incentive');
+				this.pulteInfoSet = true;
+				this.createForm();
+			}
+			else if (job.id && !this.loadingInfo)
+			{
+				this.loadingInfo = true;
+				this.store.dispatch(new JobActions.LoadPulteInfo(job.id));
+			}
+		});
 
         this.store.pipe(
             this.takeUntilDestroyed(),
