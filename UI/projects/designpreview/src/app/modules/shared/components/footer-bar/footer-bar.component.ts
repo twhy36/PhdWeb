@@ -20,11 +20,12 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 
 	currentYear = new Date().getFullYear();
-	brandUrl = '';
 	accessibilityImgSrc = 'assets/icon_accessibility.png';
 	equalHousingImgSrc = 'assets/icon_equalHousing.png';
 	disclaimerModal: ModalRef;
 	isPresale: boolean = false;
+	termsUrl: string;
+	policyUrl: string;
 
 	constructor(private brandService: BrandService,
 		private modalService: ModalService,
@@ -35,13 +36,33 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit()
 	{
-		if (environment.brandMap.americanWest === window.location.host)
+		//set terms and policy urls per brand per enviornments
+		const brandBaseUrl = this.brandService.getBrandHomeUrl();
+		const sitecorePartialUrl = '/sitecore/content/pulte/pulte-home-page';
+		
+		switch (window.location.host)
 		{
-			this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
-			this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
-		}
+			case environment.brandMap.americanWest:
+				//use different accessibility and equal icons for American West
+				this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
+				this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
 
-		this.brandUrl = this.brandService.getBrandHomeUrl();
+				//Terms/Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
+				this.termsUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/terms-of-use/';
+				this.policyUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/privacy-policy/';
+				break;
+
+			case environment.brandMap.johnWieland:
+				//Terms/Policy links: use /sitecore URLs in lower enviornments
+				this.termsUrl = brandBaseUrl + (environment.production ? '' : sitecorePartialUrl) + '/terms-of-use/';
+				this.policyUrl = brandBaseUrl + (environment.production ? '' : sitecorePartialUrl) + '/privacy-policy/';
+				break;
+
+			default:
+				this.termsUrl = brandBaseUrl + '/terms-of-use/';
+				this.policyUrl = brandBaseUrl + '/privacy-policy/';
+				break;
+		}
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -55,11 +76,11 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 	onDisclaimerClick()
 	{
 		const ngbModalOptions: NgbModalOptions =
-			{
-				centered: true,
-				backdrop: true, 
-				keyboard: false,
-			};
+		{
+			centered: true,
+			backdrop: true,
+			keyboard: false,
+		};
 
 		this.disclaimerModal = this.modalService.open(InfoDisclaimerComponent, ngbModalOptions, true);
 	}
