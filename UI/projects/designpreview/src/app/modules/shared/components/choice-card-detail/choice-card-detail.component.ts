@@ -23,10 +23,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
-import { BlockedByItemObject } from '../../models/blocked-by.model';
-import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { AdobeService } from '../../../core/services/adobe.service';
-import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -68,17 +65,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: ModalRef;
-	disabledByList: BlockedByItemObject
-		= { pointDisabledByList: null, choiceDisabledByList: null };
 	isChoiceImageLoaded: boolean = false;
+	point: DecisionPoint;
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
 		private toastr: ToastrService,
 		public modalService: ModalService,
 		private store: Store<fromRoot.State>,
-		private adobeService: AdobeService,
-		private treeService: TreeService)
+		private adobeService: AdobeService)
 	{
 		super();
 	}
@@ -155,6 +150,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		{
 			if (tree)
 			{
+				this.point = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(p => p.id === this.choice.treePointId);
 				const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
 				const updatedChoice = choices.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 
@@ -634,10 +630,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	openBlockedChoiceModal()
 	{
-		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
-		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
-		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 

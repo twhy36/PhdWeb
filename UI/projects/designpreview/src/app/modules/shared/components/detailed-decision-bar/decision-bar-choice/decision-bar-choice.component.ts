@@ -1,9 +1,6 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DecisionPoint, Group, ModalRef, ModalService, Tree } from 'phd-common';
-import { BlockedByItemObject } from '../../../models/blocked-by.model';
-import { getDisabledByList } from '../../../classes/tree.utils';
 import { ChoiceExt } from '../../../models/choice-ext.model';
-import { AdobeService } from '../../../../core/services/adobe.service';
 
 @Component({
 	selector: 'decision-bar-choice',
@@ -26,12 +23,10 @@ export class DecisionBarChoiceComponent
 	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal;
 
-	disabledByList: BlockedByItemObject = { pointDisabledByList: null, choiceDisabledByList: null };
 	blockedChoiceModalRef: ModalRef;
 
 	constructor(
-		public modalService: ModalService,
-		private adobeService: AdobeService
+		public modalService: ModalService
 	) { }
 
 	clickToggleChoice()
@@ -49,10 +44,6 @@ export class DecisionBarChoiceComponent
 
 	openBlockedChoiceModal() 
 	{
-		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList) 
-		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.point, this.choice);
-		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 

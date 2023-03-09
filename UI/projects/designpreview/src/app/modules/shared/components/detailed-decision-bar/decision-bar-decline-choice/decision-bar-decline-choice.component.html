@@ -15,8 +15,8 @@
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal
-		[disabledByList]="disabledByList"
-		[choiceLabel]="'No Thanks!'"
+		[point]="point"
+		isNoThanksCard
 		(closeModal)="onCloseClicked()"
 		(blockedItemClick)="onBlockedItemClick()"
 	></blocked-choice-modal>

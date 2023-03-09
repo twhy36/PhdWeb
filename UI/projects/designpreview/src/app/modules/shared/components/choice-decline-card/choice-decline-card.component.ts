@@ -1,8 +1,6 @@
 import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
-import { BlockedByItemObject } from '../../models/blocked-by.model';
-import { getDisabledByList } from '../../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
 
@@ -30,8 +28,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	point: DecisionPoint;
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: ModalRef;
-	disabledByList: BlockedByItemObject
-		= { pointDisabledByList: null, choiceDisabledByList: null };
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
 
 	constructor(
@@ -74,10 +70,6 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	openBlockedChoiceModal()
 	{
-		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
-		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, null);
-		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 

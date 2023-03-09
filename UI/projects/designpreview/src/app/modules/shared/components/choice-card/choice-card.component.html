@@ -68,8 +68,8 @@
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal
-		[disabledByList]="disabledByList"
-		[choiceLabel]="choice?.label"
+		[choice]="choice"
+		[point]="currentPoint"
 		(closeModal)="onCloseClicked()"
 		(blockedItemClick)="onBlockedItemClick()">
 	</blocked-choice-modal>

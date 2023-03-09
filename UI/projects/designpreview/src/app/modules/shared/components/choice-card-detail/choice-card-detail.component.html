@@ -129,10 +129,12 @@
 </div>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
-	<blocked-choice-modal [disabledByList]="disabledByList"
-						  [choiceLabel]="choice?.label"
-						  (closeModal)="onCloseClicked()"
-						  (blockedItemClick)="onBlockedItemClick()"></blocked-choice-modal>
+	<blocked-choice-modal
+		[choice]="choice"
+		[point]="point"
+		(closeModal)="onCloseClicked()"
+		(blockedItemClick)="onBlockedItemClick()">
+	</blocked-choice-modal>
 </ng-template>
 
 <ng-template #infoContent>

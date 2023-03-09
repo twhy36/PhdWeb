@@ -28,8 +28,9 @@ export class LotService
 		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
-				let lotsDto = (response['value'] as Array<LotExt>);
-				lotsDto.forEach(lot => {
+				const lotsDto = (response['value'] as Array<LotExt>);
+				lotsDto.forEach(lot =>
+				{
 					lot.city = lot.city.trim();
 					lot.postalCode = lot.postalCode.trim();
 					lot.stateProvince = lot.stateProvince.trim();

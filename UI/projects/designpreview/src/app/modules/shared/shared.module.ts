@@ -30,10 +30,11 @@ import { DetailedDecisionBarComponent } from './components/detailed-decision-bar
 import { DecisionBarChoiceComponent } from './components/detailed-decision-bar/decision-bar-choice/decision-bar-choice.component';
 import { DecisionBarDeclineChoiceComponent } from './components/detailed-decision-bar/decision-bar-decline-choice/decision-bar-decline-choice.component';
 import { BlockedChoiceModalComponent } from './components/blocked-choice-modal/blocked-choice-modal.component';
-import { BlockedItemComponent } from './components/blocked-item/blocked-item.component';
 import { InfoModalComponent } from './components/info-modal/info-modal.component';
 import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.component';
 import { FooterBarComponent } from './components/footer-bar/footer-bar.component';
+import { ChoiceIdToNamePipe } from './pipes/choiceIdToName.pipe';
+import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
 
 @NgModule({
 	exports: [
@@ -53,7 +54,9 @@ import { FooterBarComponent } from './components/footer-bar/footer-bar.component
 		QuantityInputComponent,
 		DetailedDecisionBarComponent,
 		IncludedDecisionBarComponent,
-		FooterBarComponent
+		FooterBarComponent,
+		ChoiceIdToNamePipe,
+		PointIdToNamePipe
 	],
 	declarations: [
 		ActionBarComponent,
@@ -77,8 +80,9 @@ import { FooterBarComponent } from './components/footer-bar/footer-bar.component
 		BlockedChoiceModalComponent,
 		InfoModalComponent,
 		InfoTooltipComponent,
-		BlockedItemComponent,
-  		FooterBarComponent
+		FooterBarComponent,
+		ChoiceIdToNamePipe,
+		PointIdToNamePipe
 	],
 	imports: [
 		BrowserModule,

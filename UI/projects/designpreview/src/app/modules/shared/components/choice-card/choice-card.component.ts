@@ -3,9 +3,6 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, ModalService, ModalRef, getChoiceImage } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
-import { BlockedByItemObject } from '../../models/blocked-by.model';
-import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { AdobeService } from '../../../core/services/adobe.service';
 import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -39,14 +36,11 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	choiceMsg: object[] = [];
 	imageUrl: string = '';
 	blockedChoiceModalRef: ModalRef;
-	disabledByList: BlockedByItemObject
-		= { pointDisabledByList: null, choiceDisabledByList: null };
 	choiceDisabledLabel: string;
 
 	constructor(
 		private store: Store<fromRoot.State>,
-		public modalService: ModalService,
-		private adobeService: AdobeService
+		public modalService: ModalService
 	)
 	{
 		super();
@@ -97,10 +91,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
 		}
 
-		if (!this.disabledByList.choiceDisabledByList && !this.disabledByList.pointDisabledByList)
-		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
-		}
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 

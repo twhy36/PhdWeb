@@ -236,56 +236,5 @@ describe('ChoiceCardComponent', () =>
 			component.openBlockedChoiceModal();
 			expect(modalServiceSpy).toHaveBeenCalled();
 		});
-		it('should set up disabledByList for Choice-to-Choice rules', () => 
-		{
-			spyOn(component.modalService, 'open');
-			component.choice.disabledBy = [{
-				choiceId: 4,
-				executed: true,
-				rules: [{ choices: [6], ruleId: 13, ruleType: 1 }]
-			}];
-
-			component.openBlockedChoiceModal();
-			expect(component.disabledByList).not.toBeUndefined();
-			expect(component.disabledByList.choiceDisabledByList).not.toBeUndefined();
-			expect(component.disabledByList.choiceDisabledByList.orChoices.length).toEqual(1);
-			expect(component.disabledByList.choiceDisabledByList.orChoices[0].label).toEqual('test Choice 6');
-			expect(component.disabledByList.choiceDisabledByList.orChoices[0].choiceId).toEqual(6);
-			expect(component.disabledByList.choiceDisabledByList.orChoices[0].pointId).toEqual(11);
-		});
-		it('should set up disabledByList for DP-to-Choice rules', () => 
-		{
-			spyOn(component.modalService, 'open');
-			component.currentPoint.disabledBy = [{
-				pointId: 10,
-				executed: true,
-				rules: [{ points: [], choices: [6], ruleId: 14, ruleType: 1 }]
-			}];
-
-			component.openBlockedChoiceModal();
-			expect(component.disabledByList).not.toBeUndefined();
-			expect(component.disabledByList.pointDisabledByList).not.toBeUndefined();
-			expect(component.disabledByList.pointDisabledByList.orChoices.length).toEqual(1);
-			expect(component.disabledByList.pointDisabledByList.orChoices[0].label).toEqual('test Choice 6');
-			expect(component.disabledByList.pointDisabledByList.orChoices[0].choiceId).toEqual(6);
-			expect(component.disabledByList.pointDisabledByList.orChoices[0].pointId).toEqual(11);
-		});
-		it('should set up disabledByList for DP-to-DP rules', () => 
-		{
-			spyOn(component.modalService, 'open');
-			component.currentPoint.disabledBy = [{
-				pointId: 10,
-				executed: true,
-				rules: [{ points: [11], choices: [], ruleId: 15, ruleType: 1 }]
-			}];
-
-			component.openBlockedChoiceModal();
-			expect(component.disabledByList).not.toBeUndefined();
-			expect(component.disabledByList.pointDisabledByList).not.toBeUndefined();
-			expect(component.disabledByList.pointDisabledByList.orPoints.length).toEqual(1);
-			expect(component.disabledByList.pointDisabledByList.orPoints[0].label).toEqual('test point 11');
-			expect(component.disabledByList.pointDisabledByList.orPoints[0].choiceId).toBeUndefined();
-			expect(component.disabledByList.pointDisabledByList.orPoints[0].pointId).toEqual(11);
-		});
 	});
 });

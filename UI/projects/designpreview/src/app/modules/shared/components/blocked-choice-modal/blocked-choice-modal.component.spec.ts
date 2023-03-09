@@ -1,4 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { instance, mock } from 'ts-mockito';
 import { AdobeService } from '../../../core/services/adobe.service';
@@ -11,15 +13,17 @@ describe('BlockedChoiceModalComponent', () =>
 	let component: BlockedChoiceModalComponent;
 	let fixture: ComponentFixture<BlockedChoiceModalComponent>;
 	let mockStore: MockStore;
+	let router: Router;
 	const initialState = {
 		scenario: fromScenario.initialState
 	};
 	const mockAdobeService = mock(AdobeService);
 
-	beforeEach(async(() => 
+	beforeEach(fakeAsync(() => 
 	{
 		TestBed.configureTestingModule({
-			declarations: [ BlockedChoiceModalComponent ],
+			declarations: [BlockedChoiceModalComponent],
+			imports: [RouterTestingModule],
 			providers: [
 				provideMockStore({ initialState }),
 				{ provide: AdobeService, useFactory: () => instance(mockAdobeService) }
@@ -28,6 +32,7 @@ describe('BlockedChoiceModalComponent', () =>
 			.compileComponents();
 
 		mockStore = TestBed.inject(MockStore);
+		router = TestBed.inject(Router);
 	}));
 
 	beforeEach(() => 
