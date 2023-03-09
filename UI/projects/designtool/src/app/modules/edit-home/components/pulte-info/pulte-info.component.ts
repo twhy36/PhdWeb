@@ -118,7 +118,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 						this.pulteInfo.discountExpirationDate = new Date('12/31/9999');
 					}
 
-					this.qmiSalesProgram = programs.find(x => x.name == 'Quick Move-in Incentive');
+					this.qmiSalesProgram = programs.find(x => x.name === 'Quick Move-in Incentive');
 					this.pulteInfoSet = true;
 					this.createForm();
 				}
