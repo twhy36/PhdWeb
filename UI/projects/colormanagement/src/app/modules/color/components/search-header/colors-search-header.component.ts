@@ -149,7 +149,12 @@ export class ColorsSearchHeaderComponent
 		{
 			config.map((color) =>
 			{
-				this.colorsDtoList.find(c => c.colorId === color.colorId).hasSalesConfig = color.hasSalesConfig;
+				const colorDto = this.colorsDtoList.find(c => c.colorId === color.colorId);
+				if (colorDto)
+				{
+					colorDto.hasSalesConfig = color.hasSalesConfig;
+				}
+				
 			});
 		});
 
@@ -157,7 +162,11 @@ export class ColorsSearchHeaderComponent
 		{
 			config.map((color) =>
 			{
-				this.colorsDtoList.find(c => c.colorId === color.colorId).hasSalesAgreement = color.hasSalesAgreement;
+				const colorDto = this.colorsDtoList.find(c => c.colorId === color.colorId);
+				if (colorDto)
+				{
+					colorDto.hasSalesAgreement = color.hasSalesAgreement;
+				}
 			});
 		});
 	}
