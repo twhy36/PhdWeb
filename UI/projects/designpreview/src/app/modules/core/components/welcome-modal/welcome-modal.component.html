@@ -1,0 +1,20 @@
+<div aria-label="Welcome Modal">
+	<div class="modal-header">
+		<h1 class="modal-title">{{ headerText }}</h1>
+	</div>
+	<div class="modal-body">
+		<div class="phd-message">
+			<p class="phd-message-introduction">To get started:</p>
+				<ul>
+					<li>{{ subTextOne }}</li>
+					<li>{{ subTextTwo }}</li>
+				</ul>
+			<p class="phd-message-disclaimer">{{ messageDisclaimer }}</p>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-sm btn-primary modal-button"(click)="close('Got It')">
+			<span class="modal-button">Got It!</span>
+		</button>
+	</div>
+</div>

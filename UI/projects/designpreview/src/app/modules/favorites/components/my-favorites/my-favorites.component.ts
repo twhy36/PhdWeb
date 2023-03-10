@@ -45,7 +45,7 @@ import { NormalExperienceComponent } from './normal-experience/normal-experience
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 
-import { TermsAndConditionsComponent } from '../../../core/components/terms-and-conditions/terms-and-conditions.component';
+import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 
 @Component({
 	selector: 'my-favorites',
@@ -86,8 +86,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	noVisibleGroups: boolean = false;
 	noVisibleFP: boolean = false;
 	unfilteredPoints: DecisionPoint[] = [];
-	termsAndConditionsModal: ModalRef;
-	showTermsAndConditionsModal: boolean = true;
+	welcomeModal: ModalRef;
+	showWelcomeModal: boolean = true;
 	previousUrl: string;
 
 	get nextSubGroup(): SubGroup
@@ -140,13 +140,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			distinctUntilChanged(),
-			select(fromApp.showTermsAndConditions),
-		).subscribe(showTermsAndConditions => 
+			select(fromApp.showWelcomeModal),
+		).subscribe(showWelcomeModal => 
 		{
-			this.showTermsAndConditionsModal = showTermsAndConditions;
+			this.showWelcomeModal = showWelcomeModal;
 		});
 
-		if (this.showTermsAndConditionsModal) 
+		if (this.showWelcomeModal) 
 		{
 			const ngbModalOptions: NgbModalOptions =
 			{
@@ -154,7 +154,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				backdrop: 'static',
 				keyboard: false
 			};
-			this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
 		}
 
 		this.store.pipe(
@@ -324,7 +324,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		combineLatest([
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.welcomeAcknowledged), this.takeUntilDestroyed()),
 		]).subscribe(([scenarioState, taca]) =>
 		{
 			this.tree = scenarioState.tree;
@@ -332,9 +332,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.options = _.cloneDeep(scenarioState.options);
 			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
 
-			if (!taca && scenarioState.buildMode == BuildMode.Presale)
+			if (!taca)
 			{
-				this.store.dispatch(new AppActions.ShowTermsAndConditionsModal(true));
+				this.store.dispatch(new AppActions.ShowWelcomeModal(true));
 			}
 		});
 

@@ -3,36 +3,27 @@ import { Action } from '@ngrx/store';
 import { ClearLatestError, SetLatestError, PageNotFound } from '../error.action';
 
 export enum AppActionTypes {
-	AcknowledgeTermsAndConditions = 'Acknowledge Terms And Conditions',
-	ShowTermsAndConditionsModal = 'Show Terms and Conditions Modal',
-	ShowWelcomeModal = 'Show Welcome Modal'
+	AcknowledgeWelcome = 'Acknowledge Welcome',
+	ShowWelcomeModal = 'Show Welcome Modal',
 }
 
-export class AcknowledgeTermsAndConditions implements Action
+export class AcknowledgeWelcome implements Action
 {
-	readonly type = AppActionTypes.AcknowledgeTermsAndConditions;
+	readonly type = AppActionTypes.AcknowledgeWelcome;
 
-	constructor(public acknowledgeTermsAndConditions: boolean) {};
-}
-
-export class ShowTermsAndConditionsModal implements Action
-{
-	readonly type = AppActionTypes.ShowTermsAndConditionsModal;
-
-	constructor(public showTermsAndConditions: boolean) {};
+	constructor(public acknowledgeWelcome: boolean) {};
 }
 
 export class ShowWelcomeModal implements Action
 {
 	readonly type = AppActionTypes.ShowWelcomeModal;
 
-	constructor(public showWelcomeMessage: boolean) {};
+	constructor(public showWelcomeModal: boolean) {};
 }
 
 export type AppActions = 
 	ClearLatestError |
 	SetLatestError |
 	PageNotFound |
-	AcknowledgeTermsAndConditions |
-	ShowTermsAndConditionsModal |
+	AcknowledgeWelcome |
 	ShowWelcomeModal;

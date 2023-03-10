@@ -29,9 +29,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	environment = environment;
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
-	termsAndConditionsModal: ModalRef;
 	browserModal: ModalRef;
-	welcomeModal: ModalRef;
 
 	get branch(): string 
 	{

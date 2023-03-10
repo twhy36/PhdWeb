@@ -15,11 +15,12 @@ import
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
-import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 
+import * as AppActions from '../../../ngrx-store/app/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
@@ -32,6 +33,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { InfoModalComponent } from '../../../shared/components/info-modal/info-modal.component';
+import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 
 @Component({
 	selector: 'favorites-summary',
@@ -72,6 +74,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	confirmModal: ModalRef;
 	showFloorplan: boolean = true;
 	isInitScrollTop: boolean = false;
+	welcomeModal: ModalRef;
+	showWelcomeModal: boolean = true;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -229,14 +233,19 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.myFavorites = fav && fav.myFavorites;
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromScenario.selectScenario)
-		).subscribe(scenario =>
+		combineLatest([
+			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.welcomeAcknowledged), this.takeUntilDestroyed()),
+		]).subscribe(([scenarioState, taca]) =>
 		{
-			this.tree = scenario.tree;
-			this.treeVersionRules = _.cloneDeep(scenario.rules);
-			this.options = _.cloneDeep(scenario.options);
+			this.tree = scenarioState.tree;
+			this.treeVersionRules = _.cloneDeep(scenarioState.rules);
+			this.options = _.cloneDeep(scenarioState.options);
+
+			if (!taca && scenarioState.buildMode !== BuildMode.Presale)
+			{
+				this.store.dispatch(new AppActions.ShowWelcomeModal(true));
+			}
 		});
 
 		this.checkForEmptyFavorites();
@@ -244,6 +253,26 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (this.isPresale && this.isEmptyFavorites)
 		{
 			this.displayEmptyFavoritesModal();
+		}
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			distinctUntilChanged(),
+			select(fromApp.showWelcomeModal),
+		).subscribe(showWelcomeModal => 
+		{
+			this.showWelcomeModal = showWelcomeModal && !this.isPresale;
+		});
+
+		if (this.showWelcomeModal) 
+		{
+			const ngbModalOptions: NgbModalOptions =
+			{
+				centered: true,
+				backdrop: 'static',
+				keyboard: false
+			};
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
 		}
 
 		// marketing plan Id for interactive floorplan

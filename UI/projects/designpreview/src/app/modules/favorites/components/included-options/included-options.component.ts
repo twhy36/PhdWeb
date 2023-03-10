@@ -22,7 +22,7 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { TermsAndConditionsComponent } from '../../../core/components/terms-and-conditions/terms-and-conditions.component';
+import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 
 @Component({
 	selector: 'included-options',
@@ -50,8 +50,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	myFavoriteId: number;
 	myFavoritesChoices: MyFavoritesChoice[];
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
-	termsAndConditionsModal: ModalRef;
-	showTermsAndConditionsModal: boolean = true;
+	welcomeModal: ModalRef;
+	showWelcomeModal: boolean = true;
 
 	constructor(private store: Store<fromRoot.State>,
 		private modalService: ModalService,
@@ -77,7 +77,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		combineLatest([
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromApp.termsAndConditionsAcknowledged), this.takeUntilDestroyed()),
+			this.store.pipe(select(fromApp.welcomeAcknowledged), this.takeUntilDestroyed()),
 		]).subscribe(([scenarioState, taca]) =>
 		{
 			this.tree = scenarioState.tree;
@@ -87,7 +87,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 			if (!taca && scenarioState.buildMode == BuildMode.Presale)
 			{
-				this.store.dispatch(new AppActions.ShowTermsAndConditionsModal(true));
+				this.store.dispatch(new AppActions.ShowWelcomeModal(true));
 			}
 		});
 
@@ -118,13 +118,13 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			distinctUntilChanged(),
-			select(fromApp.showTermsAndConditions),
-		).subscribe(showTermsAndConditions => 
+			select(fromApp.showWelcomeModal),
+		).subscribe(showWelcomeModal => 
 		{
-			this.showTermsAndConditionsModal = showTermsAndConditions;
+			this.showWelcomeModal = showWelcomeModal;
 		});
 
-		if (this.showTermsAndConditionsModal) 
+		if (this.showWelcomeModal) 
 		{
 			const ngbModalOptions: NgbModalOptions =
 			{
@@ -132,7 +132,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 				backdrop: 'static',
 				keyboard: false
 			};
-			this.termsAndConditionsModal = this.modalService.open(TermsAndConditionsComponent, ngbModalOptions, true)
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
 		}
 
 		this.store.pipe(

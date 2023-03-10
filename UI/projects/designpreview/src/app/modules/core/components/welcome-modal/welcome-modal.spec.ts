@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 
-import { TermsAndConditionsComponent } from './terms-and-conditions.component';
+import { WelcomeModalComponent } from './welcome-modal.component';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-describe('TermsAndConditionsComponent', () => 
+describe('WelcomeModalComponent', () => 
 {
-	let component: TermsAndConditionsComponent;
-	let fixture: ComponentFixture<TermsAndConditionsComponent>;
+	let component: WelcomeModalComponent;
+	let fixture: ComponentFixture<WelcomeModalComponent>;
 
 	let mockStore: MockStore;
 	const { initialState } = fromApp;
@@ -16,7 +16,7 @@ describe('TermsAndConditionsComponent', () =>
 	beforeEach(async () => 
 	{
 		await TestBed.configureTestingModule({
-			declarations: [ TermsAndConditionsComponent ],
+			declarations: [ WelcomeModalComponent ],
 			providers: [ NgbModal, NgbActiveModal, provideMockStore({ initialState }), ]
 		})
 			.compileComponents();
@@ -26,7 +26,7 @@ describe('TermsAndConditionsComponent', () =>
 
 	beforeEach(() => 
 	{
-		fixture = TestBed.createComponent(TermsAndConditionsComponent);
+		fixture = TestBed.createComponent(WelcomeModalComponent);
 		component = fixture.componentInstance;
 
 		fixture.detectChanges();
@@ -41,6 +41,6 @@ describe('TermsAndConditionsComponent', () =>
 	{
 		const state = fromApp.reducer(undefined, { type: null });
 
-		expect(state.termsAndConditionsAcknowledged).toBe(initialState.termsAndConditionsAcknowledged);
+		expect(state.welcomeAcknowledged).toBe(initialState.welcomeAcknowledged);
 	})
 });

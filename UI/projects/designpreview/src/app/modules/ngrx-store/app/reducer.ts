@@ -6,12 +6,11 @@ import { DesignPreviewError } from '../../shared/models/error.model';
 export interface State {
 	latestError: DesignPreviewError;
 	pageNotFound: boolean;
-	showTermsAndConditionsModal: boolean;
 	showWelcomeModal: boolean;
-	termsAndConditionsAcknowledged: boolean;
+	welcomeAcknowledged: boolean;
 }
 
-export const initialState: State = { latestError: null, pageNotFound: false, showTermsAndConditionsModal: false, termsAndConditionsAcknowledged: false, showWelcomeModal: false };
+export const initialState: State = { latestError: null, pageNotFound: false, showWelcomeModal: false, welcomeAcknowledged: false };
 
 export function reducer(state: State = initialState, action: AppActions): State 
 {
@@ -26,14 +25,11 @@ export function reducer(state: State = initialState, action: AppActions): State
 	case CommonActionTypes.PageNotFound:
 		return { ...state, pageNotFound: true };
 
-	case AppActionTypes.AcknowledgeTermsAndConditions:
-		return { ...state, termsAndConditionsAcknowledged: action.acknowledgeTermsAndConditions }
+	case AppActionTypes.AcknowledgeWelcome:
+		return { ...state, welcomeAcknowledged: action.acknowledgeWelcome }
 		
-	case AppActionTypes.ShowTermsAndConditionsModal:
-		return { ...state, showTermsAndConditionsModal: action.showTermsAndConditions }
-
 	case AppActionTypes.ShowWelcomeModal:
-		return { ...state, showWelcomeModal: action.showWelcomeMessage }
+		return { ...state, showWelcomeModal: action.showWelcomeModal }
 
 	default:
 		return state;
@@ -49,25 +45,19 @@ export const getAppLatestError = createSelector(
 		return app.latestError;
 	}
 );
-export const termsAndConditionsAcknowledged = createSelector(
+
+export const welcomeAcknowledged = createSelector(
 	selectApp,
 	(app) => 
 	{
-		return app.termsAndConditionsAcknowledged;
+		return app.welcomeAcknowledged;
 	}
 );
-export const showTermsAndConditions = createSelector(
-	selectApp,
-	(app) => 
-	{
-		return app.showTermsAndConditionsModal;
-	}
-);
-export const showWelcomeMessage = createSelector(
+
+export const showWelcomeModal = createSelector(
 	selectApp,
 	(app) => 
 	{
 		return app.showWelcomeModal;
 	}
 );
-

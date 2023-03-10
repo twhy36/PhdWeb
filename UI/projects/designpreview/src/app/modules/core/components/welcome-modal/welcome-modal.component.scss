@@ -41,9 +41,10 @@
 	border-color: var(--primary-button-color) !important;
 }
 
-.phd-presale-message {
+.phd-message {
 	font-size: 14px;
-	.phd-presale-message-introduction {
+
+	.phd-message-introduction {
 		color: var(--primary-button-color);
 		margin-bottom: 0px;
 	}
@@ -53,7 +54,7 @@
 		margin-bottom: 1rem;
 	}
 
-	.phd-presale-message-disclaimer {
+	.phd-message-disclaimer {
 		font-size: 11px;
 	}
 }
