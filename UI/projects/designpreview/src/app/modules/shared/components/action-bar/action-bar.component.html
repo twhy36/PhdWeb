@@ -14,15 +14,16 @@
 			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
 		</a>
-		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options" (click)="clickToggleContractedOptions()">
-			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }">
+		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options">
+			<div [ngClass]="{'phd-clickable' : !isContractedOptionsDisabled }" (click)="clickToggleContractedOptions()">
 				<button 
 					class="btn btn-sm btn-toggle btn-auto-approval"
 					[ngClass]="{'active': includeContractedOptions, 'phd-toggle-on': includeContractedOptions, 'phd-toggle-off': !includeContractedOptions }">
 						<div class="handle"></div>
 				</button>
 			</div>
-			<span class="phd-contracted-options-label">Display My Contracted Options</span>
+			<span class="phd-contracted-options-label" (click)="clickToggleContractedOptions()">Contracted Options</span>
+			<info-tooltip-component *ngIf="!isDesignComplete" [template]="contractedOptions"></info-tooltip-component>
 		</div>
 	</ul>
 
@@ -38,7 +39,7 @@
 				<span *ngIf="!isDesignComplete" class="phd-price">{{ favoritesPrice | currency:'USD':'symbol':'0.0-0' }}</span>
 				<div>
 					<span class="phd-price">{{ price | currency:'USD':'symbol':'0.0-0' }}</span>
-					<info-tooltip-component *ngIf="!isDesignComplete" [template]="infoContent"></info-tooltip-component>
+					<info-tooltip-component *ngIf="!isDesignComplete" [template]="totalPricing"></info-tooltip-component>
 				</div>
 			</div>
 		</div>
@@ -49,10 +50,17 @@
 </div>
 
 
-<ng-template #infoContent>
+<ng-template #totalPricing>
 	<div>
 		<p><strong>Estimated Favorites Total:</strong> Estimated total price of all options selected in this application.</p>
 		<p><strong>Estimated Total Purchase Price:</strong> Total price of all options under contract plus your Estimated Favorites Total.</p>
 		<p><em>(Option pricing is subject to change until placed under contract with a Sales Representative.)</em></p>
+	</div>
+</ng-template>
+
+<ng-template #contractedOptions>
+	<div>
+		<p>Move the toggle to “On” to display the options you have previously selected with a consultant throughout the site. This will include options that are under contract as well as any options that are pending on an open change order.</p>
+		<p><em>(Option pricing is subject to change and are not final until placed under contract with a Sales Consultant.)</em></p>
 	</div>
 </ng-template>
