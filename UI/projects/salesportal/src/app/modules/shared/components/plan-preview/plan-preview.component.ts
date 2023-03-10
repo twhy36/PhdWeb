@@ -281,22 +281,10 @@ export class PlanPreviewComponent implements OnInit
 					typeName: 'Design Tool'
 				});
 
-				let showDesignPreview = false;
-
-				// Toggle between two lines below and sub in your role for testing
-				// if (this.designPreviewEnabled || this.roles.find(role => role === ''<YOUR_ROLE_HERE>'')) {
-				if (this.designPreviewEnabled || this.roles.find(role => role === 'SalesManager'))
-				{
-					showDesignPreview = true;
-				}
-
-				if (showDesignPreview)
-				{
-					this.types.push({
-						typeId: 3,
-						typeName: 'Design Preview'
-					});
-				}
+				this.types.push({
+					typeId: 3,
+					typeName: 'Design Preview'
+				});
 
 				this.setPlan();
 			}
