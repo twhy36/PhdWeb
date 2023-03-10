@@ -198,7 +198,7 @@ export const canEditInternalNotes = createSelector(
 	(market, user) => !!market && user.canEditInternalNotes && user.assignedMarkets.some(m => m.number === market.number)
 )
 
-export const canEstimateOnSummary = createSelector(
+export const isDirtScenario = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromScenario.buildMode,
 	(sag, build) => build !== 'spec' && build !== 'model' && sag?.id === 0

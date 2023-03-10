@@ -88,7 +88,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 
-		this.allowEstimates$ = this.store.select(fromRoot.canEstimateOnSummary);
+		this.allowEstimates$ = this.store.select(fromRoot.isDirtScenario);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
