@@ -110,9 +110,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this.currentMarket = mkt;
 				this.financialCommunity = comm;
 
-
 				// This need to be deep copied so that changes that aren't saved aren't made to the original
-				this.formFinancialCommunity = JSON.parse(JSON.stringify(this.financialCommunity));
+				this.formFinancialCommunity = this.financialCommunity ? JSON.parse(JSON.stringify(this.financialCommunity)) : null;
 
 				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
 				if (mkt && comm && comm.marketId === mkt.id)
@@ -140,7 +139,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 					this.loadPlansAndHomeSites();
 
-					//init generate url values
+					// init generate url values
 					this.disableUrlGeneration();
 					this.selectedOption = null;
 
