@@ -10,7 +10,7 @@
 			<span class="align-self-center">Print</span>
 		</button>
 
-		<a *ngIf="showFavorites" class="d-flex phd-clickable" (click)="onViewFavorites()">
+		<a href="" (click)="$event.preventDefault(); onViewFavorites();" *ngIf="showFavorites" class="d-flex phd-clickable">
 			<img class="phd-favorites-list" [src]="favoritesListIcon">
 			<span class="align-self-center">My Favorites</span>
 		</a>
