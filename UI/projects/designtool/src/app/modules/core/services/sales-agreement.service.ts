@@ -12,7 +12,7 @@ import
 		removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
 		SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
 		ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
+		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint, IPendingJobSummary
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -201,7 +201,14 @@ export class SalesAgreementService
 		);
 	}
 
-	createSalesAgreementForScenario(scenario: Scenario, tree: Tree, baseHouseOption: PlanOption, salePrice: number, optionRules: OptionRule[]): Observable<SalesAgreement>
+	createSalesAgreementForScenario(
+		scenario: Scenario, 
+		tree: Tree, 
+		baseHouseOption: PlanOption, 
+		salePrice: number, 
+		optionRules: OptionRule[],
+		pendingJobSummary: IPendingJobSummary
+	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForScenario`;
 		const url = `${environment.apiUrl}${action}`;
@@ -250,7 +257,8 @@ export class SalesAgreementService
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
 			},
-			salePrice: salePrice
+			salePrice: salePrice,
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return this._http.post<ISalesAgreement>(url, data).pipe(
@@ -968,7 +976,16 @@ export class SalesAgreementService
 		return reassignedAttributesDto;
 	}	
 
-	createJIOForSpec(tree: Tree, scenario: Scenario, communityId: number, buildMode: string, baseHouseOption: PlanOption, optionRules: OptionRule[], skipSpinner: boolean = true): Observable<Job>
+	createJIOForSpec(
+		tree: Tree, 
+		scenario: Scenario, 
+		communityId: number, 
+		buildMode: string, 
+		baseHouseOption: PlanOption, 
+		optionRules: OptionRule[], 
+		pendingJobSummary: IPendingJobSummary,
+		skipSpinner: boolean = true
+	): Observable<Job>
 	{
 		const action = `CreateJIOForSpec`;
 		const url = `${environment.apiUrl}${action}`;
@@ -1028,7 +1045,8 @@ export class SalesAgreementService
 				quantity: 1,
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
-			}
+			},
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).post(url, data).pipe(
