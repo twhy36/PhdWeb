@@ -8,6 +8,7 @@ import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from '.
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { finalize, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
+import * as _ from 'lodash';
 import { combineLatest, forkJoin, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -26,6 +27,7 @@ import { TreeService } from '../../../core/services/tree.service';
 export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	financialCommunity: FinancialCommunity = null;
+	formFinancialCommunity: FinancialCommunity;
 	financialCommunityInfo: FinancialCommunityInfo;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	salesCommunity: SalesCommunity = null;
@@ -74,7 +76,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	get isPreviewEnabled(): boolean
 	{
-		return this.financialCommunity?.isDesignPreviewEnabled;
+		return this.formFinancialCommunity?.isDesignPreviewEnabled;
 	}
 
 	get plans(): PlanViewModel[]
@@ -108,11 +110,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				this.currentMarket = mkt;
 				this.financialCommunity = comm;
 
+
+				// This need to be deep copied so that changes that aren't saved aren't made to the original
+				this.formFinancialCommunity = JSON.parse(JSON.stringify(this.financialCommunity));
+
 				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
 				if (mkt && comm && comm.marketId === mkt.id)
 				{
-					this.currentMarket = mkt;
-
 					return combineLatest([
 						this._orgService.getInternalOrgs(mkt.id),
 						of(comm)
@@ -122,6 +126,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				{
 					this.financialCommunity = null;
 					this.selectedCommunity = null;
+					this.formFinancialCommunity = null;
 				}
 
 				return of([null, null]);
@@ -158,10 +163,13 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.financialCommunityInfo = finCommInfo;
 
 			this.financialBrand = financialBrand;
-			const brandUrl = getBrandUrl(financialBrand.key, environment.thoUrls);
-			this.url = (brandUrl && websiteCommunity?.webSiteIntegrationKey)
-				? `${brandUrl}${websiteCommunity.webSiteIntegrationKey}`
-				: null;
+			if (financialBrand)
+			{
+				const brandUrl = getBrandUrl(financialBrand.key, environment.thoUrls);
+				this.url = (brandUrl && websiteCommunity?.webSiteIntegrationKey)
+					? `${brandUrl}${websiteCommunity.webSiteIntegrationKey}`
+					: null;
+			}
 
 			this.canToggleCommunitySettings = true;
 			this.salesCommunity = salesCommunity;
@@ -230,7 +238,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	togglePreviewEnabled()
 	{
 		this.previewEnabledDirty = !this.previewEnabledDirty;
-		this.financialCommunity.isDesignPreviewEnabled = !this.financialCommunity.isDesignPreviewEnabled;
+		this.formFinancialCommunity.isDesignPreviewEnabled = !this.formFinancialCommunity.isDesignPreviewEnabled;
 	}
 
 	createForm()
@@ -298,6 +306,8 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		if (this.previewEnabledDirty)
 		{
 			// Still want to be able to enable preview when the form is invalid
+			this.financialCommunity.isDesignPreviewEnabled = this.formFinancialCommunity.isDesignPreviewEnabled;
+
 			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
 			{
 				this.isSaving = false;
