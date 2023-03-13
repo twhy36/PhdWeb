@@ -134,6 +134,11 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 			programName: this.programName
 		});
 
+		if (this.program.salesProgram.name === 'Quick Move-in Incentive')
+		{
+			this.programName.disable();
+		}
+
 		this.salesProgramChange();
 	}
 
