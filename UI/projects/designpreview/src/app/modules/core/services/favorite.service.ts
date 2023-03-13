@@ -72,6 +72,7 @@ export class FavoriteService
 		);
 	}
 
+	//save favorites to DB through API calls, return processed choices for next action
 	saveMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favorites: MyFavorite): Observable<MyFavoritesChoice[]>
 	{
 		const favoriteChoices = (favorites ? favorites.myFavoritesChoice : []) || [];
@@ -151,14 +152,19 @@ export class FavoriteService
 		);
 	}
 
+	//read from store/state, contracted and fovorited choices, 
+	//return choices feeding API DB updates for saving favorites
 	getMyFavoritesChoices(tree: Tree, salesChoices: JobChoice[], favoriteChoices: MyFavoritesChoice[])
 	{
 		const choices = [];
+		//read store/state.tree for all selected
 		const treeChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 
+		//get selected other than contracted
 		const newFavoriteChoices = treeChoices.filter(c => salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		newFavoriteChoices.forEach(nc =>
 		{
+			//already favorited in store/state, return existing ID, otherwise ID=0 for insert
 			const existingChoice = favoriteChoices.find(fav => fav.divChoiceCatalogId === nc.divChoiceCatalogId);
 			if (existingChoice)
 			{
@@ -200,6 +206,7 @@ export class FavoriteService
 			}
 		});
 
+		//remove by set return choice ids and Remove=true
 		const deletedFavoriteChoices = favoriteChoices.filter(fc => newFavoriteChoices.findIndex(nc => nc.divChoiceCatalogId === fc.divChoiceCatalogId) === -1);
 		deletedFavoriteChoices.forEach(dc =>
 		{
@@ -561,7 +568,7 @@ export class FavoriteService
 	}
 
 	saveMyFavoritesChoicesInPreviewAndPresale(tree: Tree, favorites: MyFavorite): Observable<MyFavoritesChoice[]>
-	{
+	{ 
 		const choices = [];
 
 		const newFavoriteChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];

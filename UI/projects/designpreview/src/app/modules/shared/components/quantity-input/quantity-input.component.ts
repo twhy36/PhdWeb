@@ -17,7 +17,7 @@ export class QuantityInputComponent
 	}
 	@Input() canEdit: boolean;
 	@Input() isBlocked: boolean;
-	
+
 	@Output() quantityChange: EventEmitter<number>;
 	@ViewChild('quantity') element: ElementRef;
 

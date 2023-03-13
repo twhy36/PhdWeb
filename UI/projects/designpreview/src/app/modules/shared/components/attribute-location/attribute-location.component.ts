@@ -21,13 +21,13 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	@Input() currentAttributeGroups: AttributeGroupExt[];
 	@Input() maxQuantity: number;
 	@Input() isBlocked: boolean;
-	@Input() highlightedAttribute: {attributeId: number, attributeGroupId: number};
+	@Input() highlightedAttribute: { attributeId: number, attributeGroupId: number };
 	@Input() isReadonly: boolean;
 	@Input() isDesignComplete: boolean;
 
-	@Output() locationAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number}>();
-	@Output() toggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
-	@Output() quantityChange = new EventEmitter<{location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean}>();
+	@Output() locationAttributeClick = new EventEmitter<{ attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number }>();
+	@Output() toggleAttribute = new EventEmitter<{ attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number }>();
+	@Output() quantityChange = new EventEmitter<{ location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean, skipSave: boolean }>();
 
 	@ViewChild('maxQuantityModal') maxQuantityModal;
 
@@ -65,7 +65,10 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 			this.locationAttributGroups = changes['currentAttributeGroups'] ? changes['currentAttributeGroups'].currentValue : this.locationAttributGroups;
 			this.updateAttributeGroups();
 
-			if (this.choice.choiceStatus === 'Available' && !this.choice.isFavorite && this.locationQuantityTotal > 0)
+			if (this.choice.choiceStatus === 'Available'
+				&& !(this.choice.selectedAttributes && this.choice.selectedAttributes.length)
+				&& !this.choice.isFavorite
+				&& this.locationQuantityTotal > 0)
 			{
 				this.locationQuantityTotal = 0;
 			}
@@ -112,7 +115,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		}
 	}
 
-	quantityChangeHandler(value: number)
+	quantityChangeHandler(value: number, skipSave: boolean = false)
 	{
 		if (value !== null)
 		{
@@ -123,7 +126,8 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 				location: this.attributeLocation,
 				locationGroup: this.attributeLocationGroup,
 				quantity: quantity,
-				clearAttribute: quantity <= 0 && !!this.selectedLocationAttributes.length
+				clearAttribute: quantity <= 0 && !!this.selectedLocationAttributes.length,
+				skipSave: skipSave
 			});
 		}
 		else
@@ -132,7 +136,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		}
 	}
 
-	attributeClick(data: {attribute: Attribute, attributeGroup: AttributeGroup})
+	attributeClick(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
 		this.locationAttributeClick.emit({
 			attribute: data.attribute,
@@ -142,14 +146,14 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		});
 	}
 
-	getHighlightedAttributeId(attributeGroup: AttributeGroup) : number
+	getHighlightedAttributeId(attributeGroup: AttributeGroup): number
 	{
 		return this.highlightedAttribute && this.highlightedAttribute.attributeGroupId === attributeGroup.id
 			? this.highlightedAttribute.attributeId
 			: 0;
 	}
 
-	attributeGroupSelected(data: {attribute: Attribute, attributeGroup: AttributeGroup})
+	attributeGroupSelected(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
 		const existingAttribute = this.selectedLocationAttributes.find(a =>
 			a.attributeId === data.attribute.id && a.attributeGroupId === data.attributeGroup.id);
@@ -164,7 +168,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 			if (!this.locationQuantityTotal && !existingAttribute)
 			{
 				this.locationQuantityTotal = 1;
-				this.quantityChangeHandler(1);
+				this.quantityChangeHandler(1, true);
 			}
 
 			this.toggleAttribute.emit({

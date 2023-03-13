@@ -199,12 +199,15 @@ export class FavoriteEffects
 			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, fav]) => 
-				{
-					return store.scenario.buildMode === BuildMode.Preview || store.scenario.buildMode === BuildMode.Presale
+				{ 
+					return store.scenario.buildMode === BuildMode.Preview 
+							|| store.scenario.buildMode === BuildMode.Presale
 						? this.favoriteService.saveMyFavoritesChoicesInPreviewAndPresale(store.scenario.tree, fav)
 						: this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
 				}),
-				switchMap(results => of(new MyFavoritesChoicesSaved(results)))
+				switchMap(results => 
+					of(new MyFavoritesChoicesSaved(results))
+				)
 			), SaveError, 'Error saving my favorite choices!', ErrorFrom.SaveMyFavoritesChoices)
 		)
 	);

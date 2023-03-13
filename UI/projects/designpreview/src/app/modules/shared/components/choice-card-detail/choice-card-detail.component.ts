@@ -135,12 +135,12 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.updateChoiceAttributes();
 			this.getImages();
 		},
-		error =>
-		{
-			const msg = 'Failed to load choice attributes!';
-			this.toastr.error(msg, 'Error');
-			this.adobeService.setErrorEvent(msg);
-		});
+			error =>
+			{
+				const msg = 'Failed to load choice attributes!';
+				this.toastr.error(msg, 'Error');
+				this.adobeService.setErrorEvent(msg);
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -489,6 +489,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
+	//attribute only click without location
 	attributeClick(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
 		this.locationAttributeClick({
@@ -499,6 +500,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		});
 	}
 
+	//location group's attribute is cliced with passing data
 	locationAttributeClick(data: { attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number })
 	{
 		if (this.highlightedAttribute &&
@@ -571,9 +573,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		return locationMaxQty;
-	}
+	} 
 
-	changeQuantiy(data: { location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean })
+	changeQuantiy(data: { location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean, skipSave: boolean})
 	{
 		if (data.clearAttribute)
 		{
@@ -625,7 +627,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					quantity: this.choice.quantity,
 					attributes: this.choice.selectedAttributes
 				}));
-		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+
+		if(!data.skipSave)
+		{
+			this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
+		}
 	}
 
 	openBlockedChoiceModal()
