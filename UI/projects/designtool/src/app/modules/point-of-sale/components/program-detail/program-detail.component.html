@@ -2,7 +2,7 @@
 	<div class="phd-card-header">
 		<span>Incentive Detail</span>
 
-		<a (click)="delete()" class="phd-delete-button" [class.phd-deleting]="deleting" *ngIf="canEdit">
+		<a *ngIf="canEdit && selectedSalesProgram && selectedSalesProgram.name !== 'Quick Move-in Incentive'" (click)="delete()" class="phd-delete-button" [class.phd-deleting]="deleting">
 			<span>
 				<i class="fas fa-spinner"></i>
 			</span>
