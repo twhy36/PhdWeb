@@ -282,6 +282,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			withLatestFrom(this.store.pipe(select(state => state.scenario)))
 		).subscribe(([plan, scenario]) =>
 		{
+			this.noVisibleFP = false; // Default this value to false
 			if (plan && plan.marketingPlanId && plan.marketingPlanId.length)
 			{
 				if (scenario.tree && scenario.tree.treeVersion)
