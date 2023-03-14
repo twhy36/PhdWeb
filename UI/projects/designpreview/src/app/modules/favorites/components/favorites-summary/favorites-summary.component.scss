@@ -16,6 +16,10 @@
 	width: 100%;
 	padding: 0px 10px 0px 10px;
 
+	.phd-group-list {
+		padding: 0;
+	}
+
 	.group {
 		text-transform: uppercase;
 		margin-top: 50px;
@@ -54,6 +58,7 @@
 			font-size: 14px;
 			font-weight: 500;
 			line-height: 1.36;
+			padding: 0;
 
 			.header {
 				max-height: 40px;

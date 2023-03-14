@@ -37,6 +37,10 @@
 			flex-direction: column;
 			flex: 1;
 			margin-top: 5px;
+			
+			.phd-choice-list {
+				padding: 0;
+			}
 
 			.phd-choice-detail {
 				display: flex;
@@ -83,6 +87,10 @@
 					margin-left: 22px;
 					position: relative;
 					top: -10px;
+
+					.phd-choice-attribute-list {
+						padding: 0;
+					}
 
 					.phd-choice-attributes-body {
 						display: flex;

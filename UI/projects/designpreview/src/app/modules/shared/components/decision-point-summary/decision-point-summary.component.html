@@ -3,71 +3,79 @@
 		<div [ngClass]="{'phd-point-label': !isPresale, 'phd-point-label-presale': isPresale}">{{decisionPoint.label}}</div>
 
 		<div class="phd-choice">
-			<ng-container *ngFor="let choice of choicesCustom">
-				<div class="phd-choice-detail phd-choice-detail-presale-print" *ngIf="choice.quantity > 0">
-					<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
-						<button class="phd-choice-expand">
-							<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
-								<span *ngIf="!choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
-								<span *ngIf="choice.showAttributes"><i class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
-							</div>
-						</button>
-						<span>{{ choice.label }}</span>
-						<div class="phd-choice-body">
-							<div class="my-3 phd-choice-attributes">
-								<ng-container *ngIf="choice.showAttributes && (choice.selectedAttributes.length || isDesignComplete)">
-									<div class="phd-choice-attributes-body" *ngFor="let attr of choice.mappedSelectedAttributes">
-										<div class="phd-choice-attributes-labels">
-											<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
-												<span class="phd-label">{{ attr.locationGroupLabel }}:</span>
-												<span class="phd-content">{{ attr.locationName }}</span>
-											</div>
-											<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
-												<span class="phd-label">Quantity:</span>
-												<span class="phd-content">{{ attr.locationQuantity }}</span>
-											</div>
-											<ng-container *ngIf="attr.attributes.length > 0">
-												<div [ngClass]="!!attr.locationGroupId || !!attr.locationId ? 'phd-attribute-indent' : ''"
-													class="phd-attribute" *ngFor="let consolidatedAttribute of consolidateAttributes(attr.attributes)">
-													<span class="phd-label">{{ getAttributeLabel(consolidatedAttribute.attributeGroupLabel) }}</span>
-													<span class="phd-content">{{ getAttributeList(consolidatedAttribute.attributeGroupNames) }}</span>
-												</div>
-											</ng-container>
-										</div>
-									</div>
-								</ng-container>
-								<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || (!choice.selectedAttributes.length && !isDesignComplete))">
-									<a [ngClass]="contractedOptionsPage ? 'phd-contracted-additional-selections' : 'phd-summary-additional-selections'"
-										(click)="onAdditionalSelections(choice)">Additional Selections Required</a>
-								</ng-container>
-							</div>
-						</div>
-					</div>
-
-					<div class="d-flex flex-row justify-content-end phd-choice-quantity" *ngIf="choice.quantity > 0">
-						<span class="phd-quantity-label">Qty:</span>
-						<span class="phd-content">({{ choice.quantity }})</span>
-					</div>
-					<div class="actions" [ngClass]="{'phd-edit': !isPresale, 'phd-edit-presale': isPresale}">
-						<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
-							<span class="phd-price" *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
-						</ng-container>
-						<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
-							<span class="phd-pricing-varies">Pricing Varies
-								<info-tooltip-component class="phd-hide-from-print" [template]="infoContent"></info-tooltip-component>
-							</span>
-						</ng-container>
-						<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
-							<a class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
-								<span class="phd-choice-action-label">{{actionLabel}}</span>
-							</a>
-							<button *ngIf="!isReadonly" type="button" class="btn ml-auto btn-secondary phd-remove-button" (click)="onRemove(choice)">
-								<span class="phd-choice-action-label">Remove</span>
+			<ul class="phd-choice-list">
+				<ng-container *ngFor="let choice of choicesCustom">
+					<li class="phd-choice-detail phd-choice-detail-presale-print" *ngIf="choice.quantity > 0">
+						<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
+							<button class="phd-choice-expand">
+								<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
+									<span *ngIf="!choice.showAttributes" attr.id="{{ 'expand-' + choice.id }}" aria-expanded="false" attr.aria-label="{{'Expand ' + choice.label}}">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" attr.aria-controls="{{ 'expand-' + choice.id }}" aria-hidden="true"></i>
+									</span>
+									<span *ngIf="choice.showAttributes" attr.id="{{ 'collapse-' + choice.id }}" aria-expanded="true" attr.aria-label="{{'Collapse ' + choice.label}}">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" attr.aria-controls="{{ 'collapse-' + choice.id }}" aria-hidden="true"></i>
+									</span>
+								</div>
 							</button>
+							<span>{{ choice.label }}</span>
+							<div class="phd-choice-body">
+								<div class="my-3 phd-choice-attributes">
+									<ng-container *ngIf="choice.showAttributes && (choice.selectedAttributes.length || isDesignComplete)">
+										<ul class="phd-choice-attribute-list">
+											<li class="phd-choice-attributes-body" *ngFor="let attr of choice.mappedSelectedAttributes">
+												<div class="phd-choice-attributes-labels">
+													<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
+														<span class="phd-label">{{ attr.locationGroupLabel }}:</span>
+														<span class="phd-content">{{ attr.locationName }}</span>
+													</div>
+													<div class="phd-location" *ngIf="!!attr.locationGroupId || !!attr.locationId">
+														<span class="phd-label">Quantity:</span>
+														<span class="phd-content">{{ attr.locationQuantity }}</span>
+													</div>
+													<ng-container *ngIf="attr.attributes.length > 0">
+														<div [ngClass]="!!attr.locationGroupId || !!attr.locationId ? 'phd-attribute-indent' : ''"
+															class="phd-attribute" *ngFor="let consolidatedAttribute of consolidateAttributes(attr.attributes)">
+															<span class="phd-label">{{ getAttributeLabel(consolidatedAttribute.attributeGroupLabel) }}</span>
+															<span class="phd-content">{{ getAttributeList(consolidatedAttribute.attributeGroupNames) }}</span>
+														</div>
+													</ng-container>
+												</div>
+											</li>
+										</ul>
+									</ng-container>
+									<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || (!choice.selectedAttributes.length && !isDesignComplete))">
+										<a [ngClass]="contractedOptionsPage ? 'phd-contracted-additional-selections' : 'phd-summary-additional-selections'"
+											(click)="onAdditionalSelections(choice)">Additional Selections Required</a>
+									</ng-container>
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
-			</ng-container>
+	
+						<div class="d-flex flex-row justify-content-end phd-choice-quantity" *ngIf="choice.quantity > 0">
+							<span class="phd-quantity-label">Qty:</span>
+							<span class="phd-content">({{ choice.quantity }})</span>
+						</div>
+						<div class="actions" [ngClass]="{'phd-edit': !isPresale, 'phd-edit-presale': isPresale}">
+							<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
+								<span class="phd-price" *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
+							</ng-container>
+							<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
+								<span class="phd-pricing-varies">Pricing Varies
+									<info-tooltip-component class="phd-hide-from-print" [template]="infoContent"></info-tooltip-component>
+								</span>
+							</ng-container>
+							<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
+								<a class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
+									<span class="phd-choice-action-label">{{actionLabel}}</span>
+								</a>
+								<button *ngIf="!isReadonly" type="button" class="btn ml-auto btn-secondary phd-remove-button" (click)="onRemove(choice)">
+									<span class="phd-choice-action-label">Remove</span>
+								</button>
+							</div>
+						</div>
+					</li>
+				</ng-container>
+			</ul>
 		</div>
 	</div>
 </div>
