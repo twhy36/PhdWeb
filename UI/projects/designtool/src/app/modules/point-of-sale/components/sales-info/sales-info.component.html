@@ -8,14 +8,14 @@
 			  [hasPlus]="false"></add-card>
 
 	<!--Sales Agreement Information Card-->
-	<sales-info-misc *ngIf="agreement" 
-					class="phd-editable-box"
-					[agreement]="agreement"
-					[editing]="editing"
-					(onEdit)="edit($event)"
-					[jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
-					[canEdit]="canSell && !cancelOrVoid && !isLockedIn"
-					[canUpdateECOE]="canUpdateECOE">
+	<sales-info-misc *ngIf="agreement"
+					 class="phd-editable-box"
+					 [agreement]="agreement"
+					 [editing]="editing"
+					 (onEdit)="edit($event)"
+					 [jobsProjectedFinalDate]="jobsProjectedFinalDate$ | async"
+					 [canEdit]="canSell && !cancelOrVoid && !isLockedIn"
+					 [canUpdateECOE]="canUpdateECOE && !isLockedIn">
 	</sales-info-misc>
 
 	<!--Programs and Add Program Cards-->
@@ -83,10 +83,10 @@
 	</deposit-detail>
 
 	<add-card *ngIf="!editing && canCreateDeposit && !cancelOrVoid && !isLockedIn"
-			[hasNA]="false"
-			[label]="'Deposit'"
-			[labels]="'Deposits'"
-			(onAdd)="add('deposits')"></add-card>
+			  [hasNA]="false"
+			  [label]="'Deposit'"
+			  [labels]="'Deposits'"
+			  (onAdd)="add('deposits')"></add-card>
 
 	<ng-template [ngIf]="!isChangingOrder">
 		<!--Contingencies and Add Contingency Cards-->
@@ -112,15 +112,15 @@
 				  (onNA)="setNA('contingency')">
 		</add-card>
 	</ng-template>
-				
-				
-	<add-card *ngIf="!editing && canEditInternalNotes && !cancelOrVoid"
-				[hasNA]="!notes || notes.length === 0"
-				[isNA]="isNoteNa"
-				[label]="'Note'"
-				[labels]="'Notes'"
-				(onAdd)="add('notes')"
-				(onNA)="setNA('notes')">
+
+
+	<add-card *ngIf="!editing && canEditInternalNotes && !cancelOrVoid && !isLockedIn"
+			  [hasNA]="!notes || notes.length === 0"
+			  [isNA]="isNoteNa"
+			  [label]="'Note'"
+			  [labels]="'Notes'"
+			  (onAdd)="add('notes')"
+			  (onNA)="setNA('notes')">
 	</add-card>
 
 	<!--Notes and Add Note Cards-->
@@ -131,20 +131,20 @@
 				[position]="i"
 				[inChangeOrder]="isChangingOrder"
 				[cancelOrVoid]="cancelOrVoid"
-				[canEditInternalNotes]="canEditInternalNotes"
-				[canEditExternalNotes]="canSell"
+				[canEditInternalNotes]="canEditInternalNotes && !isLockedIn"
+				[canEditExternalNotes]="canSell && !isLockedIn"
 				(onRemove)="remove('notes', $event)"
 				(onEdit)="edit($event)"
 				(checkChanges)="changes($event)"
 				*ngFor="let note of notes; let i = index">
 	</sales-note>
 
-	<add-card *ngIf="!editing && canSell && !cancelOrVoid && canAddTnCs && agreement.status !== 'Pending'"
+	<add-card *ngIf="canAddTnCs"
 			  [hasNA]="!notes || notes.length === 0"
 			  [isNA]="isNoteNa"
 			  [label]="'Terms & Conditions'"
 			  [labels]="'Terms & Conditions'"
-			  (onAdd)="add('notes')"
+			  (onAdd)="add('notes', { subCategory: 10 })"
 			  (onNA)="setNA('notes')">
 	</add-card>
 

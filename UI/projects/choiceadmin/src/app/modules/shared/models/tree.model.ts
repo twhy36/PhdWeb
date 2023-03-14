@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import * as moment from 'moment';
 import { PhdApiDto, PhdEntityDto } from './api-dtos.model';
 import { LocationGroupMarket } from "./location-group-market.model";
 import { AttributeGroupMarket } from "./attribute-group-market.model";
@@ -438,7 +438,7 @@ export class DTPoint implements IDTPoint
 	get dto() { return this._dto; }
 	set dto(dto)
 	{
-		this.id = dto.id
+		this.id = dto.id;
 		this.treeVersionId = dto.treeVersionId;
 		this.subGroupId = dto.subGroupId;
 		this.divPointCatalogId = dto.divPointCatalogId;
@@ -533,7 +533,7 @@ export class DTChoice implements IDTChoice
 	{
 		this.id = dto.id;
 		this.treeVersionId = dto.treeVersionId;
-		this.treePointId = dto.treePointId
+		this.treePointId = dto.treePointId;
 		this.divChoiceCatalogId = dto.divChoiceCatalogId;
 		this.sortOrder = dto.sortOrder;
 		this.isSelectable = dto.isSelectable;

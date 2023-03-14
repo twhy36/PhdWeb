@@ -6,7 +6,7 @@
 	</div>
 
 	<div class="phd-body">
-		<div class="phd-choice-decline-details">
+		<div *ngIf="!isPresale" class="phd-choice-decline-details">
 			<h1 class="phd-2-line-limit">
 				No Selections
 			</h1>
@@ -15,15 +15,37 @@
 					<strong></strong>
 				</div>
 				<ng-container>
-					<div class="phd-non-clickable" (click)="$event.stopPropagation()">
+					<button class="phd-non-clickable" (click)="$event.stopPropagation()">
 						<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
 						<i *ngIf="!isDeclined && currentPoint.enabled" class="fa fa-heart-o" (click)="toggleDecline()"></i>
-					</div>
+					</button>
 				</ng-container>
 				<ng-container *ngIf="!currentPoint.enabled">
-					<div class="phd-clickable phd-favorite-selector">
+					<button class="phd-clickable phd-favorite-selector">
 						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
-					</div>
+					</button>
+				</ng-container>
+			</div>
+		</div>
+
+		<div *ngIf="isPresale" class="phd-choice-decline-details d-flex flex-row justify-content-between" [ngClass]="getBodyHeight()">
+			<h1 class="phd-2-line-limit">
+				No Selections
+			</h1>
+			<div class="phd-presale-icon d-flex flex-row justify-content-between">
+				<div>
+					<strong></strong>
+				</div>
+				<ng-container>
+					<button class="phd-non-clickable" (click)="$event.stopPropagation()">
+						<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
+						<i *ngIf="!isDeclined && currentPoint.enabled" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+					</button>
+				</ng-container>
+				<ng-container *ngIf="!currentPoint.enabled">
+					<button class="phd-clickable phd-favorite-selector">
+						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+					</button>
 				</ng-container>
 			</div>
 		</div>
@@ -32,9 +54,9 @@
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal
-		[disabledByList]="disabledByList"
-		[choiceLabel]="'No Thanks!'"
+		[point]="point"
+		isNoThanksCard
 		(closeModal)="onCloseClicked()"
-		(blockedItemClick)="onBlockedItemClick($event)"
+		(blockedItemClick)="onBlockedItemClick()"
 	></blocked-choice-modal>
 </ng-template>

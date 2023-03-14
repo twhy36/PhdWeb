@@ -242,7 +242,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 										}).filter(o => !!o);
 
 										let maxQuantity = 1;
-										let choiceMaxQuantity = ch.choiceMaxQuantity as number;
+										let choiceMaxQuantity = ch.maxQuantity as number;
 
 										if (choiceMaxQuantity != null && opt.length > 0)
 										{
@@ -277,7 +277,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 											selectedAttributes: mapAttributes(choice)
 										};
 
-										newChoice.price = newChoice.options.reduce((x, y) => x + y.listPrice, 0);
+										newChoice.price = choice.dpChoiceCalculatedPrice;
 
 										if (point)
 										{
@@ -303,6 +303,7 @@ export function mergeIntoTree<T extends { tree: Tree, options: PlanOption[], ima
 													subGroupCatalogId: ch.dPoint.dSubGroup.dSubGroupCatalogID,
 													subGroupId: ch.dPoint.dSubGroupID,
 													treeVersionId: ch.dTreeVersionID,
+													dPointTypeId: ch.dPoint.divDPointCatalog.dPointCatalog?.dPointTypeId,
 													viewed: true
 												};
 
@@ -628,7 +629,11 @@ function getSelectedAttributes(locationGroups: number[], attributeGroups: number
 	});
 }
 
-export function mergeAttributes(attributes: Array<any>, missingAttributes: Array<DesignToolAttribute>, attributeGroups: Array<AttributeGroup>)
+export function mergeAttributes(
+		attributes: Array<any>, 
+		missingAttributes: Array<DesignToolAttribute>, 
+		attributeGroups: Array<AttributeGroup>,
+		selectedAttributes: DesignToolAttribute[])
 {
 	const lastGroup = attributeGroups.length ? _.maxBy(attributeGroups, 'sortOrder') : null;
 	let sortOrder = lastGroup ? lastGroup.sortOrder + 1 : 0;
@@ -662,6 +667,30 @@ export function mergeAttributes(attributes: Array<any>, missingAttributes: Array
 					newAttributeGroup.sortOrder = sortOrder++;
 					newAttributeGroup.attributes.push(newAttribute);
 					attributeGroups.push(newAttributeGroup);
+				}
+			}
+		}
+	});
+
+	// Check if any selected attributes are missing in the attribute groups	
+	const allAttributes = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes)) || [];
+	selectedAttributes.forEach(attr => {
+		const selectedAttributeGroup = attributeGroups.find(group => group.id === attr.attributeGroupId);
+		if (selectedAttributeGroup)
+		{
+			const selectedAttribute = selectedAttributeGroup.attributes?.find(attribute => attribute.id === attr.attributeId);
+			if (!selectedAttribute)
+			{
+				const missingSelectedAttribute = allAttributes.find(attribute => attribute.id === attr.attributeId);
+				if (missingSelectedAttribute)
+				{
+					// add the missing attribute
+					if (!selectedAttributeGroup.attributes)
+					{
+						selectedAttributeGroup.attributes = [];
+					}
+
+					selectedAttributeGroup.attributes.push(missingSelectedAttribute);						
 				}
 			}
 		}

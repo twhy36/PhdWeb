@@ -82,7 +82,7 @@
         </div>
 
         <div class="d-flex flex-row mx-2 phd-table-container">
-            <table class="table table-striped table-sm"  [class.phd-table-fixed]="dragEnable">
+            <table class="table table-striped table-sm phd-table-fixed" [class.phd-table-fixed-dragging]="dragEnable">
                 <thead class="thead-light">
 					<tr>
 						<th>Label</th>
@@ -120,22 +120,23 @@
 						</tr>
 
                         <ng-container *ngFor="let subGroup of group.subGroups">
-                            <tr *ngIf="group.open && subGroup.matched" class="phd-subgroup">
-                                <td class="phd-child">
-                                    <i class="fa fa-fw" (click)="subGroup.open = !subGroup.open" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open"></i>
-                                    <span>{{subGroup.label}}</span>
-                                </td>
+							<tr *ngIf="group.open && subGroup.matched" class="phd-subgroup">
+								<td class="phd-child">
+									<i class="fa fa-fw" (click)="subGroup.open = !subGroup.open" [class.fa-chevron-up]="subGroup.open" [class.fa-chevron-down]="!subGroup.open"></i>
+									<span>{{subGroup.label}}</span>
+								</td>
 								<td class="phd-icon-col">
 									<ng-container *ngIf="subGroup.isFlooring">
 										<i class="fa fa-fw fa-plus-square" (click)="addFlooringItem($event, subGroup);" ngbTooltip="Add Decision Point" container="body" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number"></i>
 									</ng-container>
 								</td>
-                                <td class="phd-icon-col"></td>
-                                <td class="phd-icon-col">
+								<td class="phd-icon-col"></td>
+								<td class="phd-icon-col">
 									<ng-container *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">
 										<i class="fa fa-fw fa-undo text-danger" (click)="reactivateItem($event, 'Point', subGroup);" *ngIf="subGroup.hasInactiveChildren" ngbTooltip="Reactivate Decision Points" container="body"></i>
 									</ng-container>
-                                </td>
+								</td>
+								<td class="phd-icon-col"></td>
 								<td class="phd-icon-col"></td>
 								<td class="phd-icon-col"></td>
 								<td class="phd-icon-half-col"></td>
@@ -146,8 +147,8 @@
 							</tr>
 
                             <ng-container *ngFor="let point of subGroup.points">
-                                <tr *ngIf="group.open && subGroup.open && point.matched" [dragSource]="getDragItem(point)" scrollElement=".phd-table-fixed tbody" [dragEnabled]="dragEnable" targetsSelector=".phd-drag-drop" dragTarget (handledrop)="handleDrop($event, point)" (handledragenter)="handleDragEnter($event, point)" (handledragstart)="handleDragStart($event, point)" class="phd-drag-drop phd-point">
-                                    <td class="phd-grand-child">
+								<tr *ngIf="group.open && subGroup.open && point.matched" [dragSource]="getDragItem(point)" scrollElement=".phd-table-fixed tbody" [dragEnabled]="dragEnable" targetsSelector=".phd-drag-drop" dragTarget (handledrop)="handleDrop($event, point)" (handledragenter)="handleDragEnter($event, point)" (handledragstart)="handleDragStart($event, point)" class="phd-drag-drop phd-point">
+									<td class="phd-grand-child">
 										<i class="fa fa-fw" (click)="point.open = !point.open" [class.fa-chevron-up]="point.open" [class.fa-chevron-down]="!point.open"></i>
 										<a (click)="editItem($event, point);" *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number">{{point.label}}</a>
 										<span *requiresClaim="'DivisionCatalog'; permission: Permission.Edit; market: selectedMarket?.number; showIf: false">{{point.label}}</span>
@@ -179,6 +180,7 @@
 									<td class="phd-text-col">
 										<span *ngIf="point.choices.length">{{ point.pickTypeLabel }}</span>
 									</td>
+									<th class="phd-icon-small-col"></th>
 									<td class="phd-text-col">{{ point.cutOff }}</td>
 									<td class="phd-description-col">{{point.description}}</td>
 								</tr>
@@ -207,6 +209,7 @@
 											</span>
 										</td>
 										<td class="phd-text-col"></td>
+										<th class="phd-icon-small-col"></th>
 										<td class="phd-text-col"></td>
 										<td class="phd-description-col"></td>
 									</tr>

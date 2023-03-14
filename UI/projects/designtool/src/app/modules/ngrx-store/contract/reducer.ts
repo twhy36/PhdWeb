@@ -23,7 +23,7 @@ export function reducer(state: State = initialState, action: ContractActions): S
 	switch (action.type)
 	{
 		case ContractActionTypes.TemplatesLoaded:
-			return { ...state, templates: action.templates, selectedTemplates: action.templates.filter(t => t.templateTypeId === TemplateTypeEnum['Sales Agreement']).map(t => t.templateId) };
+			return { ...state, templates: action.templates, selectedTemplates: action.templates.filter(t => t.templateTypeId === TemplateTypeEnum['Sales Agreement'] || (t.templateTypeId === 2 && t.addendumTypeId === 7)).map(t => t.templateId) };
 		case ContractActionTypes.LoadError:
 			return { ...state, hasError: true };
 		case ContractActionTypes.AddRemoveSelectedTemplate:

@@ -1,11 +1,12 @@
-import { Log, ScenarioOption, Scenario } from 'phd-common';
+import { Log, ScenarioOption, Scenario, IFeatureSwitchOrgAssoc } from 'phd-common';
 import { Action } from '@ngrx/store';
 import {
     IOptionCategory, LitePlanOption, ScenarioOptionColorDto, LiteMonotonyRule
 } from '../../shared/models/lite.model';
 
 export enum LiteActionTypes {
-    SetIsPhdLite = 'Set Is Phd Lite',
+	SetIsPhdLite = 'Set Is Phd Lite',
+	SetIsPhdLiteByFinancialCommunity = 'Set Is Phd Lite By Financial Community',
     LiteOptionsLoaded = 'Lite Options Loaded',
     SelectOptions = 'Select Options',
     SaveScenarioOptions = 'Save Scenario Options',
@@ -21,7 +22,8 @@ export enum LiteActionTypes {
     CancelJobChangeOrderLite = 'Cancel Job Change Order Lite',
     LoadLitePlan = 'Load Lite Plan',
     CancelPlanChangeOrderLite = 'Cancel Plan Change Order Lite',
-   ToggleQuickMoveInSelections = 'Toggle Quick Move In Selections'
+    ToggleQuickMoveInSelections = 'Toggle Quick Move In Selections',
+    ResetLiteState = 'Reset Lite State'
 }
 
 @Log(true)
@@ -31,6 +33,12 @@ export class SetIsPhdLite implements Action {
     constructor(public isPhdLite: boolean) { }
 }
 
+@Log(true)
+export class SetIsPhdLiteByFinancialCommunity implements Action {
+    readonly type = LiteActionTypes.SetIsPhdLiteByFinancialCommunity;
+
+    constructor(public isPhdLiteByFinancialCommunity: IFeatureSwitchOrgAssoc[]) { }
+}
 @Log()
 export class LiteOptionsLoaded implements Action {
     readonly type = LiteActionTypes.LiteOptionsLoaded;
@@ -42,14 +50,14 @@ export class LiteOptionsLoaded implements Action {
 export class SelectOptions implements Action {
     readonly type = LiteActionTypes.SelectOptions;
 
-    constructor(public scenarioOptions: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[], public optionColors: ScenarioOptionColorDto[] = []) { }
 }
 
 @Log()
 export class SaveScenarioOptions implements Action {
     readonly type = LiteActionTypes.SaveScenarioOptions;
 
-    constructor(public scenarioOptions: ScenarioOption[]) { }
+    constructor(public scenarioOptions: ScenarioOption[], public optionColors: ScenarioOptionColorDto[] = []) { }
 }
 
 @Log()
@@ -146,8 +154,15 @@ export class ToggleQuickMoveInSelections implements Action
 		public deletePhdFullData: boolean) { }
 }
 
+export class ResetLiteState implements Action {
+    readonly type = LiteActionTypes.ResetLiteState;
+
+    constructor() { }
+}
+
 export type LiteActions =
-    SetIsPhdLite |
+	SetIsPhdLite |
+	SetIsPhdLiteByFinancialCommunity |
     LiteOptionsLoaded |
     SelectOptions |
     SaveScenarioOptions |
@@ -163,4 +178,5 @@ export type LiteActions =
     CancelPlanChangeOrderLite |
 	CreateJIOForSpecLite |
 	LoadLiteSpecOrModel |
-    ToggleQuickMoveInSelections;
+    ToggleQuickMoveInSelections |
+    ResetLiteState;

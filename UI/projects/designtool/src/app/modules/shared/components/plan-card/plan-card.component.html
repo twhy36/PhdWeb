@@ -21,7 +21,8 @@
 				<button class="btn w-100 phd-experience-btn-choice" type="button"
 						(click)="toggleSelectedPlan(plan)"
 						[class.phd-experience-btn-selected]="isPlanSelected(plan) || getDisabled()"
-						[disabled]="!isSpecSelected && getDisabled()">
+						[disabled]="!isSpecSelected && getDisabled() || isLitePlanDisabled"
+						[class.phd-lite-disabled-plan]="isLitePlanDisabled">
 					{{getButtonLabel()}}
 				</button>
 			</div>

@@ -12,7 +12,7 @@ import { CoreModule } from './modules/core/core.module';
 import { LotManagementModule } from './modules/lot-managment/lot-management.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { CommunityManagementModule } from './modules/community-management/community-management.module';
-import { PhdCommonModule, ConfirmModalComponent, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
 import { ReOrgModule } from './modules/re-org/re-org.module';
 import { AppComponent } from './app.component';
 

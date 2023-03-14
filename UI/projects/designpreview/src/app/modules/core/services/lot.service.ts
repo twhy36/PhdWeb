@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw ,  of } from 'rxjs';
-import { combineLatest, map, catchError } from 'rxjs/operators';
+import { Observable, throwError as _throw, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
-import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt } from 'phd-common';
+import { LotExt, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -12,51 +12,6 @@ import { environment } from '../../../../environments/environment';
 export class LotService
 {
 	constructor(private _http: HttpClient) { }
-
-	loadLots(salesCommunityId: number, selectedLot: number, skipSpinner: boolean = true): Observable<Array<Lot>>
-	{
-		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId),jobs($select=id,lotId,handing,planId)`;
-		const includeSelectedLot = selectedLot ? `or id eq ${selectedLot}` : '';
-
-		// get Available lots that are not Models
-		const filter =
-			`financialCommunity/salesCommunityId eq ${salesCommunityId} and ` +
-			`(lotStatusDescription eq 'Available' and (lotBuildTypeDesc eq 'Dirt' or lotBuildTypeDesc eq null or lotBuildTypeDesc eq 'Spec') ` +
-			`${includeSelectedLot}) and isMasterUnit eq false`;
-
-		const select = `id,lotBlock,premium,lotStatusDescription,foundationType,lotBuildTypeDesc,financialCommunityId,isMasterUnit`;
-		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
-
-		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			combineLatest(this.getMonotonyRulesForSalesCommunity(salesCommunityId, false)),
-			map(([lotsResponse, monotonyRules]) =>
-			{
-				let lots = lotsResponse.value.map(l => new Lot(l));
-
-				lots.forEach(l =>
-				{
-					const rule = monotonyRules.find(r => r.edhLotId === l.id);
-					l.monotonyRules = rule ? rule.relatedLotsElevationColorScheme : [];
-				});
-
-				return lots;
-			}),
-			defaultOnNotFound("loadLots", [])
-		);
-	}
-
-	getMonotonyRulesForSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<MonotonyRule>>
-	{
-		const url = `${environment.apiUrl}GetMonotonyRulesForSalesCommunity(id=${salesCommunityId})`;
-
-		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			map(response =>
-			{
-				return response['value'] as Array<MonotonyRule>;
-			}),
-			defaultOnNotFound("getMonotonyRulesForSalesCommunity", [])
-		);
-	}
 
 	getLot(lotId: number): Observable<LotExt>
 	{
@@ -66,16 +21,26 @@ export class LotService
 		}
 
 		const filter = `id eq ${lotId}`;
-		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId),jobs($select=id,lotId,handing,planId),financialCommunity($select=id,name,number,city,state,zip,salesCommunityId),salesPhase($expand=salesPhasePlanPriceAssocs($select=planId,price);$select=id)`;
-		const select = `id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,facing,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,closeOfEscrow`;
+		const expand = 'lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId),jobs($select=id,lotId,handing,planId),financialCommunity($select=id,name,number,city,state,zip,salesCommunityId),salesPhase($expand=salesPhasePlanPriceAssocs($select=planId,price);$select=id)';
+		const select = 'id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,facing,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,closeOfEscrow';
 		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
 				const lotsDto = (response['value'] as Array<LotExt>);
+				lotsDto.forEach(lot =>
+				{
+					lot.city = lot.city.trim();
+					lot.postalCode = lot.postalCode.trim();
+					lot.stateProvince = lot.stateProvince.trim();
+					lot.streetAddress1 = lot.streetAddress1.trim();
+					lot.streetAddress2 = lot.streetAddress2.trim();
+				})
 
-				return lotsDto.length ? new LotExt(lotsDto[0]) : null;
+				const lotsDtoFormatted = lotsDto;
+
+				return lotsDtoFormatted.length ? new LotExt(lotsDtoFormatted[0]) : null;
 			}),
 			catchError(error =>
 			{
@@ -85,5 +50,4 @@ export class LotService
 			})
 		);
 	}
-
 }

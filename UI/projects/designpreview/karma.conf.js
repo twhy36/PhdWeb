@@ -18,8 +18,33 @@ module.exports = function (config) {
     },
     coverageIstanbulReporter: {
       dir: require('path').join(__dirname, '../coverage'),
-      reports: ['html', 'lcovonly'],
-      fixWebpackSourcePaths: true
+      reports: ['html', 'lcovonly', 'text-summary'],
+      fixWebpackSourcePaths: true,
+      combineBrowserReports: true,
+      skipFilesWithNoCoverage: true,
+      thresholds: {
+        emitWarning: true, // set to `true` to not fail the test command when thresholds are not met
+        // thresholds for all files
+        global: {
+          statements: 80,
+          lines: 80,
+          branches: 80,
+          functions: 80
+        },
+        // thresholds per file
+        each: {
+          statements: 80,
+          lines: 80,
+          branches: 80,
+          functions: 80,
+          overrides: {
+            'baz/component/**/*.js': {
+              statements: 98
+            }
+          }
+        }
+      },
+      verbose: true
     },
     reporters: ['progress', 'kjhtml', 'trx'],
     port: 9876,

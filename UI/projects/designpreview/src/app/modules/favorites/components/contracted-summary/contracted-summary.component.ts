@@ -10,6 +10,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 
 import { GroupExt } from '../../../shared/models/group-ext.model';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'contracted-summary',
@@ -21,22 +22,26 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 	groups: GroupExt[];
 	priceBreakdown: PriceBreakdown;
 	salesChoices: JobChoice[];
-	buildMode: string;
+	buildMode: BuildMode;
 	isPreview: boolean = false;
+	isPresale: boolean = false;
 	isDesignComplete: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>, 
-		private location: Location) {
-			super();
-		}
+		private location: Location) 
+	{
+		super();
+	}
 
 	ngOnInit()
 	{
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.contractedTree)
-		).subscribe(tree => {
-			if (tree) {
+		).subscribe(tree => 
+		{
+			if (tree) 
+			{
 				this.groups = this.getGroupExts(tree.groups);
 			}
 		});
@@ -49,15 +54,18 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.favoriteState)
-		).subscribe(fav => {
+		).subscribe(fav => 
+		{
 			this.salesChoices = fav && fav.salesChoices;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
-		).subscribe((scenario) => {
-			this.isPreview = scenario.buildMode === 'preview';
+		).subscribe((scenario) => 
+		{
+			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
 	}
 
@@ -68,7 +76,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 
 	displayPoint(dp: DecisionPoint)
 	{
-		if (dp.isHiddenFromBuyerView) {
+		if (dp.isHiddenFromBuyerView) 
+		{
 			return false;
 		}
 		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
@@ -78,7 +87,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 
 	getGroupExts(groups: Group[]) : GroupExt[]
 	{
-		return groups.map(g => {
+		return groups.map(g => 
+		{
 			return new GroupExt(g);
 		})
 	}

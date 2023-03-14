@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { flipOver, LotExt, Plan } from 'phd-common';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'plan-card',
@@ -18,10 +19,11 @@ export class PlanCardComponent implements OnInit
 	@Input() isJobPlan: boolean;
 	@Input() canConfigure: boolean;
 	@Input() isSpecSelected: boolean;
+	@Input() isLitePlanDisabled: boolean;
 
-	@Output() onTogglePlan = new EventEmitter<{ plan: Plan, isSelected: boolean }>();
+	@Output() onTogglePlan = new EventEmitter<{ plan: Plan, lot: LotExt, isSelected: boolean }>();
 
-	noImageAvailable = 'assets/pultegroup_logo.jpg';
+	noImageAvailable = environment.defaultImageURL;
 
 	constructor() { }
 
@@ -40,7 +42,7 @@ export class PlanCardComponent implements OnInit
 
 	toggleSelectedPlan(plan: Plan)
 	{
-		this.onTogglePlan.emit({ plan: plan, isSelected: this.isPlanSelected(plan) });
+		this.onTogglePlan.emit({ plan: plan, lot: this.selectedLot, isSelected: this.isPlanSelected(plan) });
 	}
 
 	isPlanSelected(plan: Plan)
@@ -54,7 +56,7 @@ export class PlanCardComponent implements OnInit
 	 */
 	loadImageError(event: any)
 	{
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	getButtonLabel(): string
@@ -68,6 +70,10 @@ export class PlanCardComponent implements OnInit
 		{
 			btnLabel = 'Unselect';
 		}
+		else if (this.isLitePlanDisabled)
+		{
+			btnLabel = 'Disabled';
+		}		
 		else if (!this.isJobPlan || this.isSpecSelected)
 		{
 			btnLabel = 'CHOOSE';
@@ -87,10 +93,13 @@ export class PlanCardComponent implements OnInit
 
 	get planPrice(): number
 	{
-		if (this.selectedLot && this.selectedLot.salesPhase && this.selectedLot.salesPhase.salesPhasePlanPriceAssocs) {
+		if (this.selectedLot && this.selectedLot.salesPhase && this.selectedLot.salesPhase.salesPhasePlanPriceAssocs)
+		{
 			const isPhaseEnabled = this.selectedLot.financialCommunity && this.selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = this.selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === this.plan.id);
-			if (isPhaseEnabled && phasePlanPrice) {
+
+			if (isPhaseEnabled && phasePlanPrice)
+			{
 				return phasePlanPrice.price;
 			}
 		}
@@ -102,8 +111,8 @@ export class PlanCardComponent implements OnInit
 	{
 		// It is in PhdLite when the plan does not have tree. 
 		// In this case it will determine if the plan is active by checking if the plan has been selected
-		return (this.plan.treeVersionId	
-			? this.selectedPlan?.treeVersionId === this.plan.treeVersionId 
+		return (this.plan.treeVersionId
+			? this.selectedPlan?.treeVersionId === this.plan.treeVersionId
 			: this.selectedPlan?.id === this.plan.id)
 			&& !this.isSpecSelected;
 	}

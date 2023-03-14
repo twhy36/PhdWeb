@@ -1,12 +1,14 @@
-import {
-	ChangeOrderChoice, SDGroup, SDSubGroup, SDPoint, SDChoice, Group, DesignToolAttribute,
-	ScenarioOption, ScenarioOptionColor, ChangeOrderPlanOption
-} from "phd-common";
+import
+	{
+		ChangeOrderChoice, SDGroup, SDSubGroup, SDPoint, SDChoice, Group, DesignToolAttribute,
+		ScenarioOption, ScenarioOptionColor, ChangeOrderPlanOption
+	} from "phd-common";
 
 import * as _ from 'lodash';
-import { 
-	IOptionCategory, IOptionSubCategory, LitePlanOption, Elevation, ExteriorLabel
-} from '../models/lite.model';
+import
+	{
+		IOptionCategory, IOptionSubCategory, LitePlanOption, Elevation, ExteriorLabel, LegacyColorScheme
+	} from '../models/lite.model';
 import * as fromLite from '../../ngrx-store/lite/reducer';
 
 export function getCurrentHouseSelections(groups: Array<Group>)
@@ -66,10 +68,10 @@ export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrd
 							&& added.decisionPointChoiceCalculatedPrice === deleted.decisionPointChoiceCalculatedPrice
 							&& added.quantity === deleted.quantity
 							&& (!added.jobChangeOrderChoiceAttributes || added.jobChangeOrderChoiceAttributes.every(att => deleted.jobChangeOrderChoiceAttributes?.some(att2 => att.attributeCommunityId === att2.attributeCommunityId && att.attributeGroupCommunityId === att2.attributeGroupCommunityId)))
-							&& (!added.jobChangeOrderChoiceLocations || added.jobChangeOrderChoiceLocations?.every(loc => deleted.jobChangeOrderChoiceLocations?.some(loc2 => 
+							&& (!added.jobChangeOrderChoiceLocations || added.jobChangeOrderChoiceLocations?.every(loc => deleted.jobChangeOrderChoiceLocations?.some(loc2 =>
 								loc.locationCommunityId === loc2.locationCommunityId && loc.quantity === loc2.quantity
 								&& (!loc.jobChangeOrderChoiceLocationAttributes || loc.jobChangeOrderChoiceLocationAttributes?.every(att => loc2.jobChangeOrderChoiceLocationAttributes?.some(att2 => att.attributeCommunityId === att2.attributeCommunityId && att.attributeGroupCommunityId === att2.attributeGroupCommunityId)))
-								)))
+							)))
 						)
 						{
 							return null;
@@ -96,15 +98,17 @@ export function getChangeOrderGroupSelections(groups: Array<Group>, jobChangeOrd
 
 // BEGIN PHD Lite
 export function getLiteCurrentHouseSelections(
-	lite: fromLite.State, 
-	selectedElevation: LitePlanOption, 
-	selectedColorScheme: ScenarioOptionColor, 
+	lite: fromLite.State,
+	selectedElevation: LitePlanOption,
+	selectedColorScheme: ScenarioOptionColor,
+	legacyColorScheme: LegacyColorScheme,
 	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
 	planPrice: number
 ): SDGroup[]
 {
-	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions?.map(option => {
-		return {...option, listPrice: planPrice};
+	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions?.map(option =>
+	{
+		return { ...option, listPrice: planPrice };
 	});
 
 	const optionCategories: SDGroup[] = [];
@@ -113,14 +117,15 @@ export function getLiteCurrentHouseSelections(
 	// Add selected elevation
 	const elevationChoice = createLiteSDChoice(selectedElevation.name, selectedElevation.id, selectedElevation.description, selectedElevation.listPrice);
 	const elevationPoint = createLiteSDPoint(ExteriorLabel.Elevation, [elevationChoice]);
-	
+
 	// Add color scheme
 	const colorSchemes = _.flatMap(selectedElevation?.colorItems, item => item.color);
-	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme.colorItemId && c.colorId === selectedColorScheme.colorId);
-	const colorSchemeChoice = createLiteSDChoice(color?.name, selectedElevation.id, null, 0);
+	const color = colorSchemes?.find(c => c.colorItemId === selectedColorScheme?.colorItemId && c.colorId === selectedColorScheme?.colorId);
+	const colorName = legacyColorScheme?.isSelected ? legacyColorScheme?.colorName : color?.name;
+	const colorSchemeChoice = createLiteSDChoice(colorName, selectedElevation.id, null, 0);
 	const colorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, [colorSchemeChoice]);
-	
-	const blankSubGroup = createLiteSDSubGroup(ExteriorLabel.ExteriorSubGroup, [elevationPoint, colorSchemePoint])
+
+	const blankSubGroup = createLiteSDSubGroup(ExteriorLabel.ExteriorSubGroup, [elevationPoint, colorSchemePoint]);
 	const exteriorGroup = createLiteSDGroup(ExteriorLabel.Exterior, [blankSubGroup]);
 	optionCategories.push(exteriorGroup);
 
@@ -130,11 +135,12 @@ export function getLiteCurrentHouseSelections(
 		&& (!selectedElevation || selectedElevation.id !== option.id)
 		&& !selectedBaseHouseOptions?.find(opt => opt.id === option.id));
 	const optionCategoryGroups = _.groupBy(selectedOptions, option => option.optionCategoryId);
-	let sortedOptionCategories: SDGroup[] = []
+	let sortedOptionCategories: SDGroup[] = [];
 
 	for (const categoryId in optionCategoryGroups)
 	{
 		const category = lite.categories?.find(category => category.id === +categoryId);
+
 		if (category)
 		{
 			const subCategories = buildLiteOptionSubCategories(optionCategoryGroups[categoryId], allSubCategories, lite.scenarioOptions);
@@ -151,6 +157,7 @@ export function getLiteCurrentHouseSelections(
 		const baseHouseCategory = baseHouseOptions.baseHouseCategory;
 		const baseHouseSubCategories = buildLiteOptionSubCategories(selectedBaseHouseOptions, allSubCategories, lite.scenarioOptions);
 		const baseHouseCategories = createLiteSDGroup(baseHouseCategory.name, baseHouseSubCategories);
+
 		optionCategories.push(baseHouseCategories);
 	}
 
@@ -162,12 +169,14 @@ export function buildLiteOptionSubCategories(options: LitePlanOption[], subCateg
 	let optionSubCategories: SDSubGroup[] = [];
 
 	const optionsubCategories = _.groupBy(options, o => o.optionSubCategoryId);
+
 	for (const subCategoryId in optionsubCategories)
 	{
 		const subCategory = subCategories.find(subCategory => subCategory.id === +subCategoryId);
 		if (subCategoryId)
 		{
 			const sortedOptionSubCategories = _.sortBy(optionsubCategories[subCategoryId], 'name');
+
 			const points = sortedOptionSubCategories.map(option =>
 			{
 				const scenarioOption = scenarioOptions?.find(opt => opt.edhPlanOptionId === option.id);
@@ -177,6 +186,7 @@ export function buildLiteOptionSubCategories(options: LitePlanOption[], subCateg
 			});
 			const subCategoryName = subCategory?.name !== 'BaseHouse' ? subCategory?.name : ''; // Do not show sub-category for base house
 			const optionSubCategory = createLiteSDSubGroup(subCategoryName, points);
+
 			optionSubCategories.push(optionSubCategory);
 		}
 	};
@@ -184,8 +194,10 @@ export function buildLiteOptionSubCategories(options: LitePlanOption[], subCateg
 	return optionSubCategories;
 }
 
-export function buildLiteOptionChoice(option: LitePlanOption, scenarioOption: ScenarioOption): SDChoice {
+export function buildLiteOptionChoice(option: LitePlanOption, scenarioOption: ScenarioOption): SDChoice
+{
 	const choice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, scenarioOption.planOptionQuantity, buildLiteOptionColors(option, scenarioOption));
+
 	return choice;
 }
 
@@ -195,9 +207,11 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 
 	if (scenarioOption instanceof ChangeOrderPlanOption)
 	{
-		scenarioOption?.jobChangeOrderPlanOptionAttributes?.forEach(coPlanOption => {
-			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, coPlanOption.attributeName);
-			optionColors.push(optionColor);			
+		scenarioOption?.jobChangeOrderPlanOptionAttributes?.forEach(coPlanOption =>
+		{
+			const optionColor = createLiteDTAttribute(coPlanOption.attributeGroupLabel, concatColorSku(coPlanOption.attributeName, coPlanOption.sku));
+
+			optionColors.push(optionColor);
 		})
 	}
 	else
@@ -209,10 +223,11 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 
 			if (colorItem && color)
 			{
-				const optionColor = createLiteDTAttribute(colorItem.name, color.name);
+				const optionColor = createLiteDTAttribute(colorItem.name, concatColorSku(color.name, color.sku));
+
 				optionColors.push(optionColor);
 			}
-		});		
+		});
 	}
 
 	optionColors.sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel));
@@ -292,24 +307,33 @@ export const createLiteDTAttribute = (label: string, value: string): DesignToolA
 	}
 );
 
+export function concatColorSku(color: string, sku: string): string
+{
+	return sku && sku.length > 0 ? `${color}/${sku}` : color;
+}
+
 export function getLiteChangeOrderGroupSelections(
+	scenarioOptions: ScenarioOption[],
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
 	baseHouseOptions: { selectedBaseHouseOptions: LitePlanOption[], baseHouseCategory: IOptionCategory },
 	options: LitePlanOption[],
-	categories: IOptionCategory[]
-) : SDPoint[] 
+	categories: IOptionCategory[],
+	legacyColorScheme: LegacyColorScheme
+): SDPoint[] 
 {
-	let sDPoints : SDPoint[] = [];
+	let sDPoints: SDPoint[] = [];
 
 	const selectedBaseHouseOptions: LitePlanOption[] = baseHouseOptions.selectedBaseHouseOptions;
-	const selectedBaseHouseChangeOrderOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+	const selectedBaseHouseChangeOrderOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
+	{
 		const option = options.find(option => option.id === coPlanOption.planOptionId &&
 			selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId));
 		return option;
 	});
 
 	// Add selected elevation
-	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
+	{
 		const option = options.find(option => option.id === coPlanOption.planOptionId &&
 			!selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId));
 		return option?.optionSubCategoryId === Elevation.Detached || option?.optionSubCategoryId === Elevation.Attached;
@@ -317,11 +341,12 @@ export function getLiteChangeOrderGroupSelections(
 
 	if (elevationPlanOptions?.length)
 	{
-		let elevationColorPoints : SDPoint[] = [];
-		let elevationChoices : SDChoice[] = [];
-		let colorSchemeChoices : SDChoice[] = [];
+		let elevationColorPoints: SDPoint[] = [];
+		let elevationChoices: SDChoice[] = [];
+		let colorSchemeChoices: SDChoice[] = [];
 
-		elevationPlanOptions.forEach(coPlanOption => {
+		elevationPlanOptions.forEach(coPlanOption =>
+		{
 			const option = options.find(option => option.id === coPlanOption.planOptionId);
 			if (option)
 			{
@@ -330,7 +355,8 @@ export function getLiteChangeOrderGroupSelections(
 
 				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
 				{
-					coPlanOption.jobChangeOrderPlanOptionAttributes.map(att => {
+					coPlanOption.jobChangeOrderPlanOptionAttributes.map(att =>
+					{
 						const colorSchemeChoice = createLiteSDChoice(att.attributeName, att.id, null, 0, 1);
 						colorSchemeChoices.push(colorSchemeChoice);
 					});
@@ -354,24 +380,62 @@ export function getLiteChangeOrderGroupSelections(
 			const colorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, colorSchemeChoices);
 			colorSchemePoint.groupName = ExteriorLabel.Exterior;
 			colorSchemePoint.subGroupName = ExteriorLabel.ExteriorSubGroup;
-	
+
 			elevationColorPoints.push(colorSchemePoint);
 		}
-		
+
 		sDPoints = sDPoints.concat(elevationColorPoints);
 	}
 
+	// Add legacy color scheme
+	if (legacyColorScheme)
+	{
+		const genericPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => coPlanOption.planOptionId === legacyColorScheme.genericPlanOptionId);
+	
+		if (genericPlanOptions?.length)
+		{
+			let legacyColorSchemePoints: SDPoint[] = [];
+			let legacyColorSchemeChoices: SDChoice[] = [];
+
+			genericPlanOptions.forEach(coPlanOption =>
+			{
+				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
+				{
+					coPlanOption.jobChangeOrderPlanOptionAttributes.map(att =>
+					{
+						const legacyColorSchemeChoice = createLiteSDChoice(att.attributeName, att.id, null, 0, 1);
+						legacyColorSchemeChoices.push(legacyColorSchemeChoice);
+					});
+				}
+			});
+
+			if (!!legacyColorSchemeChoices.length)
+			{
+				const legacyColorSchemePoint = createLiteSDPoint(ExteriorLabel.ColorScheme, legacyColorSchemeChoices);
+				legacyColorSchemePoint.groupName = ExteriorLabel.Exterior;
+				legacyColorSchemePoint.subGroupName = ExteriorLabel.ExteriorSubGroup;
+	
+				legacyColorSchemePoints.push(legacyColorSchemePoint);
+			}
+	
+			sDPoints = sDPoints.concat(legacyColorSchemePoints);
+		}
+	}
+
 	// Add other selected options FIRST
-	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
+	{
 		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId)
-			&& !selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId);
+			&& !selectedBaseHouseOptions?.find(opt => opt.id === coPlanOption.planOptionId)
+			&& coPlanOption.planOptionId !== legacyColorScheme?.genericPlanOptionId;
 	});
 
 	if (nonElevationPlanOptions?.length)
 	{
 		let nonElevationPoints: SDPoint[] = [];
 
-		nonElevationPlanOptions?.forEach(coPlanOption => {
+		nonElevationPlanOptions?.forEach(coPlanOption =>
+		{
 			const option = options.find(option => option.id === coPlanOption.planOptionId);
 
 			if (option)
@@ -379,14 +443,14 @@ export function getLiteChangeOrderGroupSelections(
 				const category = categories?.find(category => category.id === option.optionCategoryId);
 				const subCategory = category?.optionSubCategories?.find(subCategory => subCategory.id === option.optionSubCategoryId);
 				const optionChoice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, coPlanOption.qty, buildLiteOptionColors(option, coPlanOption));
-				
+
 				let optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
 				optionPoint.groupName = category?.name;
 				optionPoint.subGroupName = subCategory?.name;
-	
+
 				nonElevationPoints.push(optionPoint);
 			}
-		});	
+		});
 
 		nonElevationPoints.sort((a, b) => a.subGroupName.localeCompare(b.subGroupName));
 		nonElevationPoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
@@ -397,24 +461,31 @@ export function getLiteChangeOrderGroupSelections(
 	if (selectedBaseHouseOptions?.length)
 	{
 		let baseHousePoints: SDPoint[] = [];
-		selectedBaseHouseChangeOrderOptions?.forEach(baseHouseOption => {
-			const option = options.find(option => option.id === baseHouseOption.planOptionId);
+		selectedBaseHouseOptions?.forEach(baseHouseOption =>
+		{
+			const option = options.find(option => option.id === baseHouseOption.id);
+			const selectedOption = scenarioOptions.find(option => option.edhPlanOptionId === baseHouseOption.id);
+			const changeOrderPlanOption = selectedBaseHouseChangeOrderOptions.find(option => option.planOptionId === baseHouseOption.id);
 
-			if (option)
+			// Add the option to the payload only when it is in the change order
+			if (option && selectedOption && changeOrderPlanOption)
 			{
 				const category = categories?.find(category => category.id === option.optionCategoryId);
-				const optionChoice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, baseHouseOption.qty, buildLiteOptionColors(option, baseHouseOption));
-				
+				const optionChoice = createLiteSDChoice(option.name, option.id, option.description, option.listPrice, selectedOption.planOptionQuantity, buildLiteOptionColors(option, selectedOption));
+
 				let optionPoint = createLiteSDPoint(option.financialOptionIntegrationKey, [optionChoice]);
 				optionPoint.groupName = category?.name;
 				optionPoint.subGroupName = ''; // Do not show sub-category for base house
-	
+
 				baseHousePoints.push(optionPoint);
 			}
 		});
 
-		baseHousePoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
-		sDPoints = sDPoints.concat(baseHousePoints);
+		if (baseHousePoints.length)
+		{
+			baseHousePoints.sort((a, b) => a.groupName.localeCompare(b.groupName));
+			sDPoints = sDPoints.concat(baseHousePoints);			
+		}
 	}
 
 	return sDPoints;
@@ -424,23 +495,26 @@ export function getLiteConstructionChangeOrderPdfData(
 	options: LitePlanOption[],
 	categories: IOptionCategory[],
 	jobChangeOrderPlanOptions: ChangeOrderPlanOption[],
-	selectedElevation: LitePlanOption
+	selectedElevation: LitePlanOption,
+	legacyColorScheme: LegacyColorScheme
 )
 {
-	let pdfData : any[] = [];
+	let pdfData: any[] = [];
 
-	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
+	const elevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
+	{
 		const option = options.find(option => option.id === coPlanOption.planOptionId);
-		return option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached;
+		return option?.optionSubCategoryId === Elevation.Detached || option?.optionSubCategoryId === Elevation.Attached;
 	});
 
 	if (elevationPlanOptions?.length)
 	{
-		elevationPlanOptions.forEach(coPlanOption => {
+		elevationPlanOptions.forEach(coPlanOption =>
+		{
 			const option = options.find(option => option.id === coPlanOption.planOptionId);
 			if (option)
 			{
-				if (['Add','Delete'].includes(coPlanOption.action))
+				if (['Add', 'Delete'].includes(coPlanOption.action))
 				{
 					pdfData.push({
 						choiceLabel: coPlanOption.optionSalesName,
@@ -463,7 +537,8 @@ export function getLiteConstructionChangeOrderPdfData(
 
 				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
 				{
-					coPlanOption.jobChangeOrderPlanOptionAttributes.forEach(att => {
+					coPlanOption.jobChangeOrderPlanOptionAttributes.forEach(att =>
+					{
 						pdfData.push({
 							choiceLabel: att.attributeName,
 							decisionPointLabel: ExteriorLabel.ColorScheme,
@@ -487,38 +562,76 @@ export function getLiteConstructionChangeOrderPdfData(
 		});
 	}
 
-	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => {
-		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId);
+	// Add legacy color scheme
+	if (legacyColorScheme)
+	{
+		const genericPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption => coPlanOption.planOptionId === legacyColorScheme.genericPlanOptionId);
+
+		if (genericPlanOptions?.length)
+		{
+			genericPlanOptions.forEach(coPlanOption =>
+			{
+				if (coPlanOption.jobChangeOrderPlanOptionAttributes?.length)
+				{
+					coPlanOption.jobChangeOrderPlanOptionAttributes.forEach(att =>
+					{
+						pdfData.push({
+							choiceLabel: att.attributeName,
+							decisionPointLabel: ExteriorLabel.ColorScheme,
+							dpChoiceCalculatedPrice: 0,
+							dpChoiceQuantity: 1,
+							groupLabel: ExteriorLabel.Exterior,
+							subgroupLabel: ExteriorLabel.ExteriorSubGroup,
+							isColorScheme: true,
+							isElevation: false,
+							locations: [],
+							options: [],
+							overrideNote: null,
+							dpChoiceId: 0,
+							divChoiceCatalogId: att.id, // used for option filtering in API
+							attributes: [],
+							action: att.action
+						});
+					});
+				}
+			});
+		}
+	}
+
+	const nonElevationPlanOptions = jobChangeOrderPlanOptions.filter(coPlanOption =>
+	{
+		return !elevationPlanOptions.find(option => option.planOptionId === coPlanOption.planOptionId && option.planOptionId !== legacyColorScheme?.genericPlanOptionId);
 	});
 
 	if (nonElevationPlanOptions?.length)
 	{
-		nonElevationPlanOptions?.forEach(coPlanOption => {
+		nonElevationPlanOptions?.forEach(coPlanOption =>
+		{
 			const attributes = coPlanOption.jobChangeOrderPlanOptionAttributes?.length
-			? coPlanOption.jobChangeOrderPlanOptionAttributes.map(attr =>
+				? coPlanOption.jobChangeOrderPlanOptionAttributes.map(attr =>
 				{
 					return {
 						attributeGroupCommunityId: 0,
 						attributeCommunityId: 0,
 						action: attr.action,
 						attributeGroupLabel: attr.attributeGroupLabel,
-						attributeName: attr.attributeName,
+						attributeName: concatColorSku(attr.attributeName, attr.sku),
 						manufacturer: attr.manufacturer ? attr.manufacturer : null,
 						sku: attr.sku ? attr.sku : null,
 					};
 				}).sort((a, b) => a.attributeGroupLabel.localeCompare(b.attributeGroupLabel))
-			: [];
+				: [];
 
 			const option = options.find(opt => opt.id === coPlanOption.planOptionId);
-			const optionCategoryName = option 
+			const optionCategoryName = option
 				? categories.find(cat => cat.id === option.optionCategoryId)?.name
 				: '';
 			const allSubCategories = _.flatMap(categories, c => c.optionSubCategories) || [];
-			const optionSubCategoryName = option 
+			const optionSubCategoryName = option
 				? allSubCategories.find(cat => cat.id === option.optionSubCategoryId)?.name
 				: '';
 
-				pdfData.push({
+			pdfData.push({
 				choiceLabel: coPlanOption.optionSalesName,
 				decisionPointLabel: coPlanOption.integrationKey,
 				dpChoiceCalculatedPrice: coPlanOption.listPrice,
@@ -535,7 +648,7 @@ export function getLiteConstructionChangeOrderPdfData(
 				attributes: attributes,
 				action: coPlanOption.action
 			});
-		});		
+		});
 	}
 
 	return pdfData;

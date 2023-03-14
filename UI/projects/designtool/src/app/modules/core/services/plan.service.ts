@@ -1,26 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, EMPTY as empty, throwError as _throw, of } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, toArray, switchMap, withLatestFrom } from 'rxjs/operators';
-import { Store } from '@ngrx/store';
+import { Observable, from, EMPTY as empty, throwError as _throw, of, combineLatest } from 'rxjs';
+import { map, catchError, flatMap, toArray, switchMap, take } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { withSpinner, SalesCommunity, Plan } from 'phd-common';
-import * as fromRoot from '../../ngrx-store/reducers';
+import { withSpinner, SalesCommunity, Plan, FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
 import { OptionService } from './option.service';
 import { TreeService } from './tree.service';
-import { LiteService } from './lite.service';
 
 @Injectable()
 export class PlanService
 {
 	constructor(
-		private _http: HttpClient, 
-		private optionService: OptionService, 
+		private _http: HttpClient,
+		private optionService: OptionService,
 		private treeService: TreeService,
-		private liteService: LiteService,
-		private store: Store<fromRoot.State>) { }
+		private featureSwitchService: FeatureSwitchService) { }
 
 	private getPlans(salesCommunity: SalesCommunity): Observable<Plan[]>
 	{
@@ -29,48 +25,41 @@ export class PlanService
 		const baseHouseKey = '00001';
 		const communityIds = salesCommunity.financialCommunities.map(c => c.id);
 
-		return this.treeService.getTreeVersions(communityIds)
+		return combineLatest([
+				this.treeService.getTreeVersions(communityIds),
+				this.getCommunityPlans(salesCommunity.id),
+				this.featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', communityIds)
+			])
 			.pipe
 			(
-				// tslint:disable-next-line: deprecation
-				combineLatest(this.getCommunityPlans(salesCommunity.id)),
-				withLatestFrom(this.store),
-				switchMap(([[treeVersions, plans], store]: [[any, Plan[]], fromRoot.State]) =>
+				take(1),
+				switchMap(([treeVersions, plans, communityFlags]: [any, Plan[], IFeatureSwitchOrgAssoc[]]) =>
 				{
-					const financialCommunityId = store.job?.financialCommunityId || store.scenario?.scenario?.financialCommunityId;
-
-					return this.liteService.isPhdLiteEnabled(financialCommunityId).pipe(
-						map(isPhdLiteEnabled => {
-							const isPhdLite = isPhdLiteEnabled && 
-								(!treeVersions || !treeVersions.length  
-									|| this.liteService.checkLiteScenario(store.scenario?.scenario?.scenarioChoices, store.scenario?.scenario?.scenarioOptions)
-									|| this.liteService.checkLiteAgreement(store.job, store.changeOrder.currentChangeOrder)
-								);
-	
-							return { treeVersions, plans, isPhdLite }
-						})
-					)
-				}),
-				switchMap(result => {
-					return from(result.plans)
+					return from(plans)
 						.pipe(
 							flatMap(plan =>
 							{
-								const activePlans = result.treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
+								const activePlans = treeVersions.find(p => p.planKey === plan.integrationKey && p.communityId === plan.communityId);
+								const isLiteEnabledCommunity = communityFlags?.find(cf => cf.org?.edhFinancialCommunityId === plan.communityId)?.state || false;
 
-								if (activePlans != null || result.isPhdLite)
+								if (activePlans != null || isLiteEnabledCommunity)
 								{
 									includedPlanOptions = activePlans?.includedOptions || [];
+
 									plan.treeVersionId = activePlans?.id || null;
+									plan.treePlanId = activePlans?.planId || null;
+
 									includedPlanOptions.push(baseHouseKey);
 
-									const getOptionImages = plan.treeVersionId 
+									const getOptionImages = plan.treeVersionId
 										? this.treeService.getOptionImages(plan.treeVersionId, includedPlanOptions, null, true)
 										: of([]);
 
-									return this.optionService.getPlanOptions(plan.id, includedPlanOptions, true)
+									return combineLatest([
+											this.optionService.getPlanOptions(plan.id, includedPlanOptions, true),
+											getOptionImages
+										])
 										.pipe(
-											combineLatest(getOptionImages),
 											map(([optionsResponse, optionImages]) =>
 											{
 												if (optionsResponse && optionsResponse.length > 0)
@@ -81,7 +70,7 @@ export class PlanService
 												}
 
 												plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
-													? optionImages[0].imageURL : 'assets/pultegroup_logo.jpg';
+													? optionImages[0].imageURL : environment.defaultImageURL;
 
 												return plan;
 											})
@@ -126,7 +115,7 @@ export class PlanService
 	{
 		const entity = 'planCommunities';
 		const expand = `financialCommunity($select=id,salesCommunityId),lotPlanAssocs($select=id,lotId,isActive,planId;$filter=isActive eq true),webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
-		let filter = `financialCommunity/salesCommunityId eq ${salesCommunityId}`;
+		let filter = `financialCommunity/salesCommunityId eq ${salesCommunityId} and productType ne 'MultiUnit Shell'`;
 
 		const select = `id, financialPlanIntegrationKey, financialCommunityId, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet, productType, foundation, garageConfiguration, masterBedLocation, productConfiguration, planSalesDescription`;
 		const orderBy = `planSalesName`;

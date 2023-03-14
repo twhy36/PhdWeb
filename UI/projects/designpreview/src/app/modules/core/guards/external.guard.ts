@@ -13,6 +13,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as CommonActions from '../../ngrx-store/actions';
+import { clearPresaleSessions } from '../../shared/classes/utils.class';
 
 @Injectable()
 export class ExternalGuard implements CanActivate
@@ -25,32 +26,42 @@ export class ExternalGuard implements CanActivate
 
 	canActivate()
 	{
-		if (!sessionStorage.getItem('authProvider')){
+		clearPresaleSessions();
+		
+		if (!sessionStorage.getItem('authProvider'))
+		{
 			sessionStorage.setItem('authProvider', 'sitecoreSSO');
-        	this.authService.setAuthConfig(environment.authConfigs["sitecoreSSO"]);
+			this.authService.setAuthConfig(environment.authConfigs['sitecoreSSO']);
 		}
 
-        return combineLatest([ this.identityService.isLoggedIn.pipe(
-				map(loggedIn => {
-					if (!loggedIn) {
-						this.identityService.login({ provider: "sitecoreSSO" });
-						return false; //redirect to access denied if error?
-					}
+		return combineLatest([this.identityService.isLoggedIn.pipe(
+			map(loggedIn =>
+			{
+				if (!loggedIn)
+				{
+					this.identityService.login({ provider: 'sitecoreSSO' });
+					return false; //redirect to access denied if error?
+				}
 
-					return true;
-				})
-			),
-			this.store.pipe(select(fromSalesAgreement.salesAgreementState), take(1)),
-			this.store.pipe(select(fromScenario.selectScenario), take(1))
+				return true;
+			})
+		),
+		this.store.pipe(select(fromSalesAgreement.salesAgreementState), take(1)),
+		this.store.pipe(select(fromScenario.selectScenario), take(1))
 		]).pipe(
-			switchMap(([isLoggedIn, sag, selectScenario]) => {
-				if (!isLoggedIn){
+			switchMap(([isLoggedIn, sag, selectScenario]) =>
+			{
+				if (!isLoggedIn)
+				{
 					return NEVER;
 				}
 
-				if (!!sag?.id || !!selectScenario?.tree?.id) {
+				if (!!sag?.id || !!selectScenario?.tree?.id)
+				{
 					return of(true);
-				} else {
+				}
+				else
+				{
 					return this.salesAgreementService.getSalesAgreement().pipe(
 						tap(salesAgreement => this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreement.id))),
 						map(() => true)

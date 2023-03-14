@@ -1,13 +1,13 @@
-import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw, of } from "rxjs";
-import { map, catchError, mergeMap } from "rxjs/operators";
-import * as _ from "lodash";
+import { Observable, throwError as _throw, of } from 'rxjs';
+import { map, catchError, mergeMap } from 'rxjs/operators';
+import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders, parseBatchResults } from 'phd-common';
-import { SearchEntities, SearchResult, ISearchResults, IFilterItems } from "../../shared/models/search.model";
+import { createBatchGet, getNewGuid, createBatchBody, createBatchHeaders, IFeatureSwitchOrgAssoc } from 'phd-common';
+import { SearchEntities, SearchResult, ISearchResults, IFilterItems } from '../../shared/models/search.model';
 
 @Injectable()
 export class SearchService
@@ -20,7 +20,7 @@ export class SearchService
 	* Searches homesites
 	* @param searchParams
 	*/
-	public searchHomeSites(filters: Array<IFilterItems>, financialCommunityId?: string, salesCommunityId?: string): Observable<Array<SearchResult>>
+	public searchHomeSites(filters: Array<IFilterItems>, financialCommunityId?: string, salesCommunityId?: string, featureSwitchOrgAssoc?: IFeatureSwitchOrgAssoc[]): Observable<Array<SearchResult>>
 	{
 		let filter: string = "financialCommunity/" + (financialCommunityId ? `id eq ${financialCommunityId}` : `salesCommunityId eq ${salesCommunityId}`);
 
@@ -91,11 +91,11 @@ export class SearchService
 		selectData.jobSalesAgreementAssocs = 'id';
 		selectData.planAssociations = 'isActive';
 		selectData.planCommunity = 'id,planSalesName';
-		selectData.salesAgreement = 'id, salesAgreementNumber,status';
+		selectData.salesAgreement = 'id, salesAgreementNumber,status,isLockedIn';
 		selectData.salesCommunity = 'id,name,number';
 		selectData.financialCommunity = 'id,name,number,marketId,salesCommunityId';
-        selectData.scenarios = 'id,name';
-		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription,salesStatusDescription';
+		selectData.scenarios = 'id,name';
+		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription';
 
 		let expandData: SearchEntities = new SearchEntities();
 
@@ -108,12 +108,12 @@ export class SearchService
 		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
 		expandData.salesAgreement = `salesAgreement($select=${selectData.salesAgreement};$expand=jobSalesAgreementAssocs($select=jobId,isActive,salesAgreementId;$orderby=createdUtcDate desc;$top=1))`;
 		expandData.jobSalesAgreementAssocs = `jobSalesAgreementAssocs($select=${selectData.jobSalesAgreementAssocs};$expand=${expandData.salesAgreement})`;
-		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1;$expand=jobChangeOrderGroupSalesAgreementAssocs($select=jobChangeOrderGroupId,salesAgreementId,changeOrderGroupSequence,changeOrderGroupSequenceSuffix), jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription;$expand=jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,buyerName, firstName, lastName, isPrimaryBuyer, sortKey)))`;
 		expandData.jobs = `jobs($select=${selectData.jobs};$expand=${expandData.jobSalesAgreementAssocs},${expandData.jobChangeOrderGroup},planCommunity($select=id,planSalesName);)`;
 
 		// top level expands
 		let expands = `${expandData.jobs},${expandData.financialCommunity},${expandData.planAssociations},${expandData.physicalLotTypes},${expandData.scenarios}`;
-
+		
 		// putting it all together - DO NOT encode since it will be encoded during the batch process
 		const qryStr = `$expand=${expands}` +
 			`&$select=${selectData.lots}` +
@@ -129,17 +129,19 @@ export class SearchService
 		return this._http.post<any>(`${environment.apiUrl}${this._batch}`, batchBody, { headers: headers, responseType: 'json' }).pipe(
 			map(batchResponse =>
 			{
-				return _.flatMap(batchResponse.responses, response => response.body.value).map(value => new SearchResult(value));
+				return _.flatMap(batchResponse.responses, response => response.body.value).map(value => new SearchResult(value, featureSwitchOrgAssoc));
 			}),
 			mergeMap(result =>
 			{
 				const needBuyers = result.filter(item => item.salesAgreements.some(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)));
+
 				if (needBuyers.length > 0)
 				{
 					const salesAgreementIds = needBuyers.map(sr => sr.salesAgreements.find(sa => sa.jobSalesAgreementAssocs.some(jsaa => jsaa.isActive)).id);
 					const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=contact($select=firstName,lastName)))`;
 					const saFilter = `id in (${salesAgreementIds})`;
 					const saUrl = `${environment.apiUrl}salesAgreements?${encodeURIComponent('$')}filter=${encodeURIComponent(saFilter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expandBuyers)}`;
+
 					return this._http.get<any>(saUrl).pipe(
 						map(response =>
 						{
@@ -150,24 +152,26 @@ export class SearchService
 								if (sa.buyers.length > 0)
 								{
 									saLot.buyers = [];
-									
+
 									//get list of primary buyers
 									const primaryBuyerList = sa.buyers.filter(buyer => buyer.isPrimaryBuyer === true)
-																		.map(buyer => buyer.opportunityContactAssoc.contact);
+										.map(buyer => buyer.opportunityContactAssoc.contact);
 
 									//get list of cobuyers in order by sort key, lowest sort key values taking highest priority
 									const coBuyerList = sa.buyers.filter(buyer => buyer.isPrimaryBuyer === false)
-																.sort( (a,b) => { return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0; } )
-																.map(buyer => buyer.opportunityContactAssoc.contact);
+										.sort((a, b) => { return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0; })
+										.map(buyer => buyer.opportunityContactAssoc.contact);
 
 									//associate buyers to lot
 									saLot.buyers.push(...primaryBuyerList, ...coBuyerList);
 								}
 							});
+
 							return result;
 						})
 					);
 				}
+
 				return of(result);
 			}),
 			catchError(error =>
@@ -177,5 +181,38 @@ export class SearchService
 				return _throw(error);
 			})
 		);
+	}
+	
+	searchActiveCOHomesites(financialCommunityId?: string, salesCommunityId?: string)
+	{
+		let selectData: SearchEntities = new SearchEntities();
+		let filter: string = "financialCommunity/" + (financialCommunityId ? `id eq ${financialCommunityId}` : `salesCommunityId eq ${salesCommunityId}`);
+		filter += ` and (jobChangeOrderGroups/any(a: a/jobChangeOrderGroupDescription ne 'Pulte Home Designer Generated Job Initiation Change Order' and (a/salesStatusDescription eq 'Pending' or a/salesStatusDescription eq 'Signed' or a/salesStatusDescription eq 'OutforSignature' or a/constructionStatusDescription eq 'Pending')))`;
+		selectData.lots = `id,lotBlock`;
+		// Selects that are going to be included inside the expands below
+		selectData.jobs = 'id';
+		selectData.salesCommunity = 'id';
+		selectData.financialCommunity = 'id';
+		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription, constructionStatusDescription,salesStatusDescription';
+		selectData.salesCommunity = 'id';
+		
+		let expandData: SearchEntities = new SearchEntities();
+		expandData.lots = `lot($select=${selectData.lots})`;
+		expandData.salesCommunity = `salesCommunity($select=${selectData.salesCommunity})`;
+		expandData.financialCommunity = `financialCommunity($select=${selectData.financialCommunity};$expand=${expandData.salesCommunity})`;
+		expandData.jobChangeOrderGroup = `jobChangeOrderGroups($select=${selectData.jobChangeOrderGroup};$orderby=createdUtcDate desc;$top=1)`;
+		let expands = `${expandData.lots},${expandData.financialCommunity},${expandData.jobChangeOrderGroup}`;
+
+		const qryStr = `$expand=${expands}` +
+			`&$select=${selectData.jobs}` +
+			`&$filter=${filter}`;
+
+		let url = environment.apiUrl + `jobs?${qryStr}`;
+		return this._http.get<any>(url).pipe(
+			map(response =>
+			{
+				let lots = response.value.filter(lot => lot.jobChangeOrderGroups && lot.jobChangeOrderGroups.filter(cog => cog.salesStatusDescription === 'Signed' || cog.salesStatusDescription === 'Pending' || cog.salesStatusDescription === 'OutforSignature' || cog.salesStatusDescription === 'Rejected' || (cog.salesStatusDescription === 'Approved' && cog.constructionStatusDescription === 'Pending')).length > 0);
+				return lots;
+			}));
 	}
 }

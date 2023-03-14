@@ -4,7 +4,7 @@ export function getNewGuid(): string {
 	return newGuid();
 }
 
-export function createBatchHeaders(batchGuid: string, token?: string): any {
+export function createBatchHeaders(batchGuid: string, token?: string, scheme: string = 'Bearer '): any {
 	let headers: any = {
 		'Content-Type': `multipart/mixed; boundary=batch_${batchGuid}`,
 		'OData-Version': '4.0;NetFx',
@@ -14,7 +14,7 @@ export function createBatchHeaders(batchGuid: string, token?: string): any {
 
 	if (!!token) {
 		headers = {
-			'Authorization': 'Bearer ' + token,
+			'Authorization': scheme + token,
 			...headers
 		};
 	}

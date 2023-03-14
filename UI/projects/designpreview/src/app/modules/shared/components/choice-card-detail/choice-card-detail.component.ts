@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
-import { NgbCarousel, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCarousel } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { of, Observable } from 'rxjs';
-import { combineLatest, switchMap, map, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, of, Observable } from 'rxjs';
+import { switchMap, map, withLatestFrom } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, OptionImage, AttributeGroup, Attribute, LocationGroup, Location, DesignToolAttribute,
-	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite
+	DecisionPoint, Group, Tree, MyFavoritesPointDeclined, MyFavorite, ModalRef, ModalService, getChoiceImageList
 } from 'phd-common';
 import { mergeAttributes, mergeLocations, mergeAttributeImages } from '../../../shared/classes/tree.utils';
 import { AttributeService } from '../../../core/services/attribute.service';
@@ -23,10 +23,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
-import { BlockedByItemList } from '../../models/blocked-by.model';
-import { getDisabledByList } from '../../../shared/classes/tree.utils';
 import { AdobeService } from '../../../core/services/adobe.service';
-import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -47,15 +44,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() isDesignComplete: boolean;
 	@Input() groupName: string;
 	@Input() subGroupName: string;
+	@Input() isPresale: boolean = false;
 
-	@Output() onBack = new EventEmitter();
-	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 
-	isSelected : boolean = false;
-	activeIndex: any = { current: 0, direction: '', prev: 0 };
+	isSelected: boolean = false;
+	activeIndex = { current: 0, direction: '', prev: 0 };
 	imageLoading: boolean = false;
 	choiceImages: OptionImage[] = [];
 	selectedImageUrl: string;
@@ -65,66 +61,73 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceDescriptions: string[] = [];
 	attributeImageUrl: string;
 	currentPoint: DecisionPoint;
-	highlightedAttribute: {attributeId: number, attributeGroupId: number, locationId: number, locationGroupId: number};
+	highlightedAttribute: { attributeId: number, attributeGroupId: number, locationId: number, locationGroupId: number };
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
-	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: BlockedByItemList = null;
+	blockedChoiceModalRef: ModalRef;
 	isChoiceImageLoaded: boolean = false;
+	point: DecisionPoint;
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
 		private toastr: ToastrService,
-		public modalService: NgbModal,
+		public modalService: ModalService,
 		private store: Store<fromRoot.State>,
-		private adobeService: AdobeService,
-		private treeService: TreeService)
-    {
+		private adobeService: AdobeService)
+	{
 		super();
 	}
 
-	ngOnInit() {
+	get disclaimerText()
+	{
+		return 'Option selections are not final until purchased via a signed agreement or change order.';
+	}
+
+	ngOnInit()
+	{
 		const getAttributeGroups: Observable<AttributeGroup[]> = this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]);
 		const getLocationGroups: Observable<LocationGroup[]> = this.choice.mappedLocationGroups.length > 0 ? this.attributeService.getLocationGroups(this.choice.mappedLocationGroups.map(x => x.id)) : of([]);
 
-		getAttributeGroups.pipe(
-			combineLatest(getLocationGroups, this.store.pipe(select(fromFavorite.currentMyFavorite))),
-			switchMap(([attributeGroups, locationGroups, favorite]) =>
+		combineLatest([
+			getAttributeGroups,
+			getLocationGroups,
+			this.store.pipe(select(fromFavorite.currentMyFavorite))
+		]).pipe(switchMap(([attributeGroups, locationGroups, favorite]) =>
+		{
+			const attributeIds = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes, att => att.id));
+			const missingAttributes = this.choice.selectedAttributes.filter(x => x.attributeId && !attributeIds.some(att => att === x.attributeId));
+			const locationIds = _.flatMap(locationGroups, gp => _.flatMap(gp.locations, loc => loc.id));
+			const missingLocations = this.choice.selectedAttributes.filter(x => x.locationId && !locationIds.some(loc => loc === x.locationId));
+
+			// Get missing attributes / locations when the choice is contracted
+			const getMissingAttributes = this.choice.choiceStatus === 'Contracted' && missingAttributes?.length
+				? this.attributeService.getAttributeCommunities(missingAttributes.map(x => x.attributeId))
+				: of([]);
+			const getMissingLocations = this.choice.choiceStatus === 'Contracted' && missingLocations?.length
+				? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
+				: of([]);
+
+			// If the choice is not contracted, delete favorited attributes / locations if they
+			// are not found in the attribute groups / location groups
+			if (this.choice.choiceStatus !== 'Contracted' && (missingAttributes?.length || missingLocations?.length))
 			{
-				const attributeIds = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes, att => att.id));
-				const missingAttributes = this.choice.selectedAttributes.filter(x => x.attributeId && !attributeIds.some(att => att === x.attributeId));
-				const locationIds = _.flatMap(locationGroups, gp => _.flatMap(gp.locations, loc => loc.id));
-				const missingLocations = this.choice.selectedAttributes.filter(x => x.locationId && !locationIds.some(loc => loc === x.locationId));
+				this.deleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, favorite);
+			}
 
-				// Get missing attributes / locations when the choice is contracted
-				const getMissingAttributes = this.choice.choiceStatus === 'Contracted' && missingAttributes?.length
-					? this.attributeService.getAttributeCommunities(missingAttributes.map(x => x.attributeId))
-					: of([]);
-				const getMissingLocations = this.choice.choiceStatus === 'Contracted' && missingLocations?.length
-					? this.attributeService.getLocationCommunities(missingLocations.map(x => x.locationId))
-					: of([]);
-
-				// If the choice is not contracted, delete favorited attributes / locations if they
-				// are not found in the attribute groups / location groups
-				if (this.choice.choiceStatus !== 'Contracted' && (missingAttributes?.length || missingLocations?.length))
+			return combineLatest([
+				getMissingAttributes,
+				getMissingLocations,
+				this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null)
+			]).pipe(
+				map(([attributes, locations, attributeCommunityImageAssocs]) =>
 				{
-					this.deleteMyFavoritesChoiceAttributes(missingAttributes, missingLocations, favorite);
-				}
+					mergeAttributes(attributes, missingAttributes, attributeGroups);
+					mergeLocations(locations, missingLocations, locationGroups);
+					mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
 
-				return (getMissingAttributes).pipe(combineLatest(
-					getMissingLocations,
-					this.attributeService.getAttributeCommunityImageAssoc(attributeIds, this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.outForSignatureDate : null)
-				)).pipe(
-					map(([attributes, locations, attributeCommunityImageAssocs]) =>
-					{
-						mergeAttributes(attributes, missingAttributes, attributeGroups);
-						mergeLocations(locations, missingLocations, locationGroups);
-						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
-
-						return { attributeGroups, locationGroups };
-					}));
-			})
-		).subscribe(data =>
+					return { attributeGroups, locationGroups };
+				}))
+		})).subscribe(data =>
 		{
 			this.choiceAttributeGroups = data.attributeGroups;
 			this.choiceLocationGroups = data.locationGroups;
@@ -132,23 +135,26 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.updateChoiceAttributes();
 			this.getImages();
 		},
-		error =>
-		{
-			const msg = 'Failed to load choice attributes!';
-			this.toastr.error(msg, 'Error');
-			this.adobeService.setErrorEvent(msg);
-		});
+			error =>
+			{
+				const msg = 'Failed to load choice attributes!';
+				this.toastr.error(msg, 'Error');
+				this.adobeService.setErrorEvent(msg);
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavorite),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)))
-		).subscribe(([favorite, tree]) => {
+		).subscribe(([favorite, tree]) =>
+		{
 			if (tree)
 			{
+				this.point = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(p => p.id === this.choice.treePointId);
 				const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
 				const updatedChoice = choices.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId);
-				if ( updatedChoice)
+
+				if (updatedChoice)
 				{
 					this.choice.quantity = updatedChoice.quantity;
 					this.choice.selectedAttributes = updatedChoice.selectedAttributes;
@@ -157,13 +163,16 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						: null;
 				}
 			}
+
 			this.updateChoiceAttributes();
 		});
 
-		let desc = this.choice.description ? [this.choice.description] : [];
+		const desc = this.choice.description ? [this.choice.description] : [];
+
 		this.choiceDescriptions = this.choice.options && this.choice.options.length > 0 ? this.choice.options.filter(o => o.description != null).map(o => o.description) : desc;
 
 		const dps = _.flatMap(this.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+
 		this.currentPoint = dps.find(pt => pt.choices.find(ch => ch.id === this.choice.id));
 	}
 
@@ -172,7 +181,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		const myFavoritesChoice = favorite?.myFavoritesChoice?.find(c => c.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 		const choiceAttributes = myFavoritesChoice?.myFavoritesChoiceAttributes?.filter(x =>
 			!!missingAttributes.find(att => att.attributeGroupId === x.attributeGroupCommunityId
-					&& att.attributeId === x.attributeCommunityId && !att.locationId));
+				&& att.attributeId === x.attributeCommunityId && !att.locationId));
 
 		let choiceLocAttributes = _.flatMap(myFavoritesChoice?.myFavoritesChoiceLocations, loc => loc.myFavoritesChoiceLocationAttributes);
 		choiceLocAttributes = choiceLocAttributes?.filter(x =>
@@ -238,20 +247,27 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	populateAttributeGroups(attributeGroups: AttributeGroup[])
 	{
 		this.attributeGroups = [];
+
 		if (attributeGroups)
 		{
 			const attGroups = _.orderBy(attributeGroups, 'sortOrder');
-			attGroups.forEach(attributeGroup => {
+
+			attGroups.forEach(attributeGroup =>
+			{
 				attributeGroup.choiceId = this.choice.id;
 
-				let attributes: AttributeExt[] = [];
+				const attributes: AttributeExt[] = [];
+
 				if (attributeGroup.attributes)
 				{
-					attributeGroup.attributes.forEach(att => {
+					attributeGroup.attributes.forEach(att =>
+					{
 						let attritbuteStatus = this.choice.choiceStatus;
+
 						if (attritbuteStatus === 'Contracted')
 						{
 							const selectedAttribute = this.choice.selectedAttributes.find(x => x.attributeId === att.id && x.attributeGroupId === attributeGroup.id);
+
 							if (!selectedAttribute)
 							{
 								attritbuteStatus = this.choice.isPointStructural ? null : 'ViewOnly';
@@ -273,6 +289,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						}
 					});
 				}
+
 				if (attributes.length)
 				{
 					this.attributeGroups.push(new AttributeGroupExt(attributeGroup, attributes));
@@ -284,15 +301,20 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	populateLocationGroups(locationGroups: LocationGroup[])
 	{
 		this.locationGroups = [];
+
 		if (locationGroups)
 		{
-			locationGroups.forEach(lg => {
+			locationGroups.forEach(lg =>
+			{
 				if (this.choice.choiceStatus === 'Contracted' && (this.choice.isPointStructural || this.isDesignComplete))
 				{
 					// Display selected locations and attributes for a contracted choice when it is structural or design complete
-					let selectedLocations : Location[] = [];
-					lg.locations.forEach(loc => {
+					const selectedLocations: Location[] = [];
+
+					lg.locations.forEach(loc =>
+					{
 						const selectedAttributes = this.choice.selectedAttributes.filter(x => x.locationGroupId === lg.id && x.locationId === loc.id);
+
 						if (selectedAttributes && selectedAttributes.length)
 						{
 							selectedLocations.push(loc);
@@ -301,8 +323,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 					if (selectedLocations.length)
 					{
-						let locationGroup = lg;
+						const locationGroup = lg;
+
 						locationGroup.locations = selectedLocations;
+
 						this.locationGroups.push(locationGroup);
 					}
 				}
@@ -321,51 +345,17 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			return;
 		}
 
-		// look for images on the tree option first
-		this.choice?.options?.forEach(option =>
-		{
-			option?.optionImages?.forEach(x =>
-			{
-				this.choiceImages.push(x);
-			});
-		});
-
-		// look for choice images if there is no option image
-		if (!this.choiceImages.length && this.choice?.hasImage)
-		{
-			this.choice?.choiceImages?.forEach(x =>
-			{
-				this.choiceImages.push({ imageURL: x.imageUrl });
-			});
-		}
-
-		// default image
+		this.choiceImages = getChoiceImageList(this.choice);
 		if (!this.choiceImages.length)
 		{
-			return this.treeService.getChoiceImageAssoc([this.choice.id]).subscribe(choiceImages =>
-				{
-					if (choiceImages && choiceImages.length > 0)
-					{
-						choiceImages.forEach(i => this.choiceImages.push({ imageURL: i.imageUrl }));
-					}
-					else
-					{
-						// We need to triger the cloudinary error so that the elements image is set to
-						// noImageAvailable. This will trigger a cloudinary error, but isn't the most
-						// elegant. Removing this causes an indinite load or no image to appear.
-						this.choiceImages.push({ imageURL: 'this image does not exist' });
-					}
-					this.selectedImageUrl = this.choiceImages[0].imageURL;
-
-					this.imageLoading = true;
-				});
+			this.choiceImages.push({ imageURL: 'this image does not exist' });
 		}
 		else
 		{
 			this.selectedImageUrl = this.choiceImages[0].imageURL;
-
-			this.imageLoading = true;
 		}
+
+		this.imageLoading = true;
 	}
 
 	get optionDisabled(): boolean
@@ -375,39 +365,41 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	onClickBack()
 	{
-		this.onBack.emit();
+		history.back();
 	}
 
-	toggleChoice()
+	toggleChoiceClicked()
 	{
 		if (!this.isReadonly)
 		{
-			this.onToggleChoice.emit(this.choice);
+			this.toggleChoice.emit(this.choice);
 		}
 	}
 
-	toggleAttribute(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number})
+	toggleAttribute(data: { attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number })
 	{
 		this.choice.selectedAttributes = this.getSelectedAttributes(data);
+
 		if (this.choice.selectedAttributes && this.choice.selectedAttributes.length && this.choice.quantity === 0)
 		{
 			this.choice.quantity = 1;
 		}
+
 		this.store.dispatch(
 			new ScenarioActions.SelectChoices(this.isDesignComplete,
-			{
-				choiceId: this.choice.id,
-				divChoiceCatalogId: this.choice.divChoiceCatalogId,
-				quantity: this.choice.quantity,
-				attributes: this.choice.selectedAttributes
-			}));
+				{
+					choiceId: this.choice.id,
+					divChoiceCatalogId: this.choice.divChoiceCatalogId,
+					quantity: this.choice.quantity,
+					attributes: this.choice.selectedAttributes
+				}));
 		this.store.dispatch(new ScenarioActions.SetStatusForPointsDeclined(this.myFavoritesPointsDeclined.map(dp => dp.divPointCatalogId), false));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
-	getSelectedAttributes(data: {attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}): DesignToolAttribute[]
+	getSelectedAttributes(data: { attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number }): DesignToolAttribute[]
 	{
-		let selectedAttributes: DesignToolAttribute[] = [...this.choice.selectedAttributes];
+		const selectedAttributes: DesignToolAttribute[] = [...this.choice.selectedAttributes];
 
 		const attributeIndex = this.choice.selectedAttributes.findIndex(x =>
 			x.attributeId === data.attribute.id &&
@@ -448,10 +440,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	 * Runs when the carousel moves to a new image
 	 * @param event
 	 */
-	onSlide(event: any)
+	onSlide(event)
 	{
 		this.activeIndex = event;
 		this.imageLoading = true;
+
 		if (this.activeIndex)
 		{
 			this.selectedImageUrl = this.choiceImages[this.activeIndex.current].imageURL;
@@ -473,7 +466,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		this.imageLoading = false;
 
@@ -487,14 +480,17 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.selectedImageUrl = image.imageURL;
 
 		const imageIndex = this.choiceImages.findIndex(x => x.imageURL === image.imageURL);
+
 		if (imageIndex > -1)
 		{
 			this.cd.detectChanges();
+
 			this.imageCarousel.select(imageIndex.toString());
 		}
 	}
 
-	attributeClick(data: {attribute: Attribute, attributeGroup: AttributeGroup})
+	//attribute only click without location
+	attributeClick(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
 		this.locationAttributeClick({
 			attribute: data.attribute,
@@ -504,7 +500,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		});
 	}
 
-	locationAttributeClick(data: {attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number})
+	//location group's attribute is cliced with passing data
+	locationAttributeClick(data: { attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number })
 	{
 		if (this.highlightedAttribute &&
 			this.highlightedAttribute.attributeGroupId === data.attributeGroupId &&
@@ -523,7 +520,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				locationId: data.locationId,
 				locationGroupId: data.locationGroupId
 			};
+
 			const updatedImageUrl = data.attribute.imageUrl || 'assets/attribute-image-not-available.png';
+
 			if (this.attributeImageUrl !== updatedImageUrl)
 			{
 				this.attributeImageUrl = updatedImageUrl;
@@ -532,7 +531,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	getHighlightedAttributeId(attributeGroup: AttributeGroup) : number
+	getHighlightedAttributeId(attributeGroup: AttributeGroup): number
 	{
 		return this.highlightedAttribute && this.highlightedAttribute.attributeGroupId === attributeGroup.id
 			? this.highlightedAttribute.attributeId
@@ -544,15 +543,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		return this.highlightedAttribute
 			&& this.highlightedAttribute.locationId === location.id
 			&& this.highlightedAttribute.locationGroupId === locationGroup.id
-				? { attributeId: this.highlightedAttribute.attributeId, attributeGroupId: this.highlightedAttribute.attributeGroupId }
-				: null;
+			? { attributeId: this.highlightedAttribute.attributeId, attributeGroupId: this.highlightedAttribute.attributeGroupId }
+			: null;
 	}
 
 	getTotalQuantiy()
 	{
 		return this.locationComponents
-				.map(loc => loc.locationQuantityTotal ?? 0)
-				.reduce((a, b) => a + b, 0);
+			.map(loc => loc.locationQuantityTotal ?? 0)
+			.reduce((a, b) => a + b, 0);
 	}
 
 	getLocationMaxQuantity(locationId: number): number
@@ -563,37 +562,33 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const totalQtyAllLocations = this.getTotalQuantiy();
-		let locationMaxQty = this.choice.maxQuantity;
 
-		// if the choice max qty has been reached then set the max qty for the location to the location qty
-		if (totalQtyAllLocations === this.choice.maxQuantity)
-		{
-			locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
-		}
-		else
-		{
-			// if the choice max qty has not been reached then set the max qty for the location to
-			// the choice max qty minus the total choice qty plus the location qty
-			const locationQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId).locationQuantityTotal;
+		// default to the location qty
+		let locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId)?.locationQuantityTotal ?? 0;
 
-			locationMaxQty = this.choice.maxQuantity - totalQtyAllLocations + locationQty;
+		// if the choice max qty has not been reached then set the max qty for the location to the choice max qty minus the total choice qty plus the location qty
+		if (totalQtyAllLocations !== this.choice.maxQuantity)
+		{
+			locationMaxQty = this.choice.maxQuantity - totalQtyAllLocations + locationMaxQty;
 		}
 
 		return locationMaxQty;
-	}
+	} 
 
-	changeQuantiy(data: {location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean})
+	changeQuantiy(data: { location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean, skipSave: boolean})
 	{
 		if (data.clearAttribute)
 		{
-			this.choice.selectedAttributes = this.choice.selectedAttributes.filter(a => a.locationId !== data.location.id || a.locationGroupId !== data.locationGroup.id );
+			this.choice.selectedAttributes = this.choice.selectedAttributes.filter(a => a.locationId !== data.location.id || a.locationGroupId !== data.locationGroup.id);
 		}
 		else
 		{
-			let locationAttributes = this.choice.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
+			const locationAttributes = this.choice.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
+
 			if (locationAttributes && locationAttributes.length)
 			{
-				locationAttributes.forEach(att => {
+				locationAttributes.forEach(att =>
+				{
 					att.locationQuantity = data.quantity;
 				});
 			}
@@ -621,34 +616,36 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const totalQuantity = this.getTotalQuantiy();
+
 		this.choice.quantity = this.choice.quantity > 0 && totalQuantity === 0 ? 1 : totalQuantity;
+
 		this.store.dispatch(
 			new ScenarioActions.SelectChoices(this.isDesignComplete,
-			{
-				choiceId: this.choice.id,
-				divChoiceCatalogId: this.choice.divChoiceCatalogId,
-				quantity: this.choice.quantity,
-				attributes: this.choice.selectedAttributes
-			}));
-		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-	}
+				{
+					choiceId: this.choice.id,
+					divChoiceCatalogId: this.choice.divChoiceCatalogId,
+					quantity: this.choice.quantity,
+					attributes: this.choice.selectedAttributes
+				}));
 
-	openBlockedChoiceModal() {
-		if (!this.disabledByList)
+		if(!data.skipSave)
 		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
+			this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
 	}
 
-	onCloseClicked() {
+	openBlockedChoiceModal()
+	{
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+	}
+
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit(pointId);
-		this.onBack.emit();
 	}
 }

@@ -4,8 +4,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { environment } from '../../../../environments/environment';
 import { withSpinner, SummaryData } from 'phd-common';
+
+import { environment } from '../../../../environments/environment';
 
 @Injectable()
 export class ReportsService

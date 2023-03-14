@@ -166,9 +166,9 @@ export class Choice
 	treeVersionId: number;
 	lockedInOptions: OptionRule[] = [];
 	changedDependentChoiceIds: number[] = [];
-	lockedInChoice: { 
+	lockedInChoice: {
 		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
+		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
 	} = null;
 	mappingChanged: boolean = false;
 	isHiddenFromBuyerView?: boolean;
@@ -178,6 +178,9 @@ export class Choice
 	choiceImages?: ChoiceImageAssoc[] = [];
 	divChoiceCatalogAttributeGroups?: number[] = [];
 	divChoiceCatalogLocationGroups?: number[] = [];
+	disabledByReplaceRules?: Array<number> = [];
+	disabledByBadSetup?: boolean = false;
+	disabledByRelocatedMapping?: Array<number> = [];	
 }
 
 export class MappedGroup
@@ -236,10 +239,10 @@ export class OptionImage
 
 export class ChoiceImageAssoc
 {
-	dpChoiceId: number;
-	dpChoiceImageAssocId: number;
+	dpChoiceId?: number;
+	dpChoiceImageAssocId?: number;
 	imageUrl: string;
-	sortKey: number;
+	sortKey?: number;
 }
 
 export class PlanOptionCommunityImageAssoc

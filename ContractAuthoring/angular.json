@@ -11,7 +11,6 @@
 				"build": {
 					"builder": "@angular-devkit/build-angular:browser",
 					"options": {
-						"aot": true,
 						"baseHref": "/",
 						"outputHashing": "all",
 						"outputPath": "dist",
@@ -28,7 +27,13 @@
 						"styles": [
 							"src/styles.scss"
 						],
-						"scripts": []
+						"scripts": [],
+						"vendorChunk": true,
+						"extractLicenses": false,
+						"buildOptimizer": false,
+						"sourceMap": true,
+						"optimization": false,
+						"namedChunks": true
 					},
 					"configurations": {
 						"qa": {
@@ -50,7 +55,6 @@
 						"production": {
 							"optimization": true,
 							"sourceMap": false,
-							"extractCss": true,
 							"namedChunks": false,
 							"extractLicenses": true,
 							"vendorChunk": false,
@@ -62,12 +66,12 @@
                                 }
 							]
 						}
-					}
+					},
+					"defaultConfiguration": ""
 				},
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "baseHref": "/",
                         "browserTarget": "ContractAuthoring:build",
                         "port": 3000,
                         "ssl": true,
@@ -107,18 +111,6 @@
                             "src/assets"
                         ]
                     }
-				},
-				"lint": {
-					"builder": "@angular-devkit/build-angular:tslint",
-					"options": {
-                        "tsConfig": [
-                            "src/tsconfig.app.json",
-                            "src/tsconfig.spec.json"
-                        ],
-						"exclude": [
-							"**/node_modules/**"
-						]
-					}
 				}
 			}
 		}

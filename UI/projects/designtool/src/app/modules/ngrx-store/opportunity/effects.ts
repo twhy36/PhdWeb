@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { Observable ,  of ,  from } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { OpportunityService } from '../../core/services/opportunity.service';
 import { OpportunityActionTypes, LoadOpportunity, OpportunityLoaded } from './actions';
@@ -18,12 +18,13 @@ export class OpportunityEffects
 		private oppService: OpportunityService
 	) { }
 
-	loadPlans$: Observable<Action> = createEffect(() => {
+	loadPlans$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadOpportunity>(OpportunityActionTypes.LoadOpportunity),
-			switchMap(action => this.oppService.getOpportunityContactAssoc(action.opportunityId).pipe(map(opp => { return { opp, oppId: action.opportunityId }; }))),
-			switchMap(opp => !opp.opp ? this.oppService.getOpportunityFromCRM(opp.oppId) : of(opp.opp)),
-			switchMap(opp => {
+			switchMap(action => this.oppService.getOpportunityContactAssoc(action.opportunityId)),
+			switchMap(opp =>
+			{
 				return from([
 					new OpportunityLoaded(opp),
 					new LoadPlans(opp.opportunity.salesCommunityId),

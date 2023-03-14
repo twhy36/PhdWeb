@@ -18,7 +18,7 @@ import
 
 import { CommonActionTypes, ResetFavorites, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted } from '../actions';
 import { SelectChoices, SetStatusForPointsDeclined } from '../scenario/actions';
-import { tryCatch } from '../error.action';
+import { ErrorFrom, tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';
 import { TreeService } from '../../core/services/tree.service';
@@ -27,6 +27,7 @@ import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
 import * as fromSalesAgreement from '../sales-agreement/reducer';
 import { AdobeService } from '../../core/services/adobe.service';
+import { BuildMode } from '../../shared/models/build-mode.model';
 
 @Injectable()
 export class FavoriteEffects
@@ -44,14 +45,16 @@ export class FavoriteEffects
 			ofType<SetCurrentFavorites | MyFavoriteCreated>(FavoriteActionTypes.SetCurrentFavorites, FavoriteActionTypes.MyFavoriteCreated),
 			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, fav]) => {
+				switchMap(([action, store, fav]) => 
+				{
 					const isDesignComplete = store.salesAgreement?.isDesignComplete || false;
-					let actions: any[] = [];
+					const actions: Action[] = [];
 
 					if (fav?.myFavoritesChoice?.length)
 					{
 						const points = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-						const favoriteChoices = fav.myFavoritesChoice.filter(c => {
+						const favoriteChoices = fav.myFavoritesChoice.filter(c => 
+						{
 							const point = points.find(pt => pt.choices.some(ch => ch.divChoiceCatalogId === c.divChoiceCatalogId));
 
 							// Ignore the favorited choice if 
@@ -71,35 +74,36 @@ export class FavoriteEffects
 							return choiceSelected;
 						});
 
-						let choices = favoriteChoices.map(c => {
+						const choices = favoriteChoices.map(c => 
+						{
 							// get favorites locations
-							let attributes = c.myFavoritesChoiceLocations ? _.flatten(c.myFavoritesChoiceLocations.map(l =>
+							const attributes = c.myFavoritesChoiceLocations ? _.flatten(c.myFavoritesChoiceLocations.map(l =>
+							{
+								return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a =>
 								{
-									return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a =>
-									{
-										return <DesignToolAttribute>{
-											attributeId: a.attributeCommunityId,
-											attributeGroupId: a.attributeGroupCommunityId,
-											scenarioChoiceLocationId: l.id,
-											scenarioChoiceLocationAttributeId: a.id,
-											locationGroupId: l.locationGroupCommunityId,
-											locationId: l.locationCommunityId,
-											locationQuantity: l.quantity,
-											attributeGroupLabel: a.attributeGroupLabel,
-											attributeName: a.attributeName,
-											locationGroupLabel: l.locationGroupLabel,
-											locationName: l.locationName,
-											sku: null,
-											manufacturer: null
-										};
-									}) : [<DesignToolAttribute>{
+									return <DesignToolAttribute>{
+										attributeId: a.attributeCommunityId,
+										attributeGroupId: a.attributeGroupCommunityId,
+										scenarioChoiceLocationId: l.id,
+										scenarioChoiceLocationAttributeId: a.id,
 										locationGroupId: l.locationGroupCommunityId,
-										locationGroupLabel: l.locationGroupLabel,
 										locationId: l.locationCommunityId,
+										locationQuantity: l.quantity,
+										attributeGroupLabel: a.attributeGroupLabel,
+										attributeName: a.attributeName,
+										locationGroupLabel: l.locationGroupLabel,
 										locationName: l.locationName,
-										locationQuantity: l.quantity
-									}];
-								})) : [];
+										sku: null,
+										manufacturer: null
+									};
+								}) : [<DesignToolAttribute>{
+									locationGroupId: l.locationGroupCommunityId,
+									locationGroupLabel: l.locationGroupLabel,
+									locationId: l.locationCommunityId,
+									locationName: l.locationName,
+									locationQuantity: l.quantity
+								}];
+							})) : [];
 
 							// gets favorites attributes
 							c.myFavoritesChoiceAttributes && c.myFavoritesChoiceAttributes.forEach(a =>
@@ -140,7 +144,7 @@ export class FavoriteEffects
 						return new Observable<never>();
 					}
 				})
-			), SaveError, "Error setting current favorites!")
+			), SaveError, 'Error setting current favorites!', ErrorFrom.SetCurrentFavorites)
 		)
 	);
 
@@ -150,14 +154,16 @@ export class FavoriteEffects
 			withLatestFrom(this.store.pipe(select(fromFavorite.currentMyFavorite)),
 				this.store.pipe(select(state => state.salesAgreement))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, fav, sag]) => {
+				switchMap(([action, fav, sag]) => 
+				{
 					if (fav)
 					{
-						let actions: any[] = [ new SetCurrentFavorites(null) ];
+						const actions: Action[] = [new SetCurrentFavorites(null)];
 
 						if (fav.myFavoritesChoice?.length)
 						{
-							let choices = fav.myFavoritesChoice.map(c => {
+							const choices = fav.myFavoritesChoice.map(c => 
+							{
 								return {
 									choiceId: c.dpChoiceId,
 									divChoiceCatalogId: c.divChoiceCatalogId,
@@ -183,7 +189,7 @@ export class FavoriteEffects
 						return new Observable<never>();
 					}
 				})
-			), SaveError, "Error resetting current favorites!")
+			), SaveError, 'Error resetting current favorites!', ErrorFrom.ResetFavorites)
 		)
 	);
 
@@ -192,13 +198,17 @@ export class FavoriteEffects
 			ofType<SaveMyFavoritesChoices>(FavoriteActionTypes.SaveMyFavoritesChoices),
 			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, fav]) => {
-					return store.scenario.buildMode === 'preview'
-						? this.favoriteService.saveMyFavoritesChoicesInPreview(store.scenario.tree, fav)
+				switchMap(([action, store, fav]) => 
+				{ 
+					return store.scenario.buildMode === BuildMode.Preview 
+							|| store.scenario.buildMode === BuildMode.Presale
+						? this.favoriteService.saveMyFavoritesChoicesInPreviewAndPresale(store.scenario.tree, fav)
 						: this.favoriteService.saveMyFavoritesChoices(store.scenario.tree, store.favorite.salesChoices, fav);
 				}),
-				switchMap(results => of(new MyFavoritesChoicesSaved(results)))
-			), SaveError, "Error saving my favorite choices!")
+				switchMap(results => 
+					of(new MyFavoritesChoicesSaved(results))
+				)
+			), SaveError, 'Error saving my favorite choices!', ErrorFrom.SaveMyFavoritesChoices)
 		)
 	);
 
@@ -207,18 +217,21 @@ export class FavoriteEffects
 			ofType<SaveMyFavoritesChoices>(FavoriteActionTypes.SaveMyFavoritesChoices),
 			withLatestFrom(this.store, this.store.pipe(select(fromFavorite.currentMyFavorite))),
 			tryCatch(source => source.pipe(
-				switchMap(([preSaveAction, store, fav]) => {
+				switchMap(([preSaveAction, store, fav]) => 
+				{
 					return this.actions$.pipe(
 						ofType<MyFavoritesChoicesSaved>(FavoriteActionTypes.MyFavoritesChoicesSaved),
-						tap((postSaveAction) => {
+						tap((postSaveAction) => 
+						{
 							this.adobeService.packageFavoriteEventData(postSaveAction.choices, fav, store.scenario.tree, store.scenario.tree.treeVersion.groups, store.favorite.salesChoices)
 						})
 					)
 				}),
-				switchMap(results => {
+				switchMap(results => 
+				{
 					return new Observable<never>()
 				})
-			), SaveError, "Error pushing favorite to Adobe!")
+			), SaveError, 'Error pushing favorite to Adobe!', ErrorFrom.PushAdobeFavoriteEvent)
 		)
 	);
 
@@ -227,8 +240,9 @@ export class FavoriteEffects
 			ofType<AddMyFavoritesPointDeclined>(FavoriteActionTypes.AddMyFavoritesPointDeclined),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === 'preview')
+				switchMap(([action, store]) => 
+				{
+					if (store.scenario.buildMode === BuildMode.Preview || store.scenario.buildMode === BuildMode.Presale)
 					{
 						return of([{
 							id: -action.pointId,
@@ -240,18 +254,20 @@ export class FavoriteEffects
 					else
 					{
 						return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId).pipe(
-							switchMap(pointDeclined => {
+							switchMap(pointDeclined => 
+							{
 								return this.treeService.getPointCatalogIds([pointDeclined]);
 							})
 						);
 					}
 				}),
-				switchMap(results => {
+				switchMap(results => 
+				{
 					return results?.length
 						? of(new MyFavoritesPointDeclinedUpdated(results[0], false))
 						: new Observable<never>();
 				})
-			), SaveError, "Error adding my favorites point declined!")
+			), SaveError, 'Error adding my favorites point declined!', ErrorFrom.AddMyFavoritesPointDeclined)
 		)
 	);
 
@@ -260,8 +276,9 @@ export class FavoriteEffects
 			ofType<DeleteMyFavoritesPointDeclined>(FavoriteActionTypes.DeleteMyFavoritesPointDeclined),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
-					if (store.scenario.buildMode === 'preview')
+				switchMap(([action, store]) => 
+				{
+					if (store.scenario.buildMode === BuildMode.Preview || store.scenario.buildMode === BuildMode.Presale)
 					{
 						const myFavorite = store.favorite?.myFavorites?.find(fav => fav.id === action.myFavoriteId);
 						const pointDeclined = myFavorite?.myFavoritesPointDeclined?.find(pt => pt.id === action.myFavoritesPointDeclineId);
@@ -273,7 +290,7 @@ export class FavoriteEffects
 					}
 				}),
 				map(results => new MyFavoritesPointDeclinedUpdated(results, true))
-			), SaveError, "Error deleting my favorites point declined!")
+			), SaveError, 'Error deleting my favorites point declined!', ErrorFrom.DeleteMyFavoritesPointDeclined)
 		)
 	);
 
@@ -281,11 +298,12 @@ export class FavoriteEffects
 		this.actions$.pipe(
 			ofType<DeleteMyFavorite>(FavoriteActionTypes.DeleteMyFavorite),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action => 
+				{
 					return this.favoriteService.deleteMyFavorite(action.myFavorite);
 				}),
 				switchMap(result => of(new MyFavoriteDeleted(result)))
-			), SaveError, "Error deleting my favorite!")
+			), SaveError, 'Error deleting my favorite!', ErrorFrom.DeleteMyFavorites)
 		)
 	);
 
@@ -297,20 +315,23 @@ export class FavoriteEffects
 				this.store.pipe(select(fromRoot.favoriteTitle))
 			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, sag, fav, title]) => {
+				switchMap(([action, sag, fav, title]) => 
+				{
 					const salesAgreementId = sag?.id || 0;
 					const currentMyFavorite = fav?.myFavorites?.length > 0 ? fav.myFavorites[0] : null;
 					const selectedFavoritesId = fav?.selectedFavoritesId || 0;
 					const getMyFavorite = currentMyFavorite ? of(currentMyFavorite) : this.favoriteService.saveMyFavorite(0, title, salesAgreementId);
 
 					return getMyFavorite.pipe(
-						map(favorite => {
+						map(favorite => 
+						{
 							return { favorite: favorite, currentMyFavorite: currentMyFavorite, selectedFavoritesId: selectedFavoritesId };
 						})
 					);
 				}),
-				switchMap(result => {
-					let actions: any[] = [];
+				switchMap(result => 
+				{
+					const actions: Action[] = [];
 
 					if (result.favorite)
 					{
@@ -334,7 +355,7 @@ export class FavoriteEffects
 
 					return from(actions);
 				})
-			), SaveError, "Error loading my favorite!")
+			), SaveError, 'Error loading my favorite!', ErrorFrom.LoadMyFavorite)
 		)
 	);
 
@@ -343,7 +364,8 @@ export class FavoriteEffects
 			ofType<LoadDefaultFavorite>(FavoriteActionTypes.LoadDefaultFavorite),
 			withLatestFrom(this.store.pipe(select(fromFavorite.favoriteState))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, fav]) => {
+				switchMap(([action, fav]) => 
+				{
 					const currentMyFavorite = fav?.myFavorites?.length > 0 ? fav.myFavorites[0] : null;
 					const selectedFavoritesId = fav?.selectedFavoritesId || 0;
 					const defaultFavorite: MyFavorite = {
@@ -356,9 +378,10 @@ export class FavoriteEffects
 					const favorite = currentMyFavorite ? currentMyFavorite : defaultFavorite;
 
 					return of({ favorite: favorite, currentMyFavorite: currentMyFavorite, selectedFavoritesId: selectedFavoritesId });
-			}),
-				switchMap(result => {
-					let actions: any[] = [];
+				}),
+				switchMap(result => 
+				{
+					const actions: Action[] = [];
 
 					if (result.favorite)
 					{
@@ -382,7 +405,7 @@ export class FavoriteEffects
 
 					return from(actions);
 				})
-			), SaveError, "Error loading my favorite!")
+			), SaveError, 'Error loading my favorite!', ErrorFrom.LoadDefaultFavorite)
 		)
 	);
 
@@ -390,7 +413,8 @@ export class FavoriteEffects
 		this.actions$.pipe(
 			ofType<SalesAgreementLoaded>(CommonActionTypes.SalesAgreementLoaded),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action => 
+				{
 					const choices = _.flatMap(action.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 					const favChoices = action.myFavorites ? _.flatMap(action.myFavorites, fav => fav.myFavoritesChoice) : [];
 					const removedFavChoices = favChoices.filter(favChoice => !choices.find(c => c.divChoiceCatalogId === favChoice.divChoiceCatalogId));
@@ -400,7 +424,7 @@ export class FavoriteEffects
 						: of([]);
 				}),
 				switchMap(results => of(new MyFavoritesChoicesDeleted(results)))
-			), SaveError, "Error updating my favorite choices on init!")
+			), SaveError, 'Error updating my favorite choices on init!', ErrorFrom.UpdateMyFavoritesChoicesOnInit)
 		)
 	);	
 
@@ -408,15 +432,17 @@ export class FavoriteEffects
 		this.actions$.pipe(
 			ofType<DeleteMyFavoritesChoiceAttributes>(FavoriteActionTypes.DeleteMyFavoritesChoiceAttributes),
 			tryCatch(source => source.pipe(
-				switchMap(action => {
+				switchMap(action => 
+				{
 					return this.favoriteService.deleteMyFavoritesAttributes(action.attributes, action.locations, action.myFavoritesChoice).pipe(
-						map(result => {
+						map(result => 
+						{
 							return { attributes: action.attributes, locations: action.locations, myFavoritesChoice: action.myFavoritesChoice };
 						})
 					);
 				}),
 				switchMap(results => of(new MyFavoritesChoiceAttributesDeleted(results.attributes, results.locations, results.myFavoritesChoice)))
-			), SaveError, "Error deleting favorites choice attributes!")
+			), SaveError, 'Error deleting favorites choice attributes!', ErrorFrom.DeleteMyFavoritesChoiceAttributes)
 		)
 	);		
 }

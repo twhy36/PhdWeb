@@ -1,7 +1,7 @@
 import { Component, Input, Output, ViewEncapsulation, EventEmitter } from '@angular/core';
 import { LinkAction } from '../../models/action.model';
 import { environment } from '../../../../../environments/environment';
-import { IFinancialCommunity } from '../../models/community.model';
+import { IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
 
 @Component({
 	selector: 'spec-homes',
@@ -18,7 +18,7 @@ export class SpecHomeComponent
 
 	selectedMarket: number = null;
 	selectedFinancialCommunity: number = null;
-	selectedSalesCommunity: number = null;
+	selectedSalesCommunity: ISalesCommunity = null;
 	selectedSpecOrHomes: string = 'spec';
 
 	constructor() { }
@@ -30,7 +30,7 @@ export class SpecHomeComponent
 
 	save()
 	{
-		const url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedSpecOrHomes}/${this.selectedMarket}/${this.selectedSalesCommunity}`;
+		const url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedSpecOrHomes}/${this.selectedMarket}/${this.selectedSalesCommunity.id}`;
 
 		window.open(url, "_blank");
 	}
@@ -45,7 +45,7 @@ export class SpecHomeComponent
 		this.selectedFinancialCommunity = community.id;
 	}
 
-	onSalesCommunityChange(salesCommunity)
+	onSalesCommunityChange(salesCommunity: ISalesCommunity)
 	{
 		this.selectedSalesCommunity = salesCommunity;
 	}

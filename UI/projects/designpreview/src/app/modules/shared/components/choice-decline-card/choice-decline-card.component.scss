@@ -3,11 +3,10 @@
 
 .phd-choice-decline-card {
 	width: 300px;
-	height: 285px;
 	background-color: white;
 	margin: 5px;
 	margin-bottom: 10px;
-	border: 1px solid rgba(0,0,0,.125);
+	border: 1px solid rgba(0, 0, 0, .125);
 	border-radius: .25rem;
 	cursor: pointer;
 
@@ -65,10 +64,14 @@
 		.phd-non-clickable {
 			font-size: 20px;
 			margin-top: -3px;
+			background: none;
+			border: none;
+			padding: 0;
+
 			.fa-heart {
 				background: white;
 			}
-	
+
 			.fa-heart-o {
 				background: white;
 			}
@@ -77,6 +80,9 @@
 		.phd-clickable {
 			font-size: 20px;
 			margin-top: -3px;
+			background: none;
+			border: none;
+			padding: 0;
 		}
 
 		.phd-icon-selected {
@@ -90,5 +96,9 @@
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		overflow: hidden;
+	}
+
+	.phd-presale-icon {
+		align-self: flex-end;
 	}
 }

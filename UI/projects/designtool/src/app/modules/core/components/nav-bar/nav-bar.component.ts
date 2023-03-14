@@ -227,16 +227,20 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		combineLatest([
-			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromLite.selectedColorScheme)),
+			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-		.subscribe(([elevation, colorScheme]) =>
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
 		{
-			if (!!elevation && !!colorScheme)
+			const isColorSchemeCompleted = !!colorScheme || legacyColorScheme?.isSelected;
+
+			if (!!elevation && isColorSchemeCompleted)
 			{
 				this.exteriorStatus = PointStatus.COMPLETED;
 			}
-			else if (!!elevation || !!colorScheme)
+			else if (!!elevation || isColorSchemeCompleted)
 			{
 				this.exteriorStatus = PointStatus.PARTIALLY_COMPLETED;
 			}

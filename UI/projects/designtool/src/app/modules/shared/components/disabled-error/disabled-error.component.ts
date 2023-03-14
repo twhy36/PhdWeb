@@ -53,7 +53,7 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 			this.pointsById = pointsById;
 		});
 
-		this.hasRequiredChoice = this.point.choices.find(c => c.isRequired)?.isRequired;
+		this.hasRequiredChoice = this.point?.choices.find(c => c.isRequired)?.isRequired ?? false;
 
 		if (this.point && !!this.point.disabledBy.length)
 		{
@@ -61,11 +61,13 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 			const dp2dp = this.point.disabledBy.map(db => { return { rules: db.rules.filter(r => r.points.length > 0) } });
 			const dp2c = this.point.disabledBy.map(db => { return { rules: db.rules.filter(r => r.choices.length > 0) } });
 
-			if (dp2dp.filter(r => r.rules.length).length > 0) {
+			if (dp2dp.filter(r => r.rules.length).length > 0)
+			{
 				this.errors.push({ errorType: ErrorTypeEnum.DP2DP, disabledBy: dp2dp });
 			}
 
-			if (dp2c.filter(r => r.rules.length > 0).length > 0) {
+			if (dp2c.filter(r => r.rules.length > 0).length > 0)
+			{
 				this.errors.push({ errorType: ErrorTypeEnum.DP2C, disabledBy: dp2c });
 			}
 		}
@@ -73,6 +75,10 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 		if (this.choice && !!this.choice.disabledBy.length)
 		{
 			this.errors.push({ errorType: ErrorTypeEnum.C2C, disabledBy: this.choice.disabledBy });
+
+			// Prevent other disabled messages from duplicating choices
+			const disabledChoices = _.flatMap(this.choice.disabledBy, d => _.flatMap(d.rules, r => r.choices));
+			this.choice.disabledByReplaceRules = this.choice.disabledByReplaceRules.filter(ch => !disabledChoices.includes(ch));
 		}
 
 		this.isMultiError = this.errors && this.errors.length && this.errors.length > 1;
@@ -83,9 +89,12 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 	/**
 	 * Splits the rules for an error into groups of Must Have and Must Not Have, for easier template rendering.
 	 */
-	filterErrorRules() {
-		this.errors.forEach(e => {
-			e.disabledBy.forEach(d => {
+	filterErrorRules()
+	{
+		this.errors.forEach(e =>
+		{
+			e.disabledBy.forEach(d =>
+			{
 				d.mustHaves = d.rules.filter(r => r.ruleType === 1);
 				d.anyMultipleMustHaves = d.mustHaves.some(mh => (mh.choices && mh.choices.length > 1) || (mh.points && mh.points.length > 1));
 				d.mustNotHaves = d.rules.filter(r => r.ruleType === 2);
@@ -95,7 +104,7 @@ export class DisabledErrorComponent extends UnsubscribeOnDestroy implements OnIn
 
 	onPointNav(p: number)
 	{
-		this.onLink.emit({ path: ['/edit-home/', this.scenarioId, this.pointsById[p].divPointCatalogId]});
+		this.onLink.emit({ path: ['/edit-home/', this.scenarioId, this.pointsById[p].divPointCatalogId] });
 	}
 
 	onChoiceNav(c: number)

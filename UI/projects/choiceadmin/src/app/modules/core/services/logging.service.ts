@@ -1,12 +1,10 @@
 import { Injectable, Injector, ErrorHandler } from '@angular/core';
-import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 @Injectable()
 export class LoggingService
 {
-
 	constructor(private injector: Injector, private appInsights: ApplicationInsights)
 	{
 	}

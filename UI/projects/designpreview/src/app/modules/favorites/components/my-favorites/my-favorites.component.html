@@ -3,8 +3,8 @@
 			   [planName]="planName"
 			   [groups]="groups"
 			   [selectedSubGroupId]="selectedSubgroupId"
-			   (onSubgroupSelected)="onSubgroupSelected($event)"
-			   (onSetTreeFilter)="treeFilterChanged()">
+			   (subgroupSelected)="onSubgroupSelected($event)"
+			   (setTreeFilter)="treeFilterChanged()">
 	</group-bar>
 </div>
 <div class="phd-my-favorites">
@@ -18,14 +18,14 @@
 						[salesChoices]="salesChoices"
 						[groups]="groups"
 						[tree]="tree"
-						[choiceImages]="currentChoiceImages"
 						[isReadonly]="isReadonly"
+						[isPresale]="isPresale"
 						[noVisibleGroups]="noVisibleGroups"
 						[unfilteredPoints]="unfilteredPoints"
-						(onToggleChoice)="toggleChoice($event)"
-						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)"
-						(onDeclineDecisionPoint)="declineDecisionPoint($event)"
+						(toggleChoice)="toggleChoice($event)"
+						(viewChoiceDetail)="viewChoiceDetail($event)"
+						(selectDecisionPoint)="selectDecisionPoint($event)"
+						(declineDecisionPoint)="declineDecisionPoint($event)"
 						>
 		</normal-experience>
 	</ng-container>
@@ -41,17 +41,17 @@
 						[isFloorplanFlipped]="isFloorplanFlipped"
 						[groups]="groups"
 						[tree]="tree"
-						[choiceImages]="currentChoiceImages"
 						[isReadonly]="isReadonly"
 						[isPreview]="isPreview"
+						[isPresale]="isPresale"
 						[isDesignComplete]="isDesignComplete"
 						[noVisibleGroups]="noVisibleGroups"
 						[noVisibleFP]="noVisibleFP"
 						[unfilteredPoints]="unfilteredPoints"
-						(onToggleChoice)="toggleChoice($event)"
-						(onViewChoiceDetail)="viewChoiceDetail($event)"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)"
-						(onDeclineDecisionPoint)="declineDecisionPoint($event)">
+						(toggleChoice)="toggleChoice($event)"
+						(viewChoiceDetail)="viewChoiceDetail($event)"
+						(selectDecisionPoint)="selectDecisionPoint($event)"
+						(declineDecisionPoint)="declineDecisionPoint($event)">
 		</floor-plan-experience>
 	</ng-container>
 	<ng-container *ngIf="showDetails">
@@ -64,19 +64,21 @@
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 						[isReadonly]="isReadonly"
 						[isDesignComplete]="isDesignComplete"
-						(onBack)="hideDetails()"
-						(onSelectDecisionPoint)="selectDecisionPoint($event)"
-						(onToggleChoice)="toggleChoice($event)">
+						[isPresale]="isPresale"
+						(toggleChoice)="toggleChoice($event)">
 		</choice-card-detail>
 	</ng-container>
 </div>
 
-<action-bar [primaryAction]="showDetails ? 'Back' : 'Next'"
+<action-bar [primaryAction]="showDetails ? 'Back' : 'Next: ' + (nextSubGroup ? nextSubGroup.label : 'MY FAVORITES')"
 			[price]="priceBreakdown?.totalPrice"
 			[favoritesPrice]="priceBreakdown?.favoritesPrice"
 			[includeContractedOptions]="includeContractedOptions"
 			[isDesignComplete]="isDesignComplete"
 			[isPreview]="isPreview"
-			(callToAction)="showDetails ? hideDetails() : onNextSubGroup()"
-			(onToggleContractedOptions)="toggleContractedOptions()">
+			[isPresale]="isPresale"
+			[hideContractedToggle]="showDetails"
+			[isFixedWidth]="nextSubGroup && nextSubGroup.label.length > 0"		
+			(callToAction)="showDetails ? onBackClicked() : onNextClicked()"
+			(toggleContractedOptions)="toggleContractedOptions()">
 </action-bar>

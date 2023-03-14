@@ -7,32 +7,24 @@ import { StorageService } from './services/storage.service';
 import { ColorService } from './services/color.service';
 import { AccessGuard } from './services/access.guard';
 import { MarketSelectorComponent } from './components/market-selector/market-selector.component';
-import { ColorsSearchHeaderComponent } from './components/search-header/colors-search-header.component';
-import { ColorItemsSearchHeaderComponent } from './components/item-search-header/color-items-search-header.component'
 import { OptionService } from './services/option.service';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PhdCommonModule, SidePanelComponent } from 'phd-common';
 import { SettingsService } from './services/settings.service';
-import { AddColorDialogComponent } from './components/add-color-dialog/add-color-dialog.component';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PlanOptionService } from './services/plan-option.service';
-import { EditColorSidePanelComponent } from './components/edit-color-side-panel/edit-color-side-panel.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ColorAdminService } from './services/color-admin.service';
-import { AddColorItemDialogComponent } from './components/add-color-item-dialog/add-color-item-dialog.component';
 import { PickListModule } from 'primeng/picklist';
-import { EditColorItemDialogComponent } from './components/edit-color-item-dialog/edit-color-item-dialog.component';
+import { NavigationComponent } from './components/navigation/navigation.component';
+import { RouterModule } from '@angular/router';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
 	declarations: [
 		MarketSelectorComponent,
-		ColorsSearchHeaderComponent,
-		ColorItemsSearchHeaderComponent,
-		AddColorDialogComponent,
-  		EditColorSidePanelComponent,
-    	AddColorItemDialogComponent,
-		EditColorItemDialogComponent
+		NavigationComponent
 	],
 	imports: [
 		CommonModule,
@@ -44,13 +36,14 @@ import { EditColorItemDialogComponent } from './components/edit-color-item-dialo
 		ReactiveFormsModule,
 		PhdCommonModule,
 		ToastModule,
-		PickListModule
+		PickListModule,
+		RouterModule,
+		NgbModule
 	],
 	exports: [
 		MarketSelectorComponent,
-		ColorsSearchHeaderComponent,
-		ColorItemsSearchHeaderComponent,
-		SidePanelComponent
+		SidePanelComponent,
+		NavigationComponent
 	],
 	providers: [
 		OrganizationService,
@@ -64,4 +57,5 @@ import { EditColorItemDialogComponent } from './components/edit-color-item-dialo
 		ColorAdminService
 	]
 })
+
 export class CoreModule {}

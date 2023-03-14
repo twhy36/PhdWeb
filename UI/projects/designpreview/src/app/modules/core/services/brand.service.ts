@@ -11,60 +11,124 @@ import * as johnWieland from '../../../../brands/john-wieland.json';
 import { applyBrand, getBrandImageSrc, getBannerImageSrc } from 'phd-common';
 
 @Injectable()
-export class BrandService {
+export class BrandService
+{
 	environment = environment;
 	brandMap = {};
 
-	constructor() {
-		this.brandMap[environment.brandMap.pulte] = (pulte as any).default;
-		this.brandMap[environment.brandMap.delwebb] = (delwebb as any).default;
-		this.brandMap[environment.brandMap.americanWest] = (americanWest as any).default;
-		this.brandMap[environment.brandMap.divosta] = (divosta as any).default;
-		this.brandMap[environment.brandMap.centex] = (centex as any).default;
-		this.brandMap[environment.brandMap.johnWieland] = (johnWieland as any).default;
+	constructor()
+	{
+		this.brandMap[environment.brandMap.pulte] = pulte['default'];
+		this.brandMap[environment.brandMap.delwebb] = delwebb['default'];
+		this.brandMap[environment.brandMap.americanWest] = americanWest['default'];
+		this.brandMap[environment.brandMap.divosta] = divosta['default'];
+		this.brandMap[environment.brandMap.centex] = centex['default'];
+		this.brandMap[environment.brandMap.johnWieland] = johnWieland['default'];
 	}
 
-	applyBrandStyles(): void {
+	applyBrandStyles(): void
+	{
 		applyBrand(this.brandMap);
 	}
 
-	getBrandImage(imageProperty: string): string {
+	getBrandImage(imageProperty: string): string
+	{
 		return getBrandImageSrc(this.brandMap, imageProperty);
 	}
 
-	getBannerImage(bannerPos: number): string {
-		return getBannerImageSrc(this.brandMap, bannerPos)
+	getBannerImage(bannerPos: number): string
+	{
+		return getBannerImageSrc(this.brandMap, bannerPos);
 	}
 
-	getBrandedLogoutUrl() {
-		const baseUrl = window.location.host;
-		if (environment.brandMap.pulte === baseUrl) {
-			return environment.brandLogoutMap.pulte;
-		} else if (environment.brandMap.delwebb === baseUrl) {
-			return environment.brandLogoutMap.delwebb;
-		} else if (environment.brandMap.americanWest === baseUrl) {
-			return environment.brandLogoutMap.americanWest;
-		} else if (environment.brandMap.divosta === baseUrl) {
-			return environment.brandLogoutMap.divosta;
-		} else if (environment.brandMap.johnWieland === baseUrl) {
-			return environment.brandLogoutMap.johnWieland;
+	getBrandName(displayMode?: BrandDisplayMode)
+	{
+		if (typeof window === 'undefined' && typeof document === 'undefined')
+		{
+			return '';
 		}
+
+		let brandName = '';
+		const baseUrl = window.location.host;
+
+		switch (baseUrl) 
+		{
+		case (environment.brandMap.americanWest):
+			brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.AmericanWest : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.americanWest : Brands.AmericanWest);
+			break;			
+		case (environment.brandMap.centex):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Centex : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.centex : Brands.Centex);
+			break;			
+		case (environment.brandMap.delwebb):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.DelWebb : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.delwebb : Brands.DelWebb);
+			break;
+		case (environment.brandMap.divosta):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Divosta : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.divosta : Brands.Divosta);
+			break;
+		case (environment.brandMap.johnWieland):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.JohnWieland : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.johnWieland : Brands.JohnWieland);
+			break;
+		case (environment.brandMap.pulte):
+			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Pulte : 
+				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.pulte : Brands.Pulte);
+			break;
+		}
+
+		return brandName;
 	}
 
-	getBrandName() {
-		const baseUrl = window.location.host;
-		if (environment.brandMap.pulte === baseUrl) {
-			return 'pulte';
-		} else if (environment.brandMap.delwebb === baseUrl) {
-			return 'delwebb';
-		} else if (environment.brandMap.americanWest === baseUrl) {
-			return 'americanWest'
-		} else if (environment.brandMap.centex === baseUrl) {
-			return 'centex'
-		} else if (environment.brandMap.divosta === baseUrl) {
-			return 'divosta'
-		} else if (environment.brandMap.johnWieland === baseUrl) {
-			return 'johnWieland'
+	//read host only with https from config logoutUrl
+	getBrandHomeUrl()
+	{
+		let url = this.getBrandName(BrandDisplayMode.LogoutUrl);
+		if (url?.length)
+		{
+			url = url.toLowerCase();
+			if (url.indexOf('https://') > -1)
+			{
+				url = url.substring(0, url.split('/', 3).join('/').length);
+			}
+			else
+			{
+				url = 'https://' + url.substring(0, url.indexOf('/'));
+			}
 		}
+
+		return url;
 	}
+}
+
+export enum Brands
+{
+	Pulte = 'pulte',
+	DelWebb = 'delwebb',
+	AmericanWest = 'americanWest',
+	Centex = 'centex',
+	Divosta = 'divosta',
+	JohnWieland = 'johnWieland'
+}
+
+export enum BrandTitles
+{
+	Pulte = 'Pulte',
+	DelWebb = 'Del Webb',
+	AmericanWest = 'American West',
+	Centex = 'Centex',
+	Divosta = 'DiVosta',
+	JohnWieland = 'John Wieland'
+}
+
+// DisplayMode: 
+// title: display brand in title case 
+// logoutUrl: display brand logout page url
+// null or default: display brand name in one word
+export enum BrandDisplayMode
+{
+	Title = 'title',
+	LogoutUrl = 'logoutUrl'
 }

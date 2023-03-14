@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 
-import { IFinancialCommunity, IPlan, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
+import { IFinancialCommunity, IPlan, ISalesCommunity, ITreeVersion, IWebSiteCommunity } from '../../models/community.model';
 import { LinkAction } from '../../models/action.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { environment } from '../../../../../environments/environment';
@@ -20,12 +20,12 @@ export class PlanPreviewComponent implements OnInit
 	@Output() onClose = new EventEmitter<void>();
 
 	selectedMarket: number = null;
-	selectedSalesCommunity: number = null;
+	selectedSalesCommunity: ISalesCommunity = null;
 	selectedFinancialCommunity: number = null;
 	selectedPlan: number = 0;
 	selectedType: number = 0;
 	selectedTreeVersion: number = 0;
-	
+
 	currentFinancialBrand: FinancialBrand;
 
 	types: Array<{
@@ -93,19 +93,23 @@ export class PlanPreviewComponent implements OnInit
 		if (!this.selectedMarket || !this.selectedSalesCommunity)
 		{
 			disabled = true;
-		} else
+		}
+		else
 		{
 			// For THO Preview, financial community doesn't matter.
 			if (this.selectedType === 2)
 			{
 				disabled = false;
-			} else if (!this.selectedFinancialCommunity)
+			}
+			else if (!this.selectedFinancialCommunity)
 			{
 				disabled = true;
-			} else if (this.selectedType === 0)
+			}
+			else if (this.selectedType === 0)
 			{
 				disabled = true;
-			} else
+			}
+			else
 			{
 				if (!this.selectedPlan || !this.selectedTreeVersion)
 				{
@@ -113,6 +117,7 @@ export class PlanPreviewComponent implements OnInit
 				}
 			}
 		}
+
 		return disabled;
 	}
 
@@ -125,6 +130,7 @@ export class PlanPreviewComponent implements OnInit
 			this.types = null;
 			this.treeVersions = null;
 		}
+
 		this.selectedMarket = market;
 	}
 
@@ -138,7 +144,7 @@ export class PlanPreviewComponent implements OnInit
 
 		if (this.selectedSalesCommunity)
 		{
-			this.organizationService.getWebSiteCommunity(this.selectedSalesCommunity).subscribe(wc =>
+			this.organizationService.getWebsiteCommunity(this.selectedSalesCommunity.id).subscribe(wc =>
 			{
 				this.webSiteCommunity = wc;
 
@@ -148,7 +154,16 @@ export class PlanPreviewComponent implements OnInit
 						typeId: 2,
 						typeName: 'THO Preview'
 					});
+
 					this.typeStatus = this.TYPE_STATUS.READY;
+				}
+
+				if (this.selectedSalesCommunity.financialCommunities.length > 0 && !this?.currentFinancialBrand?.key)
+				{
+					this.brandService.getFinancialBrand(this.selectedSalesCommunity.financialCommunities[0].financialBrandId, environment.apiUrl).subscribe(brand =>
+					{
+						this.currentFinancialBrand = brand;
+					});
 				}
 			});
 		}
@@ -159,13 +174,14 @@ export class PlanPreviewComponent implements OnInit
 		// If financial community is not null, get plans
 		this.selectedFinancialCommunity = financialCommunity?.id;
 		this.designPreviewEnabled = financialCommunity?.isDesignPreviewEnabled;
-		if (this.designPreviewEnabled) {
-      		// Get the finacial brand if DP Enabled
-      		this.brandService.getFinancialBrand(financialCommunity.financialBrandId, environment.apiUrl).subscribe(brand => {
-        		this.currentFinancialBrand = brand;
-      		});
-		} else {
-			this.currentFinancialBrand = null;
+
+      		// Get the finacial brand
+		if (financialCommunity?.financialBrandId)
+		{
+			this.brandService.getFinancialBrand(financialCommunity?.financialBrandId, environment.apiUrl).subscribe(brand =>
+			{
+				this.currentFinancialBrand = brand;
+			});
 		}
 
 		this.setType();
@@ -191,16 +207,23 @@ export class PlanPreviewComponent implements OnInit
 		let url = '';
 
 		if (this.selectedType === 1)
-		{ // Open in design Tool
+		{
+			// Open in design Tool
 			url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedTreeVersion}`;
-		} else if (this.selectedType === 2)
-		{ // Open in THO Preview
-			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
-			url = `${environment.baseUrl.thoPreview}${webSiteIntegrationKey}?preview=true`;
-		} else if (this.selectedType === 3)
-		{ // Open in Design Preview
-			url = `${getBrandUrl(this.currentFinancialBrand.key, environment.baseUrl.designPreview)}preview/${this.selectedTreeVersion}`;
 		}
+		else if (this.selectedType === 2)
+		{
+			// Open in THO Preview
+			const webSiteIntegrationKey = this.webSiteCommunity.webSiteIntegrationKey;
+
+			url = `${getBrandUrl(this?.currentFinancialBrand?.key, environment.baseUrl.thoPreview)}${webSiteIntegrationKey}?preview=true`;
+		}
+		else if (this.selectedType === 3)
+		{
+			// Open in Design Preview
+			url = `${getBrandUrl(this?.currentFinancialBrand?.key, environment.baseUrl.designPreview)}preview/${this.selectedTreeVersion}`;
+		}
+
 		window.open(url, '_blank');
 	}
 
@@ -216,6 +239,7 @@ export class PlanPreviewComponent implements OnInit
 	{
 		// Get plans for selected financial community
 		this.selectedPlan = 0;
+
 		this.getPlans();
 	}
 
@@ -224,12 +248,14 @@ export class PlanPreviewComponent implements OnInit
 		// Get types for selected plan
 		this.selectedType = 0;
 		this.types = [];
+
 		this.getTypes();
 	}
 
 	setTreeVersion()
 	{
 		this.selectedTreeVersion = 0;
+
 		this.getTreeVersions();
 	}
 
@@ -255,22 +281,10 @@ export class PlanPreviewComponent implements OnInit
 					typeName: 'Design Tool'
 				});
 
-				let showDesignPreview = false;
-
-				// Toggle between two lines below and sub in your role for testing
-				// if (this.designPreviewEnabled || this.roles.find(role => role === ''<YOUR_ROLE_HERE>'')) {
-				if (this.designPreviewEnabled || this.roles.find(role => role === 'SalesManager'))
-				{
-					showDesignPreview = true;
-				}
-
-				if (showDesignPreview)
-				{
-					this.types.push({
-						typeId: 3,
-						typeName: 'Design Preview'
-					});
-				}
+				this.types.push({
+					typeId: 3,
+					typeName: 'Design Preview'
+				});
 
 				this.setPlan();
 			}
@@ -331,11 +345,13 @@ export class PlanPreviewComponent implements OnInit
 							if ((tree.publishStartDate) && (new Date(tree.publishStartDate) < currentDate))
 							{
 								tree.displayName = 'Last Published';
+
 								this.treeVersions.push(tree);
 							}
 							else if ((!tree.publishStartDate) || (new Date(tree.publishStartDate) > currentDate))
 							{
 								tree.displayName = 'Draft';
+
 								this.treeVersions.push(tree);
 							}
 						}

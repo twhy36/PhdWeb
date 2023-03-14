@@ -9,18 +9,15 @@ import { reducers } from './reducers';
 // meta-reducers
 import { stopwatchReducerFactory } from './stopwatch';
 import { sessionStateReducer } from './sessionStorage';
-import { stateReset } from './state-reset';
-import { exceptionHandler } from './exceptionHandler';
 
 import { FavoriteEffects } from './favorite/effects';
-import { LotEffects } from './lot/effects';
 import { PlanEffects } from './plan/effects';
 import { ScenarioEffects } from './scenario/effects';
 import { CommonEffects } from './effects';
 
 @NgModule({
 	imports: [
-		NgrxStoreModule.forRoot(reducers, { metaReducers: [exceptionHandler, sessionStateReducer, stateReset] }),
+		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer] }),
 		environment.production ? [] : StoreDevtoolsModule.instrument({
 			name: 'PHD Design Preview Store DevTools',
 			logOnly: false
@@ -28,7 +25,6 @@ import { CommonEffects } from './effects';
 
 		EffectsModule.forRoot([
 			FavoriteEffects,
-			LotEffects,
 			PlanEffects,
 			ScenarioEffects,
 			CommonEffects

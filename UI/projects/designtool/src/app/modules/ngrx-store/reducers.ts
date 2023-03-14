@@ -2,10 +2,10 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import {
-	isChoiceComplete, isChoiceAttributesComplete, Buyer, ChangeOrderChoice, ChangeOrderChoiceAttribute,
-	ChangeOrderChoiceLocation, ChangeTypeEnum, JobChoice, JobChoiceAttribute, JobChoiceLocation, Lot, PointStatus,
-	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, Choice
+import
+{
+	isChoiceComplete, isChoiceAttributesComplete, ChangeTypeEnum, Lot, PointStatus,
+	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, DecisionPointFilterType, setSubgroupStatus, setPointStatus, setGroupStatus
 } from 'phd-common';
 
 import * as fromScenario from './scenario/reducer';
@@ -24,8 +24,7 @@ import * as fromFavorite from './favorite/reducer';
 import * as fromLite from './lite/reducer';
 
 import { MonotonyConflict } from '../shared/models/monotony-conflict.model';
-
-import { DecisionPointFilterType } from '../shared/models/decisionPointFilter';
+import { LegacyColorScheme } from '../shared/models/lite.model';
 
 export interface State
 {
@@ -112,7 +111,7 @@ export const canConfigure = createSelector(
 		// if there is a sales agreement, user can make changes if (a) user can Create Sales Agreements or (b) user can create Job Change Orders
 		// if the change order hasn't been saved yet, the contact field on the change order will be null
 		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co)) : user.canConfigure)
-		&& !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+			&& !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 )
 
 export const canSell = createSelector(
@@ -139,6 +138,12 @@ export const canCancelSalesAgreement = createSelector(
 	(market, user) => !!market && user.canCancel && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canSelectAddenda = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canSelectAddenda && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canUpdateECOE = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
@@ -163,6 +168,12 @@ export const canDesign = createSelector(
 	(market, user) => !!market && user.canDesign && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canCreateChangeOrder = createSelector(
+	fromOrg.market,
+	fromUser.selectUser,
+	(market, user) => !!market && user.canCreateChangeOrder && user.assignedMarkets.some(m => m.number === market.number)
+)
+
 export const canApproveChangeOrder = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
@@ -185,6 +196,12 @@ export const canEditInternalNotes = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
 	(market, user) => !!market && user.canEditInternalNotes && user.assignedMarkets.some(m => m.number === market.number)
+)
+
+export const isDirtScenario = createSelector(
+	fromSalesAgreement.salesAgreementState,
+	fromScenario.buildMode,
+	(sag, build) => build !== 'spec' && build !== 'model' && sag?.id === 0
 )
 
 export const monotonyConflict = createSelector(
@@ -365,9 +382,9 @@ export const canEditAgreementOrSpec = createSelector(
 				|| (salesAgreement.id === 0 && !scenarioHasSalesAgreement)
 				|| salesAgreement.status === 'Pending'
 				|| (currentChangeOrder
-						? currentChangeOrder.salesStatusDescription === 'Pending'
-						: false
-					);
+					? currentChangeOrder.salesStatusDescription === 'Pending'
+					: false
+				);
 		}
 	}
 )
@@ -726,7 +743,8 @@ export const priceBreakdown = createSelector(
 
 				if (lite.scenarioOptions && baseHouseCategory)
 				{
-					lite.scenarioOptions.forEach(scenarioOption => {
+					lite.scenarioOptions.forEach(scenarioOption =>
+					{
 						const planOption = lite.options?.find(option =>
 							option.id === scenarioOption.edhPlanOptionId
 							&& option.optionCategoryId !== baseHouseCategory.id);
@@ -751,15 +769,12 @@ export const priceBreakdown = createSelector(
 export const filteredTree = createSelector(
 	fromScenario.selectScenario,
 	monotonyConflict,
-	fromChangeOrder.changeOrderState,
-	(state, monotonyConflict, changeOrder) =>
+	fromChangeOrder.inPlanChangeOrder,
+	(state, monotonyConflict, inPlanChangeOrder) =>
 	{
 		let tree = _.cloneDeep(state.tree);
 		const treeFilter = state.treeFilter;
 		let filteredTree: TreeVersion;
-
-		const inPlanChangeOrder = changeOrder && changeOrder.isChangingOrder &&
-			changeOrder.changeInput && changeOrder.changeInput.type === ChangeTypeEnum.PLAN;
 
 		// Set point status
 		if (tree && tree.treeVersion)
@@ -832,6 +847,17 @@ export const filteredTree = createSelector(
 					return { ...g, subGroups: subGroups };
 				}).filter(g => !!g.subGroups.length)
 			} as TreeVersion;
+		}
+
+		if (filteredTree)
+		{
+			const filteredGroups = filteredTree.groups;
+			const filteredSubGroups = _.flatMap(filteredGroups, g => g.subGroups);
+			const filteredPoints = _.flatMap(filteredSubGroups, sg => sg.points);
+
+			filteredPoints.forEach(pt => setPointStatus(pt));
+			filteredSubGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+			filteredGroups.forEach(g => setGroupStatus(g));
 		}
 
 		return filteredTree ? new TreeVersion(filteredTree) : null;
@@ -928,17 +954,25 @@ export const changeOrderChoicesPastCutoff = createSelector(
 export const canCancelSpec = createSelector(
 	fromJob.jobState,
 	fromScenario.buildMode,
-	(job, buildMode) =>
+	fromLite.liteState,
+	(job, buildMode, lite) =>
 	{
-		return buildMode === 'spec' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Spec' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'spec' &&
+			job.constructionStageName === 'Configured' &&
+			(lite.isPhdLite ? (job.jobTypeName === 'Spec' || job.jobTypeName === 'House') : job.jobTypeName === 'Spec') &&
+			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const canCancelModel = createSelector(
 	fromJob.jobState,
 	fromScenario.buildMode,
-	(job, buildMode) =>
+	fromLite.liteState,
+	(job, buildMode, lite) =>
 	{
-		return buildMode === 'model' && job.constructionStageName === 'Configured' && job.jobTypeName === 'Model' && !(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
+		return buildMode === 'model' &&
+			job.constructionStageName === 'Configured' &&
+			(lite.isPhdLite ? (job.jobTypeName === 'Model' || job.jobTypeName === 'House') : job.jobTypeName === 'Model') &&
+			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
 	});
 
 export const showSpinner = createSelector(
@@ -953,7 +987,8 @@ export const showSpinner = createSelector(
 export const isDesignPreviewEnabled = createSelector(
 	fromJob.jobState,
 	fromOrg.selectOrg,
-	(job, org) => {
+	(job, org) =>
+	{
 		const financialCommunity = org?.salesCommunity?.financialCommunities?.find(f => f.id === job?.financialCommunityId);
 		return financialCommunity ? financialCommunity.isDesignPreviewEnabled : false;
 	}
@@ -962,21 +997,73 @@ export const isDesignPreviewEnabled = createSelector(
 export const financialBrandId = createSelector(
 	fromJob.jobState,
 	fromOrg.selectOrg,
-	(job, org) => {
+	(job, org) =>
+	{
 		const financialCommunity = org?.salesCommunity?.financialCommunities?.find(f => f.id === job?.financialCommunityId);
 		return financialCommunity?.financialBrandId;
 	}
 );
 
 // PHD Lite
+export const legacyColorScheme = createSelector(
+	fromJob.jobState,
+	fromLite.liteState,
+	fromChangeOrder.currentChangeOrder,
+	(job, lite, changeOrder) =>
+	{
+		let colorScheme: LegacyColorScheme = null;
+
+		const jobOption = job?.jobPlanOptions?.find(jpo => jpo.integrationKey === '99999');
+
+		if (lite?.isPhdLite && !!jobOption?.jobPlanOptionAttributes?.length)
+		{
+			let colorItemName = jobOption.jobPlanOptionAttributes[0].attributeGroupLabel;
+			let colorName = jobOption.jobPlanOptionAttributes[0].attributeName;
+
+			// Apply generic option attribute change to legacy color scheme
+			if (changeOrder)
+			{
+				const changeOrderOptions = _.flatMap(changeOrder.jobChangeOrders, co => co.jobChangeOrderPlanOptions);
+				const genericChangeOrderOption = changeOrderOptions?.find(opt => opt.planOptionId === jobOption.planOptionId);
+				if (genericChangeOrderOption)
+				{
+					const deletedColorScheme = genericChangeOrderOption.jobChangeOrderPlanOptionAttributes?.find(att => att.action === 'Delete');
+					if (deletedColorScheme?.attributeGroupLabel === colorItemName && deletedColorScheme?.attributeName === colorName)
+					{
+						colorItemName = '';
+						colorName = '';
+					}
+
+					const addedColorScheme = genericChangeOrderOption.jobChangeOrderPlanOptionAttributes?.find(att => att.action === 'Add');
+					if (addedColorScheme)
+					{
+						colorItemName = addedColorScheme.attributeGroupLabel;
+						colorName = addedColorScheme.attributeName;
+					}
+				}
+			}
+
+			colorScheme = {
+				colorItemName: colorItemName,
+				colorName: colorName,
+				isSelected: !!lite.scenarioOptions?.find(so => so.edhPlanOptionId === jobOption.planOptionId),
+				genericPlanOptionId: jobOption.planOptionId
+			};
+		}
+
+		return colorScheme;
+	}
+);
+
 export const liteMonotonyConflict = createSelector(
 	fromLot.selectSelectedLot,
 	fromPlan.selectedPlanData,
 	fromLite.selectedElevation,
 	fromScenario.hasMonotonyAdvisement,
 	fromLite.selectedColorScheme,
+	legacyColorScheme,
 	fromLite.liteState,
-	(selectedLot, selectedPlan, elevation, advisement, colorScheme, lite) =>
+	(selectedLot, selectedPlan, elevation, advisement, colorScheme, legacyColorScheme, lite) =>
 	{
 		let conflict = {
 			monotonyConflict: false,
@@ -993,23 +1080,29 @@ export const liteMonotonyConflict = createSelector(
 			let planId = !!selectedPlan ? selectedPlan.id : 0;
 			const monotonyRules = lite.liteMonotonyRules?.find(rule => rule.edhLotId === selectedLot.id)?.relatedLotsElevationColorScheme || [];
 
-			if (elevation && colorScheme)
+			if (elevation && (legacyColorScheme || colorScheme))
 			{
 				conflict.elevationConflict = !lite.elevationOverrideNote && monotonyRules.some(rule => rule.elevationPlanOptionId === elevation.id);
 
-				const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
-				const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);
+				let colorName: string = null;
 
-				if (colorItem && color && !lite.colorSchemeOverrideNote)
+				if (legacyColorScheme?.isSelected)
+				{
+					colorName = legacyColorScheme.colorName;
+				}
+				else if (!legacyColorScheme && colorScheme)
+				{
+					const colorItem = elevation.colorItems?.find(item => item.colorItemId === colorScheme.colorItemId);
+					const color = colorItem?.color?.find(c => c.colorId === colorScheme.colorId);
+
+					colorName = color?.name;
+				}
+
+				if (colorName && !lite.colorSchemeOverrideNote)
 				{
 					conflict.colorSchemeConflict = isColorSchemePlanRuleEnabled
-						? monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItem.name
-							&& r.colorSchemeColorName === color.name
-							&& r.edhPlanId === planId)
-						: monotonyRules.some(r =>
-							r.colorSchemeColorItemName === colorItem.name
-							&& r.colorSchemeColorName === color.name) ;
+						? monotonyRules.some(r => r.colorSchemeColorName === colorName && r.edhPlanId === planId)
+						: monotonyRules.some(r => r.colorSchemeColorName === colorName);
 				}
 			}
 
@@ -1029,7 +1122,8 @@ export const isLiteComplete = createSelector(
 	fromLite.liteState,
 	fromLite.selectedElevation,
 	fromLite.selectedColorScheme,
-	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme) =>
+	legacyColorScheme,
+	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme, legacyColorScheme) =>
 	{
 		let isLiteComplete = false;
 
@@ -1038,7 +1132,12 @@ export const isLiteComplete = createSelector(
 			const hasLot = !!sag.id || (scenario.scenario ? !!scenario.scenario.lotId : false);
 			const hasPlan = !!sag.id || (scenario.scenario ? !!scenario.scenario.planId : false) || hasSpecPlanId;
 
-			isLiteComplete = hasLot && hasPlan && !!selectedElevation && !!selectedColorScheme && !monotonyConflict.monotonyConflict && !needsPlanChange;
+			isLiteComplete = hasLot
+				&& hasPlan
+				&& !!selectedElevation
+				&& (!!selectedColorScheme || legacyColorScheme?.isSelected)
+				&& !monotonyConflict.monotonyConflict
+				&& !needsPlanChange;
 		}
 
 		return isLiteComplete;
@@ -1068,10 +1167,11 @@ export const liteMonotonyOptions = createSelector(
 
 				monotonyOptions.colorSchemeNames = monotonyRules
 					.filter(r => (r.ruleType === "ColorScheme" || r.ruleType === "Both")
-								 && !!r.colorSchemeColorName
-								 && !!r.colorSchemeColorItemName
-								 && (!isColorSchemePlanRuleEnabled || isColorSchemePlanRuleEnabled && r.edhPlanId === planId))
-					.map(r => {
+						&& !!r.colorSchemeColorName
+						&& !!r.colorSchemeColorItemName
+						&& (!isColorSchemePlanRuleEnabled || isColorSchemePlanRuleEnabled && r.edhPlanId === planId))
+					.map(r =>
+					{
 						return {
 							colorSchemeColorName: r.colorSchemeColorName,
 							colorSchemeColorItemName: r.colorSchemeColorItemName
@@ -1085,133 +1185,3 @@ export const liteMonotonyOptions = createSelector(
 );
 
 // End PHD Lite
-
-function mapLocations(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
-{
-	let locations: Array<string> = [];
-
-	choice.selectedAttributes && choice.selectedAttributes.forEach(a =>
-	{
-		// if locationGroupId is not null then find matching location
-		// from the job / changeorder so we can get the names/labels
-		if (a.locationGroupId)
-		{
-			// find the location
-			let jobLocation: JobChoiceLocation;
-			let changeOrderLocation: ChangeOrderChoiceLocation;
-
-			if (changeOrderElevationChoice)
-			{
-				changeOrderLocation = changeOrderElevationChoice.jobChangeOrderChoiceLocations.find(coa =>
-				{
-					return coa.id === a.scenarioChoiceLocationId &&
-						coa.locationGroupCommunityId === a.locationGroupId &&
-						coa.locationCommunityId === a.locationId;
-				});
-
-				// include attributes if there is one
-				if (changeOrderLocation && a.attributeId)
-				{
-					const changeOrderAttribute = changeOrderLocation.jobChangeOrderChoiceLocationAttributes.find(col =>
-					{
-						return col.id === a.scenarioChoiceLocationAttributeId &&
-							col.attributeGroupCommunityId === a.attributeGroupId &&
-							col.attributeCommunityId === a.attributeId;
-					});
-
-					const locationDisplayString = `[${changeOrderAttribute.attributeName}]: ${changeOrderLocation.locationName}`;
-
-					locations.push(locationDisplayString);
-				}
-				else
-				{
-					if (changeOrderLocation)
-					{
-						locations.push(changeOrderLocation.locationName);
-					}
-				}
-			}
-			else if (jobElevationChoice)
-			{
-				jobLocation = jobElevationChoice.jobChoiceLocations.find(ja =>
-				{
-					return ja.id === a.scenarioChoiceLocationId &&
-						ja.locationGroupCommunityId === a.locationGroupId &&
-						ja.locationCommunityId === a.locationId;
-				});
-
-				// include attributes if there is one
-				if (jobLocation && a.locationId)
-				{
-					const jobAttribute = jobLocation.jobChoiceLocationAttributes.find(jl =>
-					{
-						return jl.id === a.scenarioChoiceLocationAttributeId &&
-							jl.attributeGroupCommunityId === a.attributeGroupId &&
-							jl.attributeCommunityId === a.attributeId;
-					});
-
-					const locationDisplayString = `[${jobAttribute.attributeName}]: ${jobLocation.locationName}`;
-
-					locations.push(locationDisplayString);
-				}
-				else
-				{
-					if (jobLocation)
-					{
-						locations.push(jobLocation.locationName);
-					}
-				}
-			}
-		}
-	});
-
-	return locations;
-}
-
-function mapAttributes(choice: Choice, jobElevationChoice: JobChoice, changeOrderElevationChoice: ChangeOrderChoice): Array<string>
-{
-	let attributes: Array<string> = [];
-
-	choice.selectedAttributes && choice.selectedAttributes.forEach(a =>
-	{
-		// if locationGroupId is null then find matching attributes
-		// from the job / changeorder so we can get the names/labels
-		if (!a.locationGroupId)
-		{
-			// find the attribute
-			let jobAttribute: JobChoiceAttribute;
-			let changeOrderAttribute: ChangeOrderChoiceAttribute;
-
-			if (changeOrderElevationChoice)
-			{
-				changeOrderAttribute = changeOrderElevationChoice.jobChangeOrderChoiceAttributes.find(col =>
-				{
-					return col.id === a.scenarioChoiceLocationAttributeId &&
-						col.attributeGroupCommunityId === a.attributeGroupId &&
-						col.attributeCommunityId === a.attributeId;
-				});
-
-				if (changeOrderAttribute)
-				{
-					attributes.push(changeOrderAttribute.attributeName);
-				}
-			}
-			else if (jobElevationChoice)
-			{
-				jobAttribute = jobElevationChoice.jobChoiceAttributes.find(jl =>
-				{
-					return jl.id === a.scenarioChoiceLocationAttributeId &&
-						jl.attributeGroupCommunityId === a.attributeGroupId &&
-						jl.attributeCommunityId === a.attributeId;
-				});
-
-				if (jobAttribute)
-				{
-					attributes.push(jobAttribute.attributeName);
-				}
-			}
-		}
-	});
-
-	return attributes;
-}

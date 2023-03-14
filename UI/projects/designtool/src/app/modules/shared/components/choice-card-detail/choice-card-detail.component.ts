@@ -17,6 +17,7 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
 import { AttributeGroupComponent } from '../attribute-group/attribute-group.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -54,7 +55,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	imageLoading: boolean = false;
 	qtyAvailable: number;
 	selectedQuantity: number;
-		
+
 	choiceImages: ChoiceImageAssoc[] = [];
 	optionImages: OptionImage[] = [];
 	override$ = new ReplaySubject<boolean>(1);
@@ -81,7 +82,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	get carouselImages(): OptionImage[] | ChoiceImageAssoc[]
 	{
-		return this.optionImages ?? this.choiceImages
+		return this.optionImages.length > 0 ? this.optionImages : this.choiceImages
 	}
 
 	constructor(private store: Store<fromRoot.State>,
@@ -124,6 +125,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.override$.next((!!this.choice.overrideNote));
 	}
 
+	getImageUrl(image: any)
+	{
+		// instanceof didn't work, switched to hasOwnProperty.  Issue OptionImage vs ChoiceImageAssoc imageUrl are typed out differently.  TODO: Must change one of them so they match.
+		let url = image.hasOwnProperty('imageURL') ? image.imageURL : image.imageUrl;
+
+		return url;
+	}
+
 	choiceDescriptionToggle()
 	{
 		this.expandChoiceDescription = !this.expandChoiceDescription;
@@ -159,7 +168,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	displayButton(): boolean
 	{
-		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired || this.choice.disabledByHomesite)
+		if (!this.choice.enabled || !this.canConfigure || this.optionDisabled || this.choice.isRequired || this.choice.disabledByHomesite || this.choice.disabledByReplaceRules?.length || this.choice.disabledByBadSetup || this.choice.disabledByRelocatedMapping?.length)
 		{
 			return false;
 		}
@@ -194,7 +203,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default to pultegroup image if no choice/option image is found, or if an option is mapped
 		if (!this.choiceImages.length && !this.optionImages.length || (this.choice.options && this.choice.options.length && !this.optionImages.length))
 		{
-			this.optionImages.push({ imageURL: 'assets/pultegroup_logo.jpg' });
+			this.optionImages.push({ imageURL: environment.defaultImageURL });
 		}
 	}
 
@@ -247,22 +256,13 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			.map(loc => loc.locationQuantityTotal)
 			.reduce((a, b) => a + b, 0);
 
-		let locationMaxQty = choiceMaxQty;
+		// default to the location qty
+		let locationMaxQty = this.locationComponents.find(lc => lc.attributeLocation.id === locationId)?.locationQuantityTotal ?? 0;
 
-		const location = this.locationComponents.find(lc => lc.attributeLocation.id === locationId);
-
-		// if the choice max qty has been reached then set the max qty for the location to the location qty
-		if (totalQtyAllLocations === choiceMaxQty)
+		// if the choice max qty has not been reached then set the max qty for the location to the choice max qty minus the total choice qty plus the location qty
+		if (totalQtyAllLocations !== choiceMaxQty)
 		{
-			locationMaxQty = location?.locationQuantityTotal ?? 0;
-		}
-		else
-		{
-			// if the choice max qty has not been reached then set the max qty for the location to
-			// the choice max qty minus the total choice qty plus the location qty
-			const locationQty = location?.locationQuantityTotal ?? 0;
-
-			locationMaxQty = choiceMaxQty - totalQtyAllLocations + locationQty;
+			locationMaxQty = choiceMaxQty - totalQtyAllLocations + locationMaxQty;
 		}
 
 		this.totalQuantitySelected = this.getSelectedQuantity();
@@ -454,7 +454,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.choice.selectedAttributes = this.getSelectedAttributes();
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: null, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes }));
+		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: null, quantity: this.choice.quantity, attributes: this.choice.selectedAttributes, attributeOnly: true }));
 
 		// only trigger a save if the choice is selected - Change orders only
 		if (this.choice.quantity > 0)
@@ -467,7 +467,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		const selectedAttributes: DesignToolAttribute[] = [];
 
-		const attributeGroups = this.attributeComponent.attributeGroups;
+		const attributeGroups = this.attributeComponent?.attributeGroups;
 
 		this.attributeComponent.attributeListComponents.forEach(a =>
 		{
@@ -478,24 +478,27 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				let attributeGroup = attributeGroups.find(ag => ag.id == a.attributeGroupId);
 				let attribute = a.attributes.find(x => x.id == a.selectedAttributeId);
 
-				selectedAttributes.push({
-					attributeId: attribute.id,
-					attributeName: attribute.name,
-					attributeImageUrl: attribute.imageUrl,
-					attributeGroupId: attributeGroup.id,
-					attributeGroupName: attributeGroup.name,
-					attributeGroupLabel: attributeGroup.label,
-					locationGroupId: null,
-					locationGroupName: null,
-					locationGroupLabel: null,
-					locationId: null,
-					locationName: null,
-					locationQuantity: null,
-					scenarioChoiceLocationId: null,
-					scenarioChoiceLocationAttributeId: null,
-					sku: attribute.sku,
-					manufacturer: attribute.manufacturer
-				});
+				if (attributeGroup && attribute)
+				{
+					selectedAttributes.push({
+						attributeId: attribute.id,
+						attributeName: attribute.name,
+						attributeImageUrl: attribute.imageUrl,
+						attributeGroupId: attributeGroup.id,
+						attributeGroupName: attributeGroup.name,
+						attributeGroupLabel: attributeGroup.label,
+						locationGroupId: null,
+						locationGroupName: null,
+						locationGroupLabel: null,
+						locationId: null,
+						locationName: null,
+						locationQuantity: null,
+						scenarioChoiceLocationId: null,
+						scenarioChoiceLocationAttributeId: null,
+						sku: attribute.sku,
+						manufacturer: attribute.manufacturer
+					});
+				}
 			}
 		});
 
@@ -526,7 +529,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()
@@ -537,15 +540,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 			if (this.hasMonotonyConflict && this.isPastCutOff)
 			{
-				body = `Monotony Conflict and the Cut-off`;
+				body += `Monotony Conflict and the Cut-off`;
 			}
 			else if (this.hasMonotonyConflict)
 			{
-				body = `Monotony Conflict`;
+				body += `Monotony Conflict`;
 			}
 			else
 			{
-				body = `Cut-off`;
+				body += `Cut-off`;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });

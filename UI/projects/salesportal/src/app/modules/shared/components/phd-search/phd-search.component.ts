@@ -5,7 +5,8 @@ import { environment } from '../../../../../environments/environment';
 import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
-import { IFinancialCommunity } from '../../models/community.model';
+import { IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
+import { FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -45,9 +46,9 @@ export class PHDSearchComponent
 	readonly SOLD_IN_HOMES: string = 'Sold in Home Selections';
 
 	buildTypesOptions: Array<SelectItem> = [
-		{ label: "Dirt", value: 'Dirt' },
-		{ label: "Model", value: 'Model' },
-		{ label: "Spec", value: 'Spec' }
+		{ label: 'Dirt', value: 'Dirt' },
+		{ label: 'Model', value: 'Model' },
+		{ label: 'Spec', value: 'Spec' }
 	];
 
 	environment = environment;
@@ -55,34 +56,34 @@ export class PHDSearchComponent
 	homesiteNumber: string = null;
 
 	homesiteStatusOptions: Array<SelectItem> = [
-		{ label: "Available", value: 'Available' },
-		{ label: "Closed", value: 'Closed' },
-		//{ label: "On Hold", value: 'On Hold' },
-		{ label: "Pending Release", value: 'PendingRelease' },
-		{ label: "Pending Sale", value: 'PendingSale' },
-		{ label: "Sold", value: 'Sold' },
-		{ label: "Unavailable", value: 'Unavailable' }
+		{ label: 'Available', value: 'Available' },
+		{ label: 'Closed', value: 'Closed' },
+		//{ label: 'On Hold', value: 'On Hold' },
+		{ label: 'Pending Release', value: 'PendingRelease' },
+		{ label: 'Pending Sale', value: 'PendingSale' },
+		{ label: 'Sold', value: 'Sold' },
+		{ label: 'Unavailable', value: 'Unavailable' }
 	];
 
 	salesAgreementStatusOptions: Array<SelectItem> = [
-		{ label: "Pending", value: 'Pending' },
-		{ label: "Out For Signature", value: 'OutforSignature' },
-		{ label: "Signed", value: 'Signed' },
-		{ label: "Approved", value: 'Approved' },
-		{ label: "Closed", value: 'Closed' },
-		{ label: "Void", value: 'Void' },
-		{ label: "Cancel", value: 'Cancel' }
+		{ label: 'Pending', value: 'Pending' },
+		{ label: 'Out For Signature', value: 'OutforSignature' },
+		{ label: 'Signed', value: 'Signed' },
+		{ label: 'Approved', value: 'Approved' },
+		{ label: 'Closed', value: 'Closed' },
+		{ label: 'Void', value: 'Void' },
+		{ label: 'Cancel', value: 'Cancel' }
 	];
 
 	homesiteTypeOptions: Array<SelectItem> = [
-		{ label: "Base View", value: 'Base View' },
-		{ label: "City View", value: 'City View' },
-		{ label: "Golf Course", value: 'Golf Course' },
-		{ label: "Nature/Preserve", value: 'Nature/Preserve' },
-		{ label: "Open Space", value: 'Open Space' },
-		{ label: "Other View", value: 'Other View' },
-		{ label: "Water View", value: 'Water View' },
-		{ label: "Waterfront", value: 'Waterfront' }
+		{ label: 'Base View', value: 'Base View' },
+		{ label: 'City View', value: 'City View' },
+		{ label: 'Golf Course', value: 'Golf Course' },
+		{ label: 'Nature/Preserve', value: 'Nature/Preserve' },
+		{ label: 'Open Space', value: 'Open Space' },
+		{ label: 'Other View', value: 'Other View' },
+		{ label: 'Water View', value: 'Water View' },
+		{ label: 'Waterfront', value: 'Waterfront' }
 	];
 
 	noRecordsMessage: string;
@@ -91,7 +92,7 @@ export class PHDSearchComponent
 	search_button_label: string;
 	searchError: string;
 	selectedBuildTypes: Array<string> = [];
-	selectedCommunity: number;
+	selectedCommunity: ISalesCommunity;
 	selectedFinancialCommunity: number;
 	selectedHomesiteStatus: Array<string | number> = [];
 	selectedHomesiteTypes: Array<string> = [];
@@ -100,15 +101,25 @@ export class PHDSearchComponent
 	selectedSalesAgreementStatus: Array<string> = [];
 	firstName: string;
 	lastName: string;
+	searchActiveOnly: boolean = false;
+	pendingLotBlocks: Array<string> = [];
+	financialCommunities: IFinancialCommunity[];
+	featureSwitchOrgAssoc: IFeatureSwitchOrgAssoc[];
 
-	constructor(private cd: ChangeDetectorRef, private _searchService: SearchService) { }
+	constructor(
+		private cd: ChangeDetectorRef,
+		private _searchService: SearchService,
+		private _featureSwitchService: FeatureSwitchService) { }
 
-	/*
-	 *
-	 * ACTIONS
-	 * close, search and edit
-	 *
-	 */
+	get selectedSalesAgreementStatusList()
+	{
+		return this.selectedSalesAgreementStatus.map(status => this.salesAgreementStatusOptions.find(x => x.value === status).label).join(', ');
+	}
+
+	get selectedHomesiteStatusList()
+	{
+		return this.selectedHomesiteStatus.map(status => this.homesiteStatusOptions.find(x => x.value === status).label).join(', ');
+	}
 
 	close()
 	{
@@ -118,15 +129,30 @@ export class PHDSearchComponent
 	search()
 	{
 		const filters: Array<IFilterItems> = [];
-
+		
 		this.searchError = null;
 		this.searchResults = null;
-
 		this.optionsShown = false;
 
 		if (this.homesiteNumber)
 		{
 			filters.push({ items: [{ name: 'lotBlock', value: this.homesiteNumber }] });
+		}
+		
+		if (this.pendingLotBlocks.length > 0)
+		{
+			let lotBlocks = [];
+
+			this.pendingLotBlocks.forEach(lot => 
+			{
+				lotBlocks.push({ name: 'lotBlock', value: lot, andOr: 'or' });
+			});
+
+			lotBlocks[lotBlocks.length - 1].andOr = null;
+
+			filters.push({ items: lotBlocks });
+
+			this.pendingLotBlocks = [];
 		}
 
 		if (this.streetAddress)
@@ -164,20 +190,19 @@ export class PHDSearchComponent
 			filters.push(this.getFilterFromSelectItems('lotBuildTypeDesc', buildTypesCopy));
 		}
 
-		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
-		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
 
-		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString).subscribe(results =>
+		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
 		{
 			let filteredLots = this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0 || this.lastName || this.firstName ? [] : null;
 
 			if (filteredLots && results && results.length > 0)
 			{
 				results.map(result =>
-				{
-					// Add filtering by first and last name
+				{					
 					// filter the results for a sales agreement id that contains the sales agreement # string if needed
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
 					{
@@ -185,10 +210,12 @@ export class PHDSearchComponent
 
 						result.salesAgreements.map(agreement =>
 						{
-							//if the salesAgreement number is truthy and is found or in the list of selected sales agreement statuses, the selected agreement status exists
-							// flag the lot as able to be added to the filtered lots
-							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) || (this.selectedSalesAgreementStatus.length > 0 && this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1))
+							// if the salesAgreement number is truthy OR if found in the list of selected sales agreement statuses OR if selected Ready To Close check status of approved and isLockedIn
+							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) ||
+								(this.selectedSalesAgreementStatus.length > 0 &&
+									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === 'Approved' && agreement.isLockedIn)))
 							{
+								// flag the lot as able to be added to the filtered lots
 								addLot = true;
 							}
 						});
@@ -201,6 +228,7 @@ export class PHDSearchComponent
 				});
 			}
 
+			// Add filtering by first and last name
 			if (filteredLots && (this.lastName || this.firstName))
 			{
 				if (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0)
@@ -217,15 +245,21 @@ export class PHDSearchComponent
 			if (this.selectedBuildTypes && this.selectedBuildTypes.includes('Model') && !this.selectedBuildTypes.includes('Spec'))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model')
+				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Model' || lot.buildType === 'Model');
 			}
-			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && this.selectedBuildTypes.includes('Spec'))
+			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && (this.selectedBuildTypes.includes('Spec') || this.selectedBuildTypes.includes('Dirt')))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => lot.jobTypeName === 'Spec' && lot.buildType === 'Spec')
+				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House') && (lot.buildType === 'Spec' || lot.buildType === 'Dirt'));
+			}
+
+			if (this.searchActiveOnly)
+			{
+				filteredLots = results.filter(lot => !!lot.activeChangeOrder);
 			}
 
 			this.searchResults = filteredLots ? filteredLots : results;
+
 		}, error =>
 		{
 			this.searchResults = [];
@@ -244,11 +278,18 @@ export class PHDSearchComponent
 
 			if (field && field.length > 0)
 			{
-				// Give it a moemnt to display before trying to set focus on it.
-				setTimeout(t =>
+				if (field === 'searchActiveOnly')
 				{
-					this[field].nativeElement.focus();
-				}, 100);
+					this.searchActiveOnly = false;
+				}
+				else
+				{
+					// Give it a moemnt to display before trying to set focus on it.
+					setTimeout(t =>
+					{
+						this[field].nativeElement.focus();
+					}, 100);
+				}
 			}
 		}
 	}
@@ -270,12 +311,70 @@ export class PHDSearchComponent
 	{
 		this.clear();
 
-		this.selectedSalesAgreementStatus = ['Pending'];
+		this.selectedSalesAgreementStatus = ['Pending', 'OutforSignature', 'Signed'];
 
 		setTimeout(t =>
 		{
 			this.search();
 		}, 200);
+	}
+
+	searchReadyToClose()
+	{
+		this.clear();
+
+		this.searchActiveOnly = true;
+		const filters: Array<IFilterItems> = [];
+		this.selectedSalesAgreementStatus = ['Approved'];
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
+
+		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
+		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
+		{
+			
+			let filteredLots = [];
+
+			if (filteredLots && results && results.length > 0)
+			{
+				results.map(result =>
+				{
+					// filter the results for a sales agreement id that contains the sales agreement # string if needed
+					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
+					{
+						result.salesAgreements.map(agreement =>
+						{
+							
+							// if the agreement.status is 'Approved' and agreement.isLockedIn is true
+							if (agreement.status === 'Approved' && agreement.isLockedIn)
+							{	
+								filteredLots.push(result);
+							}
+						});
+					}
+				});
+			}
+			
+			this.searchResults = filteredLots ? filteredLots : results;			
+		});
+	}
+
+	searchPendingCOs()
+	{
+		this.clear();
+
+		this.searchActiveOnly = true;
+		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+
+		this._searchService.searchActiveCOHomesites(financialCommunityString, salesCommunityString).subscribe(lots => 
+		{
+			this.pendingLotBlocks = lots.map(lot => lot.lot.lotBlock);
+			setTimeout(t =>
+			{
+				this.search();
+			}, 200);
+		});
 	}
 
 	clear()
@@ -324,6 +423,28 @@ export class PHDSearchComponent
 	{
 		this.searchResults = null;
 		this.optionsShown = true;
+	}
+
+	onFinancialCommunitiesForMarket(financialCommunitiesForMarket)
+	{
+		this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', financialCommunitiesForMarket)
+			.subscribe(featureSwitchOrgAssoc =>
+			{
+				this.featureSwitchOrgAssoc = featureSwitchOrgAssoc;
+
+				this.populateIsPhdLiteEnabled();
+			});
+	}
+
+	private populateIsPhdLiteEnabled()
+	{
+		this.searchResults?.forEach(sr =>
+		{
+			sr.isPhdLiteEnabled = !!this.featureSwitchOrgAssoc.find(r =>
+				sr.financialCommunityId === r.org.edhFinancialCommunityId
+				&& r.state === true
+			);
+		});
 	}
 
 	/*
@@ -390,6 +511,16 @@ export class PHDSearchComponent
 	isHslMigrated(jobCreatedBy: string): boolean
 	{
 		return jobCreatedBy && (jobCreatedBy.toUpperCase().startsWith('PHCORP') || jobCreatedBy.toUpperCase().startsWith('PHBSSYNC'));
+	}
+
+	getLatestAgreementStatus(lot: SearchResult): string
+	{
+		if (lot.salesAgreements?.length)
+		{
+			return lot.salesAgreements[lot.salesAgreements.length - 1].status;
+		}
+
+		return null;
 	}
 
 	/*
@@ -467,7 +598,7 @@ export class PHDSearchComponent
 
 	getLotBuildType(lot: SearchResult): string
 	{
-		return this.isHslMigrated(lot.jobCreatedBy)
+		return this.isHslMigrated(lot.jobCreatedBy) && !lot.isPhdLiteEnabled
 			? `${lot.buildType} - HS`
 			: lot.buildTypeDisplayName;
 	}
@@ -480,5 +611,22 @@ export class PHDSearchComponent
 		url += `/${lot.jobId}`;
 
 		return url;
+	}
+
+	getBuildTypeDisplay(lot): boolean
+	{
+		const lotCheck = (lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable')
+			&& (lot.buildType.trim() === 'Spec' || lot.buildType.trim() === 'Model')
+			&& (this.getLatestAgreementStatus(lot) !== 'Signed');
+
+		return lot.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
+	}
+
+	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement) : boolean
+	{
+		return agreement 
+			&& agreement.salesAgreementNumber 
+			&& agreement.isOnFinalLot 
+			&& (!!lot.buyers?.length || agreement.status === 'Cancel' || agreement.status === 'Void');
 	}
 }

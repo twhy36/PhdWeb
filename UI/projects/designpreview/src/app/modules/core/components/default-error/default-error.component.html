@@ -1,0 +1,32 @@
+<div class="d-flex flex-column">
+	<banner class="phd-home-images-container"></banner>
+	<div class="d-flex flex-row phd-error-row">
+		<div class="d-flex flex-column align-items-center phd-logo-section">
+			<img class="phd-logo-image" [src]="getImageSrc()">
+		</div>
+		<div class="phd-vertical-line"></div>
+		<div *ngIf="isLoadPresaleInactiveNoPublish || isTimeout; else defaultErrorSection"
+			class="d-flex flex-column align-items-center phd-message-section">
+			<div class="phd-message-title-big">
+				...We're Sorry...
+			</div>
+			<div class="phd-message-desc">
+				{{errMessage}} <a *ngIf="!isTimeout" class="phd-link-text" href="{{defaultUrl}}">{{defaultUrl}}</a>
+			</div>
+		</div>
+	</div>
+	<div class="phd-internal-error-message" *ngIf="showInternalMessage" (click)="hideInternalMessage()">
+		{{internalMessage}}
+	</div>
+</div>
+
+<ng-template #defaultErrorSection>
+	<div class="d-flex flex-column align-items-center phd-message-section">
+		<div class="phd-message-title">
+			...Something went wrong...
+		</div>
+		<div class="phd-message-desc">
+			{{errMessage}}
+		</div>
+	</div>
+</ng-template>

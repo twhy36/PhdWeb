@@ -1,19 +1,21 @@
-<div class="modal-header">
-	<span class="modal-title">{{title}}</span>
-	<button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
-		<span aria-hidden="true">&times;</span>
-	</button>
-</div>
-<div class="modal-body">
-	<div [innerHTML]="body"></div>
-</div>
-<div class="modal-footer">
-	<button type="button" class="btn btn-sm" (click)="activeModal.close('Continue')" [class.btn-secondary]="defaultOption != 'Continue'" [class.btn-primary]="defaultOption == 'Continue'">
-		<span class="fa fa-fw fa-check"></span>
-		<span class="">Continue</span>
-	</button>
-	<button type="button" class="btn btn-sm ml-auto" (click)="activeModal.close('Close')" [class.btn-secondary]="defaultOption != 'Cancel'" [class.btn-primary]="defaultOption == 'Cancel'">
-		<span class="fa fa-fw fa-close"></span>
-		<span class="">Cancel</span>
-	</button>
+<div aria-label="Confirm Modal">
+	<div class="modal-header">
+		<h1 class="modal-title">{{title}}</h1>
+		<button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div class="modal-body">
+		<div [innerHTML]="body"></div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-sm" (click)="activeModal.close('Continue')" [class.btn-secondary]="defaultOption != 'Continue'" [class.btn-primary]="defaultOption == 'Continue'">
+			<span class="fa fa-fw fa-check" aria-hidden="true"></span>
+			<span class="">Continue</span>
+		</button>
+		<button type="button" class="btn btn-sm ml-auto" (click)="activeModal.close('Close')" [class.btn-secondary]="defaultOption != 'Cancel'" [class.btn-primary]="defaultOption == 'Cancel'">
+			<span class="fa fab fa-fw fa-close fa-times" aria-hidden="true"></span>
+			<span class="">Cancel</span>
+		</button>
+	</div>
 </div>

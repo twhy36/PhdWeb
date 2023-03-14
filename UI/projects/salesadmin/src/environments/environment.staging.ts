@@ -7,9 +7,8 @@ export const environment = {
     production: false,
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
-	thoUrl: 'https://tho.staging.centex.com/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
-    tenant: "pulte.onmicrosoft.com",
+    tenant: "pulte.onmicrosoft.com/",
 	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
 	authConfig: {
 		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
@@ -29,16 +28,12 @@ export const environment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-	designPreviewMarketWhitelist: [
-		459, // Arizona Market
-		462, // Austin Market
-		103, // Houston Market
-		472, // Las Vegas Market
-		123, // Michigan Market
-		464, // New Mexico Market
-		121, // Northern California
-		112, // North Florida
-		447, // Pacific Northwest
-		150, // Southern California
-	]
+	thoUrls: {
+		pulte: 'tho.staging.pulte.com/',
+		delWebb: 'tho.staging.delwebb.com/',
+		americanWest: 'tho.staging.americanwesthomes.com/',
+		diVosta: 'tho.staging.divosta.com/',
+		centex: 'tho.staging.centex.com/',
+		johnWieland: 'tho.staging.jwhomes.com/'
+	},
 };

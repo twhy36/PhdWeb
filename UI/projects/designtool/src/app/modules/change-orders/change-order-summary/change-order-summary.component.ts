@@ -17,7 +17,6 @@ import * as SalesAgreementActions from '../../ngrx-store/sales-agreement/actions
 import * as ChangeOrderActions from '../../ngrx-store/change-order/actions';
 import * as CommonActions from '../../ngrx-store/actions';
 import * as ContractActions from '../../ngrx-store/contract/actions';
-import * as FavoriteActions from '../../ngrx-store/favorite/actions';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as fromUser from '../../ngrx-store/user/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
@@ -26,7 +25,7 @@ import * as fromJob from '../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum,
-	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -34,7 +33,6 @@ import { ContractService } from '../../core/services/contract.service';
 
 import * as _ from 'lodash';
 import { LotsLoaded, LotActionTypes } from '../../ngrx-store/lot/actions';
-import { JobService } from '../../core/services/job.service';
 
 @Component({
 	selector: 'change-order-summary',
@@ -55,6 +53,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	rejectedChangeOrder: ChangeOrderGroup = null;
 	buildMode: string;
 	constructionStageName: string;
+	canEdit$: Observable<boolean>;
 	canApprove$: Observable<boolean>;
 	canSell$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
@@ -66,6 +65,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	cancelOrVoid: boolean;
 	currentChangeOrderGroupSequence: number;
 	salesAgreementId: number;
+	job: Job;
 	jobId: number;
 	approvedDate: Date;
 	specCancelled$: Observable<boolean>;
@@ -75,6 +75,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isLockedIn: boolean = false;
 	isDesignComplete: boolean = false;
 	isDesignPreviewEnabled: boolean;
+	isChangingOrder: boolean;
+	isChangeDirty: boolean;
+	changeInput: ChangeInput;
+	treeGroups: Array<Group>;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -256,6 +260,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.constructionStageName = job.constructionStageName;
 			this.buildMode = buildMode;
 			this.jobChangeOrders = job.changeOrderGroups;
+			this.job = job;
 			this.jobId = job.id;
 			this.approvedDate = salesAgreement.approvedDate;
 			this.signedDate = salesAgreement.signedDate;
@@ -332,7 +337,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					changeOrderNotes: o.note ? o.note.noteContent : '',
 					eSignEnvelopes: o.eSignEnvelopes,
 					salesStatus: o.salesStatusDescription === 'OutforSignature' ? 'Out For Signature' : o.salesStatusDescription,
-					constructionStatus: o.constructionStatusDescription,
+					constructionStatusDescription: o.constructionStatusDescription,
 					createdBy: o.contact ? o.contact.displayName : o.createdBy,
 					createdByContactId: o.createdByContactId,
 					actionTypes: actionTypes,
@@ -370,14 +375,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				? this.changeOrders[this.changeOrders.length - 1].changeOrderGroupSequence
 				: 0;
 
-			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === 'Approved' && t.constructionStatus !== 'Approved'));
+			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === 'Approved' && t.constructionStatusDescription !== 'Approved'));
 			this.activeChangeOrders.forEach(co => co.isActiveChangeOrder = true);
 
-			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === 'Approved' && t.constructionStatus === 'Approved'));
+			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === 'Approved' && t.constructionStatusDescription === 'Approved'));
 
 			if (this.activeChangeOrders.length > 1)
 			{
-				let resubmittedChangeOrder = this.activeChangeOrders.find(t => !t.jobChangeOrderGroupSalesStatusHistories.find(c => c.salesStatusId === 4) && t.constructionStatus !== 'Rejected');
+				let resubmittedChangeOrder = this.activeChangeOrders.find(t => !t.jobChangeOrderGroupSalesStatusHistories.find(c => c.salesStatusId === 4) && t.constructionStatusDescription !== 'Rejected');
 
 				if (resubmittedChangeOrder)
 				{
@@ -420,6 +425,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.envelopeID = changeOrder ? changeOrder.envelopeId : 0;
 		});
 
+		this.canEdit$ = this.store.pipe(select(fromRoot.canCreateChangeOrder));
 		this.canApprove$ = this.store.pipe(select(fromRoot.canApprove));
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.contactId$ = this.store.pipe(select(fromUser.contactId));
@@ -445,6 +451,31 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.takeUntilDestroyed(),
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite.isPhdLite);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.changeOrder)
+		).subscribe(changeOrder =>
+		{
+			this.changeInput = changeOrder.changeInput;
+			this.isChangeDirty = changeOrder.changeInput ? changeOrder.changeInput.isDirty : false;
+			this.isChangingOrder = (changeOrder.changeInput
+				&& (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION
+					|| changeOrder.changeInput.type === ChangeTypeEnum.PLAN))
+				? changeOrder.isChangingOrder
+				: false;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario)
+		).subscribe(scenario =>
+		{
+			if (scenario.tree)
+			{
+				this.treeGroups = scenario.tree.treeVersion.groups;
+			}
+		});
 	}
 
 	getESignStatus(changeOrder: any): string
@@ -538,7 +569,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				{
 					this.modalReference.dismiss();
 				}
-				this.onGenerateDocument(changeOrder , false)
+				this.onGenerateDocument(changeOrder, false)
 				this.createForm(changeOrder, this.ACTION_TYPES.WITHDRAW);
 
 				this.openModal(this.updateChangeOrderModal);
@@ -672,7 +703,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				break;
 			case this.ACTION_TYPES.APPROVE:
-
 				// Compare snapshots for spec approval
 				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
@@ -1017,7 +1047,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 						// #353697 Once the CO is withdrawn, we need to clear out any new option prices in both the database and the job state
 						this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
 
-						this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+						if (this.salesAgreementId != 0) 
+						{
+							this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+						}
+						else
+						{
+							this.store.dispatch(new CommonActions.LoadSpec(this.job));
+						}
 					}
 				}
 
@@ -1027,14 +1064,59 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	onGenerateDocument(changeOrder: any, showPDF: boolean = true)
 	{
+		let activeChangeOrder = this.activeChangeOrders.find(co => co.id === changeOrder.id);
+		if (this.isChangingOrder && this.isChangeDirty && activeChangeOrder)
+		{
+			if (this.changeInput.type === ChangeTypeEnum.CONSTRUCTION)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+			}
+			else if (this.changeInput.type === ChangeTypeEnum.PLAN)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreatePlanChangeOrder());
+			}
+			else if (this.changeInput.type === ChangeTypeEnum.SALES)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateSalesChangeOrder());
+			}
+			else if (this.changeInput.type === ChangeTypeEnum.LOT_TRANSFER)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateLotTransferChangeOrder());
+			}
+			else if (this.changeInput.type === ChangeTypeEnum.NON_STANDARD)
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateNonStandardChangeOrder(activeChangeOrder.jobChangeOrderNonStandardOptions));
+			}
+			else
+			{
+				this.store.dispatch(new ChangeOrderActions.SetChangingOrder(false, null));
+			}
+
+			this._actions$.pipe(
+				ofType<ContractActions.SetChangeOrderTemplates>(ContractActions.ContractActionTypes.SetChangeOrderTemplates),
+				take(1)
+			).subscribe(() =>
+			{
+				let changeOrder = this.changeOrders.find(co => co.id === activeChangeOrder.id);
+				this.generateDocument(changeOrder, showPDF);
+			});
+		}
+		else
+		{
+			this.generateDocument(changeOrder, showPDF)
+		}
+	}
+
+	generateDocument(changeOrder: any, showPDF: boolean = true)
+	{
 		this.isDownloadingEnvelope = false;
 
-		if ((changeOrder.salesStatus === 'Pending'))
+		if (changeOrder.salesStatus === 'Pending')
 		{
 			this._contractService.compareSnapshots(this.jobId, changeOrder).pipe(
 				switchMap(currentSnapshot =>
 				{
-					if (currentSnapshot)
+					if (currentSnapshot && !this.isMissingTreeChoices(<ChangeOrderChoice[]>changeOrder.jobChangeOrderChoices))
 					{
 						return this._contractService.saveSnapshot(currentSnapshot, this.jobId, changeOrder.id).pipe(
 							switchMap(() =>
@@ -1044,7 +1126,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 							{
 								return pdfObject;
 							}
-						));
+							));
 					}
 					else
 					{
@@ -1054,7 +1136,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				take(1)
 			).subscribe(pdfObject =>
 			{
-				if(showPDF)
+				if (showPDF)
 				{
 					this.openPdfViewer(changeOrder.id);
 				}
@@ -1064,7 +1146,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		{
 			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate, this.isPhdLite).subscribe(() =>
 			{
-				if(showPDF)
+				if (showPDF)
 				{
 					this.openPdfViewer(changeOrder.id);
 				}
@@ -1072,7 +1154,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 		else
 		{
-			if(showPDF)
+			if (showPDF)
 			{
 				this.openPdfViewer(changeOrder.id);
 			}
@@ -1109,18 +1191,18 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				return retObs;
 			})
 		)
-		.subscribe(pdfObjectUrl =>
-		{
-			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+			.subscribe(pdfObjectUrl =>
+			{
+				let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
 
-			pdfViewer.componentInstance.pdfModalTitle = 'Change Order PDF';
-			pdfViewer.componentInstance.pdfData = pdfObjectUrl;
-			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
-		},
-		error =>
-		{
-			this.toastr.error('Unable to open PDF', 'Error');
-		});
+				pdfViewer.componentInstance.pdfModalTitle = 'Change Order PDF';
+				pdfViewer.componentInstance.pdfData = pdfObjectUrl;
+				pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
+			},
+				error =>
+				{
+					this.toastr.error('Unable to open PDF', 'Error');
+				});
 	}
 
 	withdrawChangeOrder()
@@ -1319,10 +1401,22 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	toggleDesignComplete()
 	{
 		this.store.dispatch(new SalesAgreementActions.SetIsDesignComplete(!this.isDesignComplete));
+	}
 
-		if (!this.isDesignComplete)
+	isMissingTreeChoices(jobChangeOrderChoices: Array<ChangeOrderChoice>)
+	{
+		if (jobChangeOrderChoices && jobChangeOrderChoices.length && this.treeGroups)
 		{
-			this.store.dispatch(new FavoriteActions.DeleteMyFavorites());
+			// #372673
+			// If the tree has been updated since the jobChangeOrderChoices were created,
+			// and the tree is now missing any of those choices, this will prevent a new
+			// envelope (which will show incorrect data) from being created
+			const allChoices = _.flatMap(this.treeGroups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, sg => sg.choices)));
+			const missingChoices = jobChangeOrderChoices.filter(jcoc => !allChoices.map(c => c.divChoiceCatalogId).includes(jcoc.divChoiceCatalogId));
+
+			return missingChoices && missingChoices.length;
 		}
+
+		return false;
 	}
 }

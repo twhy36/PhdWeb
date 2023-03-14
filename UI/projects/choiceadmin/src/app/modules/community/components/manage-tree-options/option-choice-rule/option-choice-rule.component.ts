@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import * as _ from 'lodash';
@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { bind } from '../../../../shared/classes/decorators.class';
 import { ITreeOption, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
 import { PhdApiDto } from '../../../../shared/models/api-dtos.model';
+import { ChoiceSelectorComponent } from '../../../../shared/components/choice-selector/choice-selector.component';
 
 
 @Component({
@@ -26,6 +27,8 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	@Output() deleteRule = new EventEmitter<{ optionRuleChoice: IOptionRuleChoice, callback: Function }>();
 	@Output() saveRule = new EventEmitter<{ selectedItems: Array<DTChoice>, callback: Function }>();
 	@Output() updateMustHave = new EventEmitter<{ optionRuleChoiceGroup: IOptionRuleChoiceGroup }>();
+
+	@ViewChild(ChoiceSelectorComponent) choiceSelector: ChoiceSelectorComponent;
 
 	groups: Array<IDTGroup> = [];
 
@@ -154,6 +157,11 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 		this.keyword = '';
 		this.selectedSearchFilter = 'All';
 		this.selectedChoices = [];
+
+		if (this.choiceSelector)
+		{
+			this.choiceSelector.reset();
+		}
 	}
 
 	localCancelRule()
@@ -226,7 +234,7 @@ export class OptionChoiceRuleComponent implements OnInit, OnDestroy
 	keywordSearch(event: any)
 	{
 		this.selectedSearchFilter = event['searchFilter'];
-		this.keyword = event['keyword'].trim() || '';
+		this.keyword = event['keyword']?.trim() || '';
 
 		// reset everything to unmatched.
 		this._resetAllMatchValues(false);

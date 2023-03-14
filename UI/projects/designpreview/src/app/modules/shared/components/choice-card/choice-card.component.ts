@@ -1,12 +1,12 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, OptionImage, DecisionPoint, Group, Tree } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, ModalService, ModalRef, getChoiceImage } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
-import { BlockedByItemList } from '../../models/blocked-by.model';
-import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { AdobeService } from '../../../core/services/adobe.service';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 @Component({
 	selector: 'choice-card',
@@ -16,38 +16,35 @@ import { AdobeService } from '../../../core/services/adobe.service';
 		flipOver3
 	]
 })
-export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
 	@Input() currentPoint: DecisionPoint;
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
+	@Input() isIncludedOptions: boolean = false;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
-	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
-	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
+	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal;
 
 	choice: ChoiceExt;
 	choiceMsg: object[] = [];
-	optionImages: OptionImage[];
 	imageUrl: string = '';
-	blockedChoiceModalRef: NgbModalRef;
-	hiddenChoicePriceModalRef: NgbModalRef;
-	disabledByList: BlockedByItemList = null;
+	blockedChoiceModalRef: ModalRef;
 	choiceDisabledLabel: string;
 
 	constructor(
-		public modalService: NgbModal,
-		private adobeService: AdobeService
-	) {
+		private store: Store<fromRoot.State>,
+		public modalService: ModalService
+	)
+	{
 		super();
 	}
-
-	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -55,40 +52,20 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		{
 			this.choice = changes['currentChoice'].currentValue;
 
-			const options = this.choice ? this.choice.options : null;
-			if (options && options.length) {
-				let option = options.find(x => x.optionImages && x.optionImages.length > 0);
-
-				if (option) {
-					this.optionImages = option.optionImages;
-				}
-			}
-
-			this.imageUrl = this.getImagePath();
+			this.imageUrl = getChoiceImage(this.choice);
 		}
 	}
 
-	getImagePath(): string
+	getBodyHeight(): string
 	{
-		let imagePath = '';
-
-		if (this.optionImages && this.optionImages.length)
-		{
-			imagePath = this.optionImages[0].imageURL;
-		}
-		else if ( this.choice?.hasImage && this.choice?.choiceImages?.length)
-		{
-			imagePath = this.choice.choiceImages[0].imageUrl;
-		}
-
-		return imagePath;
+		return this.isPresale ? '260px' : '285px';
 	}
 
 	/**
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		event.srcElement.src = 'assets/NoImageAvailable.png';
 	}
@@ -101,35 +78,29 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		}
 	}
 
-	viewChoiceDetail()
+	clickViewChoiceDetail()
 	{
-		this.onViewChoiceDetail.emit(this.choice);
+		this.viewChoiceDetail.emit(this.choice);
 	}
 
-	openBlockedChoiceModal() {
-		if (!this.disabledByList)
+	openBlockedChoiceModal()
+	{
+		if (!this.isIncludedOptions)
 		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, this.choice);
+			const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
 		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	openHiddenChoicePriceModal() {
-		if (this.choice.priceHiddenFromBuyerView)
-		{
-			this.hiddenChoicePriceModalRef = this.modalService.open(this.hiddenChoicePriceModal, { windowClass: 'phd-hidden-choice-price-modal' });
-			this.adobeService.setAlertEvent('Pricing Varies. Pricing TBD with Design', 'Pricing Varies Alert');
-		}
-	}
-
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
-		this.hiddenChoicePriceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit(pointId);
 	}
 }

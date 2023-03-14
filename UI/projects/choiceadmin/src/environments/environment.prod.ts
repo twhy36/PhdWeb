@@ -31,7 +31,7 @@ export const environment: IEnvironment = {
 		delWebb: 'https://phd.delwebb.com/designpreview/',
 		americanWest: 'https://phd.americanwesthomes.com/designpreview/',
 		diVosta: 'https://phd.divosta.com/designpreview/',
-		centex: 'https://phd.centex.pulte.com/designpreview/',
+		centex: 'https://phd.centex.com/designpreview/',
 		johnWieland: 'https://phd.jwhomes.com/designpreview/',
 	},
 	colorManagementUrl: 'https://phd.pulte.com/colormanagement/'

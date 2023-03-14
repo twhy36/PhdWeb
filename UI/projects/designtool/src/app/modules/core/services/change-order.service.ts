@@ -11,7 +11,7 @@ import
 	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
 	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
 	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, PriceBreakdown, IPendingJobSummary
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -533,7 +533,7 @@ export class ChangeOrderService
 			{
 				isColorScheme = colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false;
 				isDPElevation = elevationDP ? cur.treePointId === elevationDP.id : false;
-				options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules);
+				options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules, cur);
 
 				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 				hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
@@ -571,7 +571,7 @@ export class ChangeOrderService
 
 				isColorScheme = colorSchemeDP ? this.isElevationOrColorSchemeDP(currentChoices, orig, colorSchemeDP.id) : false;
 				isDPElevation = elevationDP ? this.isElevationOrColorSchemeDP(currentChoices, orig, elevationDP.id) : false;
-				options = orig.jobChoiceJobPlanOptionAssocs ? this.mapOptions(planOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules) : [];
+				options = orig.jobChoiceJobPlanOptionAssocs ? this.mapOptions(planOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules, null) : [];
 
 				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 				hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
@@ -676,9 +676,9 @@ export class ChangeOrderService
 			const isColorScheme = colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false;
 			const isDPElevation = elevationDP ? curChoice.treePointId === elevationDP.id : false;
 			const options = [
-				...this.mapOptions(otherOptions, curChoice.quantity, 'Change', elevationDP, isDPElevation, isColorScheme, tree, optionRules),
-				...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules),
-				...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules)
+				...this.mapOptions(otherOptions, curChoice.quantity, 'Change', elevationDP, isDPElevation, isColorScheme, tree, optionRules, curChoice),
+				...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules, null),
+				...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules, curChoice)
 			];
 
 			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
@@ -708,8 +708,8 @@ export class ChangeOrderService
 			const isColorScheme = colorSchemeDP ? curChoice.treePointId === colorSchemeDP.id : false;
 			const isDPElevation = elevationDP ? curChoice.treePointId === elevationDP.id : false;
 			const options = [
-				...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules),
-				...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules)
+				...this.mapOptions(removedOptions, origChoice.dpChoiceQuantity, 'Delete', elevationDP, isDPElevation, isColorScheme, tree, optionRules, null),
+				...this.mapOptions(addedOptions, curChoice.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules, curChoice)
 			];
 
 			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
@@ -780,14 +780,11 @@ export class ChangeOrderService
 
 		if (currentHanding && currentHanding.handing !== jobHanding)
 		{
-			if (currentHanding)
-			{
-				handings.push({
-					handing: currentHanding.handing,
-					action: 'Add',
-					overrideNote: currentHanding.overrideNote
-				});
-			}
+			handings.push({
+				handing: currentHanding.handing,
+				action: 'Add',
+				overrideNote: currentHanding.overrideNote
+			});
 
 			if (jobHanding)
 			{
@@ -809,13 +806,16 @@ export class ChangeOrderService
 		isDPElevation: boolean,
 		isColorScheme: boolean,
 		tree: Tree,
-		optionRules: OptionRule[]
+		optionRules: OptionRule[],
+		fromChoice: Choice
 	): Array<any>
 	{
 		let optionsDto: Array<any> = [];
 
 		if (options.length)
 		{
+			const treeChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) : [];
+
 			optionsDto = options.map(o =>
 			{
 				return {
@@ -827,6 +827,7 @@ export class ChangeOrderService
 					jobOptionTypeName: this.isJobPlanOption(o) ? o.jobOptionTypeName : getJobOptionType(o, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
 					attributeGroupIds: this.isJobPlanOption(o) ? o.jobPlanOptionAttributes.map(att => att.attributeGroupCommunityId).filter((value, index, self) => self.indexOf(value) === index) : o.attributeGroups,
 					locationGroupIds: this.isJobPlanOption(o) ? o.jobPlanOptionLocations.map(loc => loc.locationGroupCommunityId).filter((value, index, self) => self.indexOf(value) === index) : o.locationGroups,
+					reassignedAttributes: this.isJobPlanOption(o) ? [] : this.mapReassignedAttributes(o, fromChoice, treeChoices, action),
 					action: action
 				};
 			});
@@ -962,6 +963,42 @@ export class ChangeOrderService
 		}
 
 		return attributesDto;
+	}
+
+	mapReassignedAttributes(option: PlanOption, fromChoice: Choice, treeChoices: Choice[], action: string)
+	{
+		const reassignedAttributesDto: Array<any> = [];
+
+		if (fromChoice)
+		{
+			option.attributeGroups?.forEach(attributeGroup => {
+				// Find the choice that an attribute is reassigned to
+				const choicesWithReassignments = treeChoices.find(c => c.mappedAttributeGroups?.find(mappedGroup => mappedGroup.attributeReassignmentFromChoiceId === fromChoice.id && mappedGroup.id === attributeGroup));
+				
+				// Find the selected attributes in the choice with reassignments
+				const selectedAttribute = choicesWithReassignments?.selectedAttributes?.find(sa => sa.attributeGroupId === attributeGroup);
+				if (selectedAttribute && !selectedAttribute.locationGroupId)
+				{
+					let attribute = {
+						attributeCommunityId: selectedAttribute.attributeId,
+						attributeGroupCommunityId: selectedAttribute.attributeGroupId,
+						attributeName: selectedAttribute.attributeName,
+						attributeGroupLabel: selectedAttribute.attributeGroupLabel,
+						sku: selectedAttribute.sku,
+						manufacturer: selectedAttribute.manufacturer
+					};
+
+					if (action)
+					{
+						(attribute as any).action = action;
+					}
+
+					reassignedAttributesDto.push(attribute);
+				}
+			});
+		}
+
+		return reassignedAttributesDto;
 	}
 
 	private mapJobChoiceLocations(jobChoiceLocations: Array<JobChoiceLocation>, action: string): Array<any>
@@ -1545,7 +1582,7 @@ export class ChangeOrderService
 
 			isColorScheme = colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false;
 			isDPElevation = elevationDP ? cur.treePointId === elevationDP.id : false;
-			options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules);
+			options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules, cur);
 
 			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 			hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
@@ -1585,7 +1622,7 @@ export class ChangeOrderService
 				decisionPointLabel: labels ? labels.decisionPointLabel : '',
 				subgroupLabel: labels ? labels.subgroupLabel : '',
 				groupLabel: labels ? labels.groupLabel : '',
-				options: this.mapOptions(jobChoiceOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, false, false, tree, optionRules),
+				options: this.mapOptions(jobChoiceOptions, orig.dpChoiceQuantity, 'Delete', elevationDP, false, false, tree, optionRules, null),
 				attributes: this.mapJobChoiceAttributes(orig.jobChoiceAttributes, 'Delete'),
 				locations: this.mapJobChoiceLocations(orig.jobChoiceLocations, 'Delete'),
 				action: 'Delete'
@@ -1708,7 +1745,7 @@ export class ChangeOrderService
 		{
 			if (changeOrderGroup && changeOrderGroup.jobChangeOrders && changeOrderGroup.jobChangeOrders.length)
 			{
-				const salesJIOChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesJIO');
+				const salesJIOChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SalesJIO' || x.jobChangeOrderTypeDescription === 'SpecJIO');
 
 				if (salesJIOChangeOrder)
 				{
@@ -1753,6 +1790,13 @@ export class ChangeOrderService
 			if (jioChangeOrder)
 			{
 				jobChangeOrderPlanOptions = [...jioChangeOrder.jobChangeOrderPlanOptions];
+			}
+
+			const specJioChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'SpecJIO');
+
+			if (specJioChangeOrder)
+			{
+				jobChangeOrderPlanOptions = [...specJioChangeOrder.jobChangeOrderPlanOptions];
 			}
 
 			const choiceChangeOrder = changeOrderGroup.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'ChoiceAttribute');
@@ -1974,4 +2018,24 @@ export class ChangeOrderService
 			}
 		}, null);
 	}
+
+	mapPendingJobSummary(jobId: number, priceBreakdown: PriceBreakdown, tree: Tree) : IPendingJobSummary
+	{
+		const elevationChoice = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1)?.choices?.find(ch => ch.quantity > 0) : null;
+		const elevationOption = !!elevationChoice?.options?.length ? elevationChoice.options[0] : null;
+
+		return {
+            jobId: jobId,
+            planPrice: priceBreakdown.baseHouse,
+            elevationPlanOptionId: elevationOption?.id,
+            elevationPrice: elevationOption?.listPrice,
+            totalOptionsPrice: priceBreakdown.selections,
+            salesProgramAmount: priceBreakdown.salesProgram,
+            totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
+            totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
+            totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
+            totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
+            netHousePrice: priceBreakdown.totalPrice			
+		} as IPendingJobSummary;
+	}	
 }

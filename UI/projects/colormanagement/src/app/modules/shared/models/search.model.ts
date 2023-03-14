@@ -109,7 +109,8 @@ export class SearchResult
 				if (dto.lotBuildTypeDesc === 'Spec' || dto.lotBuildTypeDesc === 'Model')
 				{
 					let lastSequence = -1;
-					let jioIndex = job.jobChangeOrderGroups.findIndex(cog => cog.jobChangeOrderGroupDescription === 'Pulte Home Designer Generated Job Initiation Change Order');
+					let jioIndex = job.jobChangeOrderGroups.findIndex(cog => cog.jobChangeOrderGroupDescription === 'Pulte Home Designer Generated Job Initiation Change Order'
+						|| cog.jobChangeOrderGroupDescription === 'Homebuilder Generated Job Initiation Order');
 					if (jioIndex > -1)
 					{
 						job.jobChangeOrderGroups = job.jobChangeOrderGroups.slice(0, jioIndex + 1)
@@ -129,8 +130,8 @@ export class SearchResult
 				}
 				const activeCOG = job.jobChangeOrderGroups.find(cog => ['Pending', 'Signed', 'OutforSignature', 'Rejected'].indexOf(cog.salesStatusDescription) !== -1
 					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Job Initiation Change Order'
-					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order');
-					
+					&& cog.jobChangeOrderGroupDescription !== 'Pulte Home Designer Generated Spec Customer Change Order'
+					&& cog.jobChangeOrderGroupDescription !== 'Homebuilder Generated Job Initiation Order');
 				if (activeCOG)
 				{
 					this.activeChangeOrder = {

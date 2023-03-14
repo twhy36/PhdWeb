@@ -2,24 +2,23 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 
-import { Observable } from 'rxjs';
-import { combineLatest, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, Observable, of } from 'rxjs';
+import { switchMap, tap, withLatestFrom } from 'rxjs/operators';
 
-import { LoadPreview, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
+import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
 import * as _ from 'lodash';
 import { DeleteMyFavoritesPointDeclined } from '../favorite/actions';
 import { from } from 'rxjs';
-import { tryCatch } from '../error.action';
+import { ErrorFrom, tryCatch } from '../error.action';
 import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
-import { Plan } from 'phd-common';
+import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages } from 'phd-common';
 import { LoadError } from '../actions';
 import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
-import { LoadLots } from '../lot/actions';
 import { AdobeService } from '../../core/services/adobe.service';
 
 @Injectable()
@@ -33,18 +32,22 @@ export class ScenarioEffects
 			{
 				if (fav?.myFavoritesPointDeclined?.length)
 				{
-					let subGroups = _.flatMap(tree.groups, g => g.subGroups);
-					let disabledPoints = _.flatMap(subGroups, sg => sg.points).filter(p => !p.enabled);
-					let completedDeclinePoints = [];
-					let actions = [];
-					fav.myFavoritesPointDeclined.forEach(mfpd => {
-						let disabledDeclinedPoint = disabledPoints.find(dp => dp.divPointCatalogId === mfpd.divPointCatalogId);
-						if (disabledDeclinedPoint) {
+					const subGroups = _.flatMap(tree.groups, g => g.subGroups);
+					const disabledPoints = _.flatMap(subGroups, sg => sg.points).filter(p => !p.enabled);
+					const completedDeclinePoints = [];
+					const actions = [];
+					fav.myFavoritesPointDeclined.forEach(mfpd =>
+					{
+						const disabledDeclinedPoint = disabledPoints.find(dp => dp.divPointCatalogId === mfpd.divPointCatalogId);
+						if (disabledDeclinedPoint)
+						{
 							actions.push(new DeleteMyFavoritesPointDeclined(fav.id, mfpd.id));
-						} else {
+						}
+						else
+						{
 							completedDeclinePoints.push(mfpd.divPointCatalogId);
 						}
-					})
+					});
 					actions.push(new SetStatusForPointsDeclined(completedDeclinePoints, false));
 					return from(actions);
 				}
@@ -62,61 +65,130 @@ export class ScenarioEffects
 			tryCatch(source => source.pipe(
 				switchMap(action =>
 				{
-					return this.treeService.getTree(action.treeVersionId).pipe(
-						combineLatest(
-							this.treeService.getRules(action.treeVersionId),
-							this.treeService.getOptionImages(action.treeVersionId),
-							this.treeService.getTreeBaseHouseOptions(action.treeVersionId)
-						)
+					return combineLatest([
+						this.treeService.getTree(action.treeVersionId),
+						this.treeService.getRules(action.treeVersionId),
+						this.treeService.getOptionImages(action.treeVersionId),
+						this.treeService.getTreeBaseHouseOptions(action.treeVersionId)
+					]);
+				}),
+				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
+				{
+					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);
+
+					// get all choice images with hasImage flag true
+					const choiceIds = getChoiceIdsHasChoiceImages(tree, false);
+
+					return combineLatest([
+						combineLatest([
+							of(tree),
+							of(rules),
+							of(optionImages)
+						]),
+						this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey),
+						this.planService.getWebPlanMapping(tree.planKey, tree.financialCommunityId),
+						this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId, optionIds),
+						this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId, true),
+						this.treeService.getChoiceImageAssoc(choiceIds),
+					]);
+				}),
+				switchMap(([[tree, rules, optionImages], planOptions, webPlanMapping, plan, salesCommunity, choiceImages]) =>
+				{
+					// map choice level images
+					mergeTreeChoiceImages(choiceImages, tree);
+
+					const plans: Plan[] = [plan];
+
+					return from([
+						new TreeLoaded(tree, rules, planOptions, optionImages, salesCommunity),
+						new PlansLoaded(plans),
+						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
+						new SetWebPlanMapping(webPlanMapping),
+					]);
+				})
+			), LoadError, 'Error loading preview!!', ErrorFrom.LoadPreview)
+		)
+	);
+
+	loadPresale$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
+			ofType<LoadPresale>(ScenarioActionTypes.LoadPresale),
+			tryCatch(source => source.pipe(
+				switchMap(action =>
+				{
+					return this.planService.getPlanCommunityDetail(action.planCommunityId).pipe(
+						switchMap(planComm => 
+						{
+							const friendlyMsg = 'The ' + planComm.planName + ' plan at the ' + planComm.communityName + ' community is currently unavailable for personalization. Please browse our collection of available homes at ';
+							if (!planComm.isActive)
+							{
+								this.store.dispatch(new LoadError(new Error('Inactive for presale plan community!'), friendlyMsg, ErrorFrom.LoadPresaleInactive));
+								return new Observable<never>();
+							}
+							else if (planComm.dTreeVersionId === 0)
+							{
+								this.store.dispatch(new LoadError(new Error('No published tree for presale plan community!'), friendlyMsg, ErrorFrom.LoadPresaleNoPubleshed));
+								return new Observable<never>();
+							}
+
+							const treeversionId = planComm.dTreeVersionId;
+
+							return combineLatest([
+								this.treeService.getTree(treeversionId),
+								this.treeService.getRules(treeversionId),
+								this.treeService.getOptionImages(treeversionId),
+								this.treeService.getTreeBaseHouseOptions(treeversionId)
+							]);
+						})
 					);
 				}),
 				switchMap(([tree, rules, optionImages, baseHouseOptions]) =>
 				{
 					const optionIds = baseHouseOptions.map(bho => bho.planOption.integrationKey);
 
-					return this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey).pipe(
-						map(opt =>
-						{
-							return {
-								tree,
-								rules,
-								opt,
-								optionImages
-							};
-						}),
-						combineLatest(
-							this.planService.getWebPlanMapping(tree.planKey, tree.financialCommunityId),
-							this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId, optionIds),
-							this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId, true)
-						)
-					);
+					// get all choice images with hasImage flag true
+					const choiceIds = getChoiceIdsHasChoiceImages(tree, false);
+
+					return combineLatest([
+						combineLatest([
+							of(tree),
+							of(rules),
+							of(optionImages)
+						]),
+						this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey),
+						this.planService.getWebPlanMapping(tree.planKey, tree.financialCommunityId),
+						this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId, optionIds),
+						this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId, true),
+						this.treeService.getChoiceImageAssoc(choiceIds)
+					]);
 				}),
-				switchMap(result =>
+				switchMap(([[tree, rules, optionImages], planOptions, webPlanMapping, plan, salesCommunity, choiceImages]) =>
 				{
-					const plan: Plan = result[2];
+					//map choice level images
+					mergeTreeChoiceImages(choiceImages, tree);
+
 					const plans: Plan[] = [plan];
-					const salesCommunity = result[3];
 
 					return from([
-						new TreeLoaded(result[0].tree, result[0].rules, result[0].opt, result[0].optionImages, salesCommunity ),
+						new TreeLoaded(tree, rules, planOptions, optionImages, salesCommunity),
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
-						new SetWebPlanMapping(result[1]),
-						new LoadLots(salesCommunity.id),
+						new SetWebPlanMapping(webPlanMapping),
 					]);
 				})
-			), LoadError, 'Error loading preview!!')
+			), LoadError, 'Error loading presale!!', ErrorFrom.LoadPresale)
 		)
 	);
 
-	pushSearchEvent$ = createEffect(() => 
+	pushSearchEvent$ = createEffect(() =>
 		this.actions$.pipe(
 			ofType<SetTreeFilter>(ScenarioActionTypes.SetTreeFilter),
 			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree))),
-			tap(([action, tree]) => {
+			tap(([action, tree]) =>
+			{
 				this.adobeService.setSearchEvent(action?.treeFilter?.keyword, tree);
 			})),
-		{ dispatch: false }
+	{ dispatch: false }
 	);
 
 	constructor(

@@ -71,6 +71,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	showPricingLockText: boolean = true;
 	selectedAgreementType: ESignTypeEnum;
 	canSell$: Observable<boolean>;
+	canSelectAddenda$: Observable<boolean>;
 	canDesign$: Observable<boolean>;
 	canAddIncentive$: Observable<boolean>;
 	canLockSalesAgreement$: Observable<boolean>;
@@ -315,6 +316,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		);
 
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
+		this.canSelectAddenda$ = this.store.pipe(select(fromRoot.canSelectAddenda));
 		this.canDesign$ = this.store.pipe(select(fromRoot.canDesign));
 		this.canAddIncentive$ = this.store.pipe(select(fromRoot.canAddIncentive));
 		this.canLockSalesAgreement$ = this.store.pipe(select(fromRoot.canLockSalesAgreement));
@@ -398,11 +400,12 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 				this.store.select(fromChangeOrder.changeOrderCoBuyers),
 				this.store.select(fromLite.selectedElevation),
 				this.store.select(fromLite.selectedColorScheme),
+				this.store.select(fromRoot.legacyColorScheme),
 				this.store.select(fromRoot.selectedPlanPrice)
 			),
-			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice]) =>
+			switchMap(([store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme, planPrice]) =>
 			{
-				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, planPrice);
+				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme, planPrice);
 
 				return of({currentSnapshot, isPhdLite: store.lite.isPhdLite});
 			}),

@@ -17,8 +17,8 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	@Input() isReadonly: boolean;
 	@Input() isDesignComplete: boolean;
 	
-	@Output() onAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup}>();
-	@Output() onToggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
+	@Output() attributeClick = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup}>();
+	@Output() toggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
 
 	isCollapsed: boolean;
 
@@ -34,14 +34,14 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		this.isCollapsed = !this.isCollapsed;
 	}
 
-	attributeClick(attribute: Attribute)
+	handleAttributeClick(attribute: Attribute)
 	{
-		this.onAttributeClick.emit({attribute: attribute, attributeGroup: this.attributeGroup});
+		this.attributeClick.emit({attribute: attribute, attributeGroup: this.attributeGroup});
 	}
 
-	toggleAttribute(attribute: Attribute) 
+	handleToggleAttribute(attribute: Attribute) 
 	{
-		this.onToggleAttribute.emit({attribute: attribute, attributeGroup: this.attributeGroup, location: null, locationGroup: null, quantity: null});
+		this.toggleAttribute.emit({attribute: attribute, attributeGroup: this.attributeGroup, location: null, locationGroup: null, quantity: null});
 	}
 
 	getSelectedAttributes() : string

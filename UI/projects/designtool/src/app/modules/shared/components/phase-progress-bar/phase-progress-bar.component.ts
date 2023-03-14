@@ -18,6 +18,7 @@ export class PhaseProgressBarComponent {
 	@Input() selectedItem: number;
 	@Input() showStatusIndicator: boolean;
 	@Input() showItems: boolean = true;
+	@Input() disabled: boolean = false;
 
 	@Output() onItemSelected = new EventEmitter<number>();
 

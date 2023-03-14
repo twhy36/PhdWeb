@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom } from 'rxjs/operators';
-import { of,  Observable } from 'rxjs';
+import { of, Observable } from 'rxjs';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromJob from '../../../ngrx-store/job/reducer';
@@ -14,8 +14,8 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as _ from "lodash";
 
 import 
-{ 
-	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString 
+{
+	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString
 } from 'phd-common';
 
 import { JobService } from '../../../core/services/job.service';
@@ -37,6 +37,7 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	approvedDate: string;
 	projectedFinalDate: string;
 	canSell$: Observable<boolean>;
+	canSelectAddenda$: Observable<boolean>;
 	scarDateValues: ScarDate[] = [];
 
 	ConstructionStageTypes = ConstructionStageTypes;
@@ -46,6 +47,9 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 	// PHD Lite
 	liteElevationName: string;
 	liteColorSchemeName: string;
+
+	// HS
+	legacyColorSchemeName: string | null;
 
 	constructor(private activatedRoute: ActivatedRoute, private store: Store<fromRoot.State>, private _jobService: JobService) { super(); }
 
@@ -118,21 +122,24 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.lite),
 			withLatestFrom(
 				this.store.pipe(select(fromLite.selectedElevation)),
-				this.store.pipe(select(fromLite.selectedColorScheme))
+				this.store.pipe(select(fromLite.selectedColorScheme)),
+				this.store.pipe(select(fromRoot.legacyColorScheme))
 			)
-		).subscribe(([lite, liteElevation, liteColorScheme]) =>
+		).subscribe(([lite, liteElevation, liteColorScheme, legacyColorScheme]) =>
 		{
 			if (lite.isPhdLite)
 			{
 				this.liteElevationName = liteElevation?.name;
 
 				const colorSchemes = _.flatMap(liteElevation?.colorItems, item => item.color);
-				const color = colorSchemes?.find(c => c.colorItemId === liteColorScheme.colorItemId && c.colorId === liteColorScheme.colorId);
+				const color = colorSchemes?.find(c => c.colorItemId === liteColorScheme?.colorItemId && c.colorId === liteColorScheme?.colorId);
 				this.liteColorSchemeName = color?.name;
+				this.legacyColorSchemeName = legacyColorScheme?.isSelected ? legacyColorScheme.colorName : null;
 			}
 		});
 
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
+		this.canSelectAddenda$ = this.store.pipe(select(fromRoot.canSelectAddenda));
 	}
 
 	get isSalesAgreementCancelledOrVoided(): boolean

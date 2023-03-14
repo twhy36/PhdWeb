@@ -10,7 +10,9 @@ export interface State
 	canApprove: boolean;
 	canOverride: boolean;
 	canCancel: boolean;
+	canSelectAddenda: boolean;
 	canDesign: boolean;
+	canCreateChangeOrder: boolean;
 	canApproveChangeOrder: boolean;
 	canAddIncentive: boolean;
 	canUpdateECOE: boolean;
@@ -24,12 +26,14 @@ export interface State
 export const initialState: State = 
 { 
 	assignedMarkets: [], 
-	canApprove: false, 
+	canApprove: false,
+	canCreateChangeOrder: false,
 	canApproveChangeOrder: false, 
 	canConfigure: false, 
 	canSell: false, 
 	canOverride: false, 
-	canCancel: false, 
+	canCancel: false,
+	canSelectAddenda: false,
 	canDesign: false, 
 	canAddIncentive: false, 
 	contactId: null, 
@@ -52,7 +56,9 @@ export function reducer(state: State = initialState, action: UserActions): State
 				canApprove: action.claims.SalesAgreements && !!(action.claims.SalesAgreements & Permission.Approve),
 				canOverride: action.claims.SalesAgreements && !!(action.claims.SalesAgreements & Permission.Override),
 				canCancel: action.claims.SalesAgreements && !!(action.claims.SalesAgreements & Permission.DeleteCancel),
+				canSelectAddenda: action.claims.SalesAgreements && !!(action.claims.SalesAgreements & Permission.Edit),
 				canDesign: action.claims.JobChangeOrders && !!(action.claims.JobChangeOrders & Permission.Create),
+				canCreateChangeOrder: action.claims.JobChangeOrders && !!(action.claims.JobChangeOrders & Permission.Create),
 				canApproveChangeOrder: action.claims.JobChangeOrders && !!(action.claims.JobChangeOrders & Permission.Approve),
 				canAddIncentive: action.claims.Incentives && !!(action.claims.Incentives & Permission.Create),
 				canUpdateECOE: action.claims.ECOE && !!(action.claims.ECOE & Permission.Edit),

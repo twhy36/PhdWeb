@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { distinctUntilChanged, combineLatest, switchMap, withLatestFrom, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { distinctUntilChanged, switchMap, withLatestFrom } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -13,151 +13,184 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SDImage, SubGroup, FloorPlanImage } from 'phd-common';
-import { JobService } from '../../../core/services/job.service';
+import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
+import { BuildMode } from '../../../shared/models/build-mode.model';
+import { ErrorFrom } from '../../../ngrx-store/error.action';
 
 @Component({
 	selector: 'home',
-    templateUrl: 'home.component.html',
-    styleUrls: ['home.component.scss']
+	templateUrl: 'home.component.html',
+	styleUrls: ['home.component.scss']
 })
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	communityName: string = '';
 	planName: string = '';
 	planImageUrl: string = '';
-	floorPlanImages: SDImage[] = [];
+	floorPlanImages: FloorPlanImage[] = [];
 	salesAgreement: SalesAgreement;
 	isPreview: boolean;
+	isPresale: boolean;
 	isLoadingMyFavorite: boolean = false;
-	hasFloorPlanImages: boolean = true;
+	hasFloorPlanImages: boolean = false;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	floorplanSG: SubGroup;
 	noVisibleFP: boolean = false;
-	selectedFloor: any;
+	selectedFloor;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
 		private store: Store<fromRoot.State>,
 		private router: Router,
-		private jobService: JobService,
 		private brandService: BrandService)
-    {
-        super();
-    }
+	{
+		super();
+	}
 
-	ngOnInit() {
-		this.activatedRoute.paramMap
-			.pipe(
-				combineLatest(this.store.pipe(select(state => state.salesAgreement))),
-				withLatestFrom(this.activatedRoute.data,
-					this.store.pipe(select(state => state.scenario))
-				),
-				switchMap(([[params, salesAgreementState], routeData, scenarioState]) => {
-					if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError) {
+	ngOnInit()
+	{
+		combineLatest([
+			this.activatedRoute.paramMap,
+			this.store.pipe(select(state => state.salesAgreement)),
+		]).pipe(
+			withLatestFrom(this.activatedRoute.data,
+				this.store.pipe(select(state => state.scenario)),
+				this.store.pipe(select(state => state.plan))),
+			switchMap(([[params, salesAgreementState], routeData, scenarioState, planState]) =>
+			{
+				if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
+				{
+					return new Observable<never>();
+				}
+				this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
+				// flags for loading favorites or UI display
+				// reading existing store buildmode or url buildmode
+				this.isPreview = scenarioState.buildMode === BuildMode.Preview || routeData['buildMode'] === BuildMode.Preview;
+				this.isPresale = scenarioState.buildMode === BuildMode.Presale || routeData['buildMode'] === BuildMode.Presale;
+
+				// Load Store data on first home load if not loaded based on URL route
+				const urlBuildMode = routeData['buildMode'];
+				switch (urlBuildMode)
+				{
+				case BuildMode.Preview:
+					//set current buildmode to preview for Preview URL path
+					this.isPreview = true;
+
+					const treeVersionId = +params.get('treeVersionId');
+
+					if (!scenarioState.tree ||
+								scenarioState.tree.treeVersion.id !== treeVersionId
+								|| scenarioState.buildMode != BuildMode.Preview)
+					{
+						this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
 						return new Observable<never>();
 					}
+					break;
+						
+				case BuildMode.Presale:
+					//set current buildmode to presale for presale URL path
+					this.isPresale = true;
 
-					this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
-					this.isPreview = scenarioState.buildMode === 'preview' || routeData["isPreview"];
-
-					// we only want to fetch on treeVersion during first load of home page
-					if (routeData["isPreview"]) {
-						const treeVersionId = +params.get('treeVersionId');
-						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== treeVersionId) {
-							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
-							return new Observable<never>();
-						}
-					} else {
-						// if sales agreement is not in the store and the id has been passed in to the url
-						// or the passed in sales agreement id is different than that of the id in the store...
-						const salesAgreementId = +params.get('salesAgreementId');
-						if (salesAgreementId > 0 && salesAgreementState.id !== salesAgreementId) {
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
-							return new Observable<never>();
-						}
+					const planCommunityId = Number(sessionStorage.getItem('presale_plan_community_id'));
+	
+					if (planCommunityId === 0)
+					{
+						this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
 					}
+	
+					//plan not loaded before, or plan changed, or build mode changed 
+					if (!planState.selectedPlan || planState.selectedPlan !== planCommunityId || scenarioState.buildMode !== BuildMode.Presale)
+					{
+						this.store.dispatch(new ScenarioActions.LoadPresale(planCommunityId));
+	
+						return new Observable<never>();
+					}
+					break;
+						
+				default:
+					// if sales agreement is not in the store and the id has been passed in to the url
+					// or the passed in sales agreement id is different than that of the id in the store...
+					const salesAgreementId = +params.get('salesAgreementId');
 
-					return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
-				}),
-				this.takeUntilDestroyed(),
-				distinctUntilChanged()
-			)
-			.subscribe((salesAgreement: SalesAgreement) => {
-				this.salesAgreement = salesAgreement;
+					if (salesAgreementId > 0 &&
+								(salesAgreementState.id !== salesAgreementId
+									|| scenarioState.buildMode !== BuildMode.Buyer)
+					)
+					{
+						//load store data in Buyer mode with pass querystring ID
+						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
+						return new Observable<never>();
+					}
+					break;
+				}
+
+				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
+			}),
+			this.takeUntilDestroyed(),
+			distinctUntilChanged()
+		).subscribe((salesAgreement: SalesAgreement) =>
+		{
+			this.salesAgreement = salesAgreement;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.elevationImageUrl)
-		).subscribe(imageUrl => {
-			this.planImageUrl = imageUrl;
-		});
-
-		this.store.pipe(
-			select(state => state.job),
-			withLatestFrom(this.store.select(state => state.changeOrder)),
-			switchMap(([job, changeOrder]) =>
-			{
-				if (job.id && changeOrder)
-				{
-					return this.jobService.getFloorPlanImages(job.id, (changeOrder.currentChangeOrder !== null) ? true : false);
-				}
-				else
-				{
-					return new Observable<never>();
-				}
-			}),
-			take(1)
-		).subscribe(images =>
+		).subscribe(imageUrl =>
 		{
-			this.hasFloorPlanImages = images && images.length > 0;
-			images && images.length && images.map(img =>
-			{
-				img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
-
-				this.floorPlanImages.push({ imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage);
-			});
+			this.planImageUrl = imageUrl;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
-		).subscribe(planData => {
+		).subscribe(planData =>
+		{
 			this.planName = planData && planData.salesName;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+		).subscribe(communityName =>
+		{
 			this.communityName = communityName;
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.contractedTree),
-			combineLatest(this.store.pipe(select(state => state.scenario)), this.store.pipe(select(fromPlan.planState)))
-		).subscribe(([contractedTree, scenarioState, plan]) => {
+		combineLatest([
+			this.store.pipe(select(fromRoot.contractedTree)),
+			this.store.pipe(select(state => state.scenario)),
+			this.store.pipe(select(fromPlan.planState))
+		]).subscribe(([contractedTree, scenarioState, plan]) =>
+		{
 			const tree = scenarioState?.tree?.treeVersion;
 			const contractedSgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
 			const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
+			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length)
+			{
 				let fpSubGroup;
-				if (contractedSgs?.length) {
+				if (contractedSgs?.length)
+				{
 					fpSubGroup = contractedSgs.pop();
-				} else if (sgs?.length) {
+				}
+				else if (sgs?.length)
+				{
 					fpSubGroup = sgs.pop();
 				}
-				if (fpSubGroup) {
+				if (fpSubGroup)
+				{
 					this.floorplanSG = fpSubGroup;
 					this.marketingPlanId$.next(plan.marketingPlanId[0]);
-				} else {
+				}
+				else
+				{
 					this.noVisibleFP = true;
 				}
-			} else {
+			}
+			else
+			{
 				this.noVisibleFP = true;
 			}
 		});
@@ -166,21 +199,24 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.filteredTree),
 			withLatestFrom(this.store.select(state => state.favorite), this.store.select(state => state.nav)),
-		).subscribe(([tree, fav, nav]) => {
+		).subscribe(([tree, fav, nav]) =>
+		{
 			if (fav)
 			{
 				if (this.isLoadingMyFavorite && !fav.isLoading)
 				{
 					this.isLoadingMyFavorite = false;
 
-					let url = `/favorites/my-favorites/${fav.selectedFavoritesId}`;
 					const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
 					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
 					if (selectedSubGroup)
 					{
-						url += `/${selectedSubGroup.subGroupCatalogId}`;
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' })
 					}
-					this.router.navigateByUrl(url);
+					else
+					{
+						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParamsHandling: 'merge' })
+					}
 				}
 			}
 		});
@@ -189,51 +225,37 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	viewOptions()
 	{
 		this.isLoadingMyFavorite = true;
-		if (this.isPreview) {
+		if (this.isPreview || this.isPresale)
+		{
 			this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
-		} else {
+		}
+		else
+		{
 			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
 		}
 	}
 
-	/**
-	 * Handles a save event from the child floor plan component, in order to render the IFP report.
-	 * @param floorPlanImages The images that were saved.
-	 */
-	onFloorPlanSaved(floorPlanImages: FloorPlanImage[])
+	getImageSrc()
 	{
-		floorPlanImages.forEach(img =>
-		{
-			img.svg = `data:image/svg+xml;base64,${btoa(img.svg)}`;
-
-			const sdImg = { imageUrl: img.svg, hasDataUri: true, floorIndex: img.floorIndex, floorName: img.floorName } as SDImage;
-			const idx = this.floorPlanImages.findIndex(i => i.floorIndex === img.floorIndex);
-
-			if (idx === -1)
-			{
-				this.floorPlanImages.push(sdImg);
-			}
-			else
-			{
-				this.floorPlanImages[idx] = sdImg;
-			}
-		});
-	}
-
-	getImageSrc() {
 		return this.brandService.getBrandImage('logo');
 	}
 
-	getBannerImage(position: number) {
+	getBannerImage(position: number)
+	{
 		return this.brandService.getBannerImage(position);
 	}
 
-	loadFloorPlan(fp) {
-		if (!this.selectedFloor) {
+	loadFloorPlan(fp)
+	{
+		if (!this.selectedFloor)
+		{
 			const floor1 = fp.floors.find(floor => floor.name === 'Floor 1');
-			if (floor1) {
+			if (floor1)
+			{
 				this.selectedFloor = floor1;
-			} else {
+			}
+			else
+			{
 				this.selectedFloor = fp.floors[0];
 			}
 		}

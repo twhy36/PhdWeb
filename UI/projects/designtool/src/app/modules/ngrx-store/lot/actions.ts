@@ -21,7 +21,7 @@ export class LoadLots implements Action
 {
 	readonly type = LotActionTypes.LoadLots;
 
-	constructor(public salesCommunityId: number, public isModel?: boolean) { }
+	constructor(public salesCommunityId: number, public isModel?: boolean, public useCache?: boolean) { }
 }
 
 export class LotsLoaded implements Action

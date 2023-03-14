@@ -1,0 +1,32 @@
+<header>
+	<div class="phd-navigation-bar">
+		<div class="phd-navigation-bar-header">
+			<img class="phd-logo" src="assets/PG_Logo_2022_Horizontal_Y&W.png" alt="Pulte Homes" />
+		</div>
+
+		<div class="phd-navigation-bar-title">
+			Pulte Home Designer - Color Admin Tool
+		</div>
+
+		<market-selector [enabled]="editingColor === false" ></market-selector>
+	</div>
+	<aside>
+		<div class="color-nav">
+			<ul ngbNav #nav="ngbNav" [activeId]="currentRoute" class="nav-tabs">
+				<li ngbNavItem="color">
+					<a ngbNavLink routerLink="color">Colors</a>
+				</li>
+				<li ngbNavItem="coloritem">
+					<a ngbNavLink routerLink="coloritem">Color Items</a>
+				</li>
+				<li *ngIf="optionPackagesEnabled$ | async" ngbNavItem="optionpackage" >
+					<a ngbNavLink routerLink="optionpackage">Option Packages</a>
+				</li>
+			</ul>
+		</div>
+		<div class="user" *ngIf="user"><i class="fa fa-user"></i>{{user.displayName}}</div>
+	</aside>
+</header>
+<div class="tab-content">
+	<router-outlet></router-outlet>
+</div>

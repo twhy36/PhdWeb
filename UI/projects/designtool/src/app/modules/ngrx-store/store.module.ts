@@ -1,9 +1,7 @@
-import { Injector, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { META_REDUCERS, StoreModule as NgrxStoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
-
-import { environment } from '../../../environments/environment';
 import { reducers } from './reducers';
 
 // meta-reducers
@@ -32,7 +30,7 @@ import { LoggingService } from '../core/services/logging.service';
 @NgModule({
 	imports: [
 		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer, stateReset] }),
-		environment.production ? [] : StoreDevtoolsModule.instrument({
+		StoreDevtoolsModule.instrument({
 			name: 'PHD Store DevTools',
 			logOnly: false
 		}),
@@ -66,4 +64,5 @@ import { LoggingService } from '../core/services/logging.service';
 		}
 	]
 })
+
 export class StoreModule { }

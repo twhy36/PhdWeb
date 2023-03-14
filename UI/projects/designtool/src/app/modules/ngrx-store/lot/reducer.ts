@@ -27,7 +27,7 @@ export function reducer(state: State = initialState, action: LotActions): State
 
 			if (selectedLot)
 			{
-				selectedLot = { ...selectedLot, monotonyRules: action.lots.find(l => l.id === selectedLot.id).monotonyRules };
+				selectedLot = { ...selectedLot, monotonyRules: action.lots.find(l => l.id === selectedLot.id)?.monotonyRules };
 			}
 
 			return { ...state, lotsLoading: false, hasError: false, lots: action.lots, selectedLot: selectedLot };

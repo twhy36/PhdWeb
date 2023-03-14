@@ -1,65 +1,67 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { Observable, combineLatest, EMPTY as empty, of, throwError } from 'rxjs';
+import { map, catchError, tap, switchMap, toArray, mergeMap } from 'rxjs/operators';
+import { Observable, combineLatest, of, throwError, from } from 'rxjs';
 
 import
 {
-	withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,
-	IdentityService, JobChoice, ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage,
-	JobPlanOption, ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption, Choice,
-	MyFavoritesChoice, MyFavoritesPointDeclined, getDateWithUtcOffset
+	withSpinner, newGuid, createBatchGet, createBatchHeaders, createBatchBody,JobChoice,
+	ChangeOrderChoice, TreeVersionRules, OptionRule, Tree, OptionImage, JobPlanOption, 
+	ChangeOrderPlanOption, PlanOptionCommunityImageAssoc, ChoiceImageAssoc, TreeBaseHouseOption,
+	Choice, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { isChangeOrderChoice } from '../../shared/classes/tree.utils';
 
 import * as _ from 'lodash';
+import { TokenService } from './token.service';
+import { BatchResponse, DPChoiceDto, DPointDto, DTreeVersionDto, ODataResponse, OptionRuleDto } from '../../shared/models/odata-response.model';
+import { TreeVersion } from '../../shared/models/tree.model';
 
 @Injectable()
 export class TreeService
 {
 	private _ds: string = encodeURIComponent('$');
 
-	constructor(private http: HttpClient, private identityService: IdentityService) { }
+	constructor(private http: HttpClient, private tokenService: TokenService) { }
 
 	/**
 	 * gets active tree versions for communities
 	 * @param communityIds
 	 */
-	public getTreeVersions(planKey: number, communityId: number): Observable<any>
+	public getTreeVersions(planKey: number, communityId: number): Observable<TreeVersion[]>
 	{
 		const communityFilter = ` and (dTree/plan/org/edhFinancialCommunityId eq ${communityId}) and (dTree/plan/integrationKey eq '${planKey}')`;
-		
-		const utcNow = getDateWithUtcOffset();
+
+		const utcNow = new Date().toISOString();
 
 		const entity = 'dTreeVersions';
-		const expand = `dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
+		const expand = 'dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))';
 		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow})${communityFilter}`;
-		const select = `dTreeVersionID,dTreeID,dTreeVersionName,dTreeVersionDescription,publishStartDate,publishEndDate,lastModifiedDate`;
-		const orderBy = `publishStartDate`;
+		const select = 'dTreeVersionID,dTreeID,dTreeVersionName,dTreeVersionDescription,publishStartDate,publishEndDate,lastModifiedDate';
+		const orderBy = 'publishStartDate desc';
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderby=${orderBy}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
 
-		return this.http.get<any>(endPoint).pipe(
+		return withSpinner(this.http).get<ODataResponse<DTreeVersionDto[]>>(endPoint).pipe(
 			map(response =>
 			{
 				return response.value.map(data =>
 				{
 					return {
-						// DEVNOTE: will change late bound to object if these mappings are repeated.
-						id: data['dTreeVersionID'],
-						name: data['dTreeVersionName'],
-						communityId: data['dTree']['org']['edhFinancialCommunityId'],
-						planKey: data['dTree']['plan']['integrationKey'],
-						description: data['dTreeVersionDescription'],
-						treeId: data['dTreeID'],
-						publishStartDate: data['publishStartDate'],
-						publishEndDate: data['publishEndDate'],
-						lastModifiedDate: data['lastModifiedDate'],
-						includedOptions: data['baseHouseOptions'].map(o => o['planOption']['integrationKey'])
-					};
+						id: data.dTreeVersionID,
+						name: data.dTreeVersionName,
+						communityId: data.dTree.org.edhFinancialCommunityId,
+						planKey: data.dTree.plan.integrationKey,
+						description: data.dTreeVersionDescription,
+						treeId: data.dTreeID,
+						publishStartDate: data.publishStartDate,
+						publishEndDate: data.publishEndDate,
+						lastModifiedDate: data.lastModifiedDate,
+						includedOptions: data.baseHouseOptions.flatMap(o => o.planOption.integrationKey)
+					} as TreeVersion;
 				});
 			}),
 			catchError(error =>
@@ -74,7 +76,7 @@ export class TreeService
 	getTree(treeVersionId: number, skipSpinner?: boolean): Observable<Tree>
 	{
 		const entity = `GetTreeDto(TreeVersionID=${treeVersionId})`;
-		const expand = `treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices))))`;
+		const expand = 'treeVersion($expand=groups($expand=subGroups($expand=points($expand=choices))))';
 
 		const endPoint = environment.apiUrl + `${entity}?useCache=true&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
 
@@ -84,39 +86,43 @@ export class TreeService
 				this.getDivDPointCatalogs(response),
 				this.getDivChoiceCatalogs(response)
 			])),
-			map((response: [Tree, Tree]) => {
+			map((response: [Tree, Tree]) =>
+			{
 				const modPoints = _.flatMap(response[0].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-				let finalPoints = _.flatMap(response[1].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+				const finalPoints = _.flatMap(response[1].treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
-				modPoints.map(x => {
-					let point = finalPoints.find(p => p.divPointCatalogId === x.divPointCatalogId);
+				modPoints.map(x =>
+				{
+					const point = finalPoints.find(p => p.divPointCatalogId === x.divPointCatalogId);
+
 					if (point)
 					{
 						point.cutOffDays = x.cutOffDays;
 						point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
 					}
 				});
+
 				return new Tree(response[1]);
 			}),
 			catchError(error =>
 			{
 				console.error(error);
 
-				return empty;
+				return throwError(error);
 			})
 		);
 	}
 
 	getTreeBaseHouseOptions(treeVersionId: number): Observable<TreeBaseHouseOption[]>
 	{
-		const entity = `baseHouseOptions`;
-		const expand = `planOption($select=integrationKey)`;
-		const select = `planOption`;
+		const entity = 'baseHouseOptions';
+		const expand = 'planOption($select=integrationKey)';
+		const select = 'planOption';
 		const filter = `dTreeVersionID eq ${treeVersionId}`;
 
-		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
-		return this.http.get<any>(endPoint).pipe(
+		return withSpinner(this.http).get<ODataResponse<TreeBaseHouseOption[]>>(endPoint).pipe(
 			map(response =>
 			{
 				return response.value as TreeBaseHouseOption[];
@@ -131,87 +137,92 @@ export class TreeService
 	}
 
 	getDivDPointCatalogs(tree: Tree): Observable<Tree>
-    {
-        const entity = `divDPointCatalogs`;
-        let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+	{
+		const entity = 'divDPointCatalogs';
+		const points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 		const pointCatalogIds = points.map(x => x.divPointCatalogId);
-        const filter = `divDpointCatalogID in (${pointCatalogIds})`;
+		const filter = `divDpointCatalogID in (${pointCatalogIds})`;
 
-        const select = `divDpointCatalogID,cutOffDays,edhConstructionStageId,isHiddenFromBuyerView`;
+		const select = 'divDpointCatalogID,cutOffDays,edhConstructionStageId,isHiddenFromBuyerView';
 
-        const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-        const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-        return this.http.get<Tree>(endPoint).pipe(
-            map(response =>
-            {
-                if (response)
-                {
-                    response['value'].map(x => {
-                        let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
-                        if (point)
-                        {
-                            point.cutOffDays = x.cutOffDays;
+		return withSpinner(this.http).get<Tree>(endPoint).pipe(
+			map(response =>
+			{
+				if (response)
+				{
+					response['value'].map(x =>
+					{
+						const point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
+						if (point)
+						{
+							point.cutOffDays = x.cutOffDays;
 							point.edhConstructionStageId = x.edhConstructionStageId;
 							point.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
-                        }
-                    });
-                }
-                return tree;
-            }),
-            catchError(error =>
-            {
-                console.error(error);
+						}
+					});
+				}
+				return tree;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
 
-                return empty;
-            })
-        );
-    }
+				return throwError(error);
+			})
+		);
+	}
 
 	getDivChoiceCatalogs(tree: Tree): Observable<Tree>
-    {
-		let choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-		return this.identityService.token.pipe(
+	{
+		const choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+		return this.tokenService.getToken().pipe(
 			switchMap((token: string) =>
 			{
 				const batchSize = 75;
-				let batchBundles: string[] = [];
-	
+				const batchBundles: string[] = [];
+
 				// create a batch request with a max of 75 choices per request
-				let buildRequestUrl = (choices: Choice[]) =>
+				const buildRequestUrl = (choices: Choice[]) =>
 				{
-					const entity = `divChoiceCatalogs`;
-					const select = `divChoiceCatalogID,isHiddenFromBuyerView,priceHiddenFromBuyerView`;
-		
+					const entity = 'divChoiceCatalogs';
+					const select = 'divChoiceCatalogID,isHiddenFromBuyerView,priceHiddenFromBuyerView';
+
 					const choiceCatalogIds = choices.map(x => x.divChoiceCatalogId);
 					const filter = `divChoiceCatalogID in (${choiceCatalogIds})`;
 					const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 					const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
-		
+
 					return endPoint;
-				}
-	
+				};
+
 				for (var x = 0; x < choices.length; x = x + batchSize)
 				{
-					let choiceList = choices.slice(x, x + batchSize);
-		
+					const choiceList = choices.slice(x, x + batchSize);
+
 					batchBundles.push(buildRequestUrl(choiceList));
 				}
-	
-				let requests = batchBundles.map(req => createBatchGet(req));
-				let guid = newGuid();
-		
+
+				const requests = batchBundles.map(req => createBatchGet(req));
+				const guid = newGuid();
+
 				var headers = createBatchHeaders(guid, token);
 				var batch = createBatchBody(guid, requests);
-	
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+
+				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
-				if (response) {
-					response['responses'].forEach(response => {
-						response['body']['value'].map(x => {
-							let choice = choices.find(p => p.divChoiceCatalogId === x.divChoiceCatalogID);
+			map((response) =>
+			{
+				if (response)
+				{
+					response['responses'].forEach(response =>
+					{
+						response['body']['value'].map(x =>
+						{
+							const choice = choices.find(p => p.divChoiceCatalogId === x.divChoiceCatalogID);
 							if (choice)
 							{
 								choice.isHiddenFromBuyerView = x.isHiddenFromBuyerView;
@@ -223,7 +234,7 @@ export class TreeService
 				return tree;
 			})
 		)
-    }
+	}
 
 	getRules(treeVersionId: number, skipSpinner?: boolean): Observable<TreeVersionRules>
 	{
@@ -238,7 +249,7 @@ export class TreeService
 			{
 				console.error(error);
 
-				return empty;
+				return throwError(error);
 			})
 		);
 	}
@@ -247,7 +258,7 @@ export class TreeService
 	{
 		let url = environment.apiUrl;
 
-		let filters = [`dTreeVersionID eq ${treeVersionId} and hideImage eq false`];
+		const filters = [`dTreeVersionID eq ${treeVersionId} and hideImage eq false`];
 
 		const optionFilter = optionIds.map(x => `planOption/integrationKey eq '${x}'`).join(' or ');
 
@@ -256,9 +267,9 @@ export class TreeService
 			filters.push(`(${optionFilter})`);
 		}
 
-		const expand = `planOption($select=planOptionID, integrationKey)`;
-		const select = `planOptionID, imageURL, sortKey, dTreeVersionId`;
-		const orderby = `planOptionID, sortKey`;
+		const expand = 'planOption($select=planOptionID, integrationKey)';
+		const select = 'planOptionID, imageURL, sortKey, dTreeVersionId';
+		const orderby = 'planOptionID, sortKey';
 
 		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filters.join(' and '))}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
 
@@ -272,9 +283,9 @@ export class TreeService
 		return (skipSpinner ? this.http : withSpinner(this.http)).get(url).pipe(
 			map(response =>
 			{
-				let dtos = response['value'];
+				const dtos = response['value'];
 
-				let images = dtos.map(x =>
+				const images = dtos.map(x =>
 				{
 					return {
 						integrationKey: x.planOption.integrationKey,
@@ -294,22 +305,19 @@ export class TreeService
 		);
 	}
 
-	getPointCatalogIds(pointsDeclined: MyFavoritesPointDeclined[]) : Observable<MyFavoritesPointDeclined[]>
+	getPointCatalogIds(pointsDeclined: MyFavoritesPointDeclined[]): Observable<MyFavoritesPointDeclined[]>
 	{
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
-				const pointIds: Array<number> = pointsDeclined.map(x => x.dPointId);
-				const filter = `dPointID in (${pointIds})`;
-				const select = 'dPointID,divDPointCatalogID';
-				const url = `${environment.apiUrl}dPoints?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const pointIds: Array<number> = pointsDeclined.map(x => x.dPointId);
+		const filter = `dPointID in (${pointIds})`;
+		const select = 'dPointID,divDPointCatalogID';
+		const url = `${environment.apiUrl}dPoints?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-				return this.http.get<any>(url);
-			}),
-			map((response: any) =>
+		return withSpinner(this.http).get<ODataResponse<DPointDto[]>>(url).pipe(
+			map((response) =>
 			{
-				let newPointsDeclined: MyFavoritesPointDeclined[] = [];
-				pointsDeclined.forEach(p => {
+				const newPointsDeclined: MyFavoritesPointDeclined[] = [];
+				pointsDeclined.forEach(p =>
+				{
 					const respPoint = response.value.find(r => r.dPointID === p.dPointId);
 					if (respPoint)
 					{
@@ -318,22 +326,18 @@ export class TreeService
 				});
 				return newPointsDeclined;
 			})
-		)
+		);
 	}
 
 	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice | MyFavoritesChoice>): Observable<Array<JobChoice | ChangeOrderChoice>>
 	{
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
-				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
-				const filter = `dpChoiceID in (${choiceIds})`;
-				const select = 'dpChoiceID,divChoiceCatalogID';
-				const url = `${environment.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
+		const filter = `dpChoiceID in (${choiceIds})`;
+		const select = 'dpChoiceID,divChoiceCatalogID';
+		const url = `${environment.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-				return this.http.get<any>(url);
-			}),
-			map((response: any) =>
+		return withSpinner(this.http).get<ODataResponse<DPChoiceDto[]>>(url).pipe(
+			map((response) =>
 			{
 				const newChoices = [...choices];
 				const changedChoices = [];
@@ -373,21 +377,51 @@ export class TreeService
 		);
 	}
 
-	getChoiceDetails(choices: Array<number>): Observable<Array<any>>
+	getChoiceDetails(choices: number[]): Observable<DPChoiceDto[]>
 	{
-		return this.identityService.token.pipe(
+		return this.tokenService.getToken().pipe(
 			switchMap((token: string) =>
 			{
-				let guid = newGuid();
-				let requests = choices.map(choice => createBatchGet(`${environment.apiUrl}GetChoiceDetails(DPChoiceID=${choice})`));
-				let headers = createBatchHeaders(guid, token);
-				let batch = createBatchBody(guid, requests);
+				const guid = newGuid();
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+				const buildRequestUrl = (choices: number[]) =>
+				{
+					const filter = `dpChoiceId in (${choices.join(',')})`;
+					const select = 'dTreeVersionID,dpChoiceSortOrder,maxQuantity,divChoiceCatalogID,dpChoiceID,imagePath,isDecisionDefault';
+
+					let pointExpands = 'divDPointCatalog($select=dPointLabel,isQuickQuoteItem,isStructuralItem;$expand=dPointCatalog($select=dPointTypeId)),';
+					pointExpands += 'dSubGroup($select=dSubGroupCatalogID,dSubGroupSortOrder;$expand=dSubGroupCatalog($select=dSubGroupLabel),dGroup($select=dGroupID,dGroupCatalogID,dGroupSortOrder;$expand=dGroupCatalog($select=dGroupLabel)))';
+
+					let expand = 'divChoiceCatalog($select=choiceLabel),';
+					expand += `dPoint($select=dPointID,divDPointCatalogID,dSubGroupID,dPointSortOrder;$expand=${pointExpands})`;
+
+					return `${environment.apiUrl}dPChoices?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}expand=${expand}`;
+				};
+
+				const batchSize = 50;
+				const batchBundles: string[] = [];
+
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					const choiceList = choices.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(choiceList));
+				}
+
+				const requests = batchBundles.map(req => createBatchGet(req));
+				const headers = createBatchHeaders(guid, token);
+				const batch = createBatchBody(guid, requests);
+
+				return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) =>
+			map((response: BatchResponse<DPChoiceDto[]>) =>
 			{
-				return response.responses.map(r => r.body);
+				const bodies = response.responses.map(r => r.body);
+
+				return _.flatten(bodies.map(body =>
+				{
+					return body.value?.length > 0 ? body.value : null;
+				}).filter(res => res));
 			})
 		);
 	}
@@ -396,47 +430,47 @@ export class TreeService
 	{
 		if (options.length)
 		{
-			return this.identityService.token.pipe(
+			return this.tokenService.getToken().pipe(
 				switchMap((token: string) =>
 				{
-					let guid = newGuid();
+					const guid = newGuid();
 
-					let buildRequestUrl = (options: Array<JobPlanOption | ChangeOrderPlanOption>) =>
+					const buildRequestUrl = (options: Array<JobPlanOption | ChangeOrderPlanOption>) =>
 					{
-						let optFilter = (opt: JobPlanOption | ChangeOrderPlanOption) => `planOptionCommunityId eq ${opt.planOptionId} and startDate le ${opt.outForSignatureDate} and (endDate eq null or endDate gt ${opt.outForSignatureDate})`;
-						let filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
-						let select = `planOptionCommunityId, imageUrl, startDate, endDate, sortOrder`;
-						let orderBy = `sortOrder`;
+						const optFilter = (opt: JobPlanOption | ChangeOrderPlanOption) => `planOptionCommunityId eq ${opt.planOptionId} and startDate le ${opt.outForSignatureDate} and (endDate eq null or endDate gt ${opt.outForSignatureDate})`;
+						const filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
+						const select = 'planOptionCommunityId, imageUrl, startDate, endDate, sortOrder';
+						const orderBy = 'sortOrder';
 
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
-					}
+					};
 
 					const batchSize = 35;
-					let batchBundles: string[] = [];
+					const batchBundles: string[] = [];
 
-					// create a batch request with a max of 100 options per request
+					// create a batch request with a max of 35 options per request
 					for (var x = 0; x < options.length; x = x + batchSize)
 					{
-						let optionList = options.slice(x, x + batchSize);
+						const optionList = options.slice(x, x + batchSize);
 
 						batchBundles.push(buildRequestUrl(optionList));
 					}
 
-					let requests = batchBundles.map(req => createBatchGet(req));
+					const requests = batchBundles.map(req => createBatchGet(req));
 
 					var headers = createBatchHeaders(guid, token);
 					var batch = createBatchBody(guid, requests);
 
-					return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 				}),
-				map((response: any) =>
+				map((response: BatchResponse<PlanOptionCommunityImageAssoc[]>) =>
 				{
-					let bodies: any[] = response.responses.map(r => r.body);
+					const bodies = response.responses.map(r => r.body);
 
 					return bodies.map(body =>
 					{
 						// pick draft(publishStartDate is null) or latest publishStartDate(last element)
-						let value = body.value.length > 0 ? body.value[0] : null;
+						const value = body.value.length > 0 ? body.value[0] : null;
 
 						return value ? value as PlanOptionCommunityImageAssoc : null;
 					}).filter(res => res);
@@ -485,65 +519,88 @@ export class TreeService
 			}
 		}
 
-		let buildRequestUrl = (options: Array<{ optionNumber: string; dpChoiceId: number }>) =>
+		const buildRequestUrl = (options: Array<{ optionNumber: string; dpChoiceId: number }>) =>
 		{
-			let optFilter = (opt: { optionNumber: string; dpChoiceId: number }) => `(dpChoice_OptionRuleAssoc/any(or: or/dpChoiceId eq ${opt.dpChoiceId}) and planOption/integrationKey eq '${opt.optionNumber}')`;
-			let filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
-			let expand = `dpChoice_OptionRuleAssoc($select=dpChoiceId,mustHave;$expand=attributeReassignments($select=attributeReassignmentID, todpChoiceID, attributeGroupID),dpChoice($select=divChoiceCatalogId,dpChoiceSortOrder;$expand=dPoint($select=dPointSortOrder;$expand=dSubGroup($select=dSubGroupSortOrder;$expand=dGroup($select=dGroupSortOrder))))),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))`;
+			const optFilter = (opt: { optionNumber: string; dpChoiceId: number }) => `(dpChoice_OptionRuleAssoc/any(or: or/dpChoiceId eq ${opt.dpChoiceId}) and planOption/integrationKey eq '${opt.optionNumber}')`;
+			const filter = `${options.map(opt => optFilter(opt)).join(' or ')}`;
+			const expand = 'dpChoice_OptionRuleAssoc($select=dpChoiceId,mustHave;$expand=attributeReassignments($select=attributeReassignmentID, todpChoiceID, attributeGroupID),dpChoice($select=divChoiceCatalogId,dpChoiceSortOrder;$expand=dPoint($select=dPointSortOrder;$expand=dSubGroup($select=dSubGroupSortOrder;$expand=dGroup($select=dGroupSortOrder))))),planOption,optionRuleReplaces($expand=planOption($select=integrationKey))';
 
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
 
-		const batchSize = 100;
-		let batchBundles: string[] = [];
-
-		// create a batch request with a max of 100 options per request
-		for (var x = 0; x < options.length; x = x + batchSize)
+		const batchSize = 1;
+		const chunk = 100;
+		const splitArrayresult = options.reduce((resultArray, item, index) =>
 		{
-			let optionList = options.slice(x, x + batchSize);
+			const chunkIndex = Math.floor(index / chunk);
 
-			batchBundles.push(buildRequestUrl(optionList));
-		}
-
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
+			if (!resultArray[chunkIndex])
 			{
-				let requests = batchBundles.map(req => createBatchGet(req));
+				resultArray[chunkIndex] = [];
+			}
 
-				let guid = newGuid();
-				let headers = createBatchHeaders(guid, token);
-				let batch = createBatchBody(guid, requests);
+			resultArray[chunkIndex].push(item);
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			return resultArray;
+		}, []);
+
+		return from(splitArrayresult).pipe(
+			mergeMap(item =>
+			{
+
+				const batchBundles: string[] = [];
+
+				for (var x = 0; x < item.length; x = x + batchSize)
+				{
+					const optionList = item.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(optionList));
+				}
+
+				const requests = batchBundles.map(req => createBatchGet(req));
+
+				const guid = newGuid();
+				const batch = createBatchBody(guid, requests);
+
+				return this.tokenService.getToken().pipe(
+					switchMap((token: string) =>
+					{
+						const headers = createBatchHeaders(guid, token);
+
+						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					}));
 			}),
-			map((response: any) =>
+			toArray<BatchResponse<OptionRuleDto[]>>(),
+			map(responses =>
 			{
-				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
-				let optionRules = _.flatten(bodyValue);
+				const bodyValue = _.flatMap(responses, (response) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
+				// logic here to recombine results	
+				const optionRules = _.flatten(bodyValue);
 
-				let mappings: { [optionNumber: string]: OptionRule } = {};
+				const mappings: { [optionNumber: string]: OptionRule } = {};
 
 				options.forEach(opt =>
 				{
-					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
+					const res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-					mappings[opt.optionNumber] = !!res ? <OptionRule>{
-						optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+					mappings[opt.optionNumber] = !!res ? <OptionRule>
 						{
-							return {
-								id: c.dpChoice.divChoiceCatalogID,
-								mustHave: c.mustHave,
-								attributeReassignments: c.attributeReassignments.map(ar =>
-								{
-									return {
-										id: ar.attributeReassignmentID,
-										choiceId: ar.todpChoiceID,
-										attributeGroupId: ar.attributeGroupID
-									};
-								})
-							};
-						}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-					} : null;
+							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+							{
+								return {
+									id: c.dpChoice.divChoiceCatalogID,
+									mustHave: c.mustHave,
+									attributeReassignments: c.attributeReassignments.map(ar =>
+									{
+										return {
+											id: ar.attributeReassignmentID,
+											choiceId: ar.todpChoiceID,
+											attributeGroupId: ar.attributeGroupID
+										};
+									})
+								};
+							}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+						} : null;
 				});
 
 				return mappings;
@@ -556,19 +613,19 @@ export class TreeService
 		let url = environment.apiUrl;
 		const filter = `dpChoiceId in (${choices.join(',')})`;
 		const select = 'dpChoiceId, imageUrl, sortKey';
+		const orderBy = 'sortKey';
 
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${select}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${select}&${this._ds}orderBy=${orderBy}`;
 
 		url += `dPChoiceImageAssocs?${qryStr}`;
 
 		return withSpinner(this.http).get(url).pipe(
 			map(response =>
 			{
-				let choiceImageAssoc = response['value'] as Array<ChoiceImageAssoc>;
+				const choiceImageAssoc = response['value'] as Array<ChoiceImageAssoc>;
 
 				return choiceImageAssoc;
 			})
 		);
 	}
-
 }

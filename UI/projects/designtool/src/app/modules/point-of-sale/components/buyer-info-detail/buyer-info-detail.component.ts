@@ -6,10 +6,10 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import { cloneDeep, trim } from 'lodash'
 
 import
-	{
-		Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact, Phone,
-		MatchingContact, Realtor, ModalService
-	} from 'phd-common';
+{
+	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact,
+	MatchingContact, Realtor, ModalService
+} from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
 import { MatchingContactsComponent } from '../matching-contacts/matching-contacts.component';
@@ -50,6 +50,19 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	ngOnInit()
 	{
+		if (this.isBuyer())
+		{
+			this.isPrimaryBuyer = (this.buyer as Buyer).isPrimaryBuyer;
+
+			if (!this.isPrimaryBuyer)
+			{
+				this.store.pipe(
+					this.takeUntilDestroyed(),
+					select(fromRoot.activePrimaryBuyer)
+				).subscribe(primaryBuyer => this.primaryBuyer = primaryBuyer);
+			}
+		}
+
 		if (typeof this.buyer === 'string')
 		{
 			this.createTrustForm(this.buyer);
@@ -63,6 +76,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			const addressFormGroup = (addressFormArray.controls as Array<FormGroup>)[0];
 			const address1Control = addressFormGroup.get('address1');
 			const cityControl = addressFormGroup.get('city');
+			const stateProvinceControl = addressFormGroup.get('stateProvince');
+			const postalCodeControl = addressFormGroup.get('postalCode');
+			const countryControl = addressFormGroup.get('country');
 
 			// determine when address1 and city are required
 			// - if any address field has a value then both are required
@@ -81,33 +97,58 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				{
 					address1Control.setValidators([Validators.required, noWhiteSpaceValidator]);
 					cityControl.setValidators([Validators.required, noWhiteSpaceValidator]);
+					stateProvinceControl.setValidators([Validators.required, noWhiteSpaceValidator]);
+					postalCodeControl.setValidators([Validators.required, noWhiteSpaceValidator]);
+					countryControl.setValidators([Validators.required, noWhiteSpaceValidator]);
 				}
 				else
 				{
 					address1Control.clearValidators();
 					cityControl.clearValidators();
+					stateProvinceControl.clearValidators();
+					postalCodeControl.clearValidators();
+					countryControl.clearValidators();
 				}
 
 				address1Control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 				cityControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				stateProvinceControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				postalCodeControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				countryControl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 				addressFormGroup.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 				addressFormArray.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 			});
-		}
 
-		if (this.isBuyer())
-		{
-			this.isPrimaryBuyer = (this.buyer as Buyer).isPrimaryBuyer;
+			const phoneFormArray = this.buyerForm.get('phones') as FormArray;
+			const phoneFormGroups = (phoneFormArray.controls as FormGroup[]);
 
-			if (!this.isPrimaryBuyer)
+			this.buyerForm.get('phones').valueChanges.subscribe((phones: any[]) =>
 			{
-				this.store.pipe(
-					this.takeUntilDestroyed(),
-					select(fromRoot.activePrimaryBuyer)
-				).subscribe(primaryBuyer => this.primaryBuyer = primaryBuyer);
-			}
-		}
+				// find secondary phone.  Primary should already be setup as required across the board.
+				const secondaryPhone = phones.find(x => !x.isPrimary);
 
+				if (secondaryPhone)
+				{
+					const phoneFormGroup = phoneFormGroups.find(x => x.value === secondaryPhone);
+					const phoneType = phoneFormGroup.get('phoneType');
+
+					// look for a value, if so the Phone Type needs to be set as required.
+					if (secondaryPhone.phoneNumber?.length)
+					{
+						phoneType.setValidators(Validators.required);
+					}
+					else
+					{
+						phoneType.clearValidators();
+					}
+
+					phoneType.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+					phoneFormGroup.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+					phoneFormArray.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+				}
+			});
+		}
+		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder)
@@ -120,6 +161,15 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				this.clearValidators();
 			}
 		});
+	}
+
+	get isRequiredSecondaryPhoneType(): boolean
+	{
+		const phones = this.buyerForm.get('phones') as FormArray;
+		const secondaryPhone = phones.controls[1];
+		const phoneType = secondaryPhone.get('phoneType');
+
+		return phoneType.hasValidator(Validators.required);
 	}
 
 	get hasChanges()
@@ -341,7 +391,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								phoneNumber: phoneNumber,
 								phoneType: phone.get('phoneType').value
 							}
-						}
+						};
 
 						contact.phoneAssocs.push(newPhoneAssoc);
 					}
@@ -384,7 +434,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 								id: 0,
 								emailAddress: emailAddress
 							}
-						}
+						};
 
 						contact.emailAssocs.push(newEmailAssoc);
 					}
@@ -479,7 +529,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		if (this.isRealtor())
 		{
-			this.buyerForm.addControl('brokerName', this.fb.control((buyer as Realtor).brokerName, Validators.compose([noWhiteSpaceValidator])));
+			this.buyerForm.addControl('brokerName', this.fb.control((buyer as Realtor).brokerName, Validators.compose([Validators.required, noWhiteSpaceValidator])));
 		}
 
 		this.buyerForm.validator = Validators.compose([this.validateEmails, this.validatePhones]);
@@ -544,7 +594,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				isPrimary: [primaryPhone.isPrimary],
 				phoneNumber: [stripPhoneNumber(primaryPhone.phone.phoneNumber), Validators.compose(primaryPhone.isPrimary ? [Validators.required, phoneValidator] : [phoneValidator])],
 				phoneExt: [primaryPhone.phone.phoneExt],
-				phoneType: [primaryPhone.phone.phoneType]
+				phoneType: [primaryPhone.phone.phoneType, Validators.compose([Validators.required])]
 			}));
 		}
 		else
@@ -656,7 +706,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		if (isPrimary)
 		{
 			phoneGroup.addControl('phoneNumber', this.fb.control('', Validators.compose([Validators.required, phoneValidator])));
-			phoneGroup.addControl('phoneType', this.fb.control(null));
+			phoneGroup.addControl('phoneType', this.fb.control(null, Validators.compose([Validators.required])));
 		}
 		else
 		{
@@ -779,12 +829,14 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		const primaryPhoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[0];
 		const primaryPhone = primaryPhoneFormGroup.value.phoneNumber || '';
 		const primaryPhoneExt = primaryPhoneFormGroup.value.phoneExt || '';
+		const primaryPhoneType = primaryPhoneFormGroup.value.phoneType || '';
 
 		const secondaryPhoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[1];
 		const secondaryPhone = secondaryPhoneFormGroup.value.phoneNumber || '';
 		const secondaryPhoneExt = secondaryPhoneFormGroup.value.phoneExt || '';
+		const secondaryPhoneType = secondaryPhoneFormGroup.value.phoneType || '';
 
-		if (primaryPhone && primaryPhone === secondaryPhone && primaryPhoneExt === secondaryPhoneExt)
+		if (primaryPhone && primaryPhone === secondaryPhone && primaryPhoneType === secondaryPhoneType && primaryPhoneExt === secondaryPhoneExt)
 		{
 			return {
 				duplicatePhones: true

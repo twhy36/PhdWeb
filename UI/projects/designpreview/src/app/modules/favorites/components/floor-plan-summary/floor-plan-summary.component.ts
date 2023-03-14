@@ -12,20 +12,22 @@ import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, PriceBreakdown, Group, SubGroup } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
+import { BuildMode } from '../../../shared/models/build-mode.model';
 
 @Component({
-  selector: 'floor-plan-summary',
-  templateUrl: './floor-plan-summary.component.html',
-  styleUrls: ['./floor-plan-summary.component.scss']
+	selector: 'floor-plan-summary',
+	templateUrl: './floor-plan-summary.component.html',
+	styleUrls: ['./floor-plan-summary.component.scss']
 })
 
-export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit {
-	floors: any[];
+export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit 
+{
+	floors;
 	group: Group;
 	subGroup: SubGroup;
 	isDesignComplete: boolean;
 	isFloorplanFlipped: boolean;
-	selectedFloor: any;
+	selectedFloor;
 	priceBreakdown: PriceBreakdown;
 	communityName: string = '';
 	planName: string = '';
@@ -34,45 +36,57 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 	isPlainFloorplan: boolean = false;
 	pageName: string;
 	isPreview: boolean = false;
+	isPresale: boolean = false;
 
 	constructor(
 		private store: Store<fromRoot.State>,
 		private location: Location,
-		private brandService: BrandService) {
+		private brandService: BrandService) 
+	{
 		super();
 	}
 
-	ngOnInit() {
+	ngOnInit() 
+	{
 		combineLatest([
 			this.store.pipe(select(fromRoot.contractedTree), this.takeUntilDestroyed()),
 			this.store.pipe(select(state => state.scenario), this.takeUntilDestroyed()),
 			this.store.pipe(select(fromPlan.planState), this.takeUntilDestroyed()),
 		])
-		.subscribe(([contractedTree, scenarioState, plan]) => {
-			const tree = contractedTree || scenarioState?.tree?.treeVersion;
-			if (tree && plan && plan.marketingPlanId && plan.marketingPlanId.length) {
-				let sgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-				this.isPlainFloorplan = false;
-				if (sgs.length === 0) {
-					sgs = _.flatMap(scenarioState?.tree?.treeVersion?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
-					this.isPlainFloorplan = true;
+			.subscribe(([contractedTree, scenarioState, plan]) => 
+			{
+				const tree = contractedTree || scenarioState?.tree?.treeVersion;
+				if (tree && plan && plan.marketingPlanId && plan.marketingPlanId.length) 
+				{
+					let sgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+					this.isPlainFloorplan = false;
+					if (sgs.length === 0) 
+					{
+						sgs = _.flatMap(scenarioState?.tree?.treeVersion?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+						this.isPlainFloorplan = true;
+					}
+					const fpSubGroup = sgs.pop();
+					if (fpSubGroup) 
+					{
+						this.subGroup = fpSubGroup;
+						this.marketingPlanId$.next(plan.marketingPlanId[0]);
+					}
+					else 
+					{
+						this.noVisibleFP = true;
+					}
 				}
-				const fpSubGroup = sgs.pop();
-				if (fpSubGroup) {
-					this.subGroup = fpSubGroup;
-					this.marketingPlanId$.next(plan.marketingPlanId[0]);
-				} else {
+				else 
+				{
 					this.noVisibleFP = true;
 				}
-			} else {
-				this.noVisibleFP = true;
-			}
-		});
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromSalesAgreement.salesAgreementState)
-		).subscribe(sag => {
+		).subscribe(sag => 
+		{
 			this.isFloorplanFlipped = sag?.isFloorplanFlipped;
 			this.isDesignComplete = sag?.isDesignComplete || false;
 		});
@@ -80,14 +94,16 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromPlan.selectedPlanData)
-		).subscribe(planData => {
+		).subscribe(planData => 
+		{
 			this.planName = planData && planData.salesName;
 		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromRoot.financialCommunityName),
-		).subscribe(communityName => {
+		).subscribe(communityName => 
+		{
 			this.communityName = communityName;
 		});
 
@@ -99,33 +115,43 @@ export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario),
-		).subscribe((scenario) => {
-			this.isPreview = scenario.buildMode === 'preview';
+		).subscribe((scenario) => 
+		{
+			this.isPreview = scenario.buildMode === BuildMode.Preview;
+			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
 	}
 
-	onBack() {
+	onBack() 
+	{
 		this.location.back();
 	}
 
-	loadFloorPlan(fp) {
+	loadFloorPlan(fp) 
+	{
 		// load floors
 		this.floors = fp.floors;
-		if (!this.selectedFloor) {
+		if (!this.selectedFloor) 
+		{
 			const floor1 = this.floors.find(floor => floor.name === 'Floor 1');
-			if (floor1) {
+			if (floor1) 
+			{
 				this.selectedFloor = floor1;
-			} else {
+			}
+			else 
+			{
 				this.selectedFloor = this.floors[0];
 			}
 		}
 	}
 
-	selectFloor(floor: any) {
+	selectFloor(floor) 
+	{
 		this.selectedFloor = floor;
 	}
 
-	getDefaultFPImageSrc() {
+	getDefaultFPImageSrc() 
+	{
 		return this.brandService.getBrandImage('logo');
 	}
 }

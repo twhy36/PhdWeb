@@ -28,6 +28,28 @@
 	text-align: center;
 }
 
+.phd-start-reviewing-title {
+	font-size: 3.2vh;
+	color: var(--home-text-color);
+	margin-top: 30px;
+	text-align: center;
+}
+
+.phd-start-reviewing-heart {
+	font-size: 3.7vh;
+	vertical-align: middle;
+}
+
+.phd-start-reviewing-desc {
+	font-size: 2.4vh;
+	color: var(--home-text-color);
+	margin-top: 15px;
+	width: 40vw;
+	margin-bottom: 30px;
+	text-align: center;
+	line-height: .9;
+}
+
 .phd-design-list-button {
 	background-color: var(--primary-button-color);
 	border-radius: 35px;
@@ -52,6 +74,21 @@
 .phd-review-section {
 	width: 45vw;
 	padding-bottom: 4.5vh;
+}
+
+.phd-community-name {
+	font-size: 23px;
+	color: var(--home-text-color);
+	margin-bottom: -5px;
+}
+
+.phd-plan-name {
+	font-size: 20px;
+	color: var(--home-text-color);
+}
+
+.phd-hidden-floorplan {
+	height: 0;
 }
 
 @media(max-width: $tablet-max-width) {

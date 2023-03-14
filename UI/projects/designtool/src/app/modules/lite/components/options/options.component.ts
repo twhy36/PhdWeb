@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
-import { take } from 'rxjs/operators';
-import * as _ from "lodash";
+import { delay, take } from 'rxjs/operators';
+import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -16,9 +16,9 @@ import { ConfirmOptionRelationComponent } from '../confirm-option-relation/confi
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
 @Component({
-  selector: 'options-config',
-  templateUrl: './options.component.html',
-  styleUrls: ['./options.component.scss']
+	selector: 'options-config',
+	templateUrl: './options.component.html',
+	styleUrls: ['./options.component.scss']
 })
 export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -28,13 +28,14 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	originalScenarioOptions: ScenarioOption[];
 	scenarioId: number;
 	options: LitePlanOption[];
-	cannotEditAgreement: boolean;
+	canConfigure: boolean;
+	canEditAgreementOrSpec: boolean;
 	canOverride: boolean;
 	overrideReason: string;
 
-  	constructor(
-		  private store: Store<fromRoot.State>,
-		  private modalService: ModalService
+	constructor(
+		private store: Store<fromRoot.State>,
+		private modalService: ModalService
 	) { super(); }
 
 	ngOnInit(): void
@@ -49,10 +50,19 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			select(fromRoot.canConfigure)
+		).subscribe(canConfigure =>
+		{
+			this.canConfigure = canConfigure;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		)
-		.subscribe(canEditAgreement => {
-			this.cannotEditAgreement = !canEditAgreement;
+		.subscribe(canEditAgreementOrSpec =>
+		{
+			this.canEditAgreementOrSpec = canEditAgreementOrSpec;
 		});
 
 		this.store.pipe(
@@ -72,27 +82,50 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		combineLatest([
-			this.store.select(state => state.lite.options),
+			this.store.select(state => state.lite),
 			this.store.pipe(select(fromLite.selectedOptionCategories))
-		]).pipe(
-			take(1)
-		).subscribe(([options, categories]) =>
-		{
-			const groups = _.groupBy(this.filteredOptions(options), o => o.optionCategoryId);
-			const subMenuitems = Object.keys(groups).map(key =>
+		])
+			.pipe(delay(0), take(1))
+			.subscribe(([lite, categories]) =>
 			{
-				const categoryName = categories.find(c => c.id.toString() === key).name;
-	
-				return {
-					label: categoryName,
-					status: PointStatus.UNVIEWED,
-					id: Number.parseInt(key)
-				};
+				const groups = _.groupBy(this.filteredOptions(lite.options), o => o.optionCategoryId);
+
+				const subMenuitems = [];
+
+				Object.keys(groups).forEach(key =>
+				{
+					const category = _.cloneDeep(categories.find(c => c.id.toString() === key));
+
+					if (category)
+					{
+						const allCategoryRelatedOptions = this.filteredOptions(lite.options).filter(x => x.optionCategoryId === category.id);
+
+						category.optionSubCategories.forEach(subcategory =>
+						{
+							const subcategoryOptions = allCategoryRelatedOptions.filter(x => x.optionSubCategoryId === subcategory.id);
+
+							subcategory.planOptions = _.cloneDeep(subcategoryOptions).map(x => x as LitePlanOptionUI);
+						});
+
+						category.optionSubCategories = category.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive));
+					}
+
+					if (category.optionSubCategories && category.optionSubCategories.length > 0 && category.optionSubCategories.some(osc => osc.planOptions))
+					{
+						subMenuitems.push({
+							label: category.name,
+							status: PointStatus.UNVIEWED,
+							id: Number.parseInt(key)
+						});
+					}
+				});
+
+				this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
+
+				const firstCategory = subMenuitems.length ? subMenuitems[0].id : 0;
+
+				this.store.dispatch(new NavActions.SetSelectedSubNavItem(firstCategory));
 			});
-	
-			this.store.dispatch(new NavActions.SetSubNavItems(subMenuitems));
-			this.store.dispatch(new NavActions.SetSelectedSubNavItem(1));
-		});
 
 		this.store.select(state => state.lite)
 			.pipe(take(1))
@@ -102,53 +135,60 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.select(state => state.nav),
 			this.store.select(state => state.lite)
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([nav, lite]) => {
-			this.options = lite.options;
-			this.scenarioOptions = _.cloneDeep(lite.scenarioOptions);
-			this.selectedCategory = _.cloneDeep(lite.categories.find(x => x.id === nav.selectedItem));
-
-			let subtotal = 0;
-
-			if (this.selectedCategory)
+			.pipe(delay(0), this.takeUntilDestroyed())
+			.subscribe(([nav, lite]) =>
 			{
-				const allCategoryRelatedOptions = this.filteredOptions(this.options).filter(x => x.optionCategoryId === this.selectedCategory.id);
+				this.options = lite.options;
+				this.scenarioOptions = _.cloneDeep(lite.scenarioOptions);
+				this.selectedCategory = _.cloneDeep(lite.categories.find(x => x.id === nav.selectedItem));
 
-				this.selectedCategory.optionSubCategories.forEach(subcategory => {
-					const subcategoryOptions = allCategoryRelatedOptions.filter(x => x.optionSubCategoryId === subcategory.id);
+				let subtotal = 0;
 
-					subcategory.planOptions = _.cloneDeep(subcategoryOptions)
-													.map(x => x as LitePlanOptionUI)
-													.sort((option1,option2) => {
-														return option1.name > option2.name ? 1 : -1;
-													});
+				if (this.selectedCategory)
+				{
+					const allCategoryRelatedOptions = this.filteredOptions(this.options).filter(x => x.optionCategoryId === this.selectedCategory.id);
 
-					subcategory.planOptions.forEach(option => {
-						option.maxOrderQuantity = option.maxOrderQuantity === 0 ? 1 : option.maxOrderQuantity;
-						const quantities = Array.from(Array(option.maxOrderQuantity).keys()); //e.g. maxOrderQuantity = 4 then array equals 0,1,2,3
-						option.quantityRange = quantities.map(x => x + 1); //make array 1-based instead of 0-based; used for select drop-down
-						option.selectedQuantity = 1;
-						option.isSelected = lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id);
-						option.previouslySelected = this.originalScenarioOptions.some(so => so.edhPlanOptionId === option.id);
-						option.isReadonly = this.isReadonlyOption(option)
+					this.selectedCategory.optionSubCategories.forEach(subcategory =>
+					{
+						const subcategoryOptions = allCategoryRelatedOptions.filter(x => x.optionSubCategoryId === subcategory.id);
 
-						if (option.isSelected)
+						subcategory.planOptions = _.cloneDeep(subcategoryOptions)
+							.map(x => x as LitePlanOptionUI)
+							.sort((option1, option2) =>
+							{
+								return option1.name > option2.name ? 1 : -1;
+							});
+
+						subcategory.planOptions.forEach(option =>
 						{
-							const selectedScenario = lite.scenarioOptions.find(so => so.edhPlanOptionId === option.id);
-							option.selectedQuantity = selectedScenario.planOptionQuantity;
-							subtotal += option.listPrice * option.selectedQuantity;
-						}
+							option.maxOrderQuantity = option.maxOrderQuantity === 0 ? 1 : option.maxOrderQuantity;
+							option.selectedQuantity = 1;
+							option.previousQuantity = 0;
+							option.isSelected = lite.scenarioOptions.some(so => so.edhPlanOptionId === option.id);
+							option.previouslySelected = this.originalScenarioOptions.some(so => so.edhPlanOptionId === option.id);
+							option.isReadonly = this.isReadonlyOption(option);
+
+							if (option.isSelected)
+							{
+								const selectedScenario = lite.scenarioOptions.find(so => so.edhPlanOptionId === option.id);
+
+								option.selectedQuantity = selectedScenario.planOptionQuantity;
+								option.previousQuantity = selectedScenario.planOptionQuantity;
+
+								subtotal += option.listPrice * option.selectedQuantity;
+							}
+						});
 					});
-				});
 
-				this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive || po.previouslySelected));
-			}
+					this.selectedCategory.optionSubCategories = this.selectedCategory.optionSubCategories.filter(x => x.planOptions.some(po => po.isActive || po.previouslySelected));
+				}
 
-			this.categorySubTotal = subtotal;
-		});
+				this.categorySubTotal = subtotal;
+			});
 	}
 
-	private filteredOptions(options: LitePlanOption[]) {
+	private filteredOptions(options: LitePlanOption[])
+	{
 		return options.filter(x => !x.isBaseHouse
 			&& !x.isBaseHouseElevation
 			&& x.optionSubCategoryId !== Elevation.Attached
@@ -162,6 +202,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		if (!option.isActive && option.isSelected)
 		{
 			const confirmed = await this.confirmDeselectInactiveOption();
+
 			if (!confirmed)
 			{
 				return;
@@ -198,29 +239,40 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 							this.confirmMustHaveOptions(option);
 						}
 					}
-				})
+				});
 		}
 		else if (option.mustHavePlanOptionIds?.length)
 		{
 			// If it is selecting the checkbox, display the must-have dialog
 			// If it is unselecting the checkbox, unselect the option
-			option.isSelected ?	this.deselectOption(option) : this.confirmMustHaveOptions(option);
+			option.isSelected ? this.deselectOption(option) : this.confirmMustHaveOptions(option);
 		}
 		else
 		{
 			// Toggle the checkbox as normal
 			option.isSelected = !option.isSelected;
+			option.selectedQuantity = option.isSelected ? 1 : 0;
+
 			this.saveSelectedOptionToStore(option);
 		}
 	}
 
-	saveSelectedOptionToStore(option: LitePlanOptionUI) {
+	saveSelectedOptionToStore(option: LitePlanOptionUI)
+	{
+		if (option.selectedQuantity === option.previousQuantity) 
+		{
+			return;
+		}
+
+		option.previousQuantity = option.selectedQuantity;
+
 		let selectedOptions: ScenarioOption[] = [];
 		const previousSelection = this.scenarioOptions.find(x => x.edhPlanOptionId === option.id);
 
 		if (previousSelection)
 		{
 			previousSelection.planOptionQuantity = option.isSelected ? option.selectedQuantity : 0;
+
 			selectedOptions.push(previousSelection);
 		}
 		else
@@ -240,7 +292,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	confirmOptionRelations(relationType: number, relatedOptionIds: number[]) : Promise<any>
+	confirmOptionRelations(relationType: number, relatedOptionIds: number[]): Promise<any>
 	{
 		const confirmModal = this.modalService.open(ConfirmOptionRelationComponent);
 
@@ -262,11 +314,13 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 					const mustHaveOptionIds = allMustHaveOptionIds.filter(id => !this.scenarioOptions.find(o => o.edhPlanOptionId === id));
 
 					const selectedOptionIds = mustHaveOptionIds?.length
-						? [ ...mustHaveOptionIds, option.id ]
-						: [ option.id ];
+						? [...mustHaveOptionIds, option.id]
+						: [option.id];
 
 					let selectedOptions = [];
-					selectedOptionIds.forEach(id => {
+
+					selectedOptionIds.forEach(id =>
+					{
 						selectedOptions.push({
 							scenarioOptionId: 0,
 							scenarioId: this.scenarioId,
@@ -285,14 +339,16 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			});
 	}
 
-	getMustHaveOptionIds(options: LitePlanOption[]) : number[]
+	getMustHaveOptionIds(options: LitePlanOption[]): number[]
 	{
 		let optionIds = [];
 
 		const mustHaveOptionIds = _.flatMap(options, o => o.mustHavePlanOptionIds);
+
 		if (mustHaveOptionIds?.length)
 		{
 			const childOptions = this.options.filter(o => mustHaveOptionIds.includes(o.id));
+
 			optionIds.push(...this.getMustHaveOptionIds(childOptions))
 
 			optionIds.push(...mustHaveOptionIds);
@@ -310,7 +366,8 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (cantHaveOptions?.length)
 		{
-			cantHaveOptions.forEach(o => {
+			cantHaveOptions.forEach(o =>
+			{
 				selectedOptions.push({
 					scenarioOptionId: o.scenarioOptionId,
 					scenarioId: o.scenarioId,
@@ -332,7 +389,8 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
 	}
 
-	private allCantHaveOptions(option: LitePlanOptionUI): ScenarioOption[] {
+	private allCantHaveOptions(option: LitePlanOptionUI): ScenarioOption[]
+	{
 		return option.cantHavePlanOptionIds?.length || option.cantHaveInactivePlanOptionIds?.length
 			? this.scenarioOptions.filter(o =>
 				option.cantHavePlanOptionIds.includes(o.edhPlanOptionId) ||
@@ -347,6 +405,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		if (scenarioOption)
 		{
 			let selectedOptions = [];
+
 			selectedOptions.push({
 				scenarioOptionId: scenarioOption.scenarioOptionId,
 				scenarioId: scenarioOption.scenarioId,
@@ -358,7 +417,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	isReadonlyOption(option: LitePlanOptionUI) : boolean
+	isReadonlyOption(option: LitePlanOptionUI): boolean
 	{
 		let isReadonly = false;
 
@@ -366,12 +425,14 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			isReadonly = !!this.scenarioOptions
 				.filter(scenarioOption => scenarioOption.edhPlanOptionId !== option.id)
-				.find(scenarioOption => {
+				.find(scenarioOption =>
+				{
 					const planOption = this.options.find(o => o.id === scenarioOption.edhPlanOptionId);
 
 					if (planOption)
 					{
 						const mustHaveOptionIds = this.getMustHaveOptionIds([planOption]);
+
 						if (mustHaveOptionIds.includes(option.id))
 						{
 							return true;

@@ -12,7 +12,7 @@
 				[subGroup]="subGroup"
 				[isPlainFloorplan]="isPlainFloorplan"
 				[isFlipped]="isFloorplanFlipped"
-				(onFloorPlanLoaded)="loadFloorPlan($event)"
+				(floorPlanLoaded)="loadFloorPlan($event)"
 			>
 			</floor-plan>
 		</ng-container>
@@ -25,6 +25,9 @@
 			<option *ngFor="let floor of floors" [ngValue]="floor">{{ floor.name }}</option>
 		</select>
 	</div>
+	<ng-container>
+		<div class="phd-descriptive-text">*Floorplan may show options you selected as well as previously contracted options. Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.</div>
+	</ng-container>
 </div>
 
 <action-bar [primaryAction]="'Back'"
@@ -32,6 +35,7 @@
 			[price]="priceBreakdown.totalPrice"
 			[isDesignComplete]="isDesignComplete"
 			[isPreview]="isPreview"
+			[isPresale]="isPresale"
 			[hideContractedToggle]="true"
 			(callToAction)="onBack()"
 			>

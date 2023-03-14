@@ -28,10 +28,11 @@
 		"secondary-icon-color": "#1a1a1a",
 		"action-icon-color": "#1a1a1a",
 		"selected-border-color": "#CE4235",
-		"link-color": "#1a1a1a",
+		"link-color": "#257FA2",
 		"popup-ribbon-background-color": "#CE4235",
 		"home-page-floorplan-background-color": "#eeeeee",
 		"logo-margin-top": "8px",
-		"logo-max-height": "34px"
+		"logo-max-height": "34px",
+        "hamburger-menu-width": "315px"
 	}
 }

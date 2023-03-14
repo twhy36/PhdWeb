@@ -2,21 +2,20 @@
 @import "../../../../../scss/sizes.scss";
 
 #phd-navigation-bar {
-	background: $twilight-blue;
+	background: $pulte-blue;
 	color: white;
-	height: 50px;
+	height: $nav-menu-height;
+	padding: 0 1rem; // fix logo dropping below header when screen is small
 
 	.phd-navigation-bar-header {
-		background: $marine;
 		display: inline-block;
-		height: 50px;
 		margin-left: -1rem;
 		margin-right: 15px;
 
-		.logo {
+		.phd-logo {
 			max-width: 100%;
-			max-height: 100%;
-			margin: 0 15px;
+			height: 40px;
+			margin: 10px 15px;
 		}
 	}
 

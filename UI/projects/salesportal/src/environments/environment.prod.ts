@@ -18,7 +18,14 @@ export const environment: IEnvironment = {
 			centex: 'https://phd.centex.com/designpreview/',
 			johnWieland: 'https://phd.jwhomes.com/designpreview/',
 		},
-		thoPreview: 'https://tho.centex.com/',
+		thoPreview: {
+			pulte: 'https://tho.pulte.com/',
+			delWebb: 'https://tho.delwebb.com/',
+			americanWest: 'https://tho.americanwesthomes.com/',
+			diVosta: 'https://tho.divosta.com/',
+			centex: 'https://tho.centex.com/',
+			johnWieland: 'https://tho.jwhomes.com/',
+		},
 		reports: 'http://powerbi.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.pulte.com/salesportal/salestally'

@@ -1,12 +1,15 @@
-export class ErrorEvent {
-	event: string = "Error";
+export class ErrorEvent 
+{
+	event: string = 'Error';
 	error: Error = new Error;
 
-	constructor(message: string) {
+	constructor(message: string) 
+	{
 		this.error.message = message;
 	}
 }
 
-export class Error {
+export class Error 
+{
 	message: string;
 }

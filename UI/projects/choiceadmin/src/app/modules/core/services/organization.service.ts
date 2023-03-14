@@ -174,6 +174,28 @@ export class OrganizationService
 			catchError(this.handleError));
 	}
 
+	getFinancialCommunitiesByIds(ids: number[]): Observable<IFinancialCommunity[]>
+	{
+		let url = settings.apiUrl;
+
+		const filter = `id in (${ ids.map(r => r).join(',') })`;
+		const select = `id, number, name`;
+		const orderby = `name`;
+
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderby)}`;
+
+		url += `financialCommunities?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let communities = response['value'] as IFinancialCommunity[];
+
+				return communities;
+			}),
+			catchError(this.handleError));
+	}
+
 	getFinancialMarkets(): Observable<Array<IFinancialMarket>>
 	{
 		return this._financialMarkets$;

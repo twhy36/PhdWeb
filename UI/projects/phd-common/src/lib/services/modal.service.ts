@@ -6,11 +6,13 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalOptions, ModalRef, IModalOptions } from '../utils/modal.class';
 import { ModalMessages } from '../utils/constants.class';
 import { ModalComponent } from '../components/modal/modal.component';
+import { PopStateEvent } from '@angular/common';
 
 @Injectable()
 export class ModalService
 {
 	modalObs: Subject<ModalOptions<any>>;
+	modalRef: ModalRef;
 
 	constructor(private modalService: NgbModal)
 	{
@@ -48,21 +50,30 @@ export class ModalService
 	 * @param content
 	 * @param options
 	 */
-	open(content: any, options?: IModalOptions): ModalRef
+	open(content: any, options?: IModalOptions, closeOnBack?: boolean): ModalRef
 	{
 		// combine defaults with passed in options.
 		options = { ...this.defaultModalOptions, ...options };
 
-		let modalRef = new ModalRef(this.modalService.open(content, options));
+		this.modalRef = new ModalRef(this.modalService.open(content, options));
 
 		// will be undefined if a templateRef is used
-		if (modalRef.componentInstance)
+		if (this.modalRef.componentInstance)
 		{
 			// set the modalRef for ModalContentComponent
-			modalRef.componentInstance.modalRef = modalRef;
+			this.modalRef.componentInstance.modalRef = this.modalRef;
 		}
 
-		return modalRef;
+		if (closeOnBack) {
+			window.addEventListener('popstate', this.popStateHandler.bind(this));
+		}
+
+		return this.modalRef;
+	}
+
+	popStateHandler(e: PopStateEvent) {
+		this.modalRef?.close();
+		window.removeEventListener('popstate', this.popStateHandler)
 	}
 
 	showConfirmModal(content: string)

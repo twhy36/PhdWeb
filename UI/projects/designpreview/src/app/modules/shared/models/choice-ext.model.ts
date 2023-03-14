@@ -4,23 +4,20 @@ import { Choice, DesignToolAttribute, ChoiceImageAssoc, MyFavoritesChoice } from
 
 export class ChoiceExt extends Choice
 {
-    choiceStatus: 'Available' | 'Contracted' | 'ViewOnly';
+	choiceStatus: 'Available' | 'Contracted' | 'ViewOnly';
 	isPointStructural: boolean;
 	myFavoritesChoice: MyFavoritesChoice;
-	choiceImages: ChoiceImageAssoc[];
 
 	constructor(
-		dto: Choice, 
-		status: string, 
-		myFavoritesChoice: MyFavoritesChoice, 
-		isPointStructural: boolean,
-		choiceImages: ChoiceImageAssoc[])
+		dto: Choice,
+		status: string,
+		myFavoritesChoice: MyFavoritesChoice,
+		isPointStructural: boolean)
 	{
-        super(dto);
-        this.choiceStatus = status as 'Available' | 'Contracted' | 'ViewOnly';
+		super(dto);
+		this.choiceStatus = status as 'Available' | 'Contracted' | 'ViewOnly';
 		this.isPointStructural = isPointStructural;
 		this.myFavoritesChoice = myFavoritesChoice;
-		this.choiceImages = choiceImages;
 	}
 
 	get isFavorite(): boolean
@@ -31,9 +28,12 @@ export class ChoiceExt extends Choice
 	get favoriteAttributes(): DesignToolAttribute[]
 	{
 		let favoriteAttributes = [];
-		if (this.myFavoritesChoice) {
-			favoriteAttributes = this.myFavoritesChoice.myFavoritesChoiceLocations ? _.flatten(this.myFavoritesChoice.myFavoritesChoiceLocations.map(l => {
-				return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a => {
+		if (this.myFavoritesChoice) 
+		{
+			favoriteAttributes = this.myFavoritesChoice.myFavoritesChoiceLocations ? _.flatten(this.myFavoritesChoice.myFavoritesChoiceLocations.map(l => 
+			{
+				return l.myFavoritesChoiceLocationAttributes && l.myFavoritesChoiceLocationAttributes.length ? l.myFavoritesChoiceLocationAttributes.map(a => 
+				{
 					return <DesignToolAttribute>{
 						attributeId: a.attributeCommunityId,
 						attributeGroupId: a.attributeGroupCommunityId,
@@ -59,7 +59,8 @@ export class ChoiceExt extends Choice
 			})) : [];
 
 			// gets the attributes
-			this.myFavoritesChoice.myFavoritesChoiceAttributes && this.myFavoritesChoice.myFavoritesChoiceAttributes.forEach(a => {
+			this.myFavoritesChoice.myFavoritesChoiceAttributes && this.myFavoritesChoice.myFavoritesChoiceAttributes.forEach(a => 
+			{
 				favoriteAttributes.push({
 					attributeId: a.attributeCommunityId,
 					attributeGroupId: a.attributeGroupCommunityId,

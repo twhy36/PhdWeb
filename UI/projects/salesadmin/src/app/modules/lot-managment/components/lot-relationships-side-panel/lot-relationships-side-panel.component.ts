@@ -218,6 +218,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 		if (this.selectedChoiceCatalogs.length === 0
 			&& !this.doesLotRelationshipExist(choice.divChoiceCatalogID, 'choice'))
 		{
+			choice.mustHave = false;
 			this.selectedChoiceCatalogs.push(choice);
 		}
 		else if (this.selectedChoiceCatalogs.length === 1 && this.selectedChoiceCatalogs.some(c => c.divChoiceCatalogID === choice.divChoiceCatalogID))

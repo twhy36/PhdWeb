@@ -3,7 +3,6 @@
 
 .phd-choice-card {
 	width: 300px;
-	height: 285px;
 	background-color: white;
 	margin: 5px;
 	margin-bottom: 10px;
@@ -67,7 +66,10 @@
 
 		.phd-clickable {
 			font-size: 20px;
-			margin-top: -3px;
+			background: none;
+			border: none;
+			margin: -3px 0 0 0;
+			padding: 0;
 			.fa-heart {
 				background: white;
 			}
@@ -88,5 +90,9 @@
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		overflow: hidden;
+	}
+
+	.phd-presale-icon {
+		align-self: flex-end;
 	}
 }

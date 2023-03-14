@@ -36,11 +36,13 @@ import { BrowserService } from './services/browser.service';
 import { BrandService } from './services/brand.service';
 import { ModalService } from './services/modal.service';
 import { FeatureSwitchService } from './services/feature-switch.service';
+import { ColorDisplayPipe } from './pipes/colorDisplay.pipe';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PrimeNGCorrectionService } from './services/primeng.service';
 import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
+import { NavigationService } from './services/navigation.service';
 
 export function oAuthModuleConfigFactory(apiUrl: string)
 {
@@ -87,6 +89,7 @@ export function getOrigin()
 		PDFViewerComponent,
 		EllipsisPipe,
 		SafeUrlPipe,
+		ColorDisplayPipe,
 		MinusSignToParens
 	],
 	exports: [
@@ -106,6 +109,7 @@ export function getOrigin()
 		ModalComponent,
 		EllipsisPipe,
 		SafeUrlPipe,
+		ColorDisplayPipe,
 		MinusSignToParens
 	],
 })
@@ -141,7 +145,8 @@ export class PhdCommonModule
 				FeatureSwitchService,
 				ClaimGuard,
 				PrimeNGCorrectionService,
-				ModalService
+				ModalService,
+				NavigationService
 			]
 		};
 	}

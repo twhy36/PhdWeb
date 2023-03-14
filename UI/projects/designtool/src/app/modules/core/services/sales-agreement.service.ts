@@ -2,17 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
 import { Observable, throwError as _throw, of } from 'rxjs';
-import { flatMap, map, catchError } from 'rxjs/operators';
+import { flatMap, map, switchMap, catchError } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
 import
 	{
-		defaultOnNotFound, getNewGuid, createBatchPatchWithAuth, createBatchBody, createBatchHeaders, parseBatchResults,
+		defaultOnNotFound, newGuid, getNewGuid, createBatchPatchWithAuth, createBatchGet, createBatchBody, createBatchHeaders, parseBatchResults,
 		removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
 		SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
 		ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
+		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint, IPendingJobSummary
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -36,25 +36,73 @@ export class SalesAgreementService
 
 	getSalesAgreement(salesAgreementId: number): Observable<SalesAgreement>
 	{
-		const entity = `salesAgreements(${salesAgreementId})`;
-		const expands = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name)),deposits,contingencies,salesAgreementNoteAssocs($expand=note($expand=noteTargetAudienceAssocs($expand=targetAudience)))`;
-		const expandCancellations = `cancellations($expand=note($select=id,noteContent);$select=salesAgreementId,cancelReasonDesc,voidReasonDesc,noteId)`;
-		const expandRealtors = `realtors($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email),realEstateAgents($top=1)))`;
-		const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=opportunity($select=dynamicsOpportunityId,salesCommunityId),contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email))))`;
-		const expandConsultants = `consultants($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=emailAssocs($expand=email)))`;
-		const expandJobAssocs = `jobSalesAgreementAssocs($select=jobId;$orderby=createdUtcDate desc;$top=1)`;
-		const expandPriceAdjustments = `salesAgreementPriceAdjustmentAssocs($select=id,salesAgreementId,priceAdjustmentType,amount)`;
-		const expand = `${expands},${expandCancellations},${expandRealtors},${expandBuyers},${expandConsultants},${expandJobAssocs},${expandPriceAdjustments}`;
+		return this._identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				const entity = `salesAgreements(${salesAgreementId})`;
+				const expands = `programs($select=id,salesAgreementId,salesProgramId,salesProgramDescription,amount;$expand=salesProgram($select=id, salesProgramType, name)),deposits,contingencies,salesAgreementNoteAssocs($expand=note($expand=noteTargetAudienceAssocs($expand=targetAudience)))`;
+				const expandCancellations = `cancellations($expand=note($select=id,noteContent);$select=salesAgreementId,cancelReasonDesc,voidReasonDesc,noteId)`;
+				const expandRealtors = `realtors($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email),realEstateAgents($top=1)))`;
+				const expandBuyers = `buyers($expand=opportunityContactAssoc($expand=opportunity($select=dynamicsOpportunityId,salesCommunityId),contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=addressAssocs($expand=address),phoneAssocs($expand=phone),emailAssocs($expand=email))))`;
+				const expandConsultants = `consultants($expand=contact($select=id,prefix,firstName,middleName,lastName,suffix,preferredCommunicationMethod,dynamicsIntegrationKey;$expand=emailAssocs($expand=email)))`;
+				const expandJobAssocs = `jobSalesAgreementAssocs($select=jobId;$orderby=createdUtcDate desc;$top=1)`;
+				const expandPriceAdjustments = `salesAgreementPriceAdjustmentAssocs($select=id,salesAgreementId,priceAdjustmentType,amount)`;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}`;
-		const url = `${environment.apiUrl}${entity}?${qryStr}`;
+				let guid = newGuid();
+				let requestBundles: string[] = [];
+				let newRequest = (select: string, expand: string) =>
+				{
+					if (select)
+					{
+						select = `${this._ds}select=${select}`;
+					}
+					let batch = `${environment.apiUrl}${entity}?${select}&${this._ds}expand=${expand}`;
 
-		return withSpinner(this._http).get(url).pipe(
-			map(dto => new SalesAgreement(dto)),
+					requestBundles.push(batch);
+				};
+
+				newRequest('', `${expands},${expandCancellations},${expandJobAssocs}`);
+				newRequest(`id`, expandRealtors);
+				newRequest(`id`, expandBuyers);
+				newRequest(`id`, expandConsultants);
+				newRequest(`id`, expandPriceAdjustments);
+
+				let batchRequests = requestBundles.map(req => createBatchGet(req));
+
+				var headers = createBatchHeaders(guid, token);
+				var batch = createBatchBody(guid, batchRequests);
+
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			map((response: any) =>
+			{
+				let data: ISalesAgreement[] = response.responses.map(r => r.body);
+
+				if (data.length === 0)
+				{
+					return new SalesAgreement();
+				}
+
+				//get main salesAgreement
+				let iSalesAgreement = data.find(x => x?.salesAgreementNumber?.length > 0);
+
+				//find and assign the realtor records
+				iSalesAgreement.realtors = data.find(x => x.realtors != null)?.realtors;
+
+				//find and assign the buyer records
+				iSalesAgreement.buyers = data.find(x => x.buyers != null)?.buyers;
+
+				//find and assign the consultant records
+				iSalesAgreement.consultants = data.find(x => x.consultants != null)?.consultants;
+
+				//find and assign the priceAdjustment records
+				iSalesAgreement.salesAgreementPriceAdjustmentAssocs = data.find(x => x.salesAgreementPriceAdjustmentAssocs != null)?.salesAgreementPriceAdjustmentAssocs;
+
+				return new SalesAgreement(iSalesAgreement);
+			}),
 			catchError(error =>
 			{
 				console.error(error);
-
 				return _throw(error);
 			})
 		);
@@ -153,7 +201,14 @@ export class SalesAgreementService
 		);
 	}
 
-	createSalesAgreementForScenario(scenario: Scenario, tree: Tree, baseHouseOption: PlanOption, salePrice: number, optionRules: OptionRule[]): Observable<SalesAgreement>
+	createSalesAgreementForScenario(
+		scenario: Scenario, 
+		tree: Tree, 
+		baseHouseOption: PlanOption, 
+		salePrice: number, 
+		optionRules: OptionRule[],
+		pendingJobSummary: IPendingJobSummary
+	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForScenario`;
 		const url = `${environment.apiUrl}${action}`;
@@ -202,7 +257,8 @@ export class SalesAgreementService
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
 			},
-			salePrice: salePrice
+			salePrice: salePrice,
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return this._http.post<ISalesAgreement>(url, data).pipe(
@@ -770,6 +826,19 @@ export class SalesAgreementService
 		{
 			optionsDto = choice.options.map(o =>
 			{
+				const selectedAttributes = choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
+											.map(att =>
+											{
+												return {
+													attributeCommunityId: att.attributeId,
+													attributeGroupCommunityId: att.attributeGroupId,
+													action: 'Add'
+												};
+											});
+
+				const treeChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) : [];
+				const reassignedAttributes = this.mapReassignedAttributes(o, choice, treeChoices);
+
 				return {
 					planOptionId: o.id,
 					price: o.listPrice,
@@ -777,15 +846,7 @@ export class SalesAgreementService
 					optionSalesName: o.name,
 					optionDescription: o.description,
 					jobOptionTypeName: getJobOptionType(o, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
-					attributes: choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
-						.map(att =>
-						{
-							return {
-								attributeCommunityId: att.attributeId,
-								attributeGroupCommunityId: att.attributeGroupId,
-								action: 'Add'
-							};
-						}),
+					attributes: [...selectedAttributes, ...reassignedAttributes],
 					locations: choice.selectedAttributes.filter(att => att.locationGroupId && o.locationGroups.some(g => g === att.locationGroupId))
 						.reduce((prev, curr) =>
 						{
@@ -889,7 +950,42 @@ export class SalesAgreementService
 		return attributesDto;
 	}
 
-	createJIOForSpec(tree: Tree, scenario: Scenario, communityId: number, buildMode: string, baseHouseOption: PlanOption, optionRules: OptionRule[], skipSpinner: boolean = true): Observable<Job>
+	mapReassignedAttributes(option: PlanOption, fromChoice: Choice, treeChoices: Choice[])
+	{
+		const reassignedAttributesDto: Array<any> = [];
+
+		if (fromChoice)
+		{
+			option.attributeGroups?.forEach(attributeGroup => {
+				// Find the choice that an attribute is reassigned to
+				const choicesWithReassignments = treeChoices.find(c => c.mappedAttributeGroups?.find(mappedGroup => mappedGroup.attributeReassignmentFromChoiceId === fromChoice.id && mappedGroup.id === attributeGroup));
+				
+				// Find the selected attributes in the choice with reassignments
+				const selectedAttribute = choicesWithReassignments?.selectedAttributes?.find(sa => sa.attributeGroupId === attributeGroup);
+				if (selectedAttribute && !selectedAttribute.locationGroupId)
+				{
+					reassignedAttributesDto.push({
+						attributeCommunityId: selectedAttribute.attributeId,
+						attributeGroupCommunityId: selectedAttribute.attributeGroupId,
+						action: 'Add'
+					});
+				}
+			});
+		}
+
+		return reassignedAttributesDto;
+	}	
+
+	createJIOForSpec(
+		tree: Tree, 
+		scenario: Scenario, 
+		communityId: number, 
+		buildMode: string, 
+		baseHouseOption: PlanOption, 
+		optionRules: OptionRule[], 
+		pendingJobSummary: IPendingJobSummary,
+		skipSpinner: boolean = true
+	): Observable<Job>
 	{
 		const action = `CreateJIOForSpec`;
 		const url = `${environment.apiUrl}${action}`;
@@ -949,7 +1045,8 @@ export class SalesAgreementService
 				quantity: 1,
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
-			}
+			},
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).post(url, data).pipe(

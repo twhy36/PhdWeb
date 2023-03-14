@@ -37,7 +37,7 @@ export class LitePlanOptionUI extends LitePlanOption
 	isSelected: boolean;
 	previouslySelected: boolean;
 	selectedQuantity: number;
-    quantityRange: number[] = [];
+	previousQuantity: number;
     isReadonly: boolean;
 }
 
@@ -69,6 +69,14 @@ export interface Color
     edhOptionSubcategoryId: number;
     isActive: boolean;
     colorItemId: number;
+}
+
+export interface LegacyColorScheme
+{
+    colorItemName: string;
+    colorName: string;
+    isSelected: boolean;
+    genericPlanOptionId: number;
 }
 
 export class OptionRelation

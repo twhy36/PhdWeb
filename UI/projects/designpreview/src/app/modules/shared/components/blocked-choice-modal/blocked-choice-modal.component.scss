@@ -14,14 +14,8 @@
 	font-size: 1.25em;
 }
 
-.phd-disabled-rules {
-	padding-top: 12px;
-}
-
 ::ng-deep .phd-blocked-choice-modal .modal-dialog {
 	max-width: 400px;
-	position: relative;
-	top: 40%;
 }
 
 .phd-close {
@@ -37,4 +31,14 @@
 .phd-blocked-list {
 	width: 300px;
 	margin-left: 40px;
+	padding-top: 12px;
+
+	li {
+		margin-bottom: 1rem;
+	}
+}
+
+.phd-link {
+	color: var(--link-color);
+  	text-decoration: underline;
 }

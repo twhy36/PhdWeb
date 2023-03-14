@@ -1,99 +1,103 @@
-<div class="modal-header">
-	<span *ngIf="disabledByRulesExist(true) && !disabledByRulesExist(false)" class="modal-title">Before this can be selected</span>
-	<span *ngIf="disabledByRulesExist(false) && !disabledByRulesExist(true)" class="modal-title">Disabled due to</span>
-	<span *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)" class="modal-title"></span>
-	<button type="button" class="close" aria-label="Close" (click)="this.closeClicked()">
-		<span aria-hidden="true">&times;</span>
-	</button>
-</div>
-<div class="phd-disabled-rules">
-	<!-- MUST HAVE -->
-	<ng-container *ngIf="disabledByRulesExist(true)">
-		<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
-			Before this can be selected:
-		</div>
-		<ul class="phd-blocked-list">
-			<li *ngIf="!!disabledByMustHaveRules?.andPoints?.length || !!disabledByMustHaveRules?.andChoices?.length">
-				<!-- AND -->
-				<div *ngFor="let disabledByItem of disabledByMustHaveRules.andPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="disabledByMustHaveRules.andPoints?.length > 1 && itemIndex < disabledByMustHaveRules.andPoints?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
+<div aria-label="Blocked Choice Modal">
+	<div class="modal-header">
+		<h1 class="modal-title">{{modalTitle}}</h1>
+		<button type="button" class="close" aria-label="Close" (click)="this.closeClicked()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<ul class="phd-blocked-list">
+		<li *ngIf="hasRequiredChoice && !choice?.isRequired && !choice?.disabledByHomesite && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup && !choice?.disabledByRelocatedMapping?.length">
+			<span>Disabled due to a Required choice</span>
+		</li>
+		<li *ngIf="choice?.isRequired">
+			<span>Required due to Homesite selection</span>
+		</li>
 
-				<div *ngFor="let disabledByItem of disabledByMustHaveRules.andChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="disabledByMustHaveRules.andChoices?.length > 1 && itemIndex < disabledByMustHaveRules.andChoices?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-			<li *ngIf="!!disabledByMustHaveRules?.orPoints?.length || !!disabledByMustHaveRules?.orChoices?.length">
-				<!-- OR -->
-				<div *ngFor="let disabledByItem of disabledByMustHaveRules.orPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="disabledByMustHaveRules.orPoints?.length > 1 && itemIndex < disabledByMustHaveRules.orPoints?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
+		<li *ngIf="choice?.disabledByHomesite">
+			<span>Disabled due to Homesite selection</span>
+		</li>
 
-				<div *ngFor="let disabledByItem of disabledByMustHaveRules.orChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="disabledByMustHaveRules.orChoices?.length > 1 && itemIndex < disabledByMustHaveRules.orChoices?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-		</ul>
-	</ng-container>
+		<li *ngIf="choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+			<span>This choice requires the following choice(s) to be selected: </span>
 
-	<!-- MUST NOT HAVE -->
-	<ng-container *ngIf="disabledByRulesExist(false)">
-		<div class="phd-blocked-title" *ngIf="disabledByRulesExist(true) && disabledByRulesExist(false)">
-			Disabled due to:
-		</div>
-		<ul class="phd-blocked-list">
-			<li *ngIf="!!disabledByMustNotHaveRules?.andPoints?.length || !!disabledByMustNotHaveRules?.andChoices?.length">
-				<!-- OR -->
-				<div *ngFor="let disabledByItem of disabledByMustNotHaveRules.andPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="disabledByMustNotHaveRules.andPoints?.length > 1 && itemIndex < disabledByMustNotHaveRules.andPoints?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
+			<span *ngFor="let c of choice.disabledByReplaceRules; let i = index;">
+				<span *ngIf="i > 0"> and </span>
+				<a class="phd-clickable phd-link phd-choice" (click)="handleDisabledChoiceClick(c)">{{c.label | choiceIdToName | async}}</a>
+			</span>
+		</li>
 
-				<div *ngFor="let disabledByItem of disabledByMustNotHaveRules.andChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="disabledByMustNotHaveRules.andChoices?.length > 1 && itemIndex < disabledByMustNotHaveRules.andChoices?.length - 1 ? 'or' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>
-			<li *ngIf="!!disabledByMustNotHaveRules?.orPoints?.length || !!disabledByMustNotHaveRules?.orChoices?.length">
-				<!-- AND -->
-				<div *ngFor="let disabledByItem of disabledByMustNotHaveRules.orPoints; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="false"
-									[conjunction]="disabledByMustNotHaveRules.orPoints?.length > 1 && itemIndex < disabledByMustNotHaveRules.orPoints?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
+		<li *ngIf="choice?.disabledByBadSetup && (!errors || !errors.length)">
+			<span>This choice cannot be selected because the correct price cannot be calculated. This may be due to
+				improper setup. Please contact a Procurement agent for assistance.</span>
+		</li>
 
-				<div *ngFor="let disabledByItem of disabledByMustNotHaveRules.orChoices; let itemIndex=index">
-					<blocked-item 	[disabledByItem]="disabledByItem"
-									[isChoiceItem]="true"
-									[conjunction]="disabledByMustNotHaveRules.orChoices?.length > 1 && itemIndex < disabledByMustNotHaveRules.orChoices?.length - 1 ? 'and' : ''"
-									(blockedItemClick)="onBlockedItemClick(disabledByItem.pointId)">
-					</blocked-item>
-				</div>
-			</li>						
-		</ul>
-	</ng-container>
+		<li
+			*ngIf="choice?.disabledByRelocatedMapping?.length && !choice?.disabledByReplaceRules?.length && !choice?.disabledByBadSetup">
+			<span>Disabled due to option already on contract. Must deselect: </span>
+
+			<span *ngFor="let c of choice.disabledByRelocatedMapping; let i = index;">
+				<span *ngIf="i > 0"> and </span>
+				<a class="phd-clickable phd-link phd-choice" (click)="handleDisabledChoiceClick(c)">{{c.label | choiceIdToName | async}}</a>
+			</span>
+		</li>
+
+		<!--Within each type of error is the disabledBy array which makes up a single line -->
+		<li *ngFor="let e of errors; let i = index">
+
+			<span *ngIf="e.errorType === 0">Select </span>
+			<span *ngIf="e.errorType !== 0">Make a </span>
+
+			<span *ngFor="let d of e.disabledBy; let di = index">
+				<span *ngIf="di > 0"> OR<br/> </span>
+
+				<!-- Disabled due to lot choice conflict-->
+				<span *ngIf="d.disabledByHomesite">
+					Homesite selection
+				</span>
+
+				<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
+				<span *ngIf="d.disabledByHomesite && d.mustHaves?.length > 0"> and </span>
+
+				<!-- Split errors by whether they are Must Have or Must Not Have rules -->
+				<ng-container *ngIf="d.mustHaves?.length > 0">
+					<span *ngFor="let mustHave of d.mustHaves; let mh = index">
+						<span *ngIf="mh > 0"> OR<br/> </span>
+
+						<span *ngFor="let p of mustHave.points; let pi = index">
+							<span *ngIf="pi > 0"> and </span>
+							<a class="phd-clickable phd-link phd-point" (click)="handleDisabledPointClick(p)">{{p | pointIdToName | async}}</a>
+						</span>
+
+						<span *ngFor="let c of mustHave.choices; let ci = index">
+							<span *ngIf="ci > 0"> and </span>
+							<a class="phd-clickable phd-link phd-choice" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
+						</span>
+					</span>
+					<span *ngIf="e.errorType !== 0"> selection{{d.mustHaves.length > 1 ? 's' : ''}} </span>
+				</ng-container>
+
+				<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
+				<span *ngIf="d.mustHaves?.length > 0 && d.mustNotHaves?.length > 0"> OR<br/> </span>
+
+				<!-- Must Not Have rules -->
+				<ng-container *ngIf="d.mustNotHaves?.length > 0">
+					<span *ngFor="let mustNotHave of d.mustNotHaves; let mnh = index">
+						<span *ngIf="mnh > 0"> OR<br/> </span>
+
+						<span *ngFor="let p of mustNotHave.points; let pi = index">
+							<span *ngIf="pi > 0"> and </span>
+							<a class="phd-clickable phd-link phd-point" (click)="handleDisabledPointClick(p)">{{p | pointIdToName | async}}</a>
+						</span>
+
+						<span *ngFor="let c of mustNotHave.choices; let ci = index">
+							<span *ngIf="ci > 0"> and </span>
+							<a class="phd-clickable phd-link phd-choice" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
+						</span>
+					</span>
+
+					<span *ngIf="e.errorType !== 0"> selection{{d.mustNotHaves.length > 1 ? 's' : ''}}</span>
+				</ng-container>
+			</span>
+		</li>
+	</ul>
 </div>

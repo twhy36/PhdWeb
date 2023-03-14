@@ -1,10 +1,8 @@
 import { Component, OnInit, Input, NgZone, Renderer2, ChangeDetectorRef, OnDestroy, ElementRef, Output, EventEmitter, ViewChild } from '@angular/core';
 
-import { LotExt, Plan, PointStatus, PriceBreakdown } from 'phd-common';
+import { LotExt, Plan, PointStatus, PointStatusFilter, PriceBreakdown } from 'phd-common';
 
 import { ScenarioService } from '../../../core/services/scenario.service';
-
-import { PointStatusFilter } from '../../../shared/models/decisionPointFilter';
 
 import { PricingBreakdownComponent } from '../pricing-breakdown/pricing-breakdown.component';
 
@@ -27,18 +25,20 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	@Input() pointStatusFilter: PointStatusFilter;
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
-	@Input() allowEstimates: boolean;
+	@Input() isDirtScenario: boolean;
 	@Input() canEditHanding: boolean;
 	@Input() canConfigure: boolean;
 	@Input() disableHanding: boolean;
 	@Input() canOverride: boolean;
 	@Input() isPhdLite: boolean;
+	@Input() showRemoveDesignSelectionsButton: boolean;
 
 	@Output() pointStatusFilterChanged = new EventEmitter<PointStatusFilter>();
 	@Output() toggleAllAttributesChanged = new EventEmitter<boolean>();
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() toggleImagesChanged = new EventEmitter<boolean>();
 	@Output() handingChanged = new EventEmitter<string>();
+	@Output() removeDesignSelectionsClicked = new EventEmitter();
 
 	get communityName(): string
 	{
@@ -52,7 +52,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 
 	get homesite(): string
 	{
-		let homesite : string = 'No Lot Selected';
+		let homesite: string = 'No Lot Selected';
 
 		if (this.summaryHeader.lot)
 		{
@@ -142,16 +142,9 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	// Should be removed and replaced with css 'position:sticky' once edge fixes existing bugs.
 	checkIfHeaderSticky()
 	{
-		if (this.summaryHeaderElement.nativeElement.getBoundingClientRect().top <= 0)
-		{
-			this.isSticky = true;
-			this.cd.detectChanges();
-		}
-		else
-		{
-			this.isSticky = false;
-			this.cd.detectChanges();
-		}
+		this.isSticky = this.summaryHeaderElement.nativeElement.getBoundingClientRect().top <= 0;
+
+		this.cd.detectChanges();
 
 		this.isStickyChanged.emit(this.isSticky);
 
@@ -176,6 +169,11 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	{
 		this.summaryHeader.handing = handing;
 		this.handingChanged.emit(handing);
+	}
+
+	onRemoveDesignSelections()
+	{
+		this.removeDesignSelectionsClicked.emit();
 	}
 }
 

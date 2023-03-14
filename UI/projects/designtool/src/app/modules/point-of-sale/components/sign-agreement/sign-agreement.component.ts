@@ -5,7 +5,6 @@ import { map, filter, combineLatest, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
-import * as moment from "moment";
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';

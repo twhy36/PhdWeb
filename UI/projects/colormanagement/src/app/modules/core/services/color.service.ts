@@ -3,34 +3,38 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, filter, map, switchMap, take } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
-import { IColorIdBatch, IColor, IColorDto } from '../../shared/models/color.model';
 import { IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
-import {
-	newGuid,
-	createBatch,
-	createBatchGet,
-	createBatchHeaders,
-	createBatchBody,
-	getNewGuid,
-	withSpinner,
-	IdentityService
-} from 'phd-common';
+import
+	{
+		newGuid,
+		createBatch,
+		createBatchGet,
+		createBatchHeaders,
+		createBatchBody,
+		getNewGuid,
+		withSpinner,
+		IdentityService,
+		IColor, 
+		IColorDto,
+		IColorIdBatch
+	} from 'phd-common';
 import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model';
 import { PlanOptionService } from './plan-option.service';
 import { AttributeGroupKey } from '../../shared/models/option.model';
 
 @Injectable()
-export class ColorService {
+export class ColorService
+{
 	constructor(
 		private _http: HttpClient,
 		private identityService: IdentityService,
 		private _planService: PlanOptionService)
-		{
-			this.getAttributeGroupCommunityId()
-				.pipe(take(1))
-				.subscribe(attrId => attrId);
-		}
+	{
+		this.getAttributeGroupCommunityId()
+			.pipe(take(1))
+			.subscribe(attrId => attrId);
+	}
 
 	private _ds: string = encodeURIComponent('$');
 	private _batch = '$batch';
@@ -44,30 +48,36 @@ export class ColorService {
 	/**
 	 * Gets the colors for the specified financial community
 	 */
-	getColors(communityId?: number, colorName?: string, subcategoryId?: number, topRows?: number, skipRows?: number, isActive?: boolean): Observable<IColor[]> {
+	getColors(communityId?: number, colorName?: string, subcategoryId?: number, topRows?: number, skipRows?: number, isActive?: boolean): Observable<IColor[]>
+	{
 		const entity = `colors`;
 		let filter = `(EdhFinancialCommunityId eq ${communityId})`;
 		const select = `colorId,name,sku,isActive,edhOptionSubcategoryId`;
 		const orderBy = `name`;
-		if (colorName) {
+		if (colorName)
+		{
 			filter += `and contains(name,'${colorName}')`;
 		}
 
-		if (isActive != null) {
+		if (isActive != null)
+		{
 			filter += `and (isActive eq ${isActive})`;
 		}
 
-		if (subcategoryId >= 0) {
+		if (subcategoryId >= 0)
+		{
 			filter += `and (EdhOptionSubcategoryId eq ${subcategoryId})`;
 		}
 
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderBy=${encodeURIComponent(orderBy)}`;
 
-		if (topRows) {
+		if (topRows)
+		{
 			qryStr += `&${this._ds}top=${topRows}`;
 		}
 
-		if (skipRows) {
+		if (skipRows)
+		{
 			qryStr += `&${this._ds}skip=${skipRows}`;
 		}
 
@@ -76,42 +86,114 @@ export class ColorService {
 		return withSpinner(this._http)
 			.get<any>(endpoint)
 			.pipe(
-				map((response) => {
+				map((response) =>
+				{
 					return response.value as Array<IColor>;
 				}),
 				catchError(this.handleError)
 			);
 	}
 
-	getPlanOptionAssocColorItems(communityId: number, edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]> {
+	getColorsByNames(communityId: number, subcategoryId: number, colors: {name: string, sku: string}[]): Observable<IColor[]>
+	{
+		const batchGuid = getNewGuid();
+
+		let requests = colors.map(color => {
+			const entity = `colors`;
+			const select = `colorId,name,sku,isActive`;
+
+			let filter = `(EdhFinancialCommunityId eq ${communityId}) and (EdhOptionSubcategoryId eq ${subcategoryId})`;
+
+			if (color.name)
+			{
+				filter += ` and (tolower(name) eq tolower('${color.name}'))`; 
+			}
+
+			if (color.sku)
+			{
+				filter += ` and (tolower(sku) eq tolower('${color.sku}'))`;
+			}
+
+			let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+			const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
+
+			return createBatchGet(endpoint);
+		}).filter(req => req);
+
+		let headers = createBatchHeaders(batchGuid);
+		let batch = createBatchBody(batchGuid, requests);
+
+		return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers }).pipe(
+			map((response: any) =>
+			{
+				let responseBodies = response.responses?.map(res => res.body);
+				let responseColors: Array<IColor> = [];
+
+				responseBodies?.forEach((result) =>
+				{
+					let resultItems = result.value as Array<IColor>;
+
+					resultItems.forEach(item =>
+					{
+						responseColors.push({
+							name: item.name,
+							colorId: item.colorId,
+							sku: item.sku,
+							edhOptionSubcategoryId: subcategoryId,
+							edhFinancialCommunityId: communityId,
+							isActive: item.isActive
+						});
+					});
+				});
+
+				return responseColors;
+			}),
+			catchError(this.handleError)
+		);
+	}	
+
+	getPlanOptionAssocColorItems(communityId: number, edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
+	{
 		return this.identityService.token.pipe(
-			switchMap((token: string) => {
+			switchMap((token: string) =>
+			{
 				let guid = newGuid();
 				let requests = [];
-				for (let i = 0; i < edhPlanOptionIds.length; i = i + 50) {
+
+				for (let i = 0; i < edhPlanOptionIds.length; i = i + 50)
+				{
 					const entity = `colorItems`;
-					const expand = `colorItemColorAssoc($expand=color($select=colorId,name,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`
+					const expand = `colorItemColorAssoc($expand=color($select=colorId,name,sku,edhFinancialCommunityId,isActive;$filter=edhFinancialCommunityId eq ${communityId}))`;
 					const endIndex = (i + 50) < edhPlanOptionIds.length ? (i + 50) : edhPlanOptionIds.length;
 					let filter = `(edhPlanOptionId in (${edhPlanOptionIds.slice(i, endIndex).join(',')}))`;
 					const select = `colorItemId,name,edhPlanOptionId,isActive,colorItemColorAssoc`;
 
-					if (isActive != null) {
+					if (isActive != null)
+					{
 						filter += ` and (isActive eq ${isActive})`;
 					}
-					if (name) {
+
+					if (name)
+					{
 						filter += ` and (name eq '${name}')`;
 					}
+
 					let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
-					if (topRows) {
+					if (topRows)
+					{
 						qryStr += `&${this._ds}top=${topRows}`;
 					}
 
-					if (skipRows) {
+					if (skipRows)
+					{
 						qryStr += `&${this._ds}skip=${skipRows}`;
 					}
+
 					const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 					let request = createBatchGet(endpoint);
+
 					requests.push(request);
 				}
 				let headers = createBatchHeaders(guid, token);
@@ -119,17 +201,21 @@ export class ColorService {
 
 				return withSpinner(this._http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(res => res.body);
 				let colorItemDtoList: Array<IColorItemDto> = [];
 
-				bodies.forEach((result) => {
+				bodies.forEach((result) =>
+				{
 					let colorItems = result.value as Array<IColorItem>;
 					// Transform IColorItem to IColorItemDto
 					let groupedColorItems = _.groupBy(colorItems, c => c.colorItemId);
 
-					for (const key in groupedColorItems) {
-						if (groupedColorItems.hasOwnProperty(key)) {
+					for (const key in groupedColorItems)
+					{
+						if (groupedColorItems.hasOwnProperty(key))
+						{
 							let item = groupedColorItems[key];
 							let colorItemDto: IColorItemDto =
 							{
@@ -138,11 +224,12 @@ export class ColorService {
 								isActive: item[0].isActive,
 								edhPlanOptionId: item[0].edhPlanOptionId,
 								colors: item.map(x => x.colorItemColorAssoc.map(c => c.color)).reduce((a, b) => [...a, ...b], []).sort((a, b) => a.name.localeCompare(b.name))
-							}
+							};
+
 							colorItemDtoList.push(colorItemDto);
 						}
 					}
-				})
+				});
 
 				return colorItemDtoList;
 			}),
@@ -150,11 +237,14 @@ export class ColorService {
 		)
 	}
 
-	getSalesAgreementForColors(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]> {
+	getSalesAgreementForColors(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]>
+	{
 		return this.identityService.token.pipe(
-			switchMap((token: string) => {
+			switchMap((token: string) =>
+			{
 				let guid = newGuid();
-				let requests = colorList.map(color => {
+				let requests = colorList.map(color =>
+				{
 					const entity = `jobs`;
 					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeName eq '${color.name}')) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po: po/planOptionCommunity/optionCommunity/optionSubCategoryId eq ${color.optionSubCategoryId} and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeName eq '${color.name}')))))`;
 					const select = `id`;
@@ -167,20 +257,27 @@ export class ColorService {
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(res => res.body);
-				colorList.forEach((color, i) => {
+
+				colorList.forEach((color, i) =>
+				{
 					color.hasSalesAgreement = bodies[i]?.value?.length > 0 ? true : false;
-				})
+				});
+
 				return colorList;
 			}))
 	}
 
-	getSalesConfigurationForColors(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]> {
+	getSalesConfigurationForColors(colorList: Array<IColorDto>, communityId: number): Observable<IColorDto[]>
+	{
 		return this.identityService.token.pipe(
-			switchMap((token: string) => {
+			switchMap((token: string) =>
+			{
 				let guid = newGuid();
-				let requests = colorList.map(color => {
+				let requests = colorList.map(color =>
+				{
 					const entity = `scenarioOptions`;
 					const filter = `scenarioOptionColors/any(soc:soc/colorId eq ${color.colorId})`;
 					const endpoint = `${environment.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}top=1`;
@@ -191,20 +288,27 @@ export class ColorService {
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(res => res.body);
-				colorList.forEach((color, i) => {
+
+				colorList.forEach((color, i) =>
+				{
 					color.hasSalesConfig = bodies[i]?.value?.length > 0 ? true : false;
-				})
+				});
+
 				return colorList;
 			}))
 	}
 
-	getSalesAgreementForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId: number): Observable<IPlanOptionCommunityGridDto[]> {
+	getSalesAgreementForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId: number): Observable<IPlanOptionCommunityGridDto[]>
+	{
 		return this.identityService.token.pipe(
-			switchMap((token: string) => {
+			switchMap((token: string) =>
+			{
 				let guid = newGuid();
-				let requests = itemList.map(item => {
+				let requests = itemList.map(item =>
+				{
 					const entity = `jobs`;
 					const filter = `(FinancialCommunityId eq ${communityId}) and (jobPlanOptions/any(po: po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')}) and po/jobPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeGroupLabel eq ('${item.colorItem[0].name}'))) or jobChangeOrderGroups/any(cog: cog/jobChangeOrders/any(co: co/jobChangeOrderPlanOptions/any(po:po/planOptionId in (${item.colorItem.map(c => c.edhPlanOptionId).join(',')})  and po/jobChangeOrderPlanOptionAttributes/any(a: a/attributeGroupCommunityId eq ${this.attributeGroupCommunityId} and a/attributeGroupLabel in ('${item.colorItem[0].name}'))))))`;
 					const select = `id`;
@@ -218,20 +322,27 @@ export class ColorService {
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(res => res.body);
-				itemList.forEach((item, i) => {
+
+				itemList.forEach((item, i) =>
+				{
 					item.hasSalesAgreement = bodies[i]?.value?.length > 0 ? true : false;
-				})
+				});
+
 				return itemList;
 			}))
 	}
 
-	getconfigForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId: number): Observable<IPlanOptionCommunityGridDto[]> {
+	getconfigForGrid(itemList: Array<IPlanOptionCommunityGridDto>, communityId: number): Observable<IPlanOptionCommunityGridDto[]>
+	{
 		return this.identityService.token.pipe(
-			switchMap((token: string) => {
+			switchMap((token: string) =>
+			{
 				let guid = newGuid();
-				let requests = itemList.map(item => {
+				let requests = itemList.map(item =>
+				{
 					const entity = `scenarioOptions`;
 					const filter = `scenarioOptionColors/any(soc:soc/colorItemId in (${item.colorItem.map(c => c.colorItemId).join(',')}))`;
 					const endpoint = `${environment.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}top=1`;
@@ -242,22 +353,30 @@ export class ColorService {
 
 				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
 			}),
-			map((response: any) => {
+			map((response: any) =>
+			{
 				let bodies = response.responses.map(res => res.body);
-				itemList.forEach((item, i) => {
+
+				itemList.forEach((item, i) =>
+				{
 					item.hasConfig = bodies[i]?.value?.length > 0 ? true : false;
-				})
+				});
+
 				return itemList;
 			}))
 	}
-	private handleError(error: Response) {
+	private handleError(error: Response)
+	{
 		// In the future, we may send the server to some remote logging infrastructure
 		console.error(error);
+
 		return throwError(error || 'Server error');
 	}
 
-	deleteColors(colorIds: number[]): Observable<boolean> {
-		const colorsToBeDeleted = colorIds.map(colorId => {
+	deleteColors(colorIds: number[]): Observable<boolean>
+	{
+		const colorsToBeDeleted = colorIds.map(colorId =>
+		{
 			return {
 				colorId
 			} as IColorIdBatch;
@@ -270,14 +389,16 @@ export class ColorService {
 		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
 
 		return this._http.post(endpoint, batchBody, { headers, responseType: 'text' }).pipe(
-			map(results => {
+			map(results =>
+			{
 				return results.length > 0;
 			}),
 			catchError(this.handleError)
 		);
 	}
 
-	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<IColor> {
+	updateColor(colorToUpdate: IColorDto, communityId: number): Observable<IColor>
+	{
 		const url = `${environment.apiUrl}colors(${colorToUpdate.colorId})`;
 		const body = {
 			colorId: colorToUpdate.colorId,
@@ -289,16 +410,19 @@ export class ColorService {
 		} as IColor;
 
 		return withSpinner(this._http).patch(url, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(resp => {
+			map(resp =>
+			{
 				return resp as IColor;
 			}),
 			catchError(this.handleError)
 		);
 	}
 
-	updateColorItem(colorItemsToUpdate: IColorItemDto[]) {
+	updateColorItem(colorItemsToUpdate: IColorItemDto[])
+	{
 		const colorItems: IColorItemAssoc[] = [];
-		colorItemsToUpdate.forEach(colorItemToUpdate => {
+		colorItemsToUpdate.forEach(colorItemToUpdate =>
+		{
 			const item = {
 				colorItemId: colorItemToUpdate.colorItemId,
 				name: colorItemToUpdate.name,
@@ -307,8 +431,10 @@ export class ColorService {
 				isActive: colorItemToUpdate.isActive
 			} as IColorItemAssoc;
 
-			if (colorItemToUpdate.colors.length > 0) {
-				colorItemToUpdate.colors.forEach(color => {
+			if (colorItemToUpdate.colors.length > 0)
+			{
+				colorItemToUpdate.colors.forEach(color =>
+				{
 					const colorInfo: IColorItemColorAssoc = {
 						colorId: color.colorId,
 						color: color,
@@ -318,9 +444,9 @@ export class ColorService {
 					item.colorItemColorAssoc.push(colorInfo);
 				});
 			}
+
 			colorItems.push(item);
 		});
-
 
 		const body = {
 			'editColorItems': colorItems
@@ -330,17 +456,20 @@ export class ColorService {
 		const endpoint = `${environment.apiUrl}${action}`;
 
 		return withSpinner(this._http).post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response.value;
 			}),
 			catchError(this.handleError)
 		);
 	}
 
-	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]> {
+	saveColorItem(dtoColorItems: IColorItemDto[]): Observable<IColorItem[]>
+	{
 		const colorItems: IColorItemAssoc[] = [];
 
-		dtoColorItems.forEach(dtoItem => {
+		dtoColorItems.forEach(dtoItem =>
+		{
 			const item: IColorItemAssoc = {
 				colorItemId: dtoItem.colorItemId,
 				name: dtoItem.name,
@@ -349,8 +478,10 @@ export class ColorService {
 				colorItemColorAssoc: []
 			};
 
-			if (dtoItem.colors.length > 0) {
-				dtoItem.colors.forEach(color => {
+			if (dtoItem.colors.length > 0)
+			{
+				dtoItem.colors.forEach(color =>
+				{
 					const colorInfo: IColorItemColorAssoc = {
 						colorId: color.colorId,
 						color: color,
@@ -372,15 +503,18 @@ export class ColorService {
 		const endpoint = `${environment.apiUrl}${action}`;
 
 		return this._http.post<any>(endpoint, body, { headers: { 'Prefer': 'return=representation' } }).pipe(
-			map(response => {
+			map(response =>
+			{
 				return response.value;
 			}),
 			catchError(this.handleError)
 		);
 	}
 
-	deleteColorItems(colorItemIds: number[]): Observable<boolean> {
-		const colorItemsToBeDeleted = colorItemIds.map(colorItemId => {
+	deleteColorItems(colorItemIds: number[]): Observable<boolean>
+	{
+		const colorItemsToBeDeleted = colorItemIds.map(colorItemId =>
+		{
 			return {
 				colorItemId
 			} as IColorItemIdBatch;
@@ -393,7 +527,8 @@ export class ColorService {
 		const headers = new HttpHeaders(createBatchHeaders(batchGuid));
 
 		return this._http.post(endpoint, batchBody, { headers, responseType: 'text' }).pipe(
-			map(results => {
+			map(results =>
+			{
 				return results.length > 0;
 			}),
 			catchError(this.handleError)
@@ -405,10 +540,12 @@ export class ColorService {
 	If user searched for plan1, plan2, but the color item name is also attached to plan3,
 	the Plan column will just show plan1, plan2.  This is also what HS does.
 	But the edit/delete/active/inactive should occur for all color items of that same name, just like what HS does.*/
-	getColorItemForAssociatedPlans(coloritemname: string, optionCommnunityId: number, currentFinancialCommunityId: number): Observable<IColorItemDto[]> {
+	getColorItemForAssociatedPlans(coloritemname: string, optionCommnunityId: number, currentFinancialCommunityId: number): Observable<IColorItemDto[]>
+	{
 		return this._planService.getPlanOptionsByOption(optionCommnunityId).pipe(
 			filter((res) => !!res),
-			switchMap((res: any) => {
+			switchMap((res: any) =>
+			{
 				return this.getPlanOptionAssocColorItems
 					(currentFinancialCommunityId,
 						res.map(planoption => planoption.id),

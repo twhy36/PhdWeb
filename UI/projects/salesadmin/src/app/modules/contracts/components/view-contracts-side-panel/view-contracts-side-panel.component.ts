@@ -65,6 +65,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 		{ label: 'Smart Home', value: 'SmartHome', id: 5 },
 		{ label: 'Red or Yellow State', value: 'Red or Yellow State', id: 6 },
 		{ label: 'Include in all contracts', value: 'IncludeInAllContracts', id: 7 },
+		{ label: 'Other', value: 'Other', id: 8 }
 	]
 
 	get isDirty(): boolean
@@ -383,6 +384,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 					key: currentTag[0].key,
 					marketId: currentTag[0].marketId,
 					salesCommunityId: currentTag[0].salesCommunityId,
+					financialBrandId: currentTag[0].financialBrandId,
 					name: currentTag[0].name,
 					salesStatusDescription: currentTag[0].salesStatusDescription,
 					isColorSchemeMonotonyRuleEnabled: currentTag[0].isColorSchemeMonotonyRuleEnabled,

@@ -9,11 +9,13 @@ import { ToastrService } from 'ngx-toastr';
 
 import * as _ from 'lodash';
 
-import {
+import
+{
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, ChoiceImageAssoc, SDChoiceImage
+	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType,
+	ConfirmModalComponent, ChoiceImageAssoc, SDChoiceImage
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -31,8 +33,6 @@ import { ScenarioService } from '../../../core/services/scenario.service';
 import { JobService } from '../../../core/services/job.service';
 import { ChangeOrderService } from '../../../core/services/change-order.service';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
-
-import { PointStatusFilter, DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 
 import * as JobActions from '../../../ngrx-store/job/actions';
 
@@ -72,7 +72,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
-	allowEstimates: boolean;
+	isDirtScenario: boolean;
 	salesAgreementId: number;
 
 	imageLoading: boolean = false;
@@ -87,7 +87,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	selectedPointFilter$: Observable<DecisionPointFilterType>;
 	enabledPointFilters$: Observable<DecisionPointFilterType[]>;
 
-	isComplete$: Observable<boolean>;
+	isComplete: boolean;
 	scenarioStatus$: Observable<ScenarioStatusType>;
 
 	hasFloorPlan: boolean = false;
@@ -108,6 +108,13 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	choiceImagesLoaded: boolean = false;
 	priceRangesCalculated: boolean;
 	isPhdLite: boolean = false;
+
+	get showRemoveDesignSelectionsButton(): boolean
+	{
+		const choices = this.getNonStructuralChoices();
+
+		return choices.length && this.isComplete && this.isDirtScenario && !this.isPhdLite && !this.summaryHeader.isPreview;
+	}
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -237,10 +244,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement)
-		).subscribe(sag =>
+			select(state => state.salesAgreement),
+			combineLatest(this.store.pipe(select(fromRoot.isDirtScenario))),
+		).subscribe(([sag, isDirtScenario]) =>
 		{
-			this.allowEstimates = sag ? sag.id === 0 : true;
+			this.isDirtScenario = isDirtScenario;
 			this.salesAgreementId = sag && sag.id;
 		});
 
@@ -270,7 +278,8 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
 				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
-					.subscribe(isPhdLiteEnabled => {
+					.subscribe(isPhdLiteEnabled =>
+					{
 						this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
 						if (this.isPhdLite) 
 						{
@@ -347,9 +356,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(state => state.scenario.enabledPointFilters)
 		);
 
-		this.isComplete$ = this.store.pipe(
+		this.store.pipe(
 			select(fromRoot.isComplete)
-		);
+		).subscribe(isComplete => this.isComplete = isComplete);
 
 		this.scenarioStatus$ = this.store.pipe(
 			select(fromRoot.scenarioStatus)
@@ -579,7 +588,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	{
 		this.imageLoading = false;
 
-		event.srcElement.src = 'assets/pultegroup_logo.jpg';
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)
@@ -595,7 +604,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			if (mc.monotonyConflict)
 			{
 				// this really needs to get fixed.  the alert messsage isn't correct.
-				alert('Danger! Monotony Issues!  Please fix!')
+				alert('Danger! Monotony Issues!  Please fix!');
 			}
 			else
 			{
@@ -664,7 +673,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		return of(reportType).pipe(
 			switchMap(rt =>
 			{
-				if (rt === SummaryReportType.CHOICE_LIST || rt === SummaryReportType.DESIGN_CHOICE_LIST)
+				if (rt === SummaryReportType.CHOICE_LIST || rt === SummaryReportType.DESIGN_CHOICE_LIST || rt === SummaryReportType.SALES_CHOICE_LIST)
 				{
 					return this.store.pipe(
 						select(fromScenario.choicePriceRanges),
@@ -686,7 +695,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				summaryData.title = this.title;
 				summaryData.images = this.summaryImages;
 				summaryData.hasHomesite = summaryHeader.hasHomesite;
-				summaryData.allowEstimates = this.allowEstimates;
+				summaryData.allowEstimates = this.isDirtScenario;
 				summaryData.priceBreakdown = this.priceBreakdown;
 				summaryData.priceBreakdownTypes = priceBreakdown.breakdownFilters.map(x => x.toString());
 				summaryData.includeImages = reportType == SummaryReportType.OPTION_DETAILS_IMAGES || reportType == SummaryReportType.SELECTIONS_IMAGES;
@@ -701,7 +710,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				let choiceFilter: (choice: Choice) => boolean;
 				let pointFilter: (point: DecisionPoint) => boolean;
 
-				if (reportType === SummaryReportType.CHOICE_LIST || reportType === SummaryReportType.DESIGN_CHOICE_LIST)
+				if (reportType === SummaryReportType.CHOICE_LIST || reportType === SummaryReportType.DESIGN_CHOICE_LIST || reportType === SummaryReportType.SALES_CHOICE_LIST)
 				{
 					choiceFilter = () => true;
 				}
@@ -713,6 +722,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				if (reportType === SummaryReportType.DESIGN_CHOICE_LIST)
 				{
 					pointFilter = pt => !pt.isStructuralItem;
+				}
+				else if (reportType === SummaryReportType.SALES_CHOICE_LIST)
+				{
+					pointFilter = pt => pt.isStructuralItem;
 				}
 				else
 				{
@@ -785,7 +798,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			const newHanding = new ChangeOrderHanding();
 
-			if(handing !== "NA")
+			if (handing !== 'NA')
 			{
 				newHanding.handing = handing;
 			}
@@ -892,10 +905,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		}
 		else
 		{
-			const primaryButton = !canOverride ? { text: 'Okay', result: true, cssClass: 'btn-primary' } : { text: 'Continue', result: true, cssClass: 'btn-primary' };
-			const secondaryButton = canOverride ? { text: 'Cancel', result: false, cssClass: 'btn-secondary' } : null;
+			const primaryButton = { text: 'Okay', result: true, cssClass: 'btn-primary' };
 
-			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+			this.showConfirmModal(body, title, primaryButton, null).subscribe(result =>
 			{
 				deselect = result;
 			});
@@ -938,5 +950,43 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				this.summaryImages[idx] = sdImg;
 			}
 		});
+	}
+
+	onRemoveDesignSelections()
+	{
+		let confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
+
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = `This will remove all Design Selections. Once removed, you must make the Design Selections again if you want to add it to the configuration.<br /><br />Do you wish to continue?`;
+		confirm.componentInstance.defaultOption = 'Continue';
+
+		confirm.result.then((result) =>
+		{
+			if (result == 'Continue')
+			{
+				let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
+				let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
+				let choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
+
+				if (choices.length > 0)
+				{
+					var deselectChoiceList = choices.map(c =>
+					{
+						return { choiceId: c.id, overrideNote: null, quantity: 0 };
+					});
+
+					this.store.dispatch(new ScenarioActions.SelectChoices(true, ...deselectChoiceList));
+				}
+			}
+		});
+	}
+
+	getNonStructuralChoices(): Choice[]
+	{
+		let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
+		let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
+		let choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
+
+		return choices;
 	}
 }

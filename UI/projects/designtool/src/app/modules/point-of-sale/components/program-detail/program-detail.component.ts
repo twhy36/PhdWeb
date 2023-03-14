@@ -11,7 +11,7 @@ import
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { SaveProgram, DeleteProgram } from '../../../ngrx-store/sales-agreement/actions';
 
-import { SalesProgram, SalesProgramTypeEnum } from '../../../shared/models/sales-program.model';
+import { SalesProgram } from '../../../shared/models/sales-program.model';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 
 @Component({
@@ -308,14 +308,14 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 
 	isDiscountFlatAmount()
 	{
-		return this.selectedSalesProgram && this.selectedSalesProgram.salesProgramType === SalesProgramTypeEnum.DiscountFlatAmount;
+		return this.selectedSalesProgram && this.selectedSalesProgram.salesProgramType === 'DiscountFlatAmount';
 	}
 
 	getSalesProgramType(): string
 	{
 		if (this.selectedSalesProgram && this.selectedSalesProgram.salesProgramType)
 		{
-			return this.selectedSalesProgram.salesProgramType.toString();
+			return this.selectedSalesProgram.salesProgramType;
 		}
 
 		return '';

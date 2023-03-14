@@ -1,4 +1,4 @@
-<div class="d-flex flex-column m-2 phd-buyer-box" *ngIf="person || trust || trustNA || realtor || realtorNA || coBuyerNA">
+<div class="d-flex flex-column m-2 phd-buyer-box" *ngIf="person || trust || trustNA || realtor || realtorNA || coBuyerNA" [class.phd-info-required]="isMissingRequiredFields">
 	<div class="pl-3 pt-2 pb-2 phd-buyer-box-title">
 		<ng-container [ngSwitch]="personType">
 			<ng-container *ngSwitchCase="'Buyer'">
@@ -31,7 +31,7 @@
 				<div class="display-4">N/A</div>
 			</ng-container>
 		</div>
-
+		
 		<div class="phd-people-card-body pl-3 pt-2" *ngSwitchCase="'Trust'" [ngClass]="{'text-center pt-5' : trustNA, 'pl-3 pt-2' : trust}">
 			<ng-container *ngIf="trust">
 				<div><strong>{{trust}}</strong></div>
@@ -58,7 +58,7 @@
 	</ng-container>
 
 	<div class="mt-auto pl-3 pb-2 pt-2 d-flex flex-no-wrap phd-buyer-box-footer" *ngIf="!isLockedIn">
-		<div *ngIf="!(trustNA || realtorNA || (coBuyerNA && !person)) && canEditBuyer()">
+		<div *ngIf="(personType === 'Trust' && !trustNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Buyer' && !coBuyerNA && person && canEditBuyer())">
 			<a class="btn m-0 p-0" (click)="edit()">Edit</a>
 		</div>
 
@@ -78,7 +78,7 @@
 
 		<!-- allow setting Trust or Realtor to N/A -->
 		<ng-container *ngIf="personType === 'Trust' || personType === 'Realtor' || (personType === 'Buyer' && coBuyerNA && person == null)">
-			<ng-container *ngIf="(!trustNA && !coBuyerNA && !realtorNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA)">
+			<ng-container *ngIf="(!trustNA && !coBuyerNA && !realtorNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Trust' && !trustNA && canEditAgreement)">
 				<div>
 					&nbsp; | &nbsp;
 				</div>

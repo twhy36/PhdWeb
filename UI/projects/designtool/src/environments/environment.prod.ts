@@ -10,7 +10,7 @@ export const environment: IEnvironment = {
 			delWebb: 'https://phd.delwebb.com/designpreview/',
 			americanWest: 'https://phd.americanwesthomes.com/designpreview/',
 			diVosta: 'https://phd.divosta.com/designpreview/',
-			centex: 'https://phd.centex.pulte.com/designpreview/',
+			centex: 'https://phd.centex.com/designpreview/',
 			johnWieland: 'https://phd.jwhomes.com/designpreview/',
 		},
 	},
@@ -37,6 +37,7 @@ export const environment: IEnvironment = {
 		builderId: '8D676CB9-C011-429D-8D71-87D34A87494B'
 	},
 	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
+	defaultImageURL: 'assets/PG_Logo_2022_Stacked_Full Color_Padded.png',
 	whatFix: {
 		scriptUrl: '//cdn.whatfix.com/prod/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},

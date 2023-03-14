@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 
 import { BehaviorSubject, Observable, throwError as _throw } from 'rxjs';
 import { EMPTY } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, switchMap } from 'rxjs/operators';
+import { combineLatest, map, catchError, flatMap, switchMap, finalize } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
 
@@ -299,7 +299,11 @@ export class TreeService
 
 		const endPoint = `${settings.apiUrl}${action}?${qryStr}`;
 
-		return this._http.post<PhdApiDto.IDTreeDto>(endPoint, body).pipe(
+		return withSpinner(this._http).post<PhdApiDto.IDTreeDto>(endPoint, body).pipe(
+			finalize(() =>
+			{
+				this.treeVersionIsLoading = false;
+			}),
 			map(treeDto =>
 			{
 				let dTree: DTree;
@@ -309,10 +313,9 @@ export class TreeService
 					dTree = this.createTreeFromDto(treeDto);
 				}
 
-				this.treeVersionIsLoading = false;
-
 				return dTree;
-			}));
+			}),
+			catchError(this.handleError));
 	}
 
 	getChoiceOptionRules(treeVersionId: number, choiceId: number): Observable<Array<PhdApiDto.IChoiceOptionRule>>
@@ -613,7 +616,7 @@ export class TreeService
 
 	saveChoiceImages(choiceImages: PhdEntityDto.IDPChoiceImageDto[]): Observable<PhdEntityDto.IDPChoiceImageDto[]>
 	{
-		// calling unbound odata action 
+		// calling unbound odata action
 		const body = {
 			'choiceImages': choiceImages
 		};
@@ -941,7 +944,7 @@ export class TreeService
 
 	saveOptionImages(optionImages: PhdEntityDto.IOptionImageDto[], integrationKey: string): Observable<PhdEntityDto.IOptionImageDto[]>
 	{
-		// calling unbound odata action 
+		// calling unbound odata action
 		const body = {
 			'integrationKey': integrationKey,
 			'optionImages': optionImages
@@ -1624,33 +1627,23 @@ export class TreeService
 
 	hasAttributeReassignmentsByChoiceId(choiceId: number): Observable<boolean>
 	{
-		const entity = `attributeReassignments`;
-		const filter = `(toDPChoiceID eq ${choiceId} or dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}) `;
-		const select = `attributeReassignmentID`;
-		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`;
-		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
-
-		return this._http.get<any>(endpoint).pipe(
-			map(response =>
-			{
-				let count = response['@odata.count'] as number;
-
-				return count > 0;
-			}));
+		return this.hasAttributeReassignmentsByChoiceIds([choiceId]);
 	}
 
 	hasAttributeReassignmentsByChoiceIds(choices: number[]): Observable<boolean>
 	{
 		const batchGuid = odataUtils.getNewGuid();
-		let requests = choices.map(choiceId =>
+		let requests = _.flatMap(choices, choiceId =>
 		{
 			const entity = `attributeReassignments`;
-			const filter = `(toDPChoiceID eq ${choiceId} or dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}) `;
+			const filterToChoiceId = `toDPChoiceID eq ${choiceId}`;
+			const filterChoiceId = `dpChoice_OptionRuleAssoc/dpChoiceID eq ${choiceId}`;
 			const select = `attributeReassignmentID`;
-			const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`;
-			const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
-			return odataUtils.createBatchGet(endpoint);
+			return [
+				odataUtils.createBatchGet(`${settings.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filterToChoiceId)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`),
+				odataUtils.createBatchGet(`${settings.apiUrl}${entity}?${this._ds}filter=${encodeURIComponent(filterChoiceId)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}count=true`)
+			];
 		});
 
 		let headers = odataUtils.createBatchHeaders(batchGuid);
@@ -1797,11 +1790,11 @@ export class TreeService
 	muChoiceUpdate(selectedPlans: DivCatWizPlan[], selectedChoices: DivCatWizChoice[]): Observable<DivCatWizPlan[]>
 	{
 		const body = {
-			"plans": selectedPlans.map(plan =>
+			'plans': selectedPlans.map(plan =>
 			{
 				return { financialCommunityId: plan.financialCommunityId, financialPlanIntegrationKey: plan.financialPlanIntegrationKey };
 			}),
-			"choices": selectedChoices.map(c =>
+			'choices': selectedChoices.map(c =>
 			{
 				return { id: c.id, action: c.action.toString() };
 			})

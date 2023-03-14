@@ -1,10 +1,6 @@
-import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 
-import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined } from 'phd-common';
-import { BlockedByItemList } from '../../models/blocked-by.model';
-import { getDisabledByList } from '../../../shared/classes/tree.utils';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BrandService } from '../../../core/services/brand.service';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
 
 import * as _ from 'lodash';
 
@@ -16,37 +12,33 @@ import * as _ from 'lodash';
 		flipOver3
 	]
 })
-export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentPoint: DecisionPoint;
 	@Input() myFavoritesPointsDeclined?: MyFavoritesPointDeclined[]
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
 
-	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
+	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 
-	@ViewChild('blockedChoiceModal') blockedChoiceModal: any;
+	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 
 	point: DecisionPoint;
 	isDeclined: boolean = false;
-	blockedChoiceModalRef: NgbModalRef;
-	disabledByList: BlockedByItemList = null;
+	blockedChoiceModalRef: ModalRef;
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
 
 	constructor(
-		public modalService: NgbModal,
-		private brandService: BrandService
-	) {
+		public modalService: ModalService
+	) 
+	{
 		super();
 	}
 
-	ngOnInit()
+	ngOnChanges(changes: SimpleChanges)
 	{
-	}
-
-	ngOnChanges(changes: SimpleChanges) {
 		if (changes['currentPoint'])
 		{
 			this.point = changes['currentPoint'].currentValue;
@@ -54,11 +46,16 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		}
 	}
 
+	getBodyHeight(): string
+	{
+		return this.isPresale ? '260px' : '285px';
+	}
+
 	/**
 	 * Used to set a default image if Cloudinary can't load an image
 	 * @param event
 	 */
-	onLoadImageError(event: any)
+	onLoadImageError(event)
 	{
 		event.srcElement.src = this.imageSrc;
 	}
@@ -67,25 +64,22 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	{
 		if (!this.isReadonly)
 		{
-			this.onDeclineDecisionPoint.emit(this.point);
+			this.declineDecisionPoint.emit(this.point);
 		}
 	}
 
-	openBlockedChoiceModal() {
-		if (!this.disabledByList)
-		{
-			this.disabledByList = getDisabledByList(this.tree, this.groups, this.currentPoint, null);
-		}
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { windowClass: 'phd-blocked-choice-modal' });
+	openBlockedChoiceModal()
+	{
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
-	onCloseClicked() {
+	onCloseClicked()
+	{
 		this.blockedChoiceModalRef?.close();
 	}
 
-	onBlockedItemClick(pointId: number) {
+	onBlockedItemClick()
+	{
 		this.blockedChoiceModalRef?.close();
-		delete this.disabledByList;
-		this.onSelectDecisionPoint.emit(pointId);
 	}
 }

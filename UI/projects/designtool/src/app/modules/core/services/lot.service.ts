@@ -26,7 +26,7 @@ export class LotService
 {
 	constructor(private _http: HttpClient, private store: Store<fromRoot.State>, private actions: ActionsSubject, private router: Router) { }
 
-	loadLots(salesCommunityId: number, selectedLot: number, skipSpinner: boolean = true, isModel: boolean = false): Observable<Array<Lot>>
+	loadLots(salesCommunityId: number, selectedLot: number, skipSpinner: boolean = true, isModel: boolean = false, useCache: boolean = true): Observable<Array<Lot>>
 	{
 		const expand = `lotHandingAssocs($expand=handing($select=id,name)),planAssociations($select=id,isActive,planId,lotId;$filter=isActive eq true),jobs($select=id,lotId,handing,planId)`;
 		const includeSelectedLot = selectedLot ? `or id eq ${selectedLot}` : '';
@@ -55,7 +55,7 @@ export class LotService
 		const url = `${environment.apiUrl}lots?${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
-			combineLatest(this.getMonotonyRulesForSalesCommunity(salesCommunityId, false)),
+			combineLatest(this.getMonotonyRulesForSalesCommunity(salesCommunityId, false, useCache)),
 			map(([lotsResponse, monotonyRules]) =>
 			{
 				let lots = lotsResponse.value.map(l => new Lot(l));
@@ -73,9 +73,9 @@ export class LotService
 		);
 	}
 
-	getMonotonyRulesForSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true): Observable<Array<MonotonyRule>>
+	getMonotonyRulesForSalesCommunity(salesCommunityId: number, skipSpinner: boolean = true, useCache: boolean = true): Observable<Array<MonotonyRule>>
 	{
-		const url = `${environment.apiUrl}GetMonotonyRulesForSalesCommunity(id=${salesCommunityId})`;
+		const url = `${environment.apiUrl}GetMonotonyRulesForSalesCommunity(id=${salesCommunityId})?useCache=${useCache}`;
 
 		return (skipSpinner ? this._http : withSpinner(this._http)).get<any>(url).pipe(
 			map(response =>
@@ -156,7 +156,7 @@ export class LotService
 			switchMap(scenario =>
 			{
 				//TODO: check if it's a Job change order
-				this.store.dispatch(new LotActions.LoadLots(scenario.salesCommunity.id));
+				this.store.dispatch(new LotActions.LoadLots(scenario.salesCommunity.id, null, false));
 
 				return this.actions.pipe(
 					ofType<LotActions.LotsLoaded>(LotActions.LotActionTypes.LotsLoaded),

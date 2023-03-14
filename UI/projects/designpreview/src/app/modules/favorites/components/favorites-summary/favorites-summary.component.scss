@@ -1,12 +1,12 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 .phd-favorites-summary {
-	padding-bottom: 100px;
-	margin-top: 59px;
+	padding-bottom: 70px; // height of the action bar
+	margin-top: 56px; // Has to be one px larger than group-bar so sticky header works
 	width: 100%;
 
 	.phd-is-sticky {
-		margin-top: 160px;
+		margin-top: 120px;
 	}
 }
 
@@ -58,7 +58,7 @@
 			.header {
 				max-height: 40px;
 				height: 100%;
-				padding: 15px;
+				padding: 3px 10px 3px 10px;
 				text-transform: uppercase;
 				border: none;
 				transition: all .3s;
@@ -72,15 +72,129 @@
 	}
 }
 
+.phd-ifp {
+	margin: auto;
+	padding-top: 30px;
+	height: 76vh;
+}
+
+.phd-floorplan-disclaimer {
+	text-transform: none !important;
+	font-weight: bold;
+	font-size: 10px;
+	margin-top: 6px;
+}
+
 ::ng-deep .modal-header {
 	background: var(--popup-ribbon-background-color) !important;
 }
 
 ::ng-deep .btn-primary {
 	background: var(--primary-button-color) !important;
+	border-color: var(--primary-button-color) !important;
 	border-radius: 35px;
 }
 
 ::ng-deep .btn-secondary {
 	border-radius: 35px;
 }
+
+.phd-show-on-print {
+	display: none;
+}
+
+.phd-disclaimer {
+	padding: 0 10px;
+	font-size: 14px;
+}
+
+.phd-expendable-circle {
+	background: none;
+	border: none;
+	margin: 0;
+	padding: 0 0 20px 0;
+}
+
+@media print {
+	.phd-is-sticky {
+		margin-top: 0px !important;
+	}
+
+	.phd-summary-section {
+		max-height: 10vh;
+		
+	}
+
+	.phd-show-on-print {
+		display: table !important;
+		width: calc(100%);
+	}
+
+	.phd-hide-from-print {
+		display: none;
+		height: 0px;
+	}
+	
+	.tree-view-on-print {
+		margin-top: 20px;
+		overflow: visible !important;
+		display: table !important;
+
+		.label {
+			display: block !important;
+		}
+	}
+
+	.phd-print-header {
+		top: 0px;
+		margin-top: 0cm;
+	}
+
+	.group {
+		page-break-inside: avoid;
+	}
+
+	.point {
+		page-break-inside: avoid;
+	}
+
+	.ifp-group {
+		page-break-inside: avoid !important;
+	}
+
+	.sub-group {
+		print-color-adjust: exact; // Needs both to support most browsers
+		-webkit-print-color-adjust: exact; 
+		display: block !important;
+		page-break-inside: avoid !important;
+
+		.header {
+			page-break-inside: avoid;
+		}
+	}
+
+	.phd-print-content-space {
+		height: 9in;
+	}
+
+	.phd-print-footer {
+		height: 1.5in;
+	}
+
+	.phd-print-footer-space {
+		height: 2in;
+	}
+
+	.phd-print-footer {
+		position: fixed;
+		width: calc(100%);
+		bottom: 0px;
+		font-size: 14px;
+		border: 1px solid gray;
+		margin-bottom: 1cm;
+	}
+}
+
+@page {
+    margin-top: 2cm;
+ }

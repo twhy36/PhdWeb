@@ -1,0 +1,10 @@
+# General
+projects/*/src/index.html
+/node_modules
+*.d.ts
+*.interceptor.ts
+environment.*
+
+# Design Preview
+projects/designpreview/src/assets/pdfjs-dist/web/viewer.html
+projects/designpreview/src/*.ts

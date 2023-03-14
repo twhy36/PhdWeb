@@ -3,7 +3,9 @@ import { Router } from '@angular/router';
 
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
-import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete } from 'phd-common';
+import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, DesignToolAttribute } from 'phd-common';
+import { isChoiceAttributesComplete } from '../../classes/utils.class';
+import { BuildMode } from '../../models/build-mode.model';
 
 @Component({
 	selector: 'decision-point-summary',
@@ -21,12 +23,14 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() subGroup: SubGroup;
 	@Input() salesChoices: JobChoice[];
 	@Input() includeContractedOptions: boolean;
-	@Input() buildMode: string;
+	@Input() buildMode: BuildMode;
 	@Input() isDesignComplete: boolean = false;
+	@Input() isPresale: boolean = false;
 	@Input() contractedOptionsPage: boolean = false;
+	@Input() favoritesId: number;
 
-	@Output() onViewFavorites = new EventEmitter<DecisionPoint>();
-	@Output() onRemoveFavorites = new EventEmitter<Choice>();
+	@Output() viewFavorites = new EventEmitter<DecisionPoint>();
+	@Output() removeFavorites = new EventEmitter<Choice>();
 
 	selections: Choice[] = [];
 	choicesCustom: ChoiceCustom[] = [];
@@ -46,7 +50,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 		const choices = this.decisionPoint.choices.filter(c => c.quantity > 0) || [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
-		this.isReadonly = this.buildMode === 'buyerPreview' || !favoriteChoices || favoriteChoices.length < 1;
+		this.isReadonly = this.buildMode === BuildMode.BuyerPreview || !favoriteChoices || favoriteChoices.length < 1;
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -68,8 +72,8 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	setPointChoices()
 	{
 		const choices = this.includeContractedOptions || this.contractedOptionsPage
-							? this.decisionPoint.choices
-							: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+			? this.decisionPoint.choices
+			: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
 	}
 
@@ -84,41 +88,96 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		return isChoiceAttributesComplete(choice) || this.isDesignComplete;
 	}
 
-	toggleAttributes(toggleAttribute: boolean)
+	get actionLabel()
 	{
-		this.choicesCustom
-			.filter(c => c.hasMappedAttributes)
-			.forEach(c => c.showAttributes = toggleAttribute);
-
-		this.cd.detectChanges();
-	}
-
-	get actionLabel() {
-		return this.isReadonly ? 'VIEW' : 'EDIT';
+		return this.isReadonly ? 'View' : 'Edit';
 	}
 
 	onViewOrEdit()
 	{
-		this.onViewFavorites.emit(this.decisionPoint);
+		this.viewFavorites.emit(this.decisionPoint);
 	}
 
 	onRemove(choice: Choice)
 	{
-		this.onRemoveFavorites.emit(choice);
+		this.removeFavorites.emit(choice);
 	}
 
-	getAttributeLabel(name: string) {
-		if (name) {
-			return name + ':';
+	getAttributeLabel(name: string)
+	{
+		if (name)
+		{
+			if (name.charAt(name.length-1) === ':')
+			{
+				return name;
+			}
+			else
+			{
+				return name + ':';
+			}
+		}
+	}
+
+	getAttributeList(names: string[])
+	{
+		return names.join(', ');
+	}
+
+	consolidateAttributes(attributes: DesignToolAttribute[])
+	{
+		const attributeGroupLabels: string[] = [];
+
+		attributes.forEach(a => 
+		{
+			if (!attributeGroupLabels.find(label => a.attributeGroupLabel === label))
+			{
+				attributeGroupLabels.push(a.attributeGroupLabel);
+			}
+		})
+
+		const consolidatedAttributeGroups = [];
+
+		attributeGroupLabels.forEach(label =>
+		{
+			consolidatedAttributeGroups.push(new ConsolidatedAttributeGroup(attributes, label));
+		})
+
+		return consolidatedAttributeGroups;
+	}
+
+	onAdditionalSelections(choice: ChoiceCustom)
+	{
+		if (!this.contractedOptionsPage)
+		{
+			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, this.subGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParamsHandling: 'merge' });
 		}
 	}
 	
 }
 
+class ConsolidatedAttributeGroup
+{
+	attributeGroupLabel: string;
+	attributeGroupNames: string[] = [];
+
+	constructor(attributes: DesignToolAttribute[], label: string)
+	{
+		this.attributeGroupLabel = label;
+
+		attributes.forEach(a =>
+		{
+			if (a.attributeGroupLabel === label)
+			{
+				this.attributeGroupNames.push(a.attributeName);
+			}
+		})
+	}
+}
+
 class ChoiceCustom extends Choice
 {
 	showAttributes: boolean;
-	mappedSelectedAttributes: any[];
+	mappedSelectedAttributes = [];
 
 	get hasMappedAttributes(): boolean
 	{
@@ -131,8 +190,11 @@ class ChoiceCustom extends Choice
 
 		this.showAttributes = this.hasMappedAttributes;
 		this.mappedSelectedAttributes = this.selectedAttributes.filter(attr => attr.attributeId === null).map(attr => ({...attr, attributes: []}));
-		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute => {
-			let mappedSelectedAttribute = this.mappedSelectedAttributes.find(mappedAttr => mappedAttr.locationId === selectedAttribute.locationId);
+
+		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute =>
+		{
+			const mappedSelectedAttribute = this.mappedSelectedAttributes.find(mappedAttr => mappedAttr.locationId === selectedAttribute.locationId);
+
 			if (mappedSelectedAttribute)
 			{
 				mappedSelectedAttribute.attributes.push(selectedAttribute);
@@ -144,3 +206,4 @@ class ChoiceCustom extends Choice
 		})
 	}
 }
+

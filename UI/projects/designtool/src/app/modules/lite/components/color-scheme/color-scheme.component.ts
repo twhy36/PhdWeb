@@ -6,11 +6,13 @@ import * as _ from "lodash";
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
 import { UnsubscribeOnDestroy, flipOver, ScenarioOption, ScenarioOptionColor } from 'phd-common';
-import { LitePlanOption, Color } from '../../../shared/models/lite.model';
+import { LitePlanOption, Color, LegacyColorScheme } from '../../../shared/models/lite.model';
 
 @Component({
 	selector: 'color-scheme',
@@ -25,24 +27,49 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedElevation: LitePlanOption;
 	selectedColorScheme: ScenarioOptionColor;
 	errorMessage: string = '';
+	legacyColorScheme: LegacyColorScheme;
+	scenarioId: number;
+	inPlanChangeOrder: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>) { super(); }
 
 	ngOnInit()
 	{
 		combineLatest([
-			this.store.pipe(select(fromLite.selectedElevation), this.takeUntilDestroyed()),
-			this.store.pipe(select(fromLite.selectedColorScheme), this.takeUntilDestroyed())
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.pipe(select(fromLite.selectedColorScheme)),
+			this.store.pipe(select(fromRoot.legacyColorScheme)),
+			this.store.pipe(select(fromChangeOrder.inPlanChangeOrder))
 		])
-		.subscribe(([elevation, colorScheme]) =>
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme, legacyColorScheme, inPlanChangeOrder]) =>
 		{
 			this.selectedElevation = elevation;
 			this.selectedColorScheme = colorScheme;
+			this.legacyColorScheme = legacyColorScheme;
 
-			const colorSchemes = _.flatMap(elevation?.colorItems, item => item.color);
-			this.colorSchemes = _.sortBy(colorSchemes, 'name');
+			let colorSchemes = _.flatMap(elevation?.colorItems, item => item.color);
 
-			if (!this.selectedElevation)
+			if (!this.colorSchemes || !this.colorSchemes.length)
+			{
+				this.inPlanChangeOrder = inPlanChangeOrder;
+
+				// When it is not in plan change order, if the color exists in both generic and elevation options, use the one from generic option 
+				if (legacyColorScheme && !inPlanChangeOrder)
+				{
+					const index = colorSchemes.findIndex(c => c.name.toLowerCase() === legacyColorScheme.colorName?.toLowerCase());
+					if (index > -1)
+					{
+						colorSchemes.splice(index, 1);					
+					}
+
+					colorSchemes.push({ name: legacyColorScheme.colorName } as Color);
+				}
+
+				this.colorSchemes = _.sortBy(colorSchemes, 'name');				
+			}
+
+			if (!this.selectedElevation && !legacyColorScheme)
 			{
 				this.errorMessage = 'Seems that no elevation has been selected.  Please select an elevation to continue.';
 			}
@@ -59,6 +86,14 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.scenarioOptions = scenarioOptions;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.selectScenario)
+		).subscribe(scenario =>
+		{
+			this.scenarioId = scenario?.scenario?.scenarioId;
+		});		
 	}
 
 	onToggleColorScheme(data: { option: LitePlanOption, color: Color })
@@ -67,11 +102,27 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (scenarioOption)
 		{
+			let selectedOptions = [];
 			let optionColors = [];
 
+			const deselectLegacyColorScheme = this.legacyColorScheme?.isSelected && this.legacyColorScheme.colorName === data.color?.name && !this.inPlanChangeOrder;
+			const genericOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === this.legacyColorScheme?.genericPlanOptionId);
 			const selectedColorScheme = scenarioOption.scenarioOptionColors?.find(c => c.colorItemId === data.color?.colorItemId && c.colorId === data.color?.colorId);
 
-			if (selectedColorScheme)
+			if (deselectLegacyColorScheme)
+			{
+				// De-select a legacy color scheme in generic option
+				if (genericOption)
+				{
+					selectedOptions.push({
+						scenarioOptionId: genericOption.scenarioOptionId,
+						scenarioId: genericOption.scenarioId,
+						edhPlanOptionId: genericOption.edhPlanOptionId,
+						planOptionQuantity: 0
+					});						
+				}
+			}
+			else if (selectedColorScheme)
 			{
 				// De-select a color scheme
 				optionColors.push({
@@ -85,36 +136,70 @@ export class ColorSchemeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else
 			{
-				// Deselect current selected color scheme
-				const currentColorScheme = scenarioOption.scenarioOptionColors?.length ? scenarioOption.scenarioOptionColors[0] : null;
-
-				if (currentColorScheme)
+				if (this.legacyColorScheme?.isSelected && !this.inPlanChangeOrder)
 				{
-					optionColors.push({
-						scenarioOptionColorId: currentColorScheme.scenarioOptionColorId,
-						scenarioOptionId: currentColorScheme.scenarioOptionId,
-						colorItemId: currentColorScheme.colorItemId,
-						colorId: currentColorScheme.colorId,
-						isDeleted: true,
-						edhPlanOptionId: scenarioOption.edhPlanOptionId
-					});
+					// Deselect current selected legacy color scheme
+					if (genericOption)
+					{
+						selectedOptions.push({
+							scenarioOptionId: genericOption.scenarioOptionId,
+							scenarioId: genericOption.scenarioId,
+							edhPlanOptionId: genericOption.edhPlanOptionId,
+							planOptionQuantity: 0
+						});						
+					}					
+				}
+				else
+				{
+					// Deselect current selected color scheme
+					const currentColorScheme = scenarioOption.scenarioOptionColors?.length ? scenarioOption.scenarioOptionColors[0] : null;
+
+					if (currentColorScheme)
+					{
+						optionColors.push({
+							scenarioOptionColorId: currentColorScheme.scenarioOptionColorId,
+							scenarioOptionId: currentColorScheme.scenarioOptionId,
+							colorItemId: currentColorScheme.colorItemId,
+							colorId: currentColorScheme.colorId,
+							isDeleted: true,
+							edhPlanOptionId: scenarioOption.edhPlanOptionId
+						});
+					}					
 				}
 
-				// Select color scheme
-				optionColors.push({
-					scenarioOptionColorId: 0,
-					scenarioOptionId: scenarioOption.scenarioOptionId,
-					colorItemId: data.color.colorItemId,
-					colorId: data.color.colorId,
-					isDeleted: false,
-					edhPlanOptionId: scenarioOption.edhPlanOptionId
-				});
+				if (this.legacyColorScheme && !this.legacyColorScheme.isSelected &&  !!data.color?.name && this.legacyColorScheme.colorName === data.color.name && !this.inPlanChangeOrder)
+				{
+					// Select generic option which is tied to a legacy color scheme
+					selectedOptions.push({
+						scenarioOptionId: 0,
+						scenarioId: this.scenarioId,
+						edhPlanOptionId: this.legacyColorScheme.genericPlanOptionId,
+						planOptionQuantity: 1,
+						scenarioOptionColors: []
+					});
+				}
+				else
+				{
+					// Select color scheme
+					optionColors.push({
+						scenarioOptionColorId: 0,
+						scenarioOptionId: scenarioOption.scenarioOptionId,
+						colorItemId: data.color.colorItemId,
+						colorId: data.color.colorId,
+						isDeleted: false,
+						edhPlanOptionId: scenarioOption.edhPlanOptionId
+					});					
+				}
 			}
 
-			if (!!optionColors.length)
+			if (!!selectedOptions.length)
+			{
+				this.store.dispatch(new LiteActions.SelectOptions(selectedOptions, optionColors));
+			}
+			else if (!!optionColors.length)
 			{
 				this.store.dispatch(new LiteActions.SelectOptionColors(optionColors));
-			}
+			}				
 		}
 
 	}

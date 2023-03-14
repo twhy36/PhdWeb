@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { map, catchError, tap, switchMap, mergeMap } from 'rxjs/operators';
-import { EMPTY as empty, forkJoin, Observable, of, throwError } from 'rxjs';
+import { map, catchError, tap, switchMap, toArray, mergeMap } from 'rxjs/operators';
+import { EMPTY as empty, from, forkJoin, Observable, of, throwError } from 'rxjs';
 
 import
-	{
-		newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
-		JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
-		TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset, convertDateToUtcString, Choice
-	} from 'phd-common';
+{
+	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, ChangeOrderChoice, ChangeOrderPlanOption,
+	JobChoice, JobPlanOption, TreeVersionRules, OptionRule, Tree, ChoiceImageAssoc, PlanOptionCommunityImageAssoc,
+	TreeBaseHouseOption, OptionImage, IdentityService, MyFavoritesChoice, getDateWithUtcOffset, Choice, convertDateToUtcString
+} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -38,7 +38,7 @@ export class TreeService
 		const utcNow = getDateWithUtcOffset();
 
 		const entity = 'dTreeVersions';
-		const expand = `dTree($select=dTreeID;$expand=plan($select=integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
+		const expand = `dTree($select=dTreeID;$expand=plan($select=planId,integrationKey),org($select = edhFinancialCommunityId)),baseHouseOptions($select=planOption;$expand=planOption($select=integrationKey))`;
 		const filter = `publishStartDate le ${utcNow} and (publishEndDate eq null or publishEndDate gt ${utcNow})${communityFilter}`;
 		const select = `dTreeVersionID,dTreeID,dTreeVersionName,dTreeVersionDescription,publishStartDate,publishEndDate,lastModifiedDate`;
 		const orderBy = `publishStartDate`;
@@ -55,6 +55,7 @@ export class TreeService
 						id: data['dTreeVersionID'],
 						name: data['dTreeVersionName'],
 						communityId: data['dTree']['org']['edhFinancialCommunityId'],
+						planId: data['dTree']['plan']['planID'],
 						planKey: data['dTree']['plan']['integrationKey'],
 						description: data['dTreeVersionDescription'],
 						treeId: data['dTreeID'],
@@ -84,28 +85,14 @@ export class TreeService
 		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
 			tap(response => response['@odata.context'] = undefined),
 			mergeMap((response: Tree) => forkJoin(
-				of(response),
 				this.getDivDPointCatalogs(response, skipSpinner),
 				this.getDivChoiceCatalogAttributeGroups(response, skipSpinner),
 				this.getDivChoiceCatalogLocationGroups(response, skipSpinner)
 			)),
-			map(([tree, points, attrChoices, locChoices]) =>
+			map(([tree, attrChoices, locChoices]) =>
 			{
 				const treePoints = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
 				const treeChoices = _.flatMap(treePoints, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
-
-				if (points)
-				{
-					points.map(x =>
-					{
-						let point = treePoints.find(p => p.divPointCatalogId === x.divDpointCatalogID);
-						if (point)
-						{
-							point.cutOffDays = x.cutOffDays;
-							point.edhConstructionStageId = x.edhConstructionStageId;
-						}
-					});
-				}
 
 				if (attrChoices)
 				{
@@ -307,13 +294,38 @@ export class TreeService
 		);
 	}
 
-	getChoiceDetails(choices: Array<number>): Observable<Array<any>>
+	getChoiceDetails(choices: number[]): Observable<any[]>
 	{
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				let guid = newGuid();
-				let requests = choices.map(choice => createBatchGet(`${environment.apiUrl}GetChoiceDetails(DPChoiceID=${choice})`));
+				const guid = newGuid();
+
+				let buildRequestUrl = (choices: number[]) =>
+				{
+					const filter = `dpChoiceId in (${choices.join(',')})`;
+					const select = `dTreeVersionID,dpChoiceSortOrder,maxQuantity,divChoiceCatalogID,dpChoiceID,imagePath,isDecisionDefault`;
+					
+					let pointExpands = `divDPointCatalog($select=dPointLabel,isQuickQuoteItem,isStructuralItem;$expand=dPointCatalog($select=dPointTypeId)),`;
+					pointExpands += `dSubGroup($select=dSubGroupCatalogID,dSubGroupSortOrder;$expand=dSubGroupCatalog($select=dSubGroupLabel),dGroup($select=dGroupID,dGroupCatalogID,dGroupSortOrder;$expand=dGroupCatalog($select=dGroupLabel)))`;
+
+					let expand = `divChoiceCatalog($select=choiceLabel),`;
+					expand += `dPoint($select=dPointID,divDPointCatalogID,dSubGroupID,dPointSortOrder;$expand=${pointExpands})`;
+
+					return `${environment.apiUrl}dPChoices?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}expand=${expand}`;
+				};
+
+				const batchSize = 50;
+				let batchBundles: string[] = [];
+
+				for (var x = 0; x < choices.length; x = x + batchSize)
+				{
+					let choiceList = choices.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(choiceList));
+				}
+
+				let requests = batchBundles.map(req => createBatchGet(req));
 				let headers = createBatchHeaders(guid, token);
 				let batch = createBatchBody(guid, requests);
 
@@ -321,7 +333,12 @@ export class TreeService
 			}),
 			map((response: any) =>
 			{
-				return response.responses.map(r => r.body);
+				let bodies: any[] = response.responses.map(r => r.body);
+
+				return _.flatten(bodies.map(body =>
+				{
+					return body.value?.length > 0 ? body.value : null;
+				}).filter(res => res));
 			})
 		);
 	}
@@ -446,7 +463,7 @@ export class TreeService
 						let orderBy = `sortOrder`;
 
 						return `${environment.apiUrl}planOptionCommunityImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
-					}
+					};
 
 					const batchSize = 35;
 					let batchBundles: string[] = [];
@@ -529,31 +546,55 @@ export class TreeService
 			return `${environment.apiUrl}optionRules?${encodeURIComponent('$')}expand=${expand}&${encodeURIComponent('$')}filter=${filter}`;
 		}
 
-		const batchSize = 100;
-		let batchBundles: string[] = [];
+		const batchSize = 1;
 
-		// create a batch request with a max of 100 options per request
-		for (var x = 0; x < options.length; x = x + batchSize)
+		const chunk = 100;
+		const splitArrayresult = options.reduce((resultArray, item, index) =>
 		{
-			let optionList = options.slice(x, x + batchSize);
+			const chunkIndex = Math.floor(index / chunk);
 
-			batchBundles.push(buildRequestUrl(optionList));
-		}
-
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
+			if (!resultArray[chunkIndex])
 			{
-				let requests = batchBundles.map(req => createBatchGet(req));
+				resultArray[chunkIndex] = [];
+			}
 
-				let guid = newGuid();
-				let headers = createBatchHeaders(guid, token);
-				let batch = createBatchBody(guid, requests);
+			resultArray[chunkIndex].push(item);
 
-				return this.http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			return resultArray;
+		}, []);
+
+		return from(splitArrayresult).pipe(
+
+			mergeMap(item =>
+			{
+
+				let batchBundles: string[] = [];
+				for (var x = 0; x < item.length; x = x + batchSize)
+				{
+					let optionList = item.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(optionList));
+				}
+
+				return this.identityService.token.pipe(
+					switchMap((token: string) =>
+					{
+						let requests = batchBundles.map(req => createBatchGet(req));
+
+						let guid = newGuid();
+						let headers = createBatchHeaders(guid, token);
+						let batch = createBatchBody(guid, requests);
+
+						return withSpinner(this.http).post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+					}));
+
 			}),
-			map((response: any) =>
+
+			toArray<any>(),
+			map(responses =>
 			{
-				let bodyValue: any[] = response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value);
+				let bodyValue: any[] = _.flatMap(responses, (response: any) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body.value));
+				//logic here to recombine results	
 				let optionRules = _.flatten(bodyValue);
 
 				let mappings: { [optionNumber: string]: OptionRule } = {};
@@ -562,57 +603,73 @@ export class TreeService
 				{
 					let res = optionRules.find(or => or.planOption.integrationKey === opt.optionNumber && or.dpChoice_OptionRuleAssoc.some(r => r.dpChoiceID === opt.dpChoiceId));
 
-					mappings[opt.optionNumber] = !!res ? <OptionRule>{
-						optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+					mappings[opt.optionNumber] = !!res ? <OptionRule>
 						{
-							return {
-								id: c.dpChoice.divChoiceCatalogID,
-								mustHave: c.mustHave,
-								attributeReassignments: c.attributeReassignments.map(ar =>
-								{
-									return {
-										id: ar.attributeReassignmentID,
-										choiceId: ar.todpChoiceID,
-										attributeGroupId: ar.attributeGroupID,
-										divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
-									};
-								})
-							};
-						}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
-					} : null;
+							optionId: opt.optionNumber, choices: res.dpChoice_OptionRuleAssoc.sort(sortChoices).map(c =>
+							{
+								return {
+									id: c.dpChoice.divChoiceCatalogID,
+									mustHave: c.mustHave,
+									attributeReassignments: c.attributeReassignments.map(ar =>
+									{
+										return {
+											id: ar.attributeReassignmentID,
+											choiceId: ar.todpChoiceID,
+											attributeGroupId: ar.attributeGroupID,
+											divChoiceCatalogId: ar.todpChoice.divChoiceCatalogID
+										};
+									})
+								};
+							}), ruleId: res.optionRuleID, replaceOptions: res.optionRuleReplaces.map(orr => orr.planOption.integrationKey)
+						} : null;
 				});
 
 				return mappings;
 			})
 		);
+
 	}
 
 	// Retrieve the latest cutOffDays in case GetTreeDto returns cached tree data from API
-	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<any[]>
-    {
-        const entity = `divDPointCatalogs`;
-        let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+	getDivDPointCatalogs(tree: Tree, skipSpinner?: boolean): Observable<Tree>
+	{
+		const entity = `divDPointCatalogs`;
+		let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 		const pointCatalogIds = points.map(x => x.divPointCatalogId);
-        const filter = `divDpointCatalogID in (${pointCatalogIds})`;
+		const filter = `divDpointCatalogID in (${pointCatalogIds})`;
 
-        const select = `divDpointCatalogID,cutOffDays,edhConstructionStageId`;
+		const select = `divDpointCatalogID,cutOffDays,edhConstructionStageId`;
 
-        const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
-        const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const endPoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
-        return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
-            map(response =>
+		return (skipSpinner ? this.http : withSpinner(this.http)).get<Tree>(endPoint).pipe(
+			map(response =>
 			{
-				return response['value'] as any[];
-            }),
-            catchError(error =>
-            {
-                console.error(error);
+				if (response)
+				{
+					response['value'].map(x =>
+					{
+						let point = points.find(p => p.divPointCatalogId === x.divDpointCatalogID);
 
-                return empty;
-            })
-        );
+						if (point)
+						{
+							point.cutOffDays = x.cutOffDays;
+							point.edhConstructionStageId = x.edhConstructionStageId;
+						}
+					});
+				}
+
+				return tree;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return empty;
+			})
+		);
 	}
 
 	/**

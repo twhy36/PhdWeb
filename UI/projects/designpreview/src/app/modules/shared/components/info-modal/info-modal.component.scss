@@ -1,0 +1,45 @@
+@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+
+$modal-font-size: 1.25em;
+
+
+.modal-header {
+	background: var(--popup-ribbon-background-color) !important;
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: #fff;
+	
+	button {
+		color: #fff;
+	}
+	
+	button:focus {
+    outline: none;
+}
+}
+.modal-center-title{
+	justify-content: center;
+}
+.modal-title {
+	font-size: $modal-font-size;
+}
+
+.modal-body {
+	text-align: center;
+}
+
+.modal-button {
+	width: 25%;
+	text-align: center;
+
+	span {
+		font-size: $modal-font-size;
+	}
+}
+
+.btn-primary {
+    background: var(--primary-button-color) !important;
+	border-color: var(--primary-button-color) !important;
+    border-radius: 35px;
+}

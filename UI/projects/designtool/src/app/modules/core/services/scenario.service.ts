@@ -128,6 +128,7 @@ export class ScenarioService
 						dpChoiceID: choice.choiceId,
 						dpChoiceQuantity: choice.choiceQuantity,
 						divChoiceCatalogID: choice.choice.choiceCatalogId,
+						treePointId: choice.treePointId,
 						attributes: this.mapAttributes(choice),
 						locations: this.mapLocations(choice)
 					};
@@ -165,6 +166,7 @@ export class ScenarioService
 							divChoiceCatalogID: ch.divChoiceCatalogId,
 							dpChoiceID: ch.id,
 							dpChoiceQuantity: ch.quantity,
+							treePointId: ch.treePointId,
 							scenarioId: newScenario.scenarioId || 0,
 							scenarioChoiceId: 0,
 							attributes: this.mapAttributes(ch),

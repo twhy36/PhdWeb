@@ -1,29 +1,29 @@
 import { forwardRef, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, throwError as _throw } from 'rxjs';
+import { Observable, of, throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { IFeatureSwitch } from '../models/feature-switch.model';
+import { IFeatureSwitch, IFeatureSwitchOrgAssoc } from '../models/feature-switch.model';
 import { IOrg } from '../models/org.model';
 import { API_URL } from '../injection-tokens';
 
-type Feature = 'Or Mapping' | 'Phd Lite';
+type Feature = 'Or Mapping' | 'Phd Lite' | 'Option Packages' | 'Design Preview Presale';
 
 @Injectable()
 export class FeatureSwitchService
 {
 	private _ds: string = encodeURIComponent('$');
-	
+
 	constructor(private _http: HttpClient,
 		@Inject(forwardRef(() => API_URL)) private apiUrl: string)
 	{
-		
+
 	}
 
 	getFeatureSwitch(name: string, org: IOrg): Observable<IFeatureSwitch>
 	{
 		const entity = `featureSwitches`;
-		const filter = `name eq '${name}'`;
+		const filter = `tolower(name) eq tolower('${name}')`;
 		const select = `featureSwitchId, name, state`;
 
 		let expandFilter = ``;
@@ -81,7 +81,7 @@ export class FeatureSwitchService
 
 				// feature is set to on
 				if (isEnabled)
-				{										
+				{
 					let marketOrg = fw.featureSwitchOrgAssocs.find(fsoa => fsoa.org.edhFinancialCommunityId === null);
 
 					// did we find a market?
@@ -126,5 +126,37 @@ export class FeatureSwitchService
 		console.error(error);
 
 		return _throw(error || 'Server error');
+	}
+
+	getFeatureSwitchForCommunities(name: string, financialCommunityIds: number[]): Observable<IFeatureSwitchOrgAssoc[]>
+	{
+		if (!financialCommunityIds || financialCommunityIds.length === 0)
+		{
+			return of([]);
+		}
+
+		const entity = `featureSwitches`;
+		const filter = `tolower(name) eq tolower('${name}')`;
+		const select = `featureSwitchId, name, state`;
+
+		const communityIds = financialCommunityIds.join(",");
+		let expandFilter = `org/edhFinancialCommunityId in (${communityIds})`;
+		const expand = `featureSwitchOrgAssocs($select=orgId, state;$filter=${expandFilter};$expand=org($select=edhMarketId, edhFinancialCommunityId))`;
+
+		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const url = `${this.apiUrl}${entity}?${qryStr}`;
+
+		return this._http.get<any>(url).pipe(
+			map(response =>
+			{
+				const featureSwitch = !!response?.value?.length ? response.value[0] as IFeatureSwitch : null;
+				return featureSwitch?.featureSwitchOrgAssocs || [];
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+				return _throw(error);
+			})
+		);
 	}
 }

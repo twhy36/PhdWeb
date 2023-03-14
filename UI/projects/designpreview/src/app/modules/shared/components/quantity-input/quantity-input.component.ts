@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
 	selector: 'quantity-input',
 	templateUrl: './quantity-input.component.html',
 	styleUrls: ['./quantity-input.component.scss']
 })
-export class QuantityInputComponent implements OnInit
+export class QuantityInputComponent
 {
 	@Input() max?: number;
 	@Input() min?: number;
@@ -17,7 +17,7 @@ export class QuantityInputComponent implements OnInit
 	}
 	@Input() canEdit: boolean;
 	@Input() isBlocked: boolean;
-	
+
 	@Output() quantityChange: EventEmitter<number>;
 	@ViewChild('quantity') element: ElementRef;
 
@@ -28,8 +28,6 @@ export class QuantityInputComponent implements OnInit
 		this.quantityChange = new EventEmitter();
 	}
 
-	ngOnInit() { }
-
 	enforceMinMax(value)
 	{
 		if (this.currentQty !== value)
@@ -37,20 +35,20 @@ export class QuantityInputComponent implements OnInit
 			if (value < this.min)
 			{
 				this.currentQty = this.min;
+				this.quantityChange.emit(this.currentQty);
 			}
 			else if (value > this.max)
 			{
-				this.currentQty = null;
+				this.quantityChange.emit(null);
 			}
 			else
 			{
 				this.currentQty = value;
+				this.quantityChange.emit(this.currentQty);
 			}
 
-			this.quantityChange.emit(this.currentQty);
 			this.element.nativeElement.value = this.currentQty;
 			this.cd.detectChanges();
 		}
 	}
-
 }

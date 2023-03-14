@@ -55,7 +55,7 @@ export class SaveError extends ErrorAction
 {
 	readonly type = FavoriteActionTypes.SaveError;
 
-	constructor(public error: Error, public friendlyMessage?: string) { super(error, friendlyMessage); }
+	constructor(public error: Error, public friendlyMessage?: string, public errFrom?: string) { super(error, friendlyMessage, errFrom); }
 }
 
 export class DeleteMyFavorite implements Action
@@ -80,26 +80,26 @@ export class ToggleContractedOptions implements Action
 }
 
 export class AddMyFavoritesPointDeclined implements Action
-	{
-		readonly type = FavoriteActionTypes.AddMyFavoritesPointDeclined;
+{
+	readonly type = FavoriteActionTypes.AddMyFavoritesPointDeclined;
 
-		constructor(public myFavoriteId: number, public pointId: number, public divPointCatalogId: number) {	}
-	}
+	constructor(public myFavoriteId: number, public pointId: number, public divPointCatalogId: number) {	}
+}
 
 export class DeleteMyFavoritesPointDeclined implements Action
-	{
-		readonly type = FavoriteActionTypes.DeleteMyFavoritesPointDeclined;
+{
+	readonly type = FavoriteActionTypes.DeleteMyFavoritesPointDeclined;
 
-		constructor(public myFavoriteId: number, public myFavoritesPointDeclineId: number) {	}
-	}
+	constructor(public myFavoriteId: number, public myFavoritesPointDeclineId: number) {	}
+}
 
 export class MyFavoritesPointDeclinedUpdated implements Action
-	{
-		readonly type = FavoriteActionTypes.MyFavoritesPointDeclinedUpdated;
+{
+	readonly type = FavoriteActionTypes.MyFavoritesPointDeclinedUpdated;
 
-		constructor(public myFavoritesPointDeclined: MyFavoritesPointDeclined,
+	constructor(public myFavoritesPointDeclined: MyFavoritesPointDeclined,
 			public isDelete: boolean) {	}
-	}
+}
 
 export class LoadMyFavorite implements Action
 {

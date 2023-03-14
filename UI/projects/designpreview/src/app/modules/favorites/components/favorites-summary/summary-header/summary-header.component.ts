@@ -1,7 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ElementRef, Renderer2, NgZone, HostListener } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { select, Store } from '@ngrx/store';
 
+import * as fromRoot from '../../../../ngrx-store/reducers';
+import * as fromPlan from '../../../../ngrx-store/plan/reducer';
 import { UnsubscribeOnDestroy, LotExt, PriceBreakdown } from 'phd-common';
 import { BrandService } from '../../../../core/services/brand.service';
+import { BuildMode } from '../../../../shared/models/build-mode.model';
 
 @Component({
 	selector: 'summary-header',
@@ -13,24 +18,36 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
 	@Input() includeContractedOptions: boolean;
-	@Input() isPreview: boolean = false;
 	@Input() isDesignComplete: boolean = false;
-
+	@Input() isPrintHeader: boolean = false;
+	
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
-
+	
 	scrolling: boolean = false;
 	isSticky: boolean = false;
+	isPreview: boolean = false;
+	isPresale: boolean = false;
+	headerTitle: string;
+	communityName: string;
+	planName: string;
 	listener: () => void;
 
 	constructor(
 		private ngZone: NgZone,
 		private renderer: Renderer2,
+		private store: Store<fromRoot.State>,
 		private cd: ChangeDetectorRef,
 		private summaryHeaderElement: ElementRef,
-		private brandService: BrandService)
+		private brandService: BrandService,
+		private titleService: Title)
 	{
 		super();
+	}
+
+	get disclaimerText()
+	{
+		return 'Option selections are not final until purchased via a signed agreement or change order.';
 	}
 
 	ngOnInit()
@@ -39,16 +56,58 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			this.listener = this.renderer.listen('window', 'scroll', () => { this.scrollHandler.bind(this)(); });
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.financialCommunityName),
+		).subscribe(communityName =>
+		{
+			this.communityName = communityName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromPlan.selectedPlanData)
+		).subscribe(planData =>
+		{
+			this.planName = planData?.salesName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario),
+		).subscribe((state) =>
+		{
+			switch (state.buildMode)
+			{
+			case (BuildMode.Preview):
+				this.isPreview = true;
+				this.headerTitle = 'Preview Favorites';
+				break;
+			case (BuildMode.Presale):
+				this.isPresale = true;
+				this.headerTitle = 'My Favorites';
+				break;
+			default:
+				this.isPreview = false;
+				this.isPresale = false;
+				this.headerTitle = this.summaryHeader.favoritesListName;
+				break;
+			}
+		});
 	}
 
-	get address(): string {
+	get address(): string
+	{
 		let address = 'N/A';
 
-		if (this.summaryHeader.lot) {
-			let lot = this.summaryHeader.lot;
+		if (this.summaryHeader.lot)
+		{
+			const lot = this.summaryHeader.lot;
 
-			if ((lot.streetAddress1 && lot.streetAddress1.length) && (lot.city && lot.city.length) && (lot.stateProvince && lot.stateProvince.length) && (lot.postalCode && lot.postalCode.length)) {
-				let address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
+			if ((lot.streetAddress1 && lot.streetAddress1.length) && (lot.city && lot.city.length) && (lot.stateProvince && lot.stateProvince.length) && (lot.postalCode && lot.postalCode.length))
+			{
+				const address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
 
 				address = `${lot.streetAddress1}${address2}, ${lot.city}, ${lot.stateProvince} ${lot.postalCode}`;
 			}
@@ -57,8 +116,9 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		return address;
 	}
 
-	get title() : string {
-		return this.isPreview ? 'Preview Favorites' : this.summaryHeader.favoritesListName;
+	getPlanName() : string
+	{
+		return this.isPresale ? this.summaryHeader.planName + ' Floorplan' : this.summaryHeader.planName;
 	}
 
 	get isContractedOptionsDisabled() : boolean
@@ -81,39 +141,64 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	checkIfHeaderSticky()
 	{
-		const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
-		if (clientRect.top < 110)
+		if (!this.isPrintHeader)
 		{
-			if (!this.isSticky && document.body.scrollHeight > 1500) {
-				this.isSticky = true;
-				this.cd.detectChanges();
-				this.isStickyChanged.emit(this.isSticky);
+			const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
+			if (clientRect.top < 110)
+			{
+				if (!this.isSticky && document.body.scrollHeight > 1500)
+				{
+					this.isSticky = true;
+					this.cd.detectChanges();
+					this.isStickyChanged.emit(this.isSticky);
+				}
 			}
+			else
+			{
+				if (this.isSticky)
+				{
+					this.isSticky = false;
+					this.cd.detectChanges();
+					this.isStickyChanged.emit(this.isSticky);
+				}
+			}
+
+			this.scrolling = false;
 		}
 		else
 		{
-			if (this.isSticky) {
-				this.isSticky = false;
-				this.cd.detectChanges();
-				this.isStickyChanged.emit(this.isSticky);
-			}
+			this.isSticky = false;
 		}
-
-		this.scrolling = false;
 	}
 
-	toggleContractedOptions() {
-		if (!this.isContractedOptionsDisabled) {
+	toggleContractedOptions()
+	{
+		if (!this.isContractedOptionsDisabled)
+		{
 			this.contractedOptionsToggled.emit();
 		}
 	}
 
-	getImageSrc() {
+	getImageSrc()
+	{
 		return this.brandService.getBrandImage('logo');
+	}
+
+	onPrint() 
+	{
+		this.titleService.setTitle(`${this.communityName} ${this.planName}`);
+		window.print();
+	}
+
+	@HostListener('window:afterprint', [])
+	onWindowAfterPrint()
+	{
+		this.titleService.setTitle('Design Preview');
 	}
 }
 
-export class SummaryHeader {
+export class SummaryHeader
+{
 	favoritesListName: string;
 	communityName: string;
 	planName: string;

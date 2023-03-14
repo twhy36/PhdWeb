@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 
-import { DecisionPointFilterType } from '../../models/decisionPointFilter';
+import { DecisionPointFilterType } from 'phd-common';
 
 @Component({
 	selector: 'experience-filter',

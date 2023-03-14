@@ -108,6 +108,7 @@
 				.phd-switch-text {
 					vertical-align: top;
 					display: inline-block;
+					margin-left: 5px;
 				}
 			}
 		}
@@ -122,6 +123,10 @@
 			font-size: 12px;
 		}
 	}
+
+	.phd-community-name {
+		font-size: 25px !important;
+	}
 }
 
 // Phd-Lite
@@ -132,4 +137,14 @@
 	.phd-attribute-toggle {
 		margin-right: 20px;
 	}	
+}
+
+.phd-summary-header-row {
+	display: flex;
+	justify-content: space-between;
+
+	.phd-remove-design-selections-btn {
+		font-weight: 500;
+		font-size: 12px;
+	}
 }

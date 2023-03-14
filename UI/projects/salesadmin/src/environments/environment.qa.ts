@@ -7,7 +7,6 @@ export const environment = {
 	production: false,
 	apiUrl: 'https://phdapi.qa.pulte.com/odata/',
 	hubUrl: 'https://phdhub.qa.pulte.com/hub',
-	thoUrl: 'https://tho.qa.centex.com/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: "pulte.onmicrosoft.com",
 	clientId: "9d433c6a-9bfc-4d5e-917b-3bfe08942b6e",
@@ -29,16 +28,12 @@ export const environment = {
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
 	},
-	designPreviewMarketWhitelist: [
-		460, // Arizona Market
-		463, // Austin Market
-		104, // Houston Market
-		473, // Las Vegas
-		124, // Michigan Market
-		465, // New Mexico
-		40008, // Northeast Florida Market
-		122, // Northern California Market
-		448, // Pacific Northwest
-		151, // Southern California Market
-	]
+	thoUrls: {
+		pulte: 'tho.qa.pulte.com/',
+		delWebb: 'tho.qa.delwebb.com/',
+		americanWest: 'tho.qa.americanwesthomes.com/',
+		diVosta: 'tho.qa.divosta.com/',
+		centex: 'tho.qa.centex.com/',
+		johnWieland: 'tho.qa.jwhomes.com/'
+	},
 };

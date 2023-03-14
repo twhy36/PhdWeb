@@ -4,16 +4,20 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
-import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
+import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from '../../../shared/models/plan-assignment.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
-import { switchMap } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { combineLatest, of } from 'rxjs';
+import * as _ from 'lodash';
+import { combineLatest, forkJoin, of } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
-import { IdentityService, Permission } from 'phd-common';
+import { HomeSiteService } from '../../../core/services/homesite.service';
+import { PlanService } from '../../../core/services/plan.service';
+import { FeatureSwitchService, IdentityService, Permission, BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'community-settings',
@@ -23,6 +27,7 @@ import { IdentityService, Permission } from 'phd-common';
 export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	financialCommunity: FinancialCommunity = null;
+	formFinancialCommunity: FinancialCommunity;
 	financialCommunityInfo: FinancialCommunityInfo;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	salesCommunity: SalesCommunity = null;
@@ -31,14 +36,21 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	orgId: number;
 	canEdit = false;
 	isSaving = false;
+	financialBrand: FinancialBrand;
 	url?: string = null;
+	designPreviewUrl?: string = null;
 	commmunityLinkEnabledDirty = false;
 	previewEnabledDirty = false;
 	canToggleCommunitySettings = false;
-	canAccessDesignPreview = false;
-	environment = environment;
 	ecoeRequired = false;
 	earnestMoneyRequired = false;
+	selectedOption: PlanViewModel = null;
+	loading: boolean = false;
+	isGeneratingDesignPreviewLink: boolean = false;
+	isPhdLite = false;
+	isUrlGenerationEnabled: boolean;
+	isGenerateUrlButtonDisabled = true;
+	isSalesAdminReadOnly = false;
 
 	get saveDisabled(): boolean
 	{
@@ -46,9 +58,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			// Disables save if form is invalid and user is not trying to turn on preview
 			|| (!this.communitySettingsForm.valid && !this.previewEnabledDirty)
 			// Disables save if user trys to remove existing value for ecoeMonths
-			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo.defaultECOEMonths != null)
+			|| (this.communitySettingsForm.get('ecoeMonths').invalid && this.communitySettingsForm.get('ecoeMonths').dirty && this.financialCommunityInfo?.defaultECOEMonths != null)
 			// Disables save is user trys to remove existing value for earnest money
-			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo.earnestMoneyAmount != null)
+			|| (this.communitySettingsForm.get('earnestMoney').invalid && this.communitySettingsForm.get('earnestMoney').dirty && this.financialCommunityInfo?.earnestMoneyAmount != null)
 			// Disables save if form and toggles are pristine
 			|| (
 				this.communitySettingsForm.pristine
@@ -64,14 +76,24 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	get isPreviewEnabled(): boolean
 	{
-		return this.financialCommunity?.isDesignPreviewEnabled;
+		return this.formFinancialCommunity?.isDesignPreviewEnabled;
+	}
+
+	get plans(): PlanViewModel[]
+	{
+		return this.selectedCommunity ? this.selectedCommunity.plans : [];
 	}
 
 	constructor(
 		public _orgService: OrganizationService,
+		private _planService: PlanService,
+		private _treeService: TreeService,
+		private _homeSiteService: HomeSiteService,
 		private _msgService: MessageService,
+		private _route: ActivatedRoute,
+		private _featureSwitchService: FeatureSwitchService,
 		private _identityService: IdentityService,
-		private _route: ActivatedRoute) { super(); }
+		private _brandService: BrandService) { super(); }
 
 	ngOnInit()
 	{
@@ -81,42 +103,32 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 
-		this._identityService.hasClaimWithPermission('EnableCommunity', Permission.Edit).pipe(
+		combineLatest([this._orgService.currentMarket$, this._orgService.currentCommunity$]).pipe(
 			this.takeUntilDestroyed(),
-		).subscribe((hasClaim) => { this.canToggleCommunitySettings = hasClaim; });
-
-		this._orgService.currentCommunity$.pipe(
-			this.takeUntilDestroyed(),
-			switchMap(financialCommunity => {
-				this.financialCommunity = financialCommunity;
-				if (financialCommunity.salesCommunityId) {
-					return combineLatest(
-						[this._orgService.getWebsiteCommunity(financialCommunity?.salesCommunityId),
-						this._orgService.getSalesCommunity(financialCommunity?.salesCommunityId)]);
-				}
-				return of([null, null]);
-			}),
-		).subscribe(([websiteCommunity, salesCommunity]) => {
-			this.url = (environment.thoUrl && websiteCommunity?.webSiteIntegrationKey)
-				? environment.thoUrl + websiteCommunity.webSiteIntegrationKey
-				: null;
-			this.salesCommunity = salesCommunity;
-		});
-
-		this._orgService.currentMarket$.pipe(
-			this.takeUntilDestroyed(),
-			switchMap(mkt =>
+			switchMap(([mkt, comm]) =>
 			{
-				if (mkt)
+				this.currentMarket = mkt;
+				this.financialCommunity = comm;
+
+
+				// This need to be deep copied so that changes that aren't saved aren't made to the original
+				this.formFinancialCommunity = JSON.parse(JSON.stringify(this.financialCommunity));
+
+				// If we have both a current market and current financialCommunity get orgs needed to get FinancialCommunityinfo
+				if (mkt && comm && comm.marketId === mkt.id)
 				{
-					this.currentMarket = mkt;
-					if (environment.designPreviewMarketWhitelist.length === 0) {
-						this.canAccessDesignPreview = true;
-					} else {
-						this.canAccessDesignPreview = !!environment.designPreviewMarketWhitelist?.find(id => id === this.currentMarket.id);
-					}
-					return combineLatest([this._orgService.getInternalOrgs(mkt.id), this._orgService.currentCommunity$]);
+					return combineLatest([
+						this._orgService.getInternalOrgs(mkt.id),
+						of(comm)
+					]);
 				}
+				else
+				{
+					this.financialCommunity = null;
+					this.selectedCommunity = null;
+					this.formFinancialCommunity = null;
+				}
+
 				return of([null, null]);
 			}),
 			switchMap(([orgs, comm]) =>
@@ -126,24 +138,70 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					this.orgId = orgs?.find(o => o.edhFinancialCommunityId === comm.id)?.orgID;
 					this.selectedCommunity = new FinancialCommunityViewModel(comm);
 
-					if (this.orgId)
+					this.loadPlansAndHomeSites();
+
+					//init generate url values
+					this.disableUrlGeneration();
+					this.selectedOption = null;
+
+					if (this.orgId && comm.salesCommunityId)
 					{
-						return this._orgService.getFinancialCommunityInfo(this.orgId);
+						// If we have an Org and salesCommunity we get FinancialCommunityInfo, WebsiteCommunity, SalesCommunity and FinancialBrand
+						return combineLatest([
+							this._orgService.getFinancialCommunityInfo(this.orgId),
+							this._orgService.getWebsiteCommunity(comm?.salesCommunityId),
+							this._orgService.getSalesCommunity(comm?.salesCommunityId),
+							this._brandService.getFinancialBrand(this.financialCommunity.financialBrandId, environment.apiUrl)
+						]);
 					}
 				}
-				return of(null);
+
+				return combineLatest([of(null), of(null), of(null), of(null)]);
 			}),
-		).subscribe(finCommInfo =>
+		).subscribe(([finCommInfo, websiteCommunity, salesCommunity, financialBrand]) =>
 		{
 			this.financialCommunityInfo = finCommInfo;
+
+			this.financialBrand = financialBrand;
+			if (financialBrand)
+			{
+				const brandUrl = getBrandUrl(financialBrand.key, environment.thoUrls);
+				this.url = (brandUrl && websiteCommunity?.webSiteIntegrationKey)
+					? `${brandUrl}${websiteCommunity.webSiteIntegrationKey}`
+					: null;
+			}
+
+			this.canToggleCommunitySettings = true;
+			this.salesCommunity = salesCommunity;
+
 			this.createForm();
 		}, error =>
 		{
 			this.financialCommunityInfo = null;
 			this.orgId = null;
+
 			this.createForm();
+
 			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 		});
+
+		this._orgService.currentCommunity$.pipe(
+			this.takeUntilDestroyed(),
+			switchMap(comm =>
+			{
+				return combineLatest(([
+					comm ? this._featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: comm.id }) : of(false),
+					this._featureSwitchService.isFeatureEnabled('Design Preview Presale', { edhMarketId: this.currentMarket.id, edhFinancialCommunityId: comm?.id ?? null }),
+				]));
+			})
+		).subscribe(([isPhdLiteEnabled, isUrlGenerationEnabled]) =>
+		{
+			this.isPhdLite = !!isPhdLiteEnabled;
+			this.isUrlGenerationEnabled = !!isUrlGenerationEnabled;
+		});
+
+		this._identityService.hasClaimWithPermission('SalesAdmin', Permission.Edit)
+			.subscribe(canEdit => this.isSalesAdminReadOnly = !canEdit);
 	}
 
 	toggleCommunityLinkEnabled()
@@ -158,17 +216,20 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		else if (this.communitySettingsForm.get('earnestMoney').value)
 		{
 			this.ecoeRequired = true;
+
 			this.communitySettingsForm.get('ecoeMonths').markAsDirty();
 		}
 		else if (this.communitySettingsForm.get('ecoeMonths').value)
 		{
 			this.earnestMoneyRequired = true;
+
 			this.communitySettingsForm.get('earnestMoney').markAsDirty();
 		}
 		else
 		{
 			this.ecoeRequired = true;
 			this.earnestMoneyRequired = true;
+
 			this.communitySettingsForm.get('ecoeMonths').markAsDirty();
 			this.communitySettingsForm.get('earnestMoney').markAsDirty();
 		}
@@ -177,7 +238,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	togglePreviewEnabled()
 	{
 		this.previewEnabledDirty = !this.previewEnabledDirty;
-		this.financialCommunity.isDesignPreviewEnabled = !this.financialCommunity.isDesignPreviewEnabled;
+		this.formFinancialCommunity.isDesignPreviewEnabled = !this.formFinancialCommunity.isDesignPreviewEnabled;
 	}
 
 	createForm()
@@ -186,22 +247,24 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		this.commmunityLinkEnabledDirty = false;
 		this.previewEnabledDirty = false;
 
-		let ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
-		let earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
+		const ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
+		const earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
 
 		this.communitySettingsForm = new FormGroup({
 			'ecoeMonths': new FormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
-			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern("^[0-9]*$")])
-		}, [])
+			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern('^[0-9]*$')])
+		}, []);
 	}
 
 	save()
 	{
 		this.isSaving = true;
-		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty || this.previewEnabledDirty) && this.communitySettingsForm.valid)
+
+		if ((this.communitySettingsForm.dirty || this.commmunityLinkEnabledDirty) && this.communitySettingsForm.valid)
 		{
-			let ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
-			let earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
+			const ecoeMonths = this.communitySettingsForm.get('ecoeMonths').value;
+			const earnestMoney = this.communitySettingsForm.get('earnestMoney').value;
+
 			if (this.financialCommunityInfo)
 			{
 				this.financialCommunityInfo.defaultECOEMonths = ecoeMonths ?? this.financialCommunityInfo.defaultECOEMonths;
@@ -213,46 +276,163 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 				{
 					financialCommunityId: 0,
 					defaultECOEMonths: ecoeMonths,
-					earnestMoneyAmount: earnestMoney,
-				}
+					earnestMoneyAmount: earnestMoney
+				};
 			}
+
 			combineLatest([
 				this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
-				this._orgService.saveSalesCommunity(this.salesCommunity),
-				this._orgService.saveFinancialCommunity(this.financialCommunity)
+				this._orgService.saveSalesCommunity(this.salesCommunity)
 			]).subscribe(() =>
-				{
-					this.isSaving = false;
-					this.communitySettingsForm.markAsPristine();
-					this.commmunityLinkEnabledDirty = false;
-					this.previewEnabledDirty = false;
-					this.ecoeRequired = false;
-					this.earnestMoneyRequired = false;
-					this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
-				}, error =>
-				{
-					this.isSaving = false;
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
-				});
+			{
+				this.isSaving = false;
+
+				this.communitySettingsForm.markAsPristine();
+
+				this.commmunityLinkEnabledDirty = false;
+				this.previewEnabledDirty = false;
+				this.ecoeRequired = false;
+				this.earnestMoneyRequired = false;
+
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+			}, error =>
+			{
+				this.isSaving = false;
+
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+			});
 		}
-		else if (this.previewEnabledDirty)
+
+		if (this.previewEnabledDirty)
 		{
 			// Still want to be able to enable preview when the form is invalid
+			this.financialCommunity.isDesignPreviewEnabled = this.formFinancialCommunity.isDesignPreviewEnabled;
+
 			this._orgService.saveFinancialCommunity(this.financialCommunity).subscribe(() =>
+			{
+				this.isSaving = false;
+				this.communitySettingsForm.markAsPristine();
+				this.previewEnabledDirty = false;
+				this.commmunityLinkEnabledDirty = false;
+				this.ecoeRequired = false;
+				this.earnestMoneyRequired = false;
+
+				this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
+			}, error =>
+			{
+				this.isSaving = false;
+
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+			});
+		}
+	}
+
+	onPlanSelectionChanged(selectedPlan: PlanViewModel): void
+	{
+		this.disableUrlGeneration();
+
+		//enable generate url button when plan is changed and valid plan is selected
+		if (selectedPlan && selectedPlan.id)
+		{
+			this.isGenerateUrlButtonDisabled = false;
+		}
+	}
+
+	disableUrlGeneration()
+	{
+		this.designPreviewUrl = '';
+		this.isGenerateUrlButtonDisabled = true;
+	}
+
+	generateDesignPreviewLink(plan: PlanViewModel) 
+	{
+		//clear previous results
+		this._msgService.clear();
+		this.disableUrlGeneration();
+		//invalid input plan
+		if (!plan || !plan.id)
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error: Missing or Invalid Plan.', detail: '' });
+			return;
+		}
+
+		this.isGeneratingDesignPreviewLink = true;
+		const planId = plan.id;
+
+		//check if plan has tree
+		this._treeService.hasPlanTree(this.selectedCommunity.id, plan.integrationKey).pipe(
+			this.takeUntilDestroyed(),
+			switchMap(hasTree =>
+			{
+				if (!hasTree)
 				{
-					this.isSaving = false;
-					this.communitySettingsForm.markAsPristine();
-					this.previewEnabledDirty = false;
-					this.commmunityLinkEnabledDirty = false;
-					this.ecoeRequired = false;
-					this.earnestMoneyRequired = false;
-					this._msgService.add({ severity: 'success', summary: 'Community Settings', detail: 'Save successful.' });
-				}, error =>
+					throw new Error('No Published Tree!');
+				}
+
+				return this._planService.getDesignPreviewLink(planId);
+			}),
+			finalize(() =>
+			{
+				this.isGeneratingDesignPreviewLink = false;
+			})
+		).subscribe(
+			(link =>
+			{
+				this.designPreviewUrl = link;
+			}),
+			error =>
+			{
+				let err = 'Error: Unable to Generate link!';
+
+				if (error.message === 'No Published Tree!')
 				{
-					this.isSaving = false;
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: `Save failed. ${error}` });
+					err = error.message;
+				}
+
+				this._msgService.add({ severity: 'error', summary: err, detail: '' });
+			}
+		);
+	}
+
+	copyToClipboard(text: string)
+	{
+		navigator.clipboard.writeText(text);
+	}
+
+	private loadPlansAndHomeSites()
+	{
+		const fc = this.selectedCommunity;
+
+		if (!fc.inited)
+		{
+			this.loading = true;
+
+			const commId = fc.id;
+
+			// get promise of homesites for the financial community
+			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId);
+
+			// get promise plans for the financial community
+			const plansObs = this._planService.getCommunityPlans(commId);
+
+			const obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
+			{
+				fc.lots = lotDto.filter(l => l.lotStatusDescription !== 'Closed').map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
+				fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);
+
+				// add lots to plans
+				fc.plans.forEach(p =>
+				{
+					p.lots = fc.lots.filter(l => l.plans.some(lp => lp === p.id));
 				});
+			}));
+
+			obs.subscribe(() =>
+			{
+				fc.inited = true;
+
+				this.loading = false;
+			});
 		}
 	}
 }
-

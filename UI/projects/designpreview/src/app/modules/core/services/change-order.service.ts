@@ -8,7 +8,8 @@ import * as _ from 'lodash';
 
 import {
 	Job, JobChoice, JobChoiceAttribute, JobChoiceLocation,
-	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation, ChangeOrderHanding
+	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption,
+	ChangeOrderChoiceLocation, ChangeOrderHanding, withSpinner
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -20,9 +21,9 @@ export class ChangeOrderService
 
 	getTreeVersionIdByJobPlan(planId: number): Observable<number> 
 	{
-		let url = environment.apiUrl + `GetTreeVersionIdByJobPlan(planId=${planId})`;
+		const url = environment.apiUrl + `GetTreeVersionIdByJobPlan(planId=${planId})`;
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
 				return response['value'] as number;
@@ -97,7 +98,7 @@ export class ChangeOrderService
 			// Update choices
 			jobChangeOrderChoices.filter(c => c.action === 'Change').forEach(cco =>
 			{
-				let changedJobChoice = selectedChoices.find(sc => sc.divChoiceCatalogId === cco.divChoiceCatalogId);
+				const changedJobChoice = selectedChoices.find(sc => sc.divChoiceCatalogId === cco.divChoiceCatalogId);
 
 				if (changedJobChoice)
 				{
@@ -322,7 +323,7 @@ export class ChangeOrderService
 
 	getCurrentChangeOrder(changeOrderGroups: Array<ChangeOrderGroup>): ChangeOrderGroup
 	{
-		let pendingChangeOrderGroups = changeOrderGroups.filter(co => ['Withdrawn', 'Resolved'].indexOf(co.salesStatusDescription) === -1 && (co.salesStatusDescription !== 'Approved' || co.constructionStatusDescription === 'Pending'));
+		const pendingChangeOrderGroups = changeOrderGroups.filter(co => ['Withdrawn', 'Resolved'].indexOf(co.salesStatusDescription) === -1 && (co.salesStatusDescription !== 'Approved' || co.constructionStatusDescription === 'Pending'));
 
 		//this should change or go away afer we're only dealing with one type of change order
 		let jobChangeOrderGroup = pendingChangeOrderGroups.find(co =>

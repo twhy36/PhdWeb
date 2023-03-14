@@ -1,9 +1,9 @@
 <div class="phd-choice-card-detail">
 	<div class="phd-image-section">
-		<div class="phd-choice-path">
+		<a class="phd-choice-path">
 			<i class="fa fa-arrow-left phd-clickable" (click)="onClickBack()"></i>
 			<span>{{path}}</span>
-		</div>
+		</a>
 		<div class="phd-image-container">
 			<div class="phd-image-card">
 				<div class="phd-card-detail-image-body">
@@ -16,6 +16,7 @@
 					<div *ngIf="!highlightedAttribute">
 						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
 							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
+								<!--eslint-disable-next-line @angular-eslint/template/eqeqeq-->
 								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
 							</ng-template>
 						</ngb-carousel>
@@ -25,12 +26,12 @@
 			</div>
 			<div class="phd-image-carousel">
 				<ng-container *ngIf="choiceImages.length <= 10">
-					<span *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
+					<button *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
 						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
 								  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
 								  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
 						</cl-image>
-					</span>
+					</button>
 				</ng-container>
 				<ng-container *ngIf="choiceImages.length > 10">
 					<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
@@ -44,32 +45,39 @@
 				</ng-container>
 			</div>
 		</div>
-		<div class="phd-price">
-			<ng-container *ngIf="choice.priceHiddenFromBuyerView">
-				<span container="body">
-					<strong>Pricing Varies</strong>
+		<div class="phd-price" [ngClass]="{'phd-price-right-justified' : isPresale}">
+			<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
+				<span>
+					<strong class="phd-price-label">Pricing Varies</strong>
+					<info-tooltip-component [template]="infoContent"></info-tooltip-component>
 				</span>
 			</ng-container>
-			<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
-				<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+			<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
+				<div class="d-flex flex-row align-items-center">
+					<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+					<span class="phd-price-disclaimer">*Pricing Subject to change</span>
+				</div>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
-				<i class="fa fa-check phd-icon-selected phd-favorite-selector"></i>
+				<button class="phd-favorite-selector">
+					<i class="fa fa-check phd-icon-selected "></i>
+				</button>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-				<div [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
-					<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-					<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
-				</div>
+				<button [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
+					<span>
+						<i [ngClass]="choice.isFavorite ? 'fa fa-heart phd-icon-selected' : 'fa fa-heart-o'" (click)="toggleChoiceClicked()"></i>
+					</span>
+				</button>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-				<div class="phd-clickable phd-favorite-selector">
+				<button class="phd-clickable phd-favorite-selector">
 					<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
-				</div>
+				</button>
 			</ng-container>
 		</div>
 	</div>
-	<div class="phd-info-section">
+	<div class="phd-info-section">	
 		<div class="d-flex flex-column flex-1 phd-choice-desc-section" [ngClass]="{'phd-choice-desc-section-long' : !hasAttributes}">
 			<div class="phd-choice-label">{{choice?.label}}</div>
 			<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
@@ -94,9 +102,9 @@
 												[highlightedAttribute]="getHighlightedLocationAttribute(attributeLocation, group)"
 												[isReadonly]="isReadonly"
 												[isDesignComplete]="isDesignComplete"
-												(onLocationAttributeClick)="locationAttributeClick($event)"
-												(onToggleAttribute)="toggleAttribute($event)"
-												(onQuantiyChange)="changeQuantiy($event)">
+												(locationAttributeClick)="locationAttributeClick($event)"
+												(toggleAttribute)="toggleAttribute($event)"
+												(quantityChange)="changeQuantiy($event)">
 							</attribute-location>
 						</div>
 					</ng-container>
@@ -105,23 +113,32 @@
 				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
 					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
 						<attribute-group [attributeGroup]="attributeGroup"
-										 [highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
-										 [isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
-										 [isReadonly]="isReadonly"
-										 [isDesignComplete]="isDesignComplete"
-										 (onAttributeClick)="attributeClick($event)"
-										 (onToggleAttribute)="toggleAttribute($event)">
+										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+										[isBlocked]="choice.choiceStatus === 'Available' && !choice.enabled"
+										[isReadonly]="isReadonly"
+										[isDesignComplete]="isDesignComplete"
+										(attributeClick)="attributeClick($event)"
+										(toggleAttribute)="toggleAttribute($event)">
 						</attribute-group>
 					</div>
 				</div>
 			</div>
 		</div>
+		<div class="phd-descriptive-text">{{ disclaimerText }}</div>
 	</div>
 </div>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
-	<blocked-choice-modal [disabledByList]="disabledByList"
-						  [choiceLabel]="choice?.label"
-						  (closeModal)="onCloseClicked()"
-						  (blockedItemClick)="onBlockedItemClick($event)"></blocked-choice-modal>
+	<blocked-choice-modal
+		[choice]="choice"
+		[point]="point"
+		(closeModal)="onCloseClicked()"
+		(blockedItemClick)="onBlockedItemClick()">
+	</blocked-choice-modal>
+</ng-template>
+
+<ng-template #infoContent>
+	<div>
+		<p><strong>Pricing Varies:</strong> Pricing will be determined during your meeting with your Design Consultant.</p>
+	</div>
 </ng-template>

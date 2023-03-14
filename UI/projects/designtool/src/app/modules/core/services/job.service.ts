@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
-import {
+import
+{
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
 	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice
 } from 'phd-common';
@@ -24,12 +25,12 @@ export class JobService
 
 	loadJob(jobId: number, salesAgreementId?: number): Observable<Job>
 	{
-		const expandJobChoices = `jobChoices($expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel),jobChoiceLocations($expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku);$select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel),jobChoiceJobPlanOptionAssocs;$select=id,dpChoiceId,dpChoiceQuantity,dpChoiceCalculatedPrice,choiceLabel)`;
-		const expandJobOptions = `jobPlanOptions($expand=jobPlanOptionAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel),jobPlanOptionLocations($expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku);$select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel),planOptionCommunity($expand=optionCommunity($expand=option($select=financialOptionIntegrationKey);$select=id);$select=id);$select=id,planOptionId,listPrice,optionSalesName,optionDescription,optionQty,jobOptionTypeName)`;
+		const expandJobChoices = `jobChoices($select=id,dpChoiceId,dpChoiceQuantity,dpChoiceCalculatedPrice,choiceLabel;$expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku),jobChoiceLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),jobChoiceJobPlanOptionAssocs($select=id,jobChoiceId,jobPlanOptionId,choiceEnabledOption))`;
+		const expandJobOptions = `jobPlanOptions($select=id,planOptionId,listPrice,optionSalesName,optionDescription,optionQty,jobOptionTypeName;$expand=jobPlanOptionAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,sku),jobPlanOptionLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),planOptionCommunity($select=id;$expand=optionCommunity($select=id;$expand=option($select=financialOptionIntegrationKey))))`;
 
-		let expand = `jobSalesAgreementAssocs($filter=isActive eq true ),lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),fieldManagerLotAssocs($expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($expand=contact($select=firstname,lastname)),salesPhase($select=id,salesPhaseName),lotHandingAssocs($expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county),planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice), pendingConstructionStages($select=id, constructionStageName, constructionStageStartDate), jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;
+		let expand = `jobSalesAgreementAssocs($select=jobId;$filter=isActive eq true),lot($expand=lotPhysicalLotTypeAssocs($select=lotId;$expand=physicalLotType),fieldManagerLotAssocs($select=lotId;$expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($select=lotId;$expand=contact($select=firstname,lastname)),salesPhase($select=id,salesPhaseName),lotHandingAssocs($select=lotId;$expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county),planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
 		let filter = `id eq ${jobId}`;
-		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName`;
+		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName,createdBy`;
 
 		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
@@ -52,15 +53,19 @@ export class JobService
 	getJobChangeOrderGroups(jobDto: IJob, salesAgreementId?: number): Observable<IJob>
 	{
 		const entity = `changeOrderGroups`;
-		const expandChoiceAttributeLoc = `jobChangeOrderChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,action,attributeName,attributeGroupLabel)`;
-		const expandChoiceAttributes = `jobChangeOrderChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,action,attributeName,attributeGroupLabel)`;
+		const expandChoiceAttributeLoc = `jobChangeOrderChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,action,attributeName,attributeGroupLabel,sku)`;
+		const expandChoiceAttributes = `jobChangeOrderChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,action,attributeName,attributeGroupLabel,sku)`;
 		const expandChoiceLocations = `jobChangeOrderChoiceLocations($expand=${expandChoiceAttributeLoc};$select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel,action)`;
 		const expandJobChoices = `jobChangeOrderChoices($expand=${expandChoiceAttributes},${expandChoiceLocations},jobChangeOrderChoiceChangeOrderPlanOptionAssocs($select=jobChangeOrderPlanOptionId,jobChoiceEnabledOption;$filter=jobChoiceEnabledOption eq true);$select=id,decisionPointChoiceID,quantity,decisionPointChoiceCalculatedPrice,choiceLabel,action,overrideNoteId)`;
-		const expandPlanOptions = 'jobChangeOrderPlanOptions($expand=jobChangeOrderPlanOptionAttributes,jobChangeOrderPlanOptionLocations,planOptionCommunity($expand=optionCommunity($expand=option($select=financialOptionIntegrationKey))))';
-		const expandOpportunityContact = `opportunityContactAssoc($expand=opportunity)`;
-		const expandSalesChanges = `jobSalesChangeOrderBuyers($expand=${expandOpportunityContact}),jobSalesChangeOrderPriceAdjustments,jobSalesChangeOrderSalesPrograms($expand=salesProgram($select=id, salesProgramType, name)),jobSalesChangeOrderTrusts`;
+		const jobChangeOrderPlanOptionAttributes = `jobChangeOrderPlanOptionAttributes($select=id,attributeName,attributeGroupLabel,manufacturer,sku,action,attributeGroupCommunityId)`;
+		const jobChangeOrderPlanOptionLocations = `jobChangeOrderPlanOptionLocations($select=locationName,locationGroupLabel,quantity,action,locationGroupCommunityId)`;
+		const optionCommunity = `optionCommunity($select=id,optionId,financialCommunityId,optionSubCategoryId,optionSalesName,optionDescription,isActive;$expand=option($select=financialOptionIntegrationKey))`;
+		const planOptionCommunity = `planOptionCommunity($select=id,planId,optionCommunityId,cutOffDays,cutOffStage,isBaseHouseElevation,isBaseHouse,maxOrderQty,cutOffNote,listPrice,basePrice,preSaleEstimatedSalesPrice,sentToFinancialDate,rtpDate,isActive;$expand=${optionCommunity})`;
+		const expandPlanOptions = `jobChangeOrderPlanOptions($select=id,jobChangeOrderId,planOptionId,action,qty,listPrice,optionSalesName,optionDescription,overrideNoteId,jobOptionTypeName;$expand=${jobChangeOrderPlanOptionAttributes},${jobChangeOrderPlanOptionLocations},${planOptionCommunity})`;
+		const expandOpportunityContact = `opportunityContactAssoc($select=id,opportunityId,contactId,isPrimary,isDeleted;$expand=opportunity($select=id,dynamicsOpportunityId,salesCommunityId))`;
+		const expandSalesChanges = `jobSalesChangeOrderBuyers($select=id,jobChangeOrderId,opportunityContactAssocId,buyerName,firstName,middleName,lastName,suffix,displayName,isPrimaryBuyer,sortKey,action;$expand=${expandOpportunityContact}),jobSalesChangeOrderPriceAdjustments($select=id,jobChangeOrderId,priceAdjustmentTypeName,amount,action),jobSalesChangeOrderSalesPrograms($select=id,jobChangeOrderId,salesProgramId,salesProgramDescription,amount,action;$expand=salesProgram($select=id, salesProgramType, name)),jobSalesChangeOrderTrusts($select=id,jobChangeOrderId,trustName,action)`;
 		const expandSalesAgreementAssoc = `jobChangeOrderGroupSalesAgreementAssocs($select=changeOrderGroupSequence,changeOrderGroupSequenceSuffix)`;
-		const expand = `contact($select=displayName),jobChangeOrders($expand=${expandJobChoices},${expandPlanOptions},salesNotesChangeOrders($expand=note($expand=noteTargetAudienceAssocs($expand=targetAudience))),jobChangeOrderHandings,jobChangeOrderNonStandardOptions,jobChangeOrderPlans,jobChangeOrderLots,${expandSalesChanges}),jobChangeOrderGroupSalesStatusHistories($orderby=salesStatusUtcDate desc),note,${expandSalesAgreementAssoc}`;
+		const expand = `contact($select=displayName),jobChangeOrders($select=id,jobChangeOrderGroupId,jobChangeOrderTypeDescription,createdBy,createdUtcDate,lastModifiedBy,lastModifiedUtcDate;$expand=${expandJobChoices},${expandPlanOptions},salesNotesChangeOrders($select=id,changeOrderId,noteId,action;$expand=note($select=id,noteSubCategoryId,noteContent,createdUtcDate,createdBy,lastModifiedUtcDate,lastModifiedBy;$expand=noteTargetAudienceAssocs($select=noteId,targetAudienceId;$expand=targetAudience))),jobChangeOrderHandings($select=id,jobChangeOrderId,overrideNoteId,handing,action,createdBy,createdUtcDate,lastModifiedBy,lastModifiedUtcDate),jobChangeOrderNonStandardOptions($select=id,jobChangeOrderId,nonStandardOptionName,nonStandardOptionDescription,financialOptionNumber,action,qty,unitPrice,createdBy,createdUtcDate,lastModifiedBy,lastModifiedUtcDate),jobChangeOrderPlans($select=id,jobChangeOrderId,planCommunityId,action,createdBy,createdUtcDate,lastModifiedBy,lastModifiedUtcDate),jobChangeOrderLots($select=id,jobChangeOrderId,lotId,overrideNoteId,action,revertToDirt,createdBy,createdUtcDate,lastModifiedBy,lastModifiedUtcDate),${expandSalesChanges}),jobChangeOrderGroupSalesStatusHistories($select=id,jobChangeOrderGroupId,salesStatusId,salesStatusUtcDate,salesStatusReason,createdBy,createdUtcDate;$orderby=salesStatusUtcDate desc),note($select=id,noteSubCategoryId,noteContent,createdBy,createdUtcDate,lastModifiedBy,lastModifiedUtcDate),${expandSalesAgreementAssoc}`;
 		const filter = !!salesAgreementId ? `jobChangeOrderGroupSalesAgreementAssocs/any(a: a/salesAgreementId eq ${salesAgreementId})` : `jobId eq ${jobDto.id}`;
 		const orderby = 'createdUtcDate desc';
 
@@ -263,42 +268,173 @@ export class JobService
 		return of(changeOrderGroups);
 	}
 
-	getJobByLotId(lotId: number): Observable<Job[]>
+	getJobByLotId(lotId: number): Observable<Job>
 	{
-		const expandChangeOrderGroups = `jobChangeOrderGroups($expand=jobChangeOrders($expand=jobChangeOrderHandings,jobChangeOrderNonStandardOptions,jobChangeOrderChoices))`;
-		const expandJobChoices = `jobChoices($expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku),jobChoiceLocations($expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku);$select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel),jobChoiceJobPlanOptionAssocs)`;
-		const expandJobOptions = `jobPlanOptions($expand=jobPlanOptionAttributes,jobPlanOptionLocations($expand=jobPlanOptionLocationAttributes),planOptionCommunity($expand=optionCommunity($expand=option($select=financialOptionIntegrationKey))))`;
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+				let requestBundles: string[] = [];
+				let newRequest = (filter: string, select: string, expand: string) =>
+				{
+					let batch = `${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`;
 
-		const expand = `${expandChangeOrderGroups},jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,${expandJobChoices},${expandJobOptions},jobNonStandardOptions, jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate),projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;
-		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName`;
+					requestBundles.push(batch);
+				};
 
-		const filter = `lotId eq ${lotId}`;
+				const jobChangeOrderGroupsSelect = `id,changePrice,constructionRejectReason,constructionStatusDescription,constructionStatusLastModifiedBy,constructionStatusUTCDate,createdbyContactId,jobChangeOrderGroupDescription,jobId,noteId,salesStatusDescription,salesStatusUTCDate`;
+				const jobSalesInfosSelect = `jobId,discountAmount,discountExpirationDate,hotHomeBullet1,hotHomeBullet2,hotHomeBullet3,hotHomeBullet4,hotHomeBullet5,hotHomeBullet6,isHotHomeActive,isPublishOnWebSite,numberBedOverride,numberFullBathOverride,numberGarageOverride,numberHalfBathOverride,specPrice,squareFeetOverride,webSiteAvailableDate,webSiteDescription`;
+				const lotSelect = `id,alternateLotBlock,block,city,closeOfEscrow,constructionBuildingNumber,constructionPhaseNbr,country,county,facing,financialCommunityId,foundationType,isActiveFinance,isMasterUnit,lotBlock,lotBuildTypeDesc,lotCost,lotNumber,lotSequenceNumber,lotStatusDescription,postalCode,premium,releaseNumber,salesBldgNbr,salesPhaseId,stateProvince,streetAddress1,streetAddress2,unitNumber`;
+				const planCommunitySelect = `id,bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber`;
+				const jobNonStandardOptionsSelect = `id,constructionComplete,description,financialOptionNumber,jobId,name,quantity,unitPrice`;
+				const jobChangeOrderChoicesSelect = `id,action,choiceDescription,choiceLabel,decisionPointChoiceCalculatedPrice,decisionPointChoiceID,decisionPointLabel,groupLabel,jobChangeOrderId,overrideNoteId,quantity,subGroupLabel`;
+				const jobChoicesSelect = `id,choiceDescription,choiceLabel,decisionPointLabel,dpChoiceCalculatedPrice,dpChoiceId,dpChoiceQuantity,groupLabel,jobChoiceAttributes,jobChoiceJobPlanOptionAssocs,jobChoiceLocations,jobId,sortOrder,subGroupLabel`;
 
-		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
+				let expand = `jobChangeOrderGroups($select=${jobChangeOrderGroupsSelect};$expand=jobChangeOrders($select=id,jobChangeOrderTypeDescription)),`;
+				expand += `jobSalesInfos($select=${jobSalesInfosSelect}),`;
+				expand += `lot($select=${lotSelect};$expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase($select=id,financialCommunityId,salesPhaseName),lotHandingAssocs($expand=handing($select=id,name))),`;
+				expand += `planCommunity($select=${planCommunitySelect}), jobNonStandardOptions($select=${jobNonStandardOptionsSelect}), jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate),`;
+				expand += `projectedDates($select=jobId, projectedStartDate, projectedFrameDate, projectedSecondDate, projectedFinalDate)`;
 
-		return withSpinner(this._http).get<any>(url).pipe(
+				const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName`;
+
+				const filter = `lotId eq ${lotId}`;
+
+				newRequest(filter, select, expand);
+				newRequest(filter, `id`, `jobChangeOrderGroups($select=id;$expand=jobChangeOrders($select=id;$expand=jobChangeOrderHandings($select=id,action,handing,jobChangeOrderId,overrideNoteId)))`);
+				newRequest(filter, `id`, `jobChangeOrderGroups($select=id;$expand=jobChangeOrders($select=id;$expand=jobChangeOrderNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice)))`);
+				newRequest(filter, `id`, `jobChangeOrderGroups($select=id;$expand=jobChangeOrders($select=id;$expand=jobChangeOrderChoices($select=${jobChangeOrderChoicesSelect})))`);
+				newRequest(filter, `id`, `jobChoices($select=${jobChoicesSelect};$expand=jobChoiceJobPlanOptionAssocs($select=id,choiceEnabledOption,jobChoiceId,jobPlanOptionId))`);
+				newRequest(filter, `id`, `jobChoices($select=id;$filter=jobChoiceAttributes/any();$expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku))`);
+				newRequest(filter, `id`, `jobChoices($select=id;$filter=jobChoiceLocations/any();$expand=jobChoiceLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)))`);
+				newRequest(filter, `id`, `jobPlanOptions($select=id,constructionComplete,jobId,jobOptionTypeName,listPrice,optionDescription,optionQty,optionSalesName,planOptionId;$expand=planOptionCommunity($select=id;$expand=optionCommunity($select=id;$expand=option($select=id,financialOptionIntegrationKey))))`);
+				newRequest(filter, `id`, `jobPlanOptions($select=id;$filter=jobPlanOptionAttributes/any();$expand=jobPlanOptionAttributes($select=id,attributeCommunityId,attributeGroupCommunityId,attributeGroupLabel,attributeName,jobPlanOptionId,manufacturer,sku))`);
+				newRequest(filter, `id`, `jobPlanOptions($select=id;$filter=jobPlanOptionLocations/any();$expand=jobPlanOptionLocations($select=id, jobPlanOptionId, locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)))`);
+
+				let batchRequests = requestBundles.map(req => createBatchGet(req));
+
+				var headers = createBatchHeaders(guid, token);
+				var batch = createBatchBody(guid, batchRequests);
+
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
 			map((response: any) =>
-				response.value
-					.map((r: IJob) => new Job(r))
-			)
+			{
+				let bodies: any[] = response.responses.map(r => r.body);
+				let data = _.flatten(bodies.map(body =>
+				{
+					return body.value?.length > 0 ? body.value : null;
+				}).filter(res => res)) as IJob[];
+
+				if (data.length === 0)
+				{
+					return new Job();
+				}
+
+				// find the main job record. Should be the only one with financialCommunityId
+				let iJob = data.find(x => x.financialCommunityId);
+				const iJobWithCog = data.filter(d => d.jobChangeOrderGroups && !d.financialCommunityId);
+
+				iJob.jobChangeOrderGroups.map(cog =>
+				{
+					// pull out matching changeOrderGroups
+					const cogData = _.flatMap(iJobWithCog, x => x.jobChangeOrderGroups);
+
+					if (cogData.length > 0)
+					{
+						cog.jobChangeOrders.map(co =>
+						{
+							// pull out matching changeOrders
+							let coData = cogData.find(x => x.id === cog.id).jobChangeOrders.find(d => d.id === co.id);
+
+							if (coData)
+							{
+								co.jobChangeOrderHandings = coData?.jobChangeOrderHandings ?? [];
+								co.jobChangeOrderNonStandardOptions = coData?.jobChangeOrderNonStandardOptions ?? [];
+								co.jobChangeOrderChoices = coData?.jobChangeOrderChoices ?? [];
+							}
+						});
+					}
+				});
+
+				// find the jobChoice records
+				const jobWithChoices = data.filter(x => x.jobChoices) as IJob[];
+
+				// set the main jobChoices record
+				iJob.jobChoices = jobWithChoices.find(x => x.jobChoices.every(c => c.dpChoiceId))?.jobChoices;
+
+				const jobChoicesWithAttributes = jobWithChoices.find(x => x.jobChoices.every(c => c.jobChoiceAttributes))?.jobChoices;
+				const jobChoicesWithLocations = jobWithChoices.find(x => x.jobChoices.every(c => c.jobChoiceLocations))?.jobChoices;
+
+				iJob.jobChoices.map(jobChoice =>
+				{
+					// get matching location/attributes for the current jobChoice
+					const attributes = _.flatMap(jobChoicesWithAttributes.filter(x => x.id === jobChoice.id), x => x.jobChoiceAttributes);
+					const locations = _.flatMap(jobChoicesWithLocations.filter(x => x.id === jobChoice.id), x => x.jobChoiceLocations);
+
+					jobChoice.jobChoiceAttributes = attributes ?? [];
+					jobChoice.jobChoiceLocations = locations ?? [];
+				});
+
+				// find the jobPlanOptions records
+				const jobWithPlanOptions = data.filter(x => x.jobPlanOptions) as IJob[];
+				const iJobPlanOptions = jobWithPlanOptions.find(x => x.jobPlanOptions.every(o => o.planOptionId))?.jobPlanOptions;
+
+				// jobPlanOption is a bit different since it holds financialOptionIntegrationKey vs it being on the option level. So new JobPlanOption takes care of that mapping.
+				iJob.jobPlanOptions = iJobPlanOptions ? iJobPlanOptions.map(po => new JobPlanOption(po)) : [];
+
+				const jobPlanOptionsWithAttributes = jobWithPlanOptions.find(x => x.jobPlanOptions.every(c => c.jobPlanOptionAttributes))?.jobPlanOptions;
+				const jobPlanOptionsWithLocations = jobWithPlanOptions.find(x => x.jobPlanOptions.every(c => c.jobPlanOptionLocations))?.jobPlanOptions;
+
+				iJob.jobPlanOptions.map(jobPlanOption =>
+				{
+					// get matching location/attributes for the current jobPlanOption
+					const attributes = _.flatMap(jobPlanOptionsWithAttributes.filter(x => x.id === jobPlanOption.id), x => x.jobPlanOptionAttributes);
+					const locations = _.flatMap(jobPlanOptionsWithLocations.filter(x => x.id === jobPlanOption.id), x => x.jobPlanOptionLocations);
+
+					jobPlanOption.jobPlanOptionAttributes = attributes ?? [];
+					jobPlanOption.jobPlanOptionLocations = locations ?? [];
+				});
+
+				return new Job(iJob);
+			})
 		);
 	}
 
 	getSpecJobs(lotIDs: number[]): Observable<Job[]>
 	{
-		const expand = `jobChangeOrderGroups,jobChoices,jobPlanOptions,jobSalesInfos,lot($expand=lotPhysicalLotTypeAssocs($expand=physicalLotType),salesPhase,lotHandingAssocs($expand=handing($select=id,name))),planCommunity,jobConstructionStageHistories($select=id, constructionStageId, constructionStageStartDate)`;
+		const expand = `jobChoices($select=id;$top=1),jobPlanOptions($select=id,jobOptionTypeName;$filter=jobOptionTypeName eq 'Elevation'),jobSalesInfos($select=specPrice),lot($select=id,lotBlock)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,createdBy`;
-
+		const COGExpand = `jobChangeOrderGroups($select=id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription,createdUtcDate)`
 		const filter = `lotId in (${lotIDs.join(',')})`;
 
-		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
+		return this.identityService.token.pipe(
+			switchMap((token: string) =>
+			{
+				let guid = newGuid();
+				let requests = [
+					createBatchGet(`${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}select=${select}&${this._ds}expand=${expand}`),
+					createBatchGet(`${environment.apiUrl}jobs?${this._ds}filter=${filter}&${this._ds}expand=${COGExpand}&${this._ds}select=${'id'}`)
+				];
+				let headers = createBatchHeaders(guid, token);
+				let batch = createBatchBody(guid, requests);
 
-		return withSpinner(this._http).get<any>(url).pipe(
+				return this._http.post(`${environment.apiUrl}$batch`, batch, { headers: headers });
+			}),
 			map((response: any) =>
-				response.value
-					.map((r: IJob) => new Job(r))
-			)
-		);
+			{
+				let bodies = response.responses.map(r => r.body);
+				let jobs = bodies[0].value.map((o) => new Job(o));
+
+				jobs.forEach(job => 
+				{
+					const cog = bodies[1].value;
+
+					job.changeOrderGroups = cog.find(cogJob => cogJob.id === job.id)?.jobChangeOrderGroups;
+				});
+
+				return jobs;
+			}));
 	}
 
 	getESignEnvelopes(jobDto: Job): Observable<ESignEnvelope[]>

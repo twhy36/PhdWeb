@@ -1,9 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import * as _ from 'lodash';
 
-import { Location, Attribute, AttributeGroup, LocationGroup, DesignToolAttribute } from 'phd-common';
+import { Location, Attribute, AttributeGroup, LocationGroup, DesignToolAttribute, ModalService, ModalRef } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeGroupExt } from '../../models/attribute-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
@@ -22,24 +21,24 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	@Input() currentAttributeGroups: AttributeGroupExt[];
 	@Input() maxQuantity: number;
 	@Input() isBlocked: boolean;
-	@Input() highlightedAttribute: {attributeId: number, attributeGroupId: number};
+	@Input() highlightedAttribute: { attributeId: number, attributeGroupId: number };
 	@Input() isReadonly: boolean;
 	@Input() isDesignComplete: boolean;
 
-	@Output() onLocationAttributeClick = new EventEmitter<{attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number}>();
-	@Output() onToggleAttribute = new EventEmitter<{attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number}>();
-	@Output() onQuantiyChange = new EventEmitter<{location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean}>();
+	@Output() locationAttributeClick = new EventEmitter<{ attribute: Attribute, attributeGroupId: number, locationId: number, locationGroupId: number }>();
+	@Output() toggleAttribute = new EventEmitter<{ attribute: Attribute, attributeGroup: AttributeGroup, location: Location, locationGroup: LocationGroup, quantity: number }>();
+	@Output() quantityChange = new EventEmitter<{ location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean, skipSave: boolean }>();
 
-	@ViewChild('maxQuantityModal') maxQuantityModal: any;
+	@ViewChild('maxQuantityModal') maxQuantityModal;
 
 	choice: ChoiceExt;
 	locationQuantityTotal = 0;
 	locationAttributGroups: AttributeGroupExt[];
 	attributeGroups: AttributeGroupExt[] = [];
-	maxQuantityModalRef: NgbModalRef;
+	maxQuantityModalRef: ModalRef;
 
 	constructor(
-		private modalService: NgbModal,
+		private modalService: ModalService,
 		private adobeService: AdobeService
 	) { }
 
@@ -66,7 +65,10 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 			this.locationAttributGroups = changes['currentAttributeGroups'] ? changes['currentAttributeGroups'].currentValue : this.locationAttributGroups;
 			this.updateAttributeGroups();
 
-			if (this.choice.choiceStatus === 'Available' && !this.choice.isFavorite && this.locationQuantityTotal > 0)
+			if (this.choice.choiceStatus === 'Available'
+				&& !(this.choice.selectedAttributes && this.choice.selectedAttributes.length)
+				&& !this.choice.isFavorite
+				&& this.locationQuantityTotal > 0)
 			{
 				this.locationQuantityTotal = 0;
 			}
@@ -77,7 +79,8 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	{
 		if (this.locationAttributGroups && this.choice)
 		{
-			this.locationAttributGroups.forEach(ag => {
+			this.locationAttributGroups.forEach(ag => 
+			{
 				let attributeGroup = this.attributeGroups.find(x => x.id === ag.id);
 				if (!attributeGroup)
 				{
@@ -86,12 +89,13 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 				}
 				if (ag.attributes && ag.attributes.length)
 				{
-					ag.attributes.forEach(att => {
+					ag.attributes.forEach(att => 
+					{
 						const selAttribute = this.choice.selectedAttributes.find(x =>
 							x.attributeId === att.id && x.attributeGroupId === ag.id &&
 							x.locationId === this.attributeLocation.id && x.locationGroupId === this.attributeLocationGroup.id);
 
-						let attribute = attributeGroup.attributes.find(x => x.id === att.id);
+						const attribute = attributeGroup.attributes.find(x => x.id === att.id);
 						if (attribute)
 						{
 							if (att.attributeStatus === 'Contracted' && !selAttribute)
@@ -111,37 +115,30 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		}
 	}
 
-	quantityChangeHandler(value: number)
+	quantityChangeHandler(value: number, skipSave: boolean = false)
 	{
 		if (value !== null)
 		{
 			const quantity = Number(value);
 			this.locationQuantityTotal = quantity;
 
-			this.onQuantiyChange.emit({
+			this.quantityChange.emit({
 				location: this.attributeLocation,
 				locationGroup: this.attributeLocationGroup,
 				quantity: quantity,
-				clearAttribute: quantity <= 0 && !!this.selectedLocationAttributes.length
+				clearAttribute: quantity <= 0 && !!this.selectedLocationAttributes.length,
+				skipSave: skipSave
 			});
 		}
 		else
 		{
-			this.locationQuantityTotal = null;
-			let modalOptions = {
-				windowClass: 'phd-max-quantity-modal',
-				centered: true,
-				backdrop: true,
-				keyboard: false,
-			}
-			this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions);
-			this.adobeService.setAlertEvent("You won't need that many for your home. Max quantity is " + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + ".", 'Max Quantity Alert');
+			this.displayMaxQuantityModal();
 		}
 	}
 
-	attributeClick(data: {attribute: Attribute, attributeGroup: AttributeGroup})
+	attributeClick(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
-		this.onLocationAttributeClick.emit({
+		this.locationAttributeClick.emit({
 			attribute: data.attribute,
 			attributeGroupId: data.attributeGroup.id,
 			locationId: this.attributeLocation.id,
@@ -149,30 +146,39 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		});
 	}
 
-	getHighlightedAttributeId(attributeGroup: AttributeGroup) : number
+	getHighlightedAttributeId(attributeGroup: AttributeGroup): number
 	{
 		return this.highlightedAttribute && this.highlightedAttribute.attributeGroupId === attributeGroup.id
 			? this.highlightedAttribute.attributeId
 			: 0;
 	}
 
-	attributeGroupSelected(data: {attribute: Attribute, attributeGroup: AttributeGroup})
+	attributeGroupSelected(data: { attribute: Attribute, attributeGroup: AttributeGroup })
 	{
 		const existingAttribute = this.selectedLocationAttributes.find(a =>
 			a.attributeId === data.attribute.id && a.attributeGroupId === data.attributeGroup.id);
 
-		if (!this.locationQuantityTotal && !existingAttribute)
+		if (this.maxQuantity === 0)
 		{
-			this.locationQuantityTotal = 1;
+			this.locationQuantityTotal = null;
+			this.displayMaxQuantityModal();
 		}
+		else
+		{
+			if (!this.locationQuantityTotal && !existingAttribute)
+			{
+				this.locationQuantityTotal = 1;
+				this.quantityChangeHandler(1, true);
+			}
 
-		this.onToggleAttribute.emit({
-			attribute: data.attribute,
-			attributeGroup: data.attributeGroup,
-			location: this.attributeLocation,
-			locationGroup: this.attributeLocationGroup,
-			quantity: this.locationQuantityTotal
-		});
+			this.toggleAttribute.emit({
+				attribute: data.attribute,
+				attributeGroup: data.attributeGroup,
+				location: this.attributeLocation,
+				locationGroup: this.attributeLocationGroup,
+				quantity: this.locationQuantityTotal
+			});
+		}
 	}
 
 	closeClicked()
@@ -181,5 +187,17 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		{
 			this.maxQuantityModalRef.close();
 		}
+	}
+
+	displayMaxQuantityModal()
+	{
+		const modalOptions = {
+			windowClass: 'phd-max-quantity-modal',
+			centered: true,
+			backdrop: true,
+			keyboard: false,
+		}
+		this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions, true);
+		this.adobeService.setAlertEvent('You won\'t need that many for your home. Max quantity is ' + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + '.', 'Max Quantity Alert');
 	}
 }

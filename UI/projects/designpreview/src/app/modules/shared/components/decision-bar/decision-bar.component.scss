@@ -11,9 +11,6 @@ ul {
 		cursor: pointer;
 		overflow-wrap: break-word;
 		word-wrap: break-word; // depricated but required for MS Edge, should be removed as soon as edge is current
-		.phd-past-cutt-off {
-			opacity: .5;
-		}
 
 		.label {
 			margin-right: 20px;
@@ -41,11 +38,6 @@ ul {
 			.label {
 				margin-right: 34px;
 			}
-		}
-
-		&:hover {
-			transition: all .5s;
-			font-weight: 500;
 		}
 
 		.icon {

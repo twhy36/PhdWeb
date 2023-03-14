@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap } from 'rxjs/operators';
+import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap, take } from 'rxjs/operators';
 import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -18,16 +18,16 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import * as fromJobs from '../../../ngrx-store/job/reducer';
 
-import {
-	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, Job, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
+import
+{
+	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice, DecisionPointFilterType
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
 
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
-import { DecisionPointFilterType } from '../../../shared/models/decisionPointFilter';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 
 // PHD Lite
@@ -57,6 +57,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('optionMappingChangedModal') optionMappingChangedModal: TemplateRef<any>;
 	@ViewChild('impactedChoicesModal') impactedChoicesModal: TemplateRef<any>;
 	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
+	@ViewChild('optionMappingAdjustedModal') optionMappingAdjustedModal: TemplateRef<any>;
 
 	acknowledgedMonotonyConflict: boolean;
 	agreementStatus$: Observable<string>;
@@ -119,13 +120,14 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lot)
-		).subscribe(lot => {
-			if(lot.selectedLot)
+		).subscribe(lot =>
+		{
+			if (lot.selectedLot)
 			{
 				this.selectedLot = lot.selectedLot;
 				this.lotStatus = lot.selectedLot.lotStatusDescription;
 			}
-		})
+		});
 
 		this.enabledPointFilters$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -189,7 +191,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				return;
 			}
 
-			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).subscribe(isPhdLiteEnabled => 
+			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).pipe(take(1)).subscribe(isPhdLiteEnabled => 
 			{
 				this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
 
@@ -330,6 +332,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				if (isGanked && this.lotConflictModal && !this.lotcheckModalDisplayed)
 				{
 					this.lotcheckModalDisplayed = true;
+
 					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
 
@@ -358,7 +361,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					});
 				}
 			}
-		})
+		});
 
 		this.priceBreakdown$ = this.store.pipe(
 			select(fromRoot.priceBreakdown)
@@ -428,7 +431,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			select(fromScenario.selectScenario)
-		).subscribe(scenario => {
+		).subscribe(scenario =>
+		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
@@ -528,7 +532,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						{
 							this.lotService.buildScenario();
 						});
-					} 
+					}
 					else if (this.buildMode === 'model' && this.lotStatus === 'PendingRelease')
 					{
 						this.lotService.getLotReleaseDate(this.selectedLot.id).pipe(
@@ -562,10 +566,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					const title = 'Generate Home Purchase Agreement';
 					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-					
+
 					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-					
+
 					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 					{
 						if (result)
@@ -674,16 +678,34 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		// #353697 Prompt the user of affected choices with an adjusted price by deselecting this choice
-		let impactedOptionPriceChoices = [];
+		const impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices, choice, choiceToDeselect);
 
-		if (choiceToDeselect)
-		{
-			impactedOptionPriceChoices = this.getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices);
-		}
+		// #366542 Find any choices with a replaced option that is no longer available on the current tree
+		let adjustedChoices = this.getAdjustedChoices(choiceToDeselect, choice);
+
+		adjustedChoices = _.uniq(adjustedChoices.concat(getChoicesWithNewPricing(this.tree, this.treeVersionRules, this.options, choice, choiceToDeselect)));
 
 		let obs: Observable<boolean>;
 
-		if (choiceToDeselect && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
+		if (adjustedChoices && adjustedChoices.length)
+		{
+			// Include impactedChoices in the list to display
+			if (impactedChoices?.length)
+			{
+				adjustedChoices = _.uniq(adjustedChoices.concat(impactedChoices));
+			}
+
+			// #382967 Find "second-tier" choices that are also affected
+			adjustedChoices = _.uniq(adjustedChoices.concat(this.getNextTierOfAffectedChoices(choiceToDeselect, adjustedChoices)));
+
+			adjustedChoices.forEach(c =>
+			{
+				selectedChoices.push({ choiceId: c.id, overrideNote: c.overrideNote, quantity: 0, attributes: c.selectedAttributes, timeOfSaleOptionPrices: this.getReplacedOptionPrices(c) });
+			});
+
+			obs = this.showOptionMappingAdjustedModal(adjustedChoices);
+		}
+		else if (choiceToDeselect && impactedChoices && impactedChoices.length && ((choiceToDeselect.changedDependentChoiceIds && choiceToDeselect.changedDependentChoiceIds.length > 0) || choiceToDeselect.mappingChanged))
 		{
 			obs = this.showOptionMappingChangedModal(impactedChoices);
 		}
@@ -691,7 +713,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			obs = this.showChoiceImpactModal(impactedChoices);
 		}
-		else if (impactedOptionPriceChoices && impactedOptionPriceChoices.length)
+		else if (choiceToDeselect && impactedOptionPriceChoices && impactedOptionPriceChoices.length)
 		{
 			obs = this.showOptionPriceChangedModal(impactedOptionPriceChoices);
 		}
@@ -704,7 +726,37 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (res)
 			{
-				this.store.dispatch(new ScenarioActions.SelectChoices(true, ...selectedChoices));
+				this.store.dispatch(new ScenarioActions.SelectChoices(true, ..._.uniqBy(selectedChoices, ch => ch.choiceId)));
+
+				const pointRules = this.treeVersionRules.pointRules;
+				const choiceRules = this.treeVersionRules.choiceRules;
+
+				// Fetch point to point rules
+				const point2PointRules = pointRules.filter(pr => pr.rules.some(rule => rule.points.some(p => p === choice.treePointId)));
+
+				// Fetch point to choice rules
+				const point2ChoiceRules = pointRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
+
+				// Fetch choice to choice rules
+				const choice2choiceRules = choiceRules.filter(pr => pr.rules.some(rule => rule.choices.some(c => c === choice.id)));
+
+				// Check for any required choices that might be impacted by the point to point rule
+				const requiredChoicesP2P = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2PointRules.some(p => p.pointId === c.treePointId)))));
+
+				// Check for any required choices that might be impacted by the point to choice rule
+				const requiredChoiceP2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && point2ChoiceRules.some(ch => ch.pointId === c.treePointId)))));
+
+				// Check for any required choices that might be impacted by the choice to choice rule
+				const requiredChoiceC2C = _.flatMap(this.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(c => c.isRequired && c.enabled && choice2choiceRules.some(ch => ch.choiceId === c.id)))));
+
+
+				const impactedChoices = [...requiredChoicesP2P, ...requiredChoiceP2C, ...requiredChoiceC2C];
+
+				// Select required choice attributes for impacted choices
+				if (impactedChoices.length > 0)
+				{
+					this.store.dispatch(new ScenarioActions.SelectRequiredChoiceAttributes(impactedChoices));
+				}
 
 				if (!choice.quantity && this.isChangingOrder && choice.overrideNote)
 				{
@@ -776,11 +828,19 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.showConfirmModal(this.optionPriceChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
+	private showOptionMappingAdjustedModal(choices: Array<Choice>): Observable<boolean>
+	{
+		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
+	}
+
 	loadPhdLite()
 	{
-		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));		
-		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));				
-		this.router.navigateByUrl('/lite/elevation');					
+		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+		this.router.navigateByUrl('/lite/elevation');
 	}
 
 	getReplacedOptionPrices(choice: Choice): TimeOfSaleOptionPrice[]
@@ -824,7 +884,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		return timeOfSaleOptionPrices;
 	}
 
-	getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[]): Choice[]
+	getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[], selectedChoice: Choice, deselectedChoice: Choice): Choice[]
 	{
 		let choices: Choice[] = [];
 
@@ -836,22 +896,156 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					sg => _.flatMap(sg.points,
 						p => p.choices)));
 
-			timeOfSaleOptionPrices.forEach(t1 =>
+			for (const t1 of timeOfSaleOptionPrices)
 			{
-				let comparedOpt = this.timeOfSaleOptionPrices.find(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID && t1.listPrice !== t2.listPrice);
+				const comparedOpt = this.timeOfSaleOptionPrices.find(t2 => t1.edhPlanOptionID === t2.edhPlanOptionID && t1.divChoiceCatalogID === t2.divChoiceCatalogID && t1.listPrice !== t2.listPrice);
 
 				if (comparedOpt)
 				{
-					let choice = treeChoices.find(c => c.divChoiceCatalogId === comparedOpt.divChoiceCatalogID);
+					const choice = treeChoices.find(c => c.divChoiceCatalogId === comparedOpt.divChoiceCatalogID);
 
-					if (choice)
+					if (choice && choice.quantity && choice.divChoiceCatalogId !== deselectedChoice?.divChoiceCatalogId)
 					{
-						choices.push(choice);
+						// #364540 This choice is only impacted if no replace rule is satisfied
+						const option = this.options.find(opt => opt.id === comparedOpt.edhPlanOptionID);
+
+						if (option)
+						{
+							// Get the replace rules on this option
+							const replaceRules = this.treeVersionRules.optionRules.filter(r => r.replaceOptions.includes(option.financialOptionIntegrationKey));
+
+							// For all of the choices tied to the replace rules,
+							// copy them to a new list with forecasted quantity values based on what's being toggled
+							const clonedChoices = _.cloneDeep(treeChoices.filter(tc => _.flatMap(replaceRules, rr => rr.choices).map(rrc => rrc.id).includes(tc.id)))
+								.map(cc =>
+								{
+									if (cc.id === deselectedChoice?.id)
+									{
+										cc.quantity = 0;
+									}
+									else if (cc.id === selectedChoice.id && selectedChoice.id !== deselectedChoice?.id)
+									{
+										cc.quantity = 1;
+									}
+
+									return cc;
+								});
+
+							// If all choices are deselected, assume the potentially impacted choice has already been acknowledged
+							// Also, if any rule is still fully satisfied after the changes, the choice is not impacted
+							if (clonedChoices.filter(cc => cc.quantity >= 1).length === 0 || replaceRules.some(rr =>
+							{
+								return rr.choices.every(rrc =>
+								{
+									const ch = clonedChoices.find(c => c.id === rrc.id);
+
+									return (rrc.mustHave && ch.quantity >= 1) || (!rrc.mustHave && ch.quantity === 0);
+								});
+							}))
+							{
+								break;
+							}
+
+							choices.push(choice);
+						}
 					}
 				}
-			});
+			}
 		}
 
 		return choices;
+	}
+
+	getAdjustedChoices(deselectedChoice: Choice, selectedChoice: Choice): Choice[]
+	{
+		let choices: Choice[] = [];
+
+		// Using the latest rules, see what choices may be affected by options on this choice
+		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id))
+			&& o.choices
+				.filter(c => c.id !== selectedChoice?.id || c.id !== deselectedChoice?.id)
+				.every(c => (c.mustHave && findChoice(this.tree, tc => tc.id === c.id).quantity)
+					|| (!c.mustHave && !findChoice(this.tree, tc => tc.id === c.id).quantity)));
+
+
+		// Determine if there are any other choices via separate rules that are already on the configuration
+		const moreChoices = _.flatMap(this.treeVersionRules.optionRules.filter(o => _.flatMap(replaceRules, rr => rr.replaceOptions).some(rro => o.optionId === rro)), r => r.choices);
+		moreChoices.forEach(mc =>
+		{
+			const existingChoice = _.flatMap(this.tree.treeVersion.groups,
+				g => _.flatMap(g.subGroups,
+					sg => _.flatMap(sg.points,
+						p => p.choices)))
+				.find(c => mc.id === c.id && ((mc.mustHave && c.quantity) || (!mc.mustHave && !c.quantity)));
+
+			if (existingChoice?.lockedInOptions?.length)
+			{
+				choices.push(existingChoice);
+			}
+		});
+
+		// Check to see if any rule is already satisfied, and if that choice has an option no longer available
+		replaceRules.forEach(rr =>
+		{
+			rr.choices.forEach(rrc =>
+			{
+				const existingChoice = _.flatMap(this.tree.treeVersion.groups,
+					g => _.flatMap(g.subGroups,
+						sg => _.flatMap(sg.points,
+							p => p.choices)))
+					.find(c => rrc.id === c.id && ((rrc.mustHave && c.quantity) || (!rrc.mustHave && !c.quantity)));
+
+				// Get all lockedInOptions from previous agreement
+				if (existingChoice)
+				{
+					if (existingChoice.lockedInOptions?.length)
+					{
+						const existingOptions = existingChoice.lockedInOptions.map(lio => lio.optionId);
+
+						if (rr.replaceOptions.some(ro => !existingOptions.includes(ro)) && !choices.map(c => c.id).includes(existingChoice.id))
+						{
+							choices.push(existingChoice);
+						}
+					}
+
+					if (deselectedChoice?.lockedInOptions?.length)
+					{
+						// If a rule existed on the previous agreement for an option that no longer exists,
+						// on a choice that still satisifies the rule, mark this choice as adjusted
+						const adjustedChoice = deselectedChoice.lockedInOptions.find(lio => lio.choices.filter(ch =>
+							((ch.mustHave && existingChoice.quantity) || (!ch.mustHave && !existingChoice.quantity))
+							&& ch.id === existingChoice.lockedInChoice?.choice?.divChoiceCatalogId
+							&& !choices.map(chx => chx.id).includes(ch.id)
+							&& !lio.replaceOptions.includes(rr.optionId)).length);
+
+						if (adjustedChoice && !choices.map(c => c.id).includes(existingChoice.id))
+						{
+							choices.push(existingChoice);
+						}
+					}
+				}
+			});
+		});
+
+		return choices.filter(ch => ch.id !== deselectedChoice?.id);
+	}
+
+	/**
+	 * #382967
+	 * Navigates down the tree to find additional choices that would 
+	 * be removed from the configuration via C2C or P2P rules.
+	 * @param initialChoice The choice that was originally deselected.
+	 * @param removedChoices The choices initially removed from the configuration.
+	 * @returns The list of "second-tier" choices to be removed.
+	 */
+	getNextTierOfAffectedChoices(initialChoice: Choice, removedChoices: Choice[]): Choice[]
+	{
+		let choices: Choice[] = [];
+		removedChoices.forEach(ch =>
+		{
+			choices = choices.concat(getDependentChoices(this.tree, this.treeVersionRules, this.options, ch));
+		});
+
+		return choices.filter(ch => ch.id !== initialChoice?.id);
 	}
 }

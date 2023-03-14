@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 import * as _ from 'lodash';
 
@@ -16,7 +16,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
 })
-export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
+export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;
 	@Input() currentSubgroup: SubGroup;
@@ -28,15 +28,15 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() salesChoices: JobChoice[];
 	@Input() groups: Group[];
 	@Input() tree: Tree;
-	@Input() choiceImages: ChoiceImageAssoc[];
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 
-	@Output() onToggleChoice = new EventEmitter<ChoiceExt>();
-	@Output() onViewChoiceDetail = new EventEmitter<ChoiceExt>();
-	@Output() onSelectDecisionPoint = new EventEmitter<number>();
-	@Output() onDeclineDecisionPoint = new EventEmitter<DecisionPoint>();
+	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
+	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
+	@Output() selectDecisionPoint = new EventEmitter<number>();
+	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 
 	isPointPanelCollapsed: boolean = false;
 	points: DecisionPoint[];
@@ -45,8 +45,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 
 	constructor() { super(); }
-
-	ngOnInit() { }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -57,9 +55,10 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
-				let choices = _.flatMap(this.subGroup.points, pt => pt.choices);
-				newChoices.forEach(nc => {
-					let choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
+				const choices = _.flatMap(this.subGroup.points, pt => pt.choices);
+				newChoices.forEach(nc =>
+				{
+					const choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
 					if (choice)
 					{
 						choice.quantity = nc.quantity;
@@ -79,7 +78,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				|| this.isInputChanged(changes['myFavoritesChoices'])
 				|| this.isInputChanged(changes['myFavoritesPointsDeclined']))
 			{
-				this.selectDecisionPoint((pointId || this.currentPointId), 1600);
+				this.selectDecisionPointHandler(pointId || this.currentPointId, 1600);
 			}
 		}
 	}
@@ -93,35 +92,37 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 			switch (point.pointPickTypeId)
 			{
-				case PickType.Pick1:
-					return isPreviouslyContracted
-							? 'Previously Contracted Option'
-							: 'Please select one of the choices below';
-				case PickType.Pick1ormore:
-					return isPreviouslyContracted
-							? 'Previously Contracted Options'
-							: 'Please select at least one of the Choices below';
-				case PickType.Pick0ormore:
-					return isPreviouslyContracted
-							? 'Previously Contracted Options'
-							: 'Please select at least one of the Choices below';
-				case PickType.Pick0or1:
-					return isPreviouslyContracted
-							? 'Previously Contracted Option'
-							: 'Please select one of the choices below';
-				default:
-					return '';
+			case PickType.Pick1:
+				return isPreviouslyContracted
+					? 'Previously Contracted Option'
+					: 'Please select one of the choices below';
+			case PickType.Pick1ormore:
+				return isPreviouslyContracted
+					? 'Previously Contracted Options'
+					: 'Please select at least one of the Choices below';
+			case PickType.Pick0ormore:
+				return isPreviouslyContracted
+					? 'Previously Contracted Options'
+					: 'Please select at least one of the Choices below';
+			case PickType.Pick0or1:
+				return isPreviouslyContracted
+					? 'Previously Contracted Option'
+					: 'Please select one of the choices below';
+			default:
+				return '';
 			}
 		}
 
 		return '';
 	}
 
-	togglePointPanel() {
+	togglePointPanel()
+	{
 		this.isPointPanelCollapsed = !this.isPointPanelCollapsed;
 	}
 
-	selectDecisionPoint(pointId: number, interval?: number) {
+	selectDecisionPointHandler(pointId: number, interval?: number) 
+	{
 		if (pointId)
 		{
 			setTimeout(() =>
@@ -130,29 +131,32 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				this.scrollPointIntoView(pointId, pointId === firstPointId);
 			}, interval || 500);
 
-			this.onSelectDecisionPoint.emit(pointId);
+			this.selectDecisionPoint.emit(pointId);
 		}
 
 		this.currentPointId = pointId;
 	}
 
-	declineDecisionPoint(point: DecisionPoint) {
+	declineDecisionPointHandler(point: DecisionPoint) 
+	{
 		this.currentPointId = point.id;
-		this.onDeclineDecisionPoint.emit(point);
+		this.declineDecisionPoint.emit(point);
 	}
 
-	choiceToggleHandler(choice: ChoiceExt) {
+	choiceToggleHandler(choice: ChoiceExt)
+	{
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
-		if (point && this.currentPointId != point.id) {
+		if (point && this.currentPointId != point.id)
+		{
 			this.currentPointId = point.id;
 		}
 		this.choiceToggled = true;
-		this.onToggleChoice.emit(choice);
+		this.toggleChoice.emit(choice);
 	}
 
-	getChoiceExt(choice: Choice, point: DecisionPoint) : ChoiceExt
+	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
-		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
@@ -169,39 +173,41 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
-		const images = this.choiceImages?.filter(x => x.dpChoiceId === choice.id);
 
-		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem, images);
+		return new ChoiceExt(choice, choiceStatus, myFavoritesChoice, point.isStructuralItem);
 	}
 
-	showDeclineCard(point: DecisionPoint): boolean {
-		let unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+	showDeclineCard(point: DecisionPoint): boolean 
+	{
+		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		return (unfilteredPoint.pointPickTypeId === 2 || unfilteredPoint.pointPickTypeId === 4)
-			&& !unfilteredPoint.isStructuralItem
+			&& (this.isPresale || !unfilteredPoint.isStructuralItem)
 			&& !unfilteredPoint.isPastCutOff
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const pointCardElement = <HTMLElement><any>document.getElementById(`point-card-${pointId?.toString()}`);
+		const pointCardElement = <HTMLElement>document.getElementById(`point-card-${pointId?.toString()}`);
 		if (pointCardElement)
 		{
 			if (isFirstPoint)
 			{
-				setTimeout(() => {
+				setTimeout(() =>
+				{
 					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 				}, 250);
 			}
 			else
 			{
 				// Workaround to display the element moved under the nav bar
-				setTimeout(() => {
+				setTimeout(() =>
+				{
 					const pos = pointCardElement.style.position;
 					const top = pointCardElement.style.top;
 					pointCardElement.style.position = 'relative';
 					pointCardElement.style.top = '-200px';
-					pointCardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					pointCardElement.style.top = top;
 					pointCardElement.style.position = pos;
 				}, 250);
@@ -209,26 +215,33 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
-		if (decisionBarElement) {
+		if (decisionBarElement)
+		{
 			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 		}
 	}
 
-	viewChoiceDetail(choice: ChoiceExt)
+	viewChoiceDetailHandler(choice: ChoiceExt)
 	{
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
-		this.selectDecisionPoint(pointId);
-		this.onViewChoiceDetail.emit(choice);
+		this.selectDecisionPointHandler(pointId);
+		this.viewChoiceDetail.emit(choice);
 	}
 
-	displayDecisionPoint(point: DecisionPoint) {
-		if (point.isHiddenFromBuyerView) {
+	displayDecisionPoint(point: DecisionPoint)
+	{
+		if (point.isHiddenFromBuyerView)
+		{
 			return false;
-		} else {
+		}
+		else
+		{
 			const choices = _.flatMap(point.choices);
 			let aChoiceExists = false;
-			choices.forEach(c => {
-				if (!c.isHiddenFromBuyerView) {
+			choices.forEach(c =>
+			{
+				if (!c.isHiddenFromBuyerView)
+				{
 					aChoiceExists = true;
 				}
 			})
@@ -236,7 +249,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	isInputChanged(input: any) : boolean
+	isInputChanged(input) : boolean
 	{
 		let isValueChanged = false;
 

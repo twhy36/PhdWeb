@@ -8,25 +8,21 @@
 	<script type="text/javascript">
 		function getAssets()
 		{
-			var pictureParkAssets = getParameterByName('assets');
+			let pictureParkAssets = getParameterByName();
 
 			if (pictureParkAssets != null)
 			{
-				window.opener.postMessage({ assets: pictureParkAssets }, "*");
+				window.opener.postMessage({ assets: pictureParkAssets }, '*');
 			}
 		};
 
-		function getParameterByName(name, url)
+		function getParameterByName()
 		{
-			if (!url)
-			{
-				url = window.location.href;
-			}
+			let url = window.location.href;
 
-			name = name.replace(/[\[\]]/g, "\\$&");
-
-			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"), results = regex.exec(url);
-
+			// get assets parameter from the href and assign it to results
+			let regex = new RegExp("[?&]assets(=([^&#]*)|&|#|$)"), results = regex.exec(url);
+			
 			if (!results)
 			{
 				return null;

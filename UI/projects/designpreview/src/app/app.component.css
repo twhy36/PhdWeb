@@ -119,3 +119,9 @@
     font-style: normal;
     src: url("../assets/john-wieland/fonts/Palatino-Linotype-Bold.woff2") format("woff2");
 }
+
+@media print {
+    .phd-build-version {
+        display: none;
+    }
+}

@@ -8,7 +8,7 @@
 
 		& ::ng-deep > div::before {
 			content: '';
-			margin: 18px;
+			margin: 6px;
 			height: 50px;
 		}
 
@@ -27,7 +27,6 @@
 	height: $action-bar;
 	bottom: 0;
 	left: $nav-menu;
-	z-index: 2;
 	background-color: white;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
 	/* Force Hardware Acceleration */
@@ -38,6 +37,7 @@
 	transition: -webkit-transform .5s;
 	transition: transform .5s;
 	transition: transform .5s, -webkit-transform .5s;
+	font-size: .85rem;
 
 	&.is-hidden {
 		align-self: auto;
@@ -48,7 +48,7 @@
 
 	& ::ng-deep > div::before {
 		content: '';
-		margin: 18px;
+		margin: 6px;
 		height: 50px;
 	}
 

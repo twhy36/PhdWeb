@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute } from 'phd-common';
 
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
 
@@ -193,7 +193,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		const attributeGroupId = $event.attributeGroupId;
 		const attribute = $event.attribute;
 		const selectedAttributeId = this.getSelectedAttributeId(attributeGroupId);
-		const alc = this.attributeListComponents.find(x => x.attributeGroupId == attributeGroupId); //reference to attribute group's attribute list component
+		const alc = this.attributeListComponents?.find(x => x.attributeGroupId == attributeGroupId); //reference to attribute group's attribute list component
 		
 		//if a user selected a different attribute and the attribute group is active
 		if (this.isActive && selectedAttributeId !== attribute.id)
@@ -259,15 +259,15 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 
 			if (attribute.monotonyConflict && this.isPastCutOff)
 			{
-				body = `Monotony Conflict and the Cut-off`;
+				body += `Monotony Conflict and the Cut-off`;
 			}
 			else if (attribute.monotonyConflict)
 			{
-				body = `Monotony Conflict`;
+				body += `Monotony Conflict`;
 			}
 			else
 			{
-				body = `Cut-off`;
+				body += `Cut-off`;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);

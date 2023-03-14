@@ -14,7 +14,8 @@
 					   [isJobPlan]="!inChangeOrder && jobPlanId === plan.id"
 					   [isSpecSelected]="!inChangeOrder && job && job.id !== 0"
 					   [canConfigure]="canConfigure"
-			           (onTogglePlan)="toggleSelectedPlan($event)"></plan-card>
+					   [isLitePlanDisabled]="isLitePlanDisabled(plan)"
+			           (onTogglePlan)="toggleSelection($event)"></plan-card>
 		</div>
 	</ng-container>
 
@@ -36,7 +37,7 @@
 <action-bar primaryAction="Personalize It"
 			[actionBarStatus]="(!!(selectedPlan$ | async) && !(isChangingOrder$ | async)) || ((isChangingOrder$ | async) && this.selectedPlan && this.selectedPlan.id !== jobPlanId ) ? 'COMPLETE' : 'INCOMPLETE'"
 			(callToAction)="onCallToAction($event)"
-            [price]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium + selectionPrice"
+            [price]="totalPrice"
             [changePrice]="(selectedPlanPrice$ | async) + (selectedLot$ | async)?.premium + selectionPrice - salesPrice"
             [inChangeOrder]="(isChangingOrder$ | async)"
 			[skipSaving]="(isChangingOrder$ | async)"

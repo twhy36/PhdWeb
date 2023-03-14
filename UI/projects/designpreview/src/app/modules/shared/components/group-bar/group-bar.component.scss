@@ -16,9 +16,10 @@
 
 	.phd-community-name {
 		color: var(--group-bar-text-color);
+		text-transform: uppercase;		
 		font-size: 15px;
 		font-weight: bold;
-		text-transform: uppercase;
+		margin: 3px 0 2px 0;
 	}
 
 	.phd-plan-name {
@@ -68,11 +69,25 @@
 
 @media(max-width: 650px) {
 	.phd-community-name {
-		font-size: 11px !important;
+		h2 {
+			font-size: 11px !important;			
+		}
 	}
 
 	.phd-plan-name {
 		font-size: 9px !important;
+	}
+}
+
+@media(max-width: 1085px) {
+	.phd-community-name {
+		h2 {
+			font-size: 12px !important;			
+		}
+	}
+
+	.phd-plan-name {
+		font-size: 10px !important;
 	}
 }
 
@@ -93,8 +108,14 @@
 
 	.phd-group-menu-selected {
 		color: var(--group-bar-selected-color);
-		font-size: 15px;
+		font-size: 17px;
 		font-weight: bold;
+	}
+
+	ul {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
 	}
 }
 .phd-hamburger-menu {

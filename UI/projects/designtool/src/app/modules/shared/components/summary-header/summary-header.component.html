@@ -2,7 +2,7 @@
 	<div class="d-flex">
 		<div class="d-flex flex-column flex-grow-1">
 			<span class="phd-label">COMMUNITY:</span>
-			<h2>{{communityName}}</h2>
+			<span class="phd-content phd-community-name">{{communityName}}</span>
 
 			<span class="phd-label">PLAN:</span>
 			<span class="phd-content">{{planName}}</span>
@@ -29,7 +29,7 @@
 		</div>
 
 		<div class="d-flex flex-column flex-grow-1 ml-3 mt-3">
-			<pricing-breakdown [priceBreakdown]="priceBreakdown" [allowEstimates]="allowEstimates" [isPreview]="isPreview" [hasHomesite]="hasHomesite" [canConfigure]="canConfigure"></pricing-breakdown>
+			<pricing-breakdown [priceBreakdown]="priceBreakdown" [allowEstimates]="isDirtScenario" [isPreview]="isPreview" [hasHomesite]="hasHomesite" [canConfigure]="canConfigure"></pricing-breakdown>
 		</div>
 	</div>
 
@@ -37,7 +37,7 @@
 		<decision-point-filter [pointStatusFilter]="pointStatusFilter" (pointStatusFilterChanged)="filtersUpdated($event)"></decision-point-filter>
 	</div>
 
-	<div>
+	<div class="phd-summary-header-row">
 		<div [ngClass]="isPhdLite ? 'phd-filter-lite' : 'phd-filter'">
 			<div (click)="toggleAllAttributes()" class="phd-attribute-toggle phd-clickable">
 				<span *ngIf="!showAllAttributes"><i class="fas fa-fw fa-chevron-circle-right"></i></span>
@@ -52,6 +52,9 @@
 				</label>
 				<div class="phd-switch-text">Images</div>
 			</div>
+		</div>
+		<div *ngIf="showRemoveDesignSelectionsButton">
+			<button class="btn btn-primary phd-remove-design-selections-btn" (click)="onRemoveDesignSelections()">Remove All Design Selections</button>
 		</div>
 	</div>
 </div>

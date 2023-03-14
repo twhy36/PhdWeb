@@ -130,8 +130,7 @@
 				<option *ngFor="let community of communities" [ngValue]="community">{{ community.name }} - {{ community.number }}</option>
 			</select>
 
-			<select class="form-control m-2 col" id="plan" [(ngModel)]="selectedPlan" (change)="onChangePlan()"
-					[disabled]="disableButtons || isDeletingTree">
+			<select class="form-control m-2 col" id="plan" [(ngModel)]="selectedPlan" (change)="onChangePlan()"	[disabled]="disableButtons || isDeletingTree">
 				<option [ngValue]="null">{{ planDefaultText }}</option>
 				<optgroup label="Active Plans">
 					<option *ngFor="let plan of activePlans" [ngValue]="plan">{{ plan.planSalesName }}</option>

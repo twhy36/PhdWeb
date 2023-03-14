@@ -3,7 +3,7 @@
 .phd-point {
 	font-size: 14px;
 	line-height: 1.36;
-	margin: 0 20px;
+	margin: 0 10px;
 	transition: all .3s;
 	min-height: 60px;
 	display: flex;
@@ -18,12 +18,9 @@
 			margin-top: 5px;
 		}
 
-		.phd-point-indicator {
-			width: 4px;
-			height: 4px;
-			border-radius: 50%;
-			background: black;
-			margin: 12px 20px 0px 3px;
+		.phd-point-label-presale {
+			flex-basis: 30%;
+			margin-top: 5px;
 		}
 
 		select {
@@ -50,24 +47,42 @@
 					flex: 1;
 				}
 
+				.phd-choice-header-presale {
+					flex-basis: 50%;
+				}
+
 				.phd-choice-expand {
 					width: 1.5em;
+					background: none;
+					border: none;
+					margin: 0;
+					padding: 0;
 				}
 
 				.phd-choice-quantity {
-					font-weight: bold;
 					display: flex;
 					justify-content: space-between;
+					margin-left: 20px;
 				}
 
 				.phd-quantity-label {
-					font-weight: bold;
 					margin-right: 5px;
+				}
+
+				.phd-price {
+					font-weight: bold;
+					margin-left: 100px;
+				}
+
+				.phd-pricing-varies {
+					margin-left: 100px;
 				}
 
 				.phd-choice-body {
 					flex: 1;
-					margin-left: 12px;
+					margin-left: 22px;
+					position: relative;
+					top: -10px;
 
 					.phd-choice-attributes-body {
 						display: flex;
@@ -81,17 +96,34 @@
 
 						.phd-label {
 							font-weight: bold;
+							font-size: 10px;
+							margin-right: 10px;
+						}
+
+						.phd-content {
+							font-size: 10px;
 						}
 
 						.phd-location {
 							display: flex;
-							justify-content: space-between;
 						}
 
-						.phd-attribute {
-							display: flex;
-							justify-content: space-between;
+						.phd-attribute-indent {
+							margin-left: 12px;
 						}
+					}
+
+					.phd-summary-additional-selections {
+						font-size: 10px;
+						cursor: pointer;
+						color: var(--link-color);
+						text-decoration: underline;
+					}
+
+					.phd-contracted-additional-selections {
+						font-size: 10px;
+						text-decoration: none;
+						color: black;
 					}
 
 					.phd-choice-action-label {
@@ -106,9 +138,21 @@
 				}
 
 				.actions {
-					flex-basis: 35%;
+					flex-basis: 45%;
 					font-size: 14px;
 					font-weight: 500;
+				}
+
+				.phd-edit {
+					display: flex;
+					justify-content: space-between;
+					align-items: flex-start;
+				}
+
+				.phd-edit-presale {
+					display: flex;
+					justify-content: flex-end;
+					align-items: flex-start;
 				}
 			}
 		}
@@ -116,6 +160,7 @@
 
 	.actions {
 		min-width: 60px;
+
 		a {
 			font-size: 14px;
 			color: $bluish;
@@ -126,6 +171,36 @@
 
 	.actionLinks {
 		margin-top: 5px;
+
+		a {
+			font-size: 10px;
+			border-radius: 35px;
+			min-width: 75px;
+			height: 18px;
+			margin: 0 10px 0 20px;
+			padding: 0;
+			text-align: center;
+		}
+
+		.phd-view-button {
+			background: var(--primary-button-color);
+			color: white;
+		}
+
+		.phd-remove-button {
+			background: white;
+			border-width: 2px;
+			color: black;
+		}
+
+		button {
+			border-radius: 35px;
+			min-width: 75px;
+			height: 18px;
+			font-size: 10px;
+			margin: 0px 10px 0px 20px;
+			padding: 0px;
+		}
 	}
 }
 
@@ -154,6 +229,26 @@
 	font-weight: bold;
 }
 
-a:hover {
-	background-color: #E6E6FA;
+
+@media print {
+	.phd-hide-from-print {
+		display: none !important;
+	}
+
+	.phd-price {
+		font-weight: bold;
+		margin-left: 295px !important;
+	}
+
+	.phd-pricing-varies {
+		margin-left: 295px !important;
+	}
+
+	.phd-choice-detail-presale-print {
+		margin-left: 60px;
+	}
+
+	.phd-choice-header-presale-print {
+		flex-basis: 250% !important;
+	}
 }

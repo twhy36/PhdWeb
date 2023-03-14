@@ -29,6 +29,13 @@
 			color: $link-blue;
 			font-size: 12px;
 		}
+
+		&.phd-lite-disabled-plan {
+			background-color: #fff;
+			color: $black;
+			font-size: 12px;
+			font-weight: bold;
+		}		
 	}
 
 	&.phd-no-lot-assocation {

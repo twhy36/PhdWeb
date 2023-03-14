@@ -1,11 +1,10 @@
 import { Action } from '@ngrx/store';
 
-import {
+import
+{
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules, DecisionPointFilterType
 } from 'phd-common';
-
-import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
 
 import { ErrorAction } from '../error.action';
 import { LoadScenario, ScenarioLoaded, SalesAgreementLoaded, JobLoaded } from '../actions';
@@ -40,7 +39,9 @@ export enum ScenarioActionTypes
 	TreeLoaded = 'Tree Loaded',
 	TreeLoadedFromJob = 'Tree Loaded From Job',
 	SetOverrideReason = 'Set Override Reason',
-	SetLockedInChoices = 'Set Locked In Choices'
+	SetLockedInChoices = 'Set Locked In Choices',
+	SelectRequiredChoiceAttributes = 'Select Required Choice Attributes',
+	RequiredChoiceAttributesSelected = 'Required Choice Attributes Selected'
 }
 
 export class LoadTree implements Action
@@ -91,10 +92,10 @@ export class LoadError extends ErrorAction
 export class SelectChoices implements Action
 {
 	readonly type = ScenarioActionTypes.SelectChoices;
-	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[] }[];
+	public choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean, cancellingChangeOrder?: boolean }[];
 	public save: boolean;
 
-	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[] }[])
+	constructor(save: boolean, ...choices: { choiceId: number, overrideNote: string, quantity: number, attributes?: DesignToolAttribute[], timeOfSaleOptionPrices?: TimeOfSaleOptionPrice[], attributeOnly?: boolean, cancellingChangeOrder?: boolean }[])
 	{
 		this.choices = choices;
 		this.save = save;
@@ -134,7 +135,8 @@ export class SetScenarioLotHanding implements Action
 }
 
 @Log(true)
-export class SetScenarioName implements Action {
+export class SetScenarioName implements Action
+{
 	readonly type = ScenarioActionTypes.SetScenarioName;
 
 	constructor(public scenarioName: string) { }
@@ -252,10 +254,27 @@ export class SetChoicePriceRanges implements Action
 	constructor(public priceRanges: { choiceId: number, min: number, max: number }[]) { }
 }
 
-export class SetLockedInChoices implements Action {
+export class SetLockedInChoices implements Action
+{
 	readonly type = ScenarioActionTypes.SetLockedInChoices;
 
 	constructor(public choices: Choice[]) { }
+}
+
+@Log()
+export class SelectRequiredChoiceAttributes implements Action
+{
+	readonly type = ScenarioActionTypes.SelectRequiredChoiceAttributes;
+
+	constructor(public choices?: Choice[]) { }
+}
+
+@Log()
+export class RequiredChoiceAttributesSelected implements Action
+{
+	readonly type = ScenarioActionTypes.RequiredChoiceAttributesSelected;
+
+	constructor(public tree: Tree) { }
 }
 
 export type ScenarioActions =
@@ -291,4 +310,6 @@ export type ScenarioActions =
 	SalesAgreementLoaded |
 	JobLoaded |
 	SetChoicePriceRanges |
-	SetLockedInChoices;
+	SetLockedInChoices |
+	SelectRequiredChoiceAttributes |
+	RequiredChoiceAttributesSelected;

@@ -1,8 +1,7 @@
 import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import * as _ from "lodash";
 
-import { PointStatus } from 'phd-common';
-import { PointStatusFilter } from '../../models/decisionPointFilter';
+import { PointStatus, PointStatusFilter } from 'phd-common';
 
 @Component({
 	selector: 'decision-point-filter',

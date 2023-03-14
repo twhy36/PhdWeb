@@ -1,5 +1,5 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
-@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
+@import "../../../../../../../designpreview/src/scss/sizes.scss";
 
 #phd-nav-bar {
 	background: var(--primary-ribbon-background-color);
@@ -10,6 +10,7 @@
 	.phd-nav-bar-header {
 		display: inline-block;
 		height: 50px;
+		padding: 0;
 
 		.phd-logo {
 			margin-top: var(--logo-margin-top);
@@ -22,6 +23,7 @@
 		color: var(--nav-bar-text-color);
 		margin-left: 30px;
 		width: max-content;
+		margin-top: 9px;
 
 		.phd-nav-bar-label {
 			font-size: 14px;
@@ -62,13 +64,17 @@
 
 	.phd-active-link-full {
 		font-weight: bold;
-		font-size: 16px;
+		font-size: 18px;
 		cursor: default;
 	}
 
 	.phd-menu-bars {
 		display: inline;
 		color: var(--nav-bar-text-color);
+		background: none;
+		border: none;
+		margin: 0;
+		padding: 0;	
 
 		.fa-bars {
 			margin-right: 0px;
@@ -76,6 +82,10 @@
 		.fa-times {
 			margin-right: 2px;
 		}
+	}
+
+	.phd-links-list {
+		margin-top: 19px;
 	}
 
 	.phd-active-link-collapsed {
@@ -86,14 +96,13 @@
 
 .phd-collapsable-menu {
 	background: var(--primary-ribbon-background-color);
-	width: 300px;
+	width: var(--hamburger-menu-width);
 	position: fixed;
 	top: 70px;
 	right: -20px;
 	z-index: 100;
 	overflow-x: hidden;
 	transition: 0.5s;
-	padding-bottom: 15px;
 
 	a {
 		font-size: 20px;
@@ -101,7 +110,13 @@
 		display: block;
 		text-transform: uppercase;
 		text-decoration: none;
-		padding: 15px 8px 15px 32px;
+		padding: 15px 8px 15px 0px;
+		margin-left: -10px;
+	}
+
+	.phd-collapsable-menu-link-full {
+		font-size: 22px;
+		font-weight: bold;
 	}
 }
 
@@ -112,7 +127,7 @@
 	display: none !important;
 }
 
-@media(max-width: $tablet-max-width) {
+@media(max-width: $top-menu-collapse) {
 	.phd-menu-options {
 		display: none !important;
 	}
@@ -121,7 +136,7 @@
 	}
 }
 
-@media(max-width: 1058px) {
+@media(max-width: $top-menu-collapse-jw) {
 	.phd-menu-options-jw {
 		display: none !important;
 	}

@@ -6,6 +6,9 @@ import { SharedModule } from '../shared/shared.module';
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { IdleLogoutComponent } from './components/idle-logout/idle-logout.component';
+import { DefaultErrorComponent } from './components/default-error/default-error.component';
+import { BannerComponent } from './components/banner/banner.component';
+import { WelcomeModalComponent } from './components/welcome-modal/welcome-modal.component';
 
 import { ChangeOrderService } from './services/change-order.service';
 import { FavoriteService } from './services/favorite.service';
@@ -24,18 +27,26 @@ import { AdobeService } from './services/adobe.service';
 import { LoggedInGuard } from './guards/logged-in.guard';
 import { InternalGuard } from './guards/internal.guard';
 import { ExternalGuard } from './guards/external.guard';
+import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
+import { TokenService } from './services/token.service';
+import { InfoDisclaimerComponent } from './components/info-disclaimer/info-disclaimer.component';
 
 @NgModule({
 	exports: [
 		NavBarComponent,
 		IdleLogoutComponent,
-		ClickDirective
+		ClickDirective,
+		BannerComponent
 	],
 	declarations: [
 		NavBarComponent,
 		IdleLogoutComponent,
-		ClickDirective
+		ClickDirective,
+		DefaultErrorComponent,
+		BannerComponent,
+		WelcomeModalComponent,
+		InfoDisclaimerComponent
 	],
 	imports: [
 		CommonModule,
@@ -55,12 +66,14 @@ import { ClickDirective } from './directives/click-directive.directive';
 		TreeService,
 		AttributeService,
 		AuthService,
+		TokenService,
 		ReportsService,
 		BrandService,
 		AdobeService,
 		LoggedInGuard,
 		InternalGuard,
-		ExternalGuard
+		ExternalGuard,
+		PresaleGuard
 	]
 })
 export class CoreModule { }

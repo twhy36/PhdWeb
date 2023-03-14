@@ -80,14 +80,14 @@ export class PhasePricingComponent extends UnsubscribeOnDestroy implements OnIni
 			this.takeUntilDestroyed(),
 			tap(comm =>
 			{
-				this.selectedCommunity = new FinancialCommunityViewModel(comm) || null;
+				this.selectedCommunity = new FinancialCommunityViewModel(comm);
 				this.isPhaseEnable = comm ? comm.isPhasedPricingEnabled : false;
 				this.phases = null;
 			}),
 			filter(comm => comm != null),
 			switchMap(comm => this._pricingService.getCommunityPlans(comm.id).pipe(
 				combineLatest(this._pricingService.getCommunitySalesPhases(comm.id)),
-				map(([plans, phases]) => [<ISalesPhase>{ phasePlans: plans, salesPhaseName: "List Prices" }, ...phases])
+				map(([plans, phases]) => [<ISalesPhase>{ phasePlans: plans, salesPhaseName: 'List Prices' }, ...phases])
 			))
 		).subscribe(phases =>
 		{
@@ -139,9 +139,9 @@ export class PhasePricingComponent extends UnsubscribeOnDestroy implements OnIni
 				this._phaseEnableCheckBox.nativeElement.checked = newValue ? null : 'checked';
 			}
 		}, (reason) =>
-			{
+		{
 
-			});
+		});
 	}
 
 	enablePhasePricing(newValue: boolean)
@@ -188,10 +188,10 @@ export class PhasePricingComponent extends UnsubscribeOnDestroy implements OnIni
 				this.showGrid = true;
 				this.sidePanelOpen = false;
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+				});
 	}
 
 	replacePhase(oldPhase: ISalesPhase, newPhase: ISalesPhase)

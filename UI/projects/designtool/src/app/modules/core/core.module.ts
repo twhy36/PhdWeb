@@ -15,7 +15,6 @@ import { NavMenuItemComponent } from './components/nav-menu-item/nav-menu-item.c
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { SiteMenuComponent } from './components/site-menu/site-menu.component';
-import { ModalConfirmActionComponent } from './components/modal-confirm-action/modal-confirm-action.component';
 import { ErrorAlertComponent } from './components/error-alert/error-alert.component';
 
 import { SalesInfoService } from './services/sales-info.service';
@@ -41,7 +40,6 @@ import { ModalOverrideSaveComponent } from './components/modal-override-save/mod
 import { NotificationService } from './services/notification.service';
 import { FavoriteService } from './services/favorite.service';
 import { LiteService } from './services/lite.service';
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 @NgModule({
 	exports: [
@@ -51,7 +49,6 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 		NavigationComponent,
 		NavBarComponent,
 		SiteMenuComponent,
-		ModalConfirmActionComponent,
 		ErrorAlertComponent,
 		ModalOverrideSaveComponent
 	],
@@ -62,7 +59,6 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 		NavigationComponent,
 		NavBarComponent,
 		SiteMenuComponent,
-		ModalConfirmActionComponent,
 		ErrorAlertComponent,
 		ModalOverrideSaveComponent
 	],

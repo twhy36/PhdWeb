@@ -26,6 +26,9 @@
 	}
 
 	.phd-action-icons {
+		padding-top: 16px;
+		padding-left: 0;
+
 		div {
 			margin: 0px 20px 0px 20px;
 		}
@@ -55,6 +58,9 @@
 
 	.phd-clickable {
 		align-items: center;
+		margin-left: 22px;
+		background: none;
+		border: none;
 	}
 
 	.phd-contracted-options {
@@ -71,10 +77,19 @@
 
 		.phd-contracted-options-label {
 			margin-left: 8px;
+			cursor: pointer;
 		}
 	}
 
 	.phd-icon-selected {
+		color: var(--primary-icon-color);
+	}
+	
+	.phd-toggle-on {
+		background-color: var(--action-icon-color);
+	}
+	
+	.phd-toggle-off {
 		color: var(--primary-icon-color);
 	}
 
@@ -84,6 +99,13 @@
 		color: white;
 		min-width: 120px;
 		margin: 0px 10px 0px 20px;
+	}
+	
+	.phd-btn-fixed-width{
+		width: 210px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.phd-price-label {

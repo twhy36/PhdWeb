@@ -11,6 +11,9 @@
 	position: relative;
 	flex-direction: column;
 	margin: 0px 10px 10px 0px;
+	background: none;
+	border: none;
+	padding: 0;
 }
 
 .phd-attribute-name {
@@ -49,6 +52,9 @@
 	margin: 58px 0px 0px 60px;
 	z-index: 9;
 	color: rgb(214, 214, 214);
+	background: none;
+	border: none;
+	padding: 0;
 
     .phd-icon-selected {   
         color: var(--heart-icon-color);

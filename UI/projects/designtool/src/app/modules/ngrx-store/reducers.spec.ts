@@ -1,36 +1,37 @@
 /// <reference types="jasmine" />
 
 import { ScenarioStatusType, TreeVersion } from 'phd-common';
-import {
-		State,
-		title,
-		canConfigure,
-		canSell,
-		canDesign,
-		canApprove,
-		canOverride,
-		canAddIncentive,
-		monotonyConflict,
-		needsPlanChange,
-		hasSpecPlanId,
-		isComplete,
-		canEditAgreementOrSpec,
-		canEditCancelOrVoidAgreement,
-		isSpecSalePending,
-		activePrimaryBuyer,
-		isActivePrimaryBuyerComplete,
-		activeCoBuyers,
-		scenarioStatus,
-		salesAgreementStatus,
-		selectedPlanPrice,
-		priceBreakdown,
-		filteredTree,
-		agreementColorScheme,
-		selectSelectedPlanLotAvailability,
-		changeOrderChoicesPastCutoff,
-		canCancelSpec,
-		showSpinner
-	} from './reducers';
+import
+{
+	State,
+	title,
+	canConfigure,
+	canSell,
+	canDesign,
+	canApprove,
+	canOverride,
+	canAddIncentive,
+	monotonyConflict,
+	needsPlanChange,
+	hasSpecPlanId,
+	isComplete,
+	canEditAgreementOrSpec,
+	canEditCancelOrVoidAgreement,
+	isSpecSalePending,
+	activePrimaryBuyer,
+	isActivePrimaryBuyerComplete,
+	activeCoBuyers,
+	scenarioStatus,
+	salesAgreementStatus,
+	selectedPlanPrice,
+	priceBreakdown,
+	filteredTree,
+	agreementColorScheme,
+	selectSelectedPlanLotAvailability,
+	changeOrderChoicesPastCutoff,
+	canCancelSpec,
+	showSpinner
+} from './reducers';
 
 describe('Common reducer', function ()
 {
@@ -3202,7 +3203,8 @@ describe('Common reducer', function ()
 		expect(result).toBe(99921);
 	});
 
-	it('selectedPlanPrice is planPrice when the phase is disabled and there is a salesPhasePlan ', () => {
+	it('selectedPlanPrice is planPrice when the phase is disabled and there is a salesPhasePlan ', () =>
+	{
 		const state: State = <any>{
 			plan: {
 				plans: [{
@@ -3477,7 +3479,7 @@ describe('Common reducer', function ()
 											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
-											maxQuantity:  1,
+											maxQuantity: 1,
 											options: [],
 											selectedAttributes: [],
 											sortOrder: 0,
@@ -3535,7 +3537,7 @@ describe('Common reducer', function ()
 											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
-											maxQuantity:  1,
+											maxQuantity: 1,
 											options: [],
 											selectedAttributes: [],
 											sortOrder: 1,
@@ -3637,7 +3639,7 @@ describe('Common reducer', function ()
 							pointPickTypeLabel: 'Pick 1',
 							price: 0,
 							sortOrder: 1,
-							status: 0,
+							status: 1,
 							subGroupCatalogId: 0,
 							subGroupId: 24276,
 							treeVersionId: 2123,
@@ -3667,7 +3669,7 @@ describe('Common reducer', function ()
 								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
-								maxQuantity:  1,
+								maxQuantity: 1,
 								options: [],
 								selectedAttributes: [],
 								sortOrder: 0,
@@ -3725,7 +3727,7 @@ describe('Common reducer', function ()
 								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
-								maxQuantity:  1,
+								maxQuantity: 1,
 								options: [],
 								selectedAttributes: [],
 								sortOrder: 1,
@@ -3816,7 +3818,7 @@ describe('Common reducer', function ()
 											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
-											maxQuantity:  1,
+											maxQuantity: 1,
 											options: [],
 											selectedAttributes: [],
 											sortOrder: 0,
@@ -3874,7 +3876,7 @@ describe('Common reducer', function ()
 											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
-											maxQuantity:  1,
+											maxQuantity: 1,
 											options: [],
 											selectedAttributes: [],
 											sortOrder: 1,
@@ -3948,14 +3950,14 @@ describe('Common reducer', function ()
 				id: 16760,
 				label: 'FLOORING',
 				sortOrder: 1,
-				status: 0,
+				status: 1,
 				treeVersionId: 2123,
 				subGroups: [
 					{
 						groupId: 16760,
 						id: 24276,
 						sortOrder: 1,
-						status: 0,
+						status: 1,
 						subGroupCatalogId: 8,
 						treeVersionId: 2123,
 						useInteractiveFloorplan: false,
@@ -3976,7 +3978,7 @@ describe('Common reducer', function ()
 							pointPickTypeLabel: 'Pick 1',
 							price: 0,
 							sortOrder: 1,
-							status: 0,
+							status: 1,
 							subGroupCatalogId: 0,
 							subGroupId: 24276,
 							treeVersionId: 2123,
@@ -4006,7 +4008,7 @@ describe('Common reducer', function ()
 								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
-								maxQuantity:  1,
+								maxQuantity: 1,
 								options: [],
 								selectedAttributes: [],
 								sortOrder: 0,
@@ -4097,7 +4099,7 @@ describe('Common reducer', function ()
 											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
-											maxQuantity:  1,
+											maxQuantity: 1,
 											options: [],
 											selectedAttributes: [],
 											sortOrder: 0,
@@ -4155,7 +4157,7 @@ describe('Common reducer', function ()
 											hasImage: false,
 											isDecisionDefault: false,
 											isSelectable: false,
-											maxQuantity:  1,
+											maxQuantity: 1,
 											options: [],
 											selectedAttributes: [],
 											sortOrder: 1,
@@ -4229,14 +4231,14 @@ describe('Common reducer', function ()
 				id: 16760,
 				label: 'FLOORING',
 				sortOrder: 1,
-				status: 0,
+				status: 1,
 				treeVersionId: 2123,
 				subGroups: [
 					{
 						groupId: 16760,
 						id: 24276,
 						sortOrder: 1,
-						status: 0,
+						status: 1,
 						subGroupCatalogId: 8,
 						treeVersionId: 2123,
 						useInteractiveFloorplan: false,
@@ -4257,7 +4259,7 @@ describe('Common reducer', function ()
 							pointPickTypeLabel: 'Pick 1',
 							price: 0,
 							sortOrder: 1,
-							status: 0,
+							status: 1,
 							subGroupCatalogId: 0,
 							subGroupId: 24276,
 							treeVersionId: 2123,
@@ -4287,7 +4289,7 @@ describe('Common reducer', function ()
 								hasImage: false,
 								isDecisionDefault: false,
 								isSelectable: false,
-								maxQuantity:  1,
+								maxQuantity: 1,
 								options: [],
 								selectedAttributes: [],
 								sortOrder: 0,
@@ -4637,7 +4639,8 @@ describe('Common reducer', function ()
 		expect(result).toEqual([{
 			action: 'Add',
 			overrideNoteId: null,
-			decisionPointChoiceID: 5}]);
+			decisionPointChoiceID: 5
+		}]);
 	});
 
 	it('changeOrderChoicesPastCutoff is empty when changeorder choice dp is not past cutoff', () =>
@@ -4710,6 +4713,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4729,6 +4735,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4748,6 +4757,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4763,11 +4775,14 @@ describe('Common reducer', function ()
 				lot: {
 					lotBuildTypeDesc: 'Spec'
 				},
-				jobSalesAgreementAssocs: [{salesAgreement: 1}]
+				jobSalesAgreementAssocs: [{ salesAgreement: 1 }]
 			},
 			scenario:
 			{
 				buildMode: 'spec'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
@@ -4785,6 +4800,9 @@ describe('Common reducer', function ()
 			},
 			scenario: {
 				buildMode: 'buyer'
+			},
+			lite: {
+				isPhdLite: false
 			}
 		};
 
