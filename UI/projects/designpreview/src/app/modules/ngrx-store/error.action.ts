@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Action } from '@ngrx/store';
 import { Observable, of, OperatorFunction } from 'rxjs';
 import { switchMap, concatMap, mergeMap, catchError } from 'rxjs/operators';
@@ -13,6 +14,7 @@ export enum ErrorFrom
 	LoadPresaleNoPubleshed = 'Scenario.LoadPresale.NoPublished',
 	PageNotFound = 'WildcardPath.error',
 	GuardError = 'Guard',
+	TimeoutError = 'Timeout.error',
 	LoadSelectedPlan = 'Lots.LoadSelectedPlan',
 	LoadSalesAgreement = 'LoadSalesAgreement',
 	LoadPreview = 'Scenario.LoadPreview',
@@ -63,6 +65,13 @@ export class GuardError extends ErrorAction
 	constructor(public error: Error, public friendlyMessage?: string, public errFrom = ErrorFrom.GuardError) { super(error, friendlyMessage, errFrom); }
 }
 
+export class TimeoutError extends ErrorAction
+{
+	readonly type = CommonActionTypes.TimeoutError;
+
+	constructor(public error: Error, public friendlyMessage?: string, public errFrom = ErrorFrom.TimeoutError) { super(error, friendlyMessage, errFrom); }
+}
+
 export enum MapFunction
 {
 	switchMap,
@@ -83,15 +92,19 @@ export function tryCatch<T, R, E extends ErrorAction>(project: OperatorFunction<
 				project,
 				catchError((err: Error) => 
 				{
+					const fm = (friendlyMessage ? (typeof friendlyMessage === 'string' ? friendlyMessage : friendlyMessage(err)) : null);
+
 					if (!environment.production && err) 
 					{
 						console.error(err);
 					}
 
-					return of(new errorType(err,
-						(friendlyMessage ? (typeof friendlyMessage === 'string' ? friendlyMessage : friendlyMessage(err)) : null),
-						errFrom ? errFrom : '')
-					)
+					if ((err as HttpErrorResponse).status === 408)
+					{
+						return of(new TimeoutError(err, fm) as E);
+					}
+
+					return of(new errorType(err, fm, errFrom ? errFrom : ''));
 				})
 			)
 		)

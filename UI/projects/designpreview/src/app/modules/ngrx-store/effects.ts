@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { switchMap, map, scan, withLatestFrom, tap, filter } from 'rxjs/operators';
-import { combineLatest, Observable, of, forkJoin, from, TimeoutError } from 'rxjs';;
+import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
@@ -327,26 +327,18 @@ export class CommonEffects
 				}),
 			{ prev: false, action: false, err: <ErrorAction>null }
 			),
-			filter((errorScan: { prev: boolean; action: boolean; err: null; }) => !errorScan.prev && errorScan.action),
-			map((errorScan: { prev: boolean; action: boolean; err: null; }) =>
+			filter((errorScan: { prev: boolean; action: boolean; err: Action; }) => !errorScan.prev && errorScan.action),
+			map((errorScan: { prev: boolean; action: boolean; err: Action; }) =>
 			{
 				this.router.navigate(['error']);
 
 				if (errorScan.err)
 				{
-					const err = errorScan.err as LoadError
-					const httpError = err.error as HttpErrorResponse;
 					const errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
 					const errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
-					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
-					const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
-
-					if (httpError.status === 408)
-					{
-						errFrom = timeoutErrName;
-					}
+					const errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
 
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}

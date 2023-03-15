@@ -20,7 +20,8 @@ export enum CommonActionTypes
 	PageNotFound = 'Page Not Found',
 	SetLatestError = 'Set Latest Error',
 	ClearLatestError = 'Clear Latest Error',
-	GuardError = 'Guard Error'
+	GuardError = 'Guard Error',
+	TimeoutError = 'Timeout Error'
 };
 
 @Stopwatch([CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
