@@ -55,7 +55,7 @@
 			</li>
 		</ul>
 	</div>
-	<div *ngIf="canAccessColorManagment && !environment.production">
+	<div *ngIf="canAccessColorManagment">
 		<a class="fa fa-paint-brush phd-clickable" ngbTooltip="Legacy Color Management" (click)="onColorManagementClicked()"></a>
 	</div>
 </nav>
