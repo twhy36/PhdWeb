@@ -100,7 +100,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.job = job;
 				this.jobId = job.id;
-				this.projectedFinalDate = job.projectedFinalDate && !isNaN(job.projectedFinalDate.getTime()) ? job.projectedFinalDate : null;
+				this.projectedFinalDate = job.projectedFinalDate && !isNaN(new Date(job.projectedFinalDate).getTime()) ? new Date(job.projectedFinalDate) : null;
 				this.fullBathsDefault = this.job.plan.fullBaths;
 				this.halfBathsDefault = this.job.plan.halfBaths;
 				this.bedroomsDefault = this.job.plan.bedrooms;
@@ -125,6 +125,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 
 				this.qmiSalesProgram = programs.find(x => x.name === 'Quick Move-in Incentive');
+				this.loadingInfo = false;
 				this.pulteInfoSet = true;
 				this.createForm();
 			}
@@ -187,7 +188,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         clonePulteInfo.squareFeetOverride = this.pulteInfoForm.controls['squareFeet'].value;
         clonePulteInfo.numberGarageOverride = this.pulteInfoForm.controls['numberOfGarages'].value;
         clonePulteInfo.specPrice = this.pulteInfo.specPrice;
-        clonePulteInfo.webSiteAvailableDate = this.pulteInfo.webSiteAvailableDate;
+		clonePulteInfo.webSiteAvailableDate = this.pulteInfo.webSiteAvailableDate;
+
         this.pulteInfoForm.markAsPristine();
         this.store.dispatch(new JobActions.SavePulteInfo(clonePulteInfo));
     }
