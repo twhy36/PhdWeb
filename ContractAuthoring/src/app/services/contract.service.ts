@@ -409,9 +409,9 @@ export class ContractService
             { fieldName: "Base House Price", isActive: true },
             { fieldName: "Elevation Price", isActive: true },
             { fieldName: "Lot Premium", isActive: true },
-            { fieldName: "Sale Program Amount", isActive: true },
-            { fieldName: "Sale Program Amount - Buyer Closing Cost", isActive: true },
-            { fieldName: "Sale Program Amount - Loan Origination", isActive: true },
+            { fieldName: "Sales Program Amount", isActive: true },
+            { fieldName: "Sales Program Amount - Buyer Closing Cost", isActive: true },
+            { fieldName: "Sales Program Amount - Loan Origination", isActive: true },
             { fieldName: "Total House Price", isActive: true },
             { fieldName: "Total Option Price", isActive: true },
         ]);
