@@ -1,11 +1,11 @@
-<div class="phd-point phd-point-on-print">
+<div class="phd-point phd-point-on-print" role="group" attr.aria-label="{{decisionPoint.label}}">
 	<div class="phd-point-details d-flex justify-content-start align-items-start">
 		<div [ngClass]="{'phd-point-label': !isPresale, 'phd-point-label-presale': isPresale}">{{decisionPoint.label}}</div>
 
 		<div class="phd-choice">
 			<ul class="phd-choice-list">
 				<ng-container *ngFor="let choice of choicesCustom">
-					<li class="phd-choice-detail phd-choice-detail-presale-print" *ngIf="choice.quantity > 0">
+					<li class="phd-choice-detail phd-choice-detail-presale-print" role="group" attr.aria-label="{{choice.label}}" *ngIf="choice.quantity > 0">
 						<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
 							<button class="phd-choice-expand">
 								<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
@@ -19,7 +19,7 @@
 							</button>
 							<span>{{ choice.label }}</span>
 							<div class="phd-choice-body">
-								<div class="my-3 phd-choice-attributes">
+								<div class="my-3 phd-choice-attributes" role="group" attr.aria-label="{{choice.label + ' Attributes'}}">
 									<ng-container *ngIf="choice.showAttributes && (choice.selectedAttributes.length || isDesignComplete)">
 										<ul class="phd-choice-attribute-list">
 											<li class="phd-choice-attributes-body" *ngFor="let attr of choice.mappedSelectedAttributes">

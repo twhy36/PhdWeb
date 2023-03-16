@@ -42,24 +42,26 @@
 							</div>
 							<ul class="sub-group d-flex flex-column justify-content-between"
 								*ngFor="let subGroup of group.subGroups">
-								<div class="header d-flex justify-content-between align-items-center">
-									<span>{{subGroup.label}}</span>
+								<div role="group" attr.aria-label="{{subGroup.label}}">
+									<div class="header d-flex justify-content-between align-items-center">
+										<span>{{subGroup.label}}</span>
+									</div>
+									<ng-container *ngFor="let dp of subGroup.points">
+										<decision-point-summary *ngIf="displayPoint(dp)"
+											[decisionPoint]="dp"
+											[subGroup]="subGroup"
+											[group]="group"
+											[salesChoices]="salesChoices"
+											[includeContractedOptions]="includeContractedOptions"
+											[buildMode]="buildMode"
+											[isDesignComplete]="isDesignComplete"
+											[isPresale]="isPresale"
+											[favoritesId]="favoritesId" 
+											(viewFavorites)="onViewFavorites($event)"
+											(removeFavorites)="onRemoveFavorites($event)">
+										</decision-point-summary>
+									</ng-container>
 								</div>
-								<ng-container *ngFor="let dp of subGroup.points">
-									<decision-point-summary *ngIf="displayPoint(dp)" 
-										[decisionPoint]="dp"
-										[subGroup]="subGroup" 
-										[group]="group" 
-										[salesChoices]="salesChoices"
-										[includeContractedOptions]="includeContractedOptions" 
-										[buildMode]="buildMode"
-										[isDesignComplete]="isDesignComplete" 
-										[isPresale]="isPresale"
-										[favoritesId]="favoritesId" 
-										(viewFavorites)="onViewFavorites($event)"
-										(removeFavorites)="onRemoveFavorites($event)">
-									</decision-point-summary>
-								</ng-container>
 							</ul>
 						</div>
 					</ng-container>
@@ -72,10 +74,10 @@
 							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
 								<button class="phd-expendable-circle" (click)="toggleCollapsed()">
 									<span *ngIf="!showFloorplan" id="expand-ifp" aria-expanded="false" aria-label="Expand Floorplan">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-controls="" aria-hidden="true"></i>
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-controls="expand-ifp" aria-hidden="true"></i>
 									</span>
 									<span *ngIf="showFloorplan" id="collapse-ifp" aria-expanded="true" aria-label="Collapse Floorplan">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-hidden="true"></i>
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-controls="expand-ifp" aria-hidden="true"></i>
 									</span>
 								</button>
 								<div class="label">floorplan image</div>
