@@ -1,4 +1,4 @@
-<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()">
+<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="phd-header">
 		<div class="phd-choice-image"*ngIf="imageUrl">
 			<cl-image public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
@@ -28,13 +28,13 @@
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 					<button class="phd-clickable" (click)="$event.stopPropagation()">
-						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o" (click)="toggleChoice()"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
 					<button class="phd-clickable" (click)="$event.stopPropagation()">
-						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+						<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
 					</button>
 				</ng-container>
 			</div>
@@ -51,13 +51,13 @@
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 					<div class="phd-clickable" (click)="$event.stopPropagation()">
-						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" class="fa fa-heart" (click)="toggleChoice()"></i></span>
-						<i *ngIf="!choice.isFavorite" class="fa fa-heart-o" (click)="toggleChoice()"></i>
+						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart" (click)="toggleChoice()"></i></span>
+						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o" (click)="toggleChoice()"></i>
 					</div>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
 					<div class="phd-clickable" (click)="$event.stopPropagation()">
-						<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+						<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
 					</div>
 				</ng-container>
 			</div>

@@ -1,13 +1,13 @@
 <div class="choice-container">
 	<ng-container *ngIf="point.enabled">
 		<div [class.phd-clickable]="!isReadonly" class="icon" (click)="$event.stopPropagation()">
-			<span class="phd-icon-selected"><i *ngIf="isDeclined" class="fa fa-heart" (click)="toggleDecline()"></i></span>
-			<i *ngIf="!isDeclined" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+			<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart" (click)="toggleDecline()"></i></span>
+			<i *ngIf="!isDeclined" aria-pressed="false" class="fa fa-heart-o" (click)="toggleDecline()"></i>
 		</div>
 	</ng-container>
 	<ng-container *ngIf="!point.enabled">
 		<div class="icon phd-clickable">
-			<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+			<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
 		</div>
 	</ng-container>
 	<div class="choice-label">{{"No Selections"}}</div>
