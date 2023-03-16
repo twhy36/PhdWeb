@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { select, Store } from '@ngrx/store';
@@ -16,6 +17,7 @@ import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 import * as fromRoot from './modules/ngrx-store/reducers';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
+import * as AppActions from './modules/ngrx-store/app/actions';
 import { BuildMode } from './modules/shared/models/build-mode.model';
 
 @Component({
@@ -44,6 +46,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	//navService is needed here to initalize the routing history, please do not remove
 	constructor(
 		private idle: Idle,
+		private route: ActivatedRoute,
 		private store: Store<fromRoot.State>,
 		private modalService: ModalService,
 		private identityService: IdentityService,
@@ -93,6 +96,11 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.displayBrowserModal();
 		}
+
+		this.route.queryParams.subscribe(params =>
+		{
+			this.store.dispatch(new AppActions.DisableAdobe(params.disableAdobe === 'true'));
+		});
 	}
 
 	watchIdle() 

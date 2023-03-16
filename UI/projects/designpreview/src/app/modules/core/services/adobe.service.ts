@@ -7,6 +7,7 @@ import { combineLatest } from 'rxjs';
 import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
+import * as fromApp from '../../ngrx-store/app/reducer';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 
@@ -24,6 +25,7 @@ import { environment } from '../../../../environments/environment';
 @Injectable()
 export class AdobeService extends UnsubscribeOnDestroy
 {
+	disabled: boolean = false;
 	environment = environment;
 	choices: Choice[];
 	pageLoadExecuted: boolean = false;
@@ -56,6 +58,14 @@ export class AdobeService extends UnsubscribeOnDestroy
 			{
 				this.buildMode = scenario.buildMode;
 			}
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromApp.adobeDisabled),
+		).subscribe(adobeDisabled =>
+		{
+			this.disabled = adobeDisabled;
 		});
 	}
 
@@ -152,7 +162,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 	setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string, pageName: string, groupName: string, subGroupName: string)
 	{
 		window['appEventData'] = window['appEventData'] || [];
-		if (!adobeLoadInitialized && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
+		if (!this.disabled && !adobeLoadInitialized && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			combineLatest([
 				this.store.pipe(select(state => state.org)),
@@ -197,7 +207,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setSearchEvent(term: string, tree: TreeVersion)
 	{
-		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
+		if (!this.disabled && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			window['appEventData'] = window['appEventData'] || [];
 
@@ -213,7 +223,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setAlertEvent(message: string, type: string)
 	{
-		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
+		if (!this.disabled && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			window['appEventData'] = window['appEventData'] || [];
 
@@ -225,7 +235,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setClickEvent(container: string, element: string, text: string)
 	{
-		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
+		if (!this.disabled && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			window['appEventData'] = window['appEventData'] || [];
 
@@ -237,7 +247,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	packageFavoriteEventData(postSaveFavoriteChoices: MyFavoritesChoice[], myFavorite: MyFavorite, tree: Tree, groups: Group[], salesChoices: JobChoice[])
 	{
-		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
+		if (!this.disabled && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			const favoriteChoices = (myFavorite ? myFavorite.myFavoritesChoice : []) || [];
 			const updatedChoices = salesChoices ? this.favoriteService.getMyFavoritesChoices(tree, salesChoices, favoriteChoices) : [];
@@ -267,7 +277,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 		window['appEventData'] = window['appEventData'] || [];
 
-		if (choice && !choice.removed && groups && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
+		if (!this.disabled && choice && !choice.removed && groups && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			const choices = _.flatMap(groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
 			const treeChoice = choices.find(c => choice.divChoiceCatalogId === c.divChoiceCatalogId);
@@ -326,7 +336,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 
 	setErrorEvent(error: string)
 	{
-		if (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale)
+		if (!this.disabled && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			const errorEvent = new ErrorEvent(error);
 
