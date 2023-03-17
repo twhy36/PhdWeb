@@ -8,7 +8,7 @@
 		</ng-container>
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
 			<div class="phd-clickable">
-				<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
+				<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 			</div>
 		</ng-container>
 	</div>

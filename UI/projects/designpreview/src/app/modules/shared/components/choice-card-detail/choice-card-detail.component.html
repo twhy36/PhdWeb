@@ -72,7 +72,7 @@
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
 				<button class="phd-clickable phd-favorite-selector">
-					<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
+					<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 				</button>
 			</ng-container>
 		</div>
@@ -124,7 +124,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="d-flex flex-column flex-1 phd-descriptive-text">{{ disclaimerText }}</div>
+		<div class="phd-descriptive-text">{{ disclaimerText }}</div>
 	</div>
 </div>
 

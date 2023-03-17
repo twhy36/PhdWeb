@@ -22,7 +22,7 @@
 				</ng-container>
 				<ng-container *ngIf="!currentPoint.enabled">
 					<button class="phd-clickable phd-favorite-selector">
-						<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
+						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 					</button>
 				</ng-container>
 			</div>
@@ -44,7 +44,7 @@
 				</ng-container>
 				<ng-container *ngIf="!currentPoint.enabled">
 					<button class="phd-clickable phd-favorite-selector">
-						<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
+						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 					</button>
 				</ng-container>
 			</div>

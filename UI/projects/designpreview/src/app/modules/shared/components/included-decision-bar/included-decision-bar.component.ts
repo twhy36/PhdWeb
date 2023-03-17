@@ -74,4 +74,14 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 			return aChoiceExists;
 		}
 	}
+
+	getPointLabelId(point: DecisionPoint)
+	{
+		return `#included-point-${point.id?.toString()}`
+	}
+
+	getSubGroupLabelId(subGroup: SubGroup)
+	{
+		return `#included-subgroup-${subGroup.id?.toString()}`
+	}
 }

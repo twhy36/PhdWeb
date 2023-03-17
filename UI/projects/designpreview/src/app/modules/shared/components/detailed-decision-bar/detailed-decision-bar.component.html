@@ -4,7 +4,7 @@
 			<div class="decision-point">
 				<div class="label" title="{{point.label}}">
 					<div class="icon">
-						<i class="fa fa-check" *ngIf="isPointComplete(point)"></i>
+						<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="isPointComplete(point)"></i>
 					</div>
 					<div [attr.id]="'decision-bar-' + point.id">
 						{{point.label}}

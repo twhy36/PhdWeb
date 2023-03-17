@@ -7,7 +7,7 @@
 	</ng-container>
 	<ng-container *ngIf="!point.enabled">
 		<div class="icon phd-clickable">
-			<i class="fa fa-ban" aria-label="Blocked Choice" (click)="openBlockedChoiceModal()"></i>
+			<i class="fa fa-ban" attr.aria-label="{{point.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 		</div>
 	</ng-container>
 	<div class="choice-label">{{"No Selections"}}</div>
