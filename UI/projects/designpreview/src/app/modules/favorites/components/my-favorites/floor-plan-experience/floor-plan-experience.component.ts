@@ -49,6 +49,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
+	floorPlanLoaded: boolean = false;
 	floors;
 	fpOptions;
 	selectedFloor;
@@ -143,6 +144,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	loadFloorPlan(fp) 
 	{
+		this.floorPlanLoaded = true;
 		// load floors
 		this.floors = fp.floors;
 		if (!this.selectedFloor) 

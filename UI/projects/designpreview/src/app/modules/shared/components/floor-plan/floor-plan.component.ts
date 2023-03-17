@@ -66,11 +66,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				try
 				{
 					this.fp = window['fp'] = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
-
-					if (this.floorPlanImages.length === 0) 
-					{
-						this.saveFloorPlanImages();
-					}
 				}
 				catch (err)
 				{

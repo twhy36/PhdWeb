@@ -85,6 +85,11 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit()
 	{
+		this.route.queryParams.subscribe(params =>
+		{
+			this.store.dispatch(new AppActions.DisableAdobe(params.disableAdobe === 'true'));
+		});
+			
 		window['appEventData'] = [];
 
 		this.setAdobeAnalytics();
@@ -96,11 +101,6 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.displayBrowserModal();
 		}
-
-		this.route.queryParams.subscribe(params =>
-		{
-			this.store.dispatch(new AppActions.DisableAdobe(params.disableAdobe === 'true'));
-		});
 	}
 
 	watchIdle() 
