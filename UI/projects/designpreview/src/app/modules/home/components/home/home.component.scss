@@ -28,10 +28,11 @@
 	text-align: center;
 }
 
-.phd-start-reviewing-title {
-	font-size: 3.2vh;
+.phd-start-reviewing-title h1 {
+	font-size: 3.2vh;	
+	font-weight: bold;
 	color: var(--home-text-color);
-	margin-top: 30px;
+	margin: 5px;
 	text-align: center;
 }
 

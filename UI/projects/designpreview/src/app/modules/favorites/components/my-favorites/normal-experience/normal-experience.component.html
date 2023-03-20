@@ -7,6 +7,9 @@
 <div class="phd-normal-experience" [class.phd-hide]="errorMessage.length > 0">
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
+			<h3 class="phd-visually-hidden">
+				Side Bar Header
+			</h3>
 			<div class="phd-selected-group">
 				<ng-container *ngIf="!noVisibleGroups">
 					<div class="phd-group-name">{{groupName}}: </div>
@@ -32,8 +35,8 @@
 			<div class="phd-point-container">
 				<ng-container *ngFor="let point of points">
 					<ng-container *ngIf="displayDecisionPoint(point)">
-						<div class="phd-point-label" [attr.id]="'point-card-' + point.id">{{point?.label}}</div>
-						<div class="phd-point-title">{{getSubTitle(point)}}</div>
+						<h2 class="phd-point-label" [attr.id]="'point-card-' + point.id">{{point?.label}}</h2>
+						<h3 class="phd-point-title">{{getSubTitle(point)}}</h3>
 						<div class="d-flex flex-wrap phd-choice-cards">
 							<ng-container *ngFor="let choice of point.choices">
 								<choice-card *ngIf="!choice.isHiddenFromBuyerView"

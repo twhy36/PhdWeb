@@ -26,7 +26,7 @@
 	<div class="phd-header-body">
 		<div class="phd-upper-header" [ngClass]="{ 'phd-print-description': isPresale }">
 			<div class="phd-name-group">
-				<div id="favoritesListName" class="phd-favorites-list phd-favorites-list-on-print">{{headerTitle}}</div>
+				<h1 id="favoritesListName" class="phd-favorites-list phd-favorites-list-on-print">{{headerTitle}}</h1>
 				<div [ngClass]="{'phd-name-group-presale': isPresale}">
 					<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.communityName + (!isPresale ? ',' : '')}}</span>
 					<span class="phd-lot-details phd-lot-details-on-print" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>

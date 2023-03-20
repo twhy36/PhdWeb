@@ -27,24 +27,24 @@
 				(contractedOptionsToggled)="onContractedOptionsToggled()">
 			</summary-header>
 
-			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky"
+			<div class="phd-tree-view phd-tree-view-on-print" [class.phd-is-sticky]="isSticky"
 				[class.phd-tree-view-presale]="isPresale">
 				<ul class="phd-group-list">
 					<ng-container *ngFor="let group of groups">
-						<div class="group" role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups.length > 0">
-							<div class="label">
-								<span>{{group.label}}</span>
+						<div class="phd-group" role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups.length > 0">
+							<div class="phd-label">
+								<h2>{{group.label}}</h2>
 								<div *ngIf="!isPresale" class="phd-group-detail">
 									<span class="phd-group-subtotal-label">Subtotal : </span>
 									<span class="phd-group-subtotal-amount"> {{group.price |
 										currency:'USD':'symbol':'0.0-0'}} </span>
 								</div>
 							</div>
-							<ul class="sub-group d-flex flex-column justify-content-between"
+							<ul class="phd-sub-group d-flex flex-column justify-content-between"
 								*ngFor="let subGroup of group.subGroups">
 								<div role="group" attr.aria-label="{{subGroup.label}}">
-									<div class="header d-flex justify-content-between align-items-center">
-										<span>{{subGroup.label}}</span>
+									<div class="phd-header d-flex justify-content-between align-items-center">
+										<h3>{{subGroup.label}}</h3>
 									</div>
 									<ng-container *ngFor="let dp of subGroup.points">
 										<decision-point-summary *ngIf="displayPoint(dp)"
@@ -69,7 +69,7 @@
 
 				<!-- Show Floorplan(s) -->
 				<ng-container *ngIf="!noVisibleFP">
-					<div class="group ifp-group">
+					<div class="phd-group ifp-group">
 						<div class="phd-floorplan-image-section">
 							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
 								<button class="phd-expendable-circle" (click)="toggleCollapsed()">
@@ -80,13 +80,13 @@
 										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-controls="expand-ifp" aria-hidden="true"></i>
 									</span>
 								</button>
-								<div class="label">floorplan image</div>
+								<h2 class="phd-label">floorplan image</h2>
 							</div>
-							<div *ngIf="isPresale" class="label">floorplan image</div>
+							<h2 *ngIf="isPresale" class="phd-label">floorplan image</h2>
 							<ng-container *ngIf="showFloorplan || isPresale">
 								<ng-container *ngFor="let fpImage of floorPlanImages">
-									<div class="sub-group d-flex flex-column justify-content-between">
-										<div class="header d-flex justify-content-between align-items-center">
+									<div class="phd-sub-group d-flex flex-column justify-content-between">
+										<div class="phd-header d-flex justify-content-between align-items-center">
 											<span>{{ fpImage.floorName }}</span>
 										</div>
 										<span *ngIf="fpImage.floorIndex === 0"

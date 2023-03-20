@@ -1,38 +1,43 @@
-<ul class="list-unstyled">
-	<ng-container *ngFor="let point of points; trackBy:pointById">
-		<li *ngIf="displayPoint(point)" class="d-flex align-items-top justify-content-start" [@slideOut]>
-			<div class="decision-point">
-				<div class="label" title="{{point.label}}">
-					<div class="icon">
-						<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="isPointComplete(point)"></i>
+<nav>
+	<h3 class="phd-visually-hidden">
+		Side Navigation
+	</h3>
+	<ul class="list-unstyled">
+		<ng-container *ngFor="let point of points; trackBy:pointById">
+			<li *ngIf="displayPoint(point)" class="d-flex align-items-top justify-content-start" [@slideOut]>
+				<div class="decision-point">
+					<div class="label" title="{{point.label}}">
+						<div class="icon">
+							<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="isPointComplete(point)"></i>
+						</div>
+						<div [attr.id]="'decision-bar-' + point.id">
+							{{point.label}}
+							<div class="sub-title">{{getSubTitle(point)}}</div>
+						</div>
 					</div>
-					<div [attr.id]="'decision-bar-' + point.id">
-						{{point.label}}
-						<div class="sub-title">{{getSubTitle(point)}}</div>
-					</div>
-				</div>
-				<ng-container *ngFor="let choice of point.choices">
-					<decision-bar-choice *ngIf="!choice.isHiddenFromBuyerView"
-						[choice]="getChoiceExt(choice, point)"
-						[point]="point"
-						[groups]="groups"
-						[tree]="tree"
-            			[isReadonly]="isReadonly"
-						[isPresale]="isPresale"
-						(toggleChoice)="clickToggleChoice($event)"
-						(viewChoiceDetail)="clickViewChoiceDetail($event)"
-						(selectDecisionPoint)="clickSelectDecisionPoint($event)">
-					</decision-bar-choice>
-				</ng-container>
-				<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
+					<ng-container *ngFor="let choice of point.choices">
+						<decision-bar-choice *ngIf="!choice.isHiddenFromBuyerView"
+							[choice]="getChoiceExt(choice, point)"
 							[point]="point"
-							[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+							[groups]="groups"
 							[tree]="tree"
-              				[isReadonly]="isReadonly"
-							(declineDecisionPoint)="clickDeclineDecisionPoint($event)"
+							[isReadonly]="isReadonly"
+							[isPresale]="isPresale"
+							(toggleChoice)="clickToggleChoice($event)"
+							(viewChoiceDetail)="clickViewChoiceDetail($event)"
 							(selectDecisionPoint)="clickSelectDecisionPoint($event)">
-				</decision-bar-decline-choice>
-			</div>
-		</li>
-	</ng-container>
-</ul>
+						</decision-bar-choice>
+					</ng-container>
+					<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
+								[point]="point"
+								[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+								[tree]="tree"
+								[isReadonly]="isReadonly"
+								(declineDecisionPoint)="clickDeclineDecisionPoint($event)"
+								(selectDecisionPoint)="clickSelectDecisionPoint($event)">
+					</decision-bar-decline-choice>
+				</div>
+			</li>
+		</ng-container>
+	</ul>
+</nav>
