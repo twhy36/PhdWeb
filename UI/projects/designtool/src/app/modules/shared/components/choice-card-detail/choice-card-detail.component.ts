@@ -40,6 +40,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() optionDisabled: boolean;
 	@Input() isFavorite: boolean;
 	@Input() currentChoiceImages: ChoiceImageAssoc[];
+	@Input() isDesignComplete: boolean;
 
 	@Output() callToAction = new EventEmitter<{ choice: Choice, quantity?: number }>();
 	@Output() saveAttributes = new EventEmitter<void>();

@@ -65,8 +65,8 @@
 				{{attribute.name | ellipsis: 13}}
 			</span>
 		</div>
-		<div class="col-12 d-flex flex-row">
-			<span *ngIf="isFavoriteAttribute(attribute)" class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
+		<div *ngIf="isFavoriteAttribute(attribute) && !isDesignComplete" class="col-12 d-flex flex-row">
+			<span class="phd-favorite-icon"><i class="fa fa-heart"></i></span>
 		</div>
 
 		<div class="col-12" *ngIf="attribute.monotonyConflict && !(monotonyOverride | async)">

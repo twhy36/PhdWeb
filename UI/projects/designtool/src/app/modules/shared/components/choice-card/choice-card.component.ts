@@ -49,6 +49,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() agreementStatus: string;
 	@Input() overrideReason: string;
 	@Input() buildMode: 'buyer' | 'spec' | 'model' | 'preview';
+	@Input() isDesignComplete: boolean;
 
 	@Output() toggled: EventEmitter<{ choice: Choice, saveNow: boolean, quantity?: number }> = new EventEmitter();
 	@Output() saveAttributes = new EventEmitter<void>();

@@ -34,6 +34,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	@Input() monotonyConflict: MonotonyConflict;
 	@Input() isCollapsed: boolean;
 	@Input() favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
+	@Input() isDesignComplete: boolean;
 
 	@Output() onAttributeGroupSelected: EventEmitter<{ attributeGroupId: number, attributeGroupName: string, attributeId: number, attributeName: string, sku: string, manufacturer: string, selected: boolean, overrideNote: string, isOverride: boolean }> = new EventEmitter();
 

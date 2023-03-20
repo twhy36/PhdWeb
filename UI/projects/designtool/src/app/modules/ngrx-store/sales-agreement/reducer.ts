@@ -496,3 +496,8 @@ export const discount = createSelector(
 	programs,
 	(state) => state && state.length ? state.map(item => item.amount).reduce((prev, next) => prev + next) : 0
 );
+
+export const isDesignComplete = createSelector(
+	salesAgreementState,
+	(state) => state.isDesignComplete
+);
