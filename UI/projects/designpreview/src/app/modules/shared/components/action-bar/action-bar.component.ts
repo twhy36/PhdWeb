@@ -147,11 +147,11 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 		else if (this.isPreview)
 		{
-			this.router.navigateByUrl('/preview');
+			this.router.navigate(['/preview'], { queryParamsHandling: 'merge' });
 		}
 		else
 		{
-			this.router.navigateByUrl('/home');
+			this.router.navigate(['/home'], { queryParamsHandling: 'merge' });
 		}
 	}
 

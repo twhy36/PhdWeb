@@ -4,14 +4,13 @@ import { AppActions, AppActionTypes } from './actions';
 import { DesignPreviewError } from '../../shared/models/error.model';
 
 export interface State {
-	adobeDisabled: boolean,
 	latestError: DesignPreviewError;
 	pageNotFound: boolean;
 	showWelcomeModal: boolean;
 	welcomeAcknowledged: boolean;
 }
 
-export const initialState: State = { adobeDisabled: true, latestError: null, pageNotFound: false, showWelcomeModal: false, welcomeAcknowledged: false };
+export const initialState: State = { latestError: null, pageNotFound: false, showWelcomeModal: false, welcomeAcknowledged: false };
 
 export function reducer(state: State = initialState, action: AppActions): State 
 {
@@ -32,9 +31,6 @@ export function reducer(state: State = initialState, action: AppActions): State
 	case AppActionTypes.ShowWelcomeModal:
 		return { ...state, showWelcomeModal: action.showWelcomeModal }
 
-	case AppActionTypes.DisableAdobe:
-		return { ...state, adobeDisabled: action.disableAdobe }
-
 	default:
 		return state;
 	}
@@ -47,14 +43,6 @@ export const getAppLatestError = createSelector(
 	(app) => 
 	{
 		return app.latestError;
-	}
-);
-
-export const adobeDisabled = createSelector(
-	selectApp,
-	(app) =>
-	{
-		return app.adobeDisabled;
 	}
 );
 

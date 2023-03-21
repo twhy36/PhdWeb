@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Router, RouterStateSnapshot, RoutesRecognized } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router, RouterEvent, RouterStateSnapshot } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
@@ -7,7 +7,6 @@ import { combineLatest } from 'rxjs';
 import { Choice, Group, JobChoice, MyFavorite, MyFavoritesChoice, Tree, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
-import * as fromApp from '../../ngrx-store/app/reducer';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 
@@ -35,17 +34,18 @@ export class AdobeService extends UnsubscribeOnDestroy
 		private store: Store<fromRoot.State>,
 		private brandService: BrandService,
 		private favoriteService: FavoriteService,
-		private router: Router)
+		private router: Router,
+		private route: ActivatedRoute)
 	{
 		super();
 
-		this.router.events.subscribe(data =>
+		this.router.events.subscribe((event: RouterEvent) =>
 		{
-			if (data instanceof RoutesRecognized && data?.state)
+			if (event instanceof NavigationEnd)
 			{
+				this.disabled = this.route.snapshot.queryParams.disableAdobe === 'true';
 				this.pageLoadExecuted = false;
-
-				this.detectPageLoad(this.findPageLoadData(data?.state));
+				this.detectPageLoad(this.findPageLoadData(this.route.snapshot)); 
 			}
 		});
 
@@ -59,17 +59,9 @@ export class AdobeService extends UnsubscribeOnDestroy
 				this.buildMode = scenario.buildMode;
 			}
 		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromApp.adobeDisabled),
-		).subscribe(adobeDisabled =>
-		{
-			this.disabled = adobeDisabled;
-		});
 	}
 
-	findPageLoadData(snap: RouterStateSnapshot): string
+	findPageLoadData(snap: ActivatedRouteSnapshot): string
 	{
 		let nextSnap = snap?.root;
 
@@ -98,7 +90,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 				this.store.pipe(select(state => state.nav)),
 			]).subscribe(([fav, tree, nav]) =>
 			{
-				if (fav && tree && !this.pageLoadExecuted)
+				if (fav && tree && !this.pageLoadExecuted && !this.disabled)
 				{
 					const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
 					const points = _.flatMap(subGroups, sg => sg.points) || [];
