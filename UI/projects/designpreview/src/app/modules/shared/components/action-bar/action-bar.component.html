@@ -1,4 +1,4 @@
-<div id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
+<footer id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
 	<h1 class="phd-visually-hidden">
 		Footer
 	</h1>
@@ -50,7 +50,7 @@
 	<div *ngIf="primaryAction">
 		<a #btnActionBar href="" title="{{isEllipsisActive() ? primaryAction : null}}" [class.phd-btn-fixed-width]="isFixedWidth" class="btn btn-lg phd-action-bar-action-btn" (click)="$event.preventDefault(); onPrimaryCallToActionClick();">{{primaryAction}}</a>
 	</div>
-</div>
+</footer>
 
 
 <ng-template #totalPricing>

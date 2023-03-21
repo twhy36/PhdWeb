@@ -14,17 +14,19 @@
 		padding: 8px 8px 5px 8px;
 	}
 
-    .phd-included-label {
-        color: var(--group-bar-text-color);
-        font-size: 27px;
-        font-weight: bold;
-    }
+	.phd-included-label {
+		color: var(--group-bar-text-color);
+		font-size: 27px;
+		font-weight: bold;
+		margin: 3px 0 0 0;
+	}
 
 	.phd-community-name {
 		color: var(--group-bar-text-color);
 		font-size: 15px;
 		font-weight: bold;
 		text-transform: uppercase;
+		margin: 3px 0 0 0;
 	}
 
 	.phd-plan-name {

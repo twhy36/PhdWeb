@@ -1,11 +1,9 @@
-<div>
-	<header-bar
+<header-bar
 		[communityName]="communityName"
 		[planName]="planName">
-	</header-bar>
-</div>
+</header-bar>
 
-<div class="phd-included-options">
+<main class="phd-included-options">
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
 			<included-decision-bar
@@ -58,7 +56,7 @@
 			</div>
 		</ng-container>
 	</div>
-</div>
+</main>
 
 <action-bar primaryAction="Next: Additional Options"
 			[isPresale]="true"

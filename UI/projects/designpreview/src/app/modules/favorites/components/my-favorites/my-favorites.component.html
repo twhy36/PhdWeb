@@ -7,7 +7,7 @@
 			   (setTreeFilter)="treeFilterChanged()">
 	</group-bar>
 </div>
-<div class="phd-my-favorites">
+<main class="phd-my-favorites">
 	<ng-container *ngIf="!showDetails && !selectedSubGroup?.useInteractiveFloorplan">
 		<normal-experience [groupName]="groupName"
 						[currentSubgroup]="selectedSubGroup"
@@ -68,7 +68,7 @@
 						(toggleChoice)="toggleChoice($event)">
 		</choice-card-detail>
 	</ng-container>
-</div>
+</main>
 
 <action-bar [primaryAction]="showDetails ? 'Back' : 'Next: ' + (nextSubGroup ? nextSubGroup.label : 'MY FAVORITES')"
 			[price]="priceBreakdown?.totalPrice"

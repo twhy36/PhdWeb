@@ -1,4 +1,4 @@
-<div [ngClass]="isPresale ? 'summary-header-presale' : 'summary-header'" [class.is-sticky]="isSticky">
+<header [ngClass]="isPresale ? 'summary-header-presale' : 'summary-header'" [class.is-sticky]="isSticky">
 	<ng-container *ngIf="isPresale">
 		<div class="phd-presale-elevation phd-hide-in-print">
 			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:112px;border:'black'">
@@ -87,8 +87,8 @@
 			<span class="phd-favorites-disclaimer phd-hide-in-print">{{ disclaimerText }}</span>
 		</ng-container>
 	</div>
-</div>
-<div *ngIf="!isPresale" class="phd-show-in-print">
+</header>
+<header *ngIf="!isPresale" class="phd-show-in-print">
 	<div class="phd-top-price-spacer"></div>
 	<div class="phd-divider"></div>
 	<div class="phd-price-breakdown phd-hidden-from-view phd-show-in-print">
@@ -131,4 +131,4 @@
 	</div>
 	<div class="phd-bottom-price-spacer"></div>
 	<div class="phd-divider"></div>
-</div>
+</header>
