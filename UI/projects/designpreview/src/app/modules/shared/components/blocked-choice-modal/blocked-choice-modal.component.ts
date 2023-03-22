@@ -127,8 +127,22 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 
 	handleDisabledChoiceClick(choiceId: number)
 	{
-		const pointId = this.points.find(p => p.choices.filter(c => c.id === choiceId).length > 0).id;
-		this.handleBlockedItemClick(pointId)
+		if (!this.checkHiddenFromBuyerView(choiceId))
+		{
+			const point = this.points.find(p => p.choices.filter(c => c.id === choiceId).length > 0);
+			this.handleBlockedItemClick(point.id);
+		}
+	}
+
+	checkHiddenFromBuyerView(choiceId: number)
+	{
+		const point = this.points.find(p => p.choices.filter(c => c.id === choiceId).length > 0);
+		const choice = point.choices.find(c => c.id === choiceId);
+
+		if (choice.isHiddenFromBuyerView || point.isHiddenFromBuyerView)
+		{
+			return true;
+		}
 	}
 
 	private handleBlockedItemClick(pointId: number)
