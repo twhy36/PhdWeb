@@ -127,7 +127,8 @@ export class SalesProgramsSidePanelComponent implements OnInit
 			this.releaseForm.get('maximumAmount').disable();
 			this.releaseForm.get('name').disable();
 		}
-		else if (this.isQMIIncentive)
+
+		if (this.isQMIIncentive)
 		{
 			this.releaseForm.get('salesProgramType').disable();
 			this.releaseForm.get('name').disable();
