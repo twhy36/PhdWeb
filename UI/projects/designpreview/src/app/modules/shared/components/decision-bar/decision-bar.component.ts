@@ -47,7 +47,8 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy
 		}
 	}
 
-	getPointCardId(point: DecisionPoint) {
+	getPointCardId(point: DecisionPoint) 
+	{
 		return `#point-card-${point.id?.toString()}`
 	}
 }

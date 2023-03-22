@@ -67,7 +67,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 
 		this.hasRequiredChoice = this.point?.choices.find(c => c.isRequired)?.isRequired ?? false;
 
-		this.modalTitle = !!this.point?.disabledBy.length || !!this.choice?.disabledBy.length ? 'Before this can be selected' : 'Disabled due to';
+		this.modalTitle = this.point?.disabledBy[0]?.rules[0].ruleType === 1 || this.choice?.disabledBy[0]?.rules[0].ruleType === 1 ? 'Before this can be selected' : 'Disabled due to';
 
 		if (this.point && !!this.point.disabledBy.length)
 		{
