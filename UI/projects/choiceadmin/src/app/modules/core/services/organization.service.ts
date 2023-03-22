@@ -218,37 +218,18 @@ export class OrganizationService
 		);
 	}
 
-	getCommunitiesIncludingGroups(marketId: number): Observable<Array<IFinancialCommunity>>
-	{
-		const expand = `attributeGroupCommunities($select=id, attributeGroupMarketId),locationGroupCommunities($select=id, locationGroupMarketId)`
-		const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
-		const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId`;
-		const orderBy = `name`;
-
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
-		let url = `${settings.apiUrl}financialCommunities?${qryStr}`;
-
-		return withSpinner(this._http).get(url).pipe(
-			map(response =>
-			{
-				return response['value'] as Array<IFinancialCommunity>;
-			})
-		);
-	}
-
 	/**
 	 * Gets all communities that include at least one plan with a specific choice.
 	 * @param marketId The community's market.
 	 * @param divChoiceCatalogId The ID of the choice.
 	 */
-	getCommunitiesWithChoice(marketId: number, divChoiceCatalogId: number): Observable<Array<IFinancialCommunity>>
+	getCommunitiesWithChoice(marketId: number, divChoiceCatalogId: number): Observable<IFinancialCommunity[]>
 	{
-		const expand = `attributeGroupCommunities($select=id, attributeGroupMarketId),locationGroupCommunities($select=id, locationGroupMarketId, locationGroupName)`;
 		const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
 		const select = `id,number,name,salesCommunityId,salesStatusDescription,marketId`;
 		const orderBy = `name`;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}orderby=${encodeURIComponent(orderBy)}`;
 		const url = `${settings.apiUrl}GetCommunitiesForDivCatalogChoice?${qryStr}`;
 
 		const body = {
@@ -259,14 +240,15 @@ export class OrganizationService
 		return withSpinner(this._http).post(url, body).pipe(
 			map(response =>
 			{
-				const communities = response['value'] as Array<IFinancialCommunity>;
+				const communities = response['value'] as IFinancialCommunity[];
 				
 				return communities;
 			})
 		);
 	}
 
-	getOrgsForCommunities(marketId: number, financialCommunityIds: number[]): Observable<Array<PhdEntityDto.IOrgCommunityDto>> {
+	getOrgsForCommunities(marketId: number, financialCommunityIds: number[]): Observable<Array<PhdEntityDto.IOrgCommunityDto>>
+	{
 		const url = `${settings.apiUrl}getOrgsForFinancialCommunities`;
 
 		const body = {

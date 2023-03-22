@@ -57,7 +57,7 @@ export class DivisionalService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `divChoiceCatalog_MarketImages($top=0;$count=true;), divDPointCatalog($select=divDpointCatalogID, dPointLabel;$expand=dPointCatalog($select=dPointCatalogId;$expand=dSubGroupCatalog($select=dSubGroupCatalogId, dSubGroupLabel;$expand=dGroupCatalog($select=dGroupCatalogId, dGroupLabel))))`;
+		const expand = `divChoiceCatalog_MarketImages($top=0;$count=true;),divChoiceCatalog_AttributeGroupMarketAssocs($top=0;$count=true;),divChoiceCatalog_LocationGroupMarketAssocs($top=0;$count=true;), divDPointCatalog($select=divDpointCatalogID, dPointLabel;$expand=dPointCatalog($select=dPointCatalogId;$expand=dSubGroupCatalog($select=dSubGroupCatalogId, dSubGroupLabel;$expand=dGroupCatalog($select=dGroupCatalogId, dGroupLabel))))`;
 		const select = `divChoiceCatalogID, divDpointCatalogID, choiceLabel, isActive, divChoiceSortOrder`;
 		let filter = `divDPointCatalog/org/edhmarketid eq ${marketId} and isActive eq true and divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/isActive eq true and divDPointCatalog/dPointCatalog/dSubGroupCatalog/isActive eq true and divDPointCatalog/isActive eq true`;
 		let orderby = `divDPointCatalog/dPointCatalog/dSubGroupCatalog/dGroupCatalog/dGroupLabel, divDPointCatalog/dPointCatalog/dSubGroupCatalog/dSubGroupLabel, divDPointCatalog/dPointLabel, choiceLabel`;
@@ -138,6 +138,9 @@ export class DivisionalService
 				let dtos = response['value'] as PhdEntityDto.IDivChoiceCatalogDto[];
 				let choices: DivisionalChoice[] = dtos.map(c =>
 				{
+					const divChoiceCatalogAttributeGroupMarketAssocsCount = c['divChoiceCatalog_AttributeGroupMarketAssocs@odata.count'] as number;
+					const divChoiceCatalogLocationGroupMarketAssocsCount = c['divChoiceCatalog_LocationGroupMarketAssocs@odata.count'] as number;
+
 					let choice = new DivisionalChoice();
 
 					choice.divChoiceCatalogId = c.divChoiceCatalogID;
@@ -149,7 +152,8 @@ export class DivisionalService
 					choice.imageCount = c['divChoiceCatalog_MarketImages@odata.count'] as number;
 					choice.divChoiceCatalogMarketAttributes$ = this.getDivChoiceCatalogMarketAttributeGroups(c.divChoiceCatalogID);
 					choice.divChoiceCatalogMarketLocations$ = this.getDivChoiceCatalogMarketLocationGroups(c.divChoiceCatalogID);
-					choice.divChoiceCatalogCommunities$ = this._orgService.getCommunitiesIncludingGroups(marketId);
+					choice.divChoiceCatalogCommunities$ = this._orgService.getCommunities(marketId);
+					choice.hasAttributeLocationAssoc = divChoiceCatalogAttributeGroupMarketAssocsCount > 0 || divChoiceCatalogLocationGroupMarketAssocsCount > 0;
 
 					return choice;
 				});
@@ -472,10 +476,10 @@ export class DivisionalService
 			'selectedMarketImages': selectedMarketImages.map(x => x.divChoiceCatalogMarketImageId)
 		};
 
-		return this._http.post(url, { choiceItemsAssocDto: data }).pipe(
+		return this._http.post(url, { choiceItemsAssocDto: data }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map(response =>
 			{
-				return response['value'] as IDivChoiceCatalogGroupCommunitiesDto;
+				return response as IDivChoiceCatalogGroupCommunitiesDto;
 			}),
 			catchError(this.handleError));
 	}

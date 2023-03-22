@@ -197,8 +197,8 @@ export class TreeOption implements ITreeOption
 		this.id = option.id;
 		this.isActive = option.isActive;
 		this.baseHouse = planOption.baseHouse;
-		this.divLevelImageCount = option.imageCount;
-		this.treeLevelImageCount = planOption.imageCount;
+		this.divLevelImageCount = option.imageCount ?? 0;
+		this.treeLevelImageCount = planOption.imageCount ?? 0;
 		this.listPrice = option.listPrice;
 		this.maxOrderQuantity = option.maxOrderQuantity;
 		this.categoryName = option.category;

@@ -210,6 +210,32 @@ export class AttributeService
 			catchError(this.handleError));
 	}
 
+	getAttributeGroupCommunitiesByFinancialCommunityIds(financialCommunityIds: number[]): Observable<AttributeGroupCommunity[]>
+	{
+		let url = settings.apiUrl;
+
+		const select = `id, attributeGroupMarketId, financialCommunityId`;
+		const filter = `financialCommunityId in (${financialCommunityIds.join(',')})`;
+
+		const qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
+
+		url += `attributeGroupCommunities?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let attr = response['value'] as AttributeGroupCommunity[];
+
+				let attributeGroupCommunities = attr.map(x =>
+				{
+					return new AttributeGroupCommunity(x);
+				});
+
+				return attributeGroupCommunities;
+			}),
+			catchError(this.handleError));
+	}
+
 	getAttributesForGroup(group: AttributeGroupMarket): Observable<Array<Attribute>>
 	{
 		let url = settings.apiUrl;

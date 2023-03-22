@@ -175,6 +175,32 @@ export class LocationService
 			catchError(this.handleError));
 	}
 
+	getLocationGroupCommunitiesByFinancialCommunityIds(financialCommunityIds: number[]): Observable<LocationGroupCommunity[]>
+	{
+		let url = settings.apiUrl;
+
+		const select = `id, locationGroupMarketId, financialCommunityId`;
+		const filter = `financialCommunityId in (${financialCommunityIds.join(',')})`;
+
+		const qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
+
+		url += `locationGroupCommunities?${qryStr}`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				let attr = response['value'] as LocationGroupCommunity[];
+
+				let locationGroupCommunities = attr.map(x =>
+				{
+					return new LocationGroupCommunity(x);
+				});
+
+				return locationGroupCommunities;
+			}),
+			catchError(this.handleError));
+	}
+
 	getLocationsForGroup(group: LocationGroupMarket): Observable<Array<Location>>
 	{
 		let url = settings.apiUrl;

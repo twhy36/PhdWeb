@@ -564,8 +564,6 @@ export class TreeService
 			{
 				return version.dTree.plan.planOptions.map(o =>
 				{
-					let imageCount = o.optionImages.length;
-
 					return {
 						planOptionId: o.planOptionID,
 						planId: o.planID,

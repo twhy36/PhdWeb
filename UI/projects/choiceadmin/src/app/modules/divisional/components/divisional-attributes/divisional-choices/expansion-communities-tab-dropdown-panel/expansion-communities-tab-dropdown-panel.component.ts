@@ -150,10 +150,16 @@ export class ExpansionCommunitiesTabDropdownPanelComponent implements OnInit
 			const getCommunityLocationGroups$ = this._divService.getDivChoiceCatalogCommunityLocationGroupsByDivChoiceCatalogId(this.choice.divChoiceCatalogId);
 			const getCommunityImages$ = this._divService.getDivChoiceCatalogCommunityImagesByOrgId(this.community.orgId);
 
+			const getAttributeGroupCommunities$ = this._attrService.getAttributeGroupCommunitiesByFinancialCommunityIds([this.community.id]);
+			const getLocationGroupCommunities$ = this._locService.getLocationGroupCommunitiesByFinancialCommunityIds([this.community.id]);
+
 			getMarketAttributeGroups$.pipe(
-				combineLatest(getMarketLocationGroups$, getMarketImages$),
-				switchMap(([divMarketAttrGroups, divMarketLocGroups, divMarketImages]) =>
+				combineLatest(getMarketLocationGroups$, getMarketImages$, getAttributeGroupCommunities$, getLocationGroupCommunities$),
+				switchMap(([divMarketAttrGroups, divMarketLocGroups, divMarketImages, attributeGroupCommunities, locationGroupCommunities]) =>
 				{
+					this.community.attributeGroupCommunities = attributeGroupCommunities;
+					this.community.locationGroupCommunities = locationGroupCommunities;
+
 					// Get the group market IDs for the attribute and location groups associated with this choice
 					const attributeIds = divMarketAttrGroups.map(g => g.attributeGroupMarketId);
 					const locationIds = divMarketLocGroups.map(g => g.locationGroupMarketId);

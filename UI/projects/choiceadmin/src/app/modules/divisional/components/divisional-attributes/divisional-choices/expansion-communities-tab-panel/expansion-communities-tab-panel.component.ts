@@ -22,11 +22,13 @@ export class ExpansionChoiceCommunitiesTabPanelComponent implements OnInit
 
 	ngOnInit() { }
 
-	onDataChanged() {
+	onDataChanged()
+	{
 		this.onDataChange.emit();
 	}
 
-	toggleCommunities() {
+	toggleCommunities()
+	{
 		// close all open panels
 		this.tableComponent.collapseAllExpandedRows();
 	}

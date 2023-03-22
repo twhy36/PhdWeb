@@ -15,7 +15,7 @@ import { LocationGroupMarket } from '../../../../../../shared/models/location-gr
 import { DivisionalOptionService } from '../../../../../../core/services/divisional-option.service';
 import { DivCatalogTab, DivChoiceCatalogAttributeGroupCommunity, DivChoiceCatalogAttributeGroupMarket, DivChoiceCatalogCommunityImage, DivChoiceCatalogLocationGroupCommunity, DivChoiceCatalogLocationGroupMarket, DivChoiceCatalogMarketImage, DivisionalChoice, isDivChoiceCatalogAttributeGroupMarket } from '../../../../../../shared/models/divisional-catalog.model';
 import { OrganizationService } from '../../../../../../core/services/organization.service';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, combineLatest } from 'rxjs/operators';
 import { DivisionalService } from '../../../../../../core/services/divisional.service';
 
 @Component({
@@ -103,18 +103,30 @@ export class AssociateCommunitiesSidePanelComponent extends UnsubscribeOnDestroy
 			const communities$ = this._orgService.getCommunitiesWithChoice(this.marketId, this.choice.divChoiceCatalogId);
 
 			communities$.pipe(
-				// Get the OrgId for DivChoice Images
-				mergeMap(communities => this._orgService.getOrgsForCommunities(this.marketId, communities.map(c => c.id)).pipe(
-					map(orgs =>
-					{
-						communities.forEach(c =>
-						{
-							c.orgId = orgs.find(o => o.financialCommunityId === c.id)?.orgId;
-						});
+				mergeMap(communities =>
+				{
+					const communityIds = communities.map(c => c.id);
 
-						return communities;
-					})
-				)),
+					// Get the OrgId for DivChoice Images
+					return this._orgService.getOrgsForCommunities(this.marketId, communityIds).pipe(
+						combineLatest(
+							// get attributre group communities
+							this._attrService.getAttributeGroupCommunitiesByFinancialCommunityIds(communityIds),
+							// get location group communities
+							this._locService.getLocationGroupCommunitiesByFinancialCommunityIds(communityIds)),
+						map(([orgs, attributeGroupCommunities, locationGroupCommunities]) =>
+						{
+							communities.forEach(c =>
+							{
+								c.orgId = orgs.find(o => o.financialCommunityId === c.id)?.orgId;
+								c.attributeGroupCommunities = attributeGroupCommunities.filter(x => x.financialCommunityId === c.id);
+								c.locationGroupCommunities = locationGroupCommunities.filter(x => x.financialCommunityId === c.id);
+							});
+
+							return communities;
+						})
+					)
+				}),
 				mergeMap(communities =>
 				{
 					this.communities = communities;
