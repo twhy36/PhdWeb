@@ -11,13 +11,13 @@
 						<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 					</div>
 					<div *ngIf="highlightedAttribute">
-						<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
+						<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" alt=""></cl-image>
 					</div>
 					<div *ngIf="!highlightedAttribute">
 						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
 							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
 								<!--eslint-disable-next-line @angular-eslint/template/eqeqeq-->
-								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex" alt=""></cl-image>
 							</ng-template>
 						</ngb-carousel>
 					</div>
@@ -28,7 +28,7 @@
 				<ng-container *ngIf="choiceImages.length <= 10">
 					<button *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
 						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-								  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+								  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL" alt=""
 								  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
 						</cl-image>
 					</button>
@@ -37,7 +37,7 @@
 					<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
 						<ng-template let-image pTemplate="item">
 							<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-									  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+									  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL" alt=""
 									  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
 							</cl-image>
 						</ng-template>

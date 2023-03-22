@@ -14,7 +14,7 @@
 		</button>
 
 		<a href="" (click)="$event.preventDefault(); onViewFavorites();" *ngIf="showFavorites" class="d-flex phd-clickable">
-			<img class="phd-favorites-list" [src]="favoritesListIcon">
+			<img class="phd-favorites-list" [src]="favoritesListIcon" alt="">
 			<span class="align-self-center">My Favorites</span>
 		</a>
 		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options">

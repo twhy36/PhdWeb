@@ -2,9 +2,9 @@
 	<banner class="phd-home-images-container"></banner>
 	<main class="d-flex flex-row phd-elevation-row">
 		<div class="d-flex flex-column align-items-center">
-			<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="max-width:calc(25vw);max-height:calc(25vh);object-fit:contain;">
+			<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="max-width:calc(25vw);max-height:calc(25vh);object-fit:contain;" alt="">
 			</cl-image>
-			<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl">
+			<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl" alt="">
 			<ng-container *ngIf="isPresale">
 				<div class="phd-community-name">
 					{{communityName}}
