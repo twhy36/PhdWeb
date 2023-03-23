@@ -41,33 +41,48 @@
 						<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''">{{item.name}}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Type" field="salesProgramType"></phd-column>
+				<phd-column header="Type" field="salesProgramType">
+					<ng-template #body let-item>
+						<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''">{{item.salesProgramType}}</span>
+					</ng-template>
+				</phd-column>
 				<phd-column header="Discount" field="maximumAmount">
 					<ng-template #body let-item>
 						<ng-container *ngIf="item.maximumAmount | currency; let formattedAmount">
-							<span (mouseenter)="showTooltip($event, formattedAmount, dt)"
-								(mouseleave)="hideTooltip(dt)">{{ formattedAmount }}</span>
+							<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''"
+								  (mouseenter)="showTooltip($event, formattedAmount, dt)"
+								  (mouseleave)="hideTooltip(dt)">{{ formattedAmount }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Effective Date" field="startDate">
 					<ng-template #body let-item>
 						<ng-container *ngIf="item.startDate | date:'L/dd/yyyy'; let formattedDate">
-							<span (mouseenter)="showTooltip($event, formattedDate, dt)"
-								(mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
+							<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''"
+								  (mouseenter)="showTooltip($event, formattedDate, dt)"
+								  (mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Expiration Date" field="endDate">
 					<ng-template #body let-item>
 						<ng-container *ngIf="item.endDate | date:'L/dd/yyyy'; let formattedDate">
-							<span (mouseenter)="showTooltip($event, formattedDate, dt)"
-								(mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
+							<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''"
+								  (mouseenter)="showTooltip($event, formattedDate, dt)"
+								  (mouseleave)="hideTooltip(dt)">{{ formattedDate }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Availability" field="availability"></phd-column>
-				<phd-column header="PMC Affiliated" field="pmcAffiliated"></phd-column>
+				<phd-column header="Availability" field="availability">
+					<ng-template #body let-item>
+						<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''">{{item.availability}}</span>
+					</ng-template>
+				</phd-column>
+				<phd-column header="PMC Affiliated" field="pmcAffiliated">
+					<ng-template #body let-item>
+						<span [ngClass]="item.name === 'Quick Move-in Incentive' ? 'phd-bold' : ''">{{item.pmcAffiliated}}</span>
+					</ng-template>
+				</phd-column>
 				<phd-column header="THO Enabled">
 					<ng-template #body let-item>
 						<button *ngIf="canEdit && item.availability == 'Yes'"
