@@ -60,7 +60,6 @@ export class LotExt extends Lot
 		Object.assign(this, dto);
 
 		this.fieldManager = this.fieldManagerLotAssocs && this.fieldManagerLotAssocs.length > 0 ? this.fieldManagerLotAssocs.map(fm => fm.fieldManager) : [];
-		this.customerCareManager = this.customerCareManagerLotAssocs && this.customerCareManagerLotAssocs.length > 0 ? this.customerCareManagerLotAssocs[0].contact : null;
 		this.physicalLotTypes = this.lotPhysicalLotTypeAssocs ? this.lotPhysicalLotTypeAssocs.map(p => p.physicalLotType) : [];
 	}
 }
@@ -165,7 +164,6 @@ export interface CustomerCareManagerLotAssocs
 {
 	contactId: number;
 	lotId: number;
-	contact: ManagerName;
 }
 
 export interface LotChoiceRuleAssoc {

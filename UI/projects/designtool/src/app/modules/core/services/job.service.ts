@@ -7,12 +7,12 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, ManagerName
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
-import { ChangeOrderService } from './change-order.service';
+import { ContactService } from './contact.service';
 
 import * as _ from 'lodash';
 
@@ -21,14 +21,15 @@ export class JobService
 {
 	private _ds = encodeURIComponent('$');
 
-	constructor(private _http: HttpClient, private identityService: IdentityService, private changeOrderService: ChangeOrderService) { }
+	constructor(private _http: HttpClient, private identityService: IdentityService, private contactService: ContactService) { }
 
 	loadJob(jobId: number, salesAgreementId?: number): Observable<Job>
 	{
 		const expandJobChoices = `jobChoices($select=id,dpChoiceId,dpChoiceQuantity,dpChoiceCalculatedPrice,choiceLabel;$expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku),jobChoiceLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),jobChoiceJobPlanOptionAssocs($select=id,jobChoiceId,jobPlanOptionId,choiceEnabledOption))`;
 		const expandJobOptions = `jobPlanOptions($select=id,planOptionId,listPrice,optionSalesName,optionDescription,optionQty,jobOptionTypeName;$expand=jobPlanOptionAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,sku),jobPlanOptionLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),planOptionCommunity($select=id;$expand=optionCommunity($select=id;$expand=option($select=financialOptionIntegrationKey))))`;
+		const expandLot = `lot($expand=lotPhysicalLotTypeAssocs($select=lotId;$expand=physicalLotType),fieldManagerLotAssocs($select=lotId;$expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($select=lotId,contactId),salesPhase($select=id,salesPhaseName),lotHandingAssocs($select=lotId;$expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county)`;
 
-		let expand = `jobSalesAgreementAssocs($select=jobId;$filter=isActive eq true),lot($expand=lotPhysicalLotTypeAssocs($select=lotId;$expand=physicalLotType),fieldManagerLotAssocs($select=lotId;$expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($select=lotId;$expand=contact($select=firstname,lastname)),salesPhase($select=id,salesPhaseName),lotHandingAssocs($select=lotId;$expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county),planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
+		let expand = `jobSalesAgreementAssocs($select=jobId;$filter=isActive eq true),${expandLot},planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
 		let filter = `id eq ${jobId}`;
 		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName,createdBy`;
 
@@ -37,9 +38,25 @@ export class JobService
 		return withSpinner(this._http).get<any>(url).pipe(
 			switchMap(response => this.getJobChangeOrderGroups(response['value'][0], salesAgreementId)),
 			switchMap(response => this.getTimeOfSaleOptionPricesForJob(response)),
-			map(response =>
+			switchMap(response =>
 			{
-				return new Job(response);
+				let job = new Job(response);
+				let contactId = job.lot?.customerCareManagerLotAssocs?.length > 0 ? job.lot.customerCareManagerLotAssocs[0].contactId : 0;
+
+				return contactId !== 0 ? this.contactService.getContact(contactId).pipe(
+					map(contact =>
+					{
+						if (contact)
+						{
+							job.lot.customerCareManager = { firstName: contact.firstName, lastName: contact.lastName } as ManagerName;
+						}
+
+						return job;
+					})) : of(job);
+			}),
+			map(job =>
+			{
+				return job;
 			}),
 			catchError(error =>
 			{

@@ -82,7 +82,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	get carouselImages(): OptionImage[] | ChoiceImageAssoc[]
 	{
-		return this.optionImages.length > 0 ? this.optionImages : this.choiceImages
+		return this.optionImages.length > 0 ? this.optionImages : this.choiceImages;
 	}
 
 	constructor(private store: Store<fromRoot.State>,

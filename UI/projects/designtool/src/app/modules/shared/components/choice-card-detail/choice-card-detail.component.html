@@ -10,7 +10,7 @@
 					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 				</div>
 
-				<ngb-carousel #imageCarousel *ngIf="carouselImages.length > 0" [showNavigationArrows]="optionImages.length > 1"	[showNavigationIndicators]="optionImages.length > 1" [interval]="0" (slide)="onSlide($event)">
+				<ngb-carousel #imageCarousel *ngIf="carouselImages.length > 0" [showNavigationArrows]="carouselImages.length > 1"	[showNavigationIndicators]="carouselImages.length > 1" [interval]="0" (slide)="onSlide($event)">
 					<ng-template ngbSlide *ngFor="let carouselImage of carouselImages; let currentIndex = index;" id="{{currentIndex}}">
 						<div class="phd-image-wrapper">
 							<cl-image [public-id]="getImageUrl(carouselImage)" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
