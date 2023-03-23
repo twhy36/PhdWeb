@@ -124,65 +124,114 @@
 }
 
 @media print {
-	.phd-is-sticky {
-		margin-top: 0px !important;
-	}
+	.phd-favorites-summary-print {
+		padding-bottom: 0 !important; // height of the action bar
+		margin-top: 0 !important; // Has to be one px larger than group-bar so sticky header works
+		width: 100%;
+		page-break-before: avoid;
+	
+		.phd-is-sticky {
+			margin-top: 0px !important;
+		}
 
-	.phd-summary-section {
-		max-height: 10vh;
+		.phd-print-header {
+			top: 0px;
+			margin-top: 0cm !important;
+			padding: 0;
+			display: table !important;
+			width: calc(100%);
+		}
+
+		.phd-tree-view {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			padding: 0px 10px 0px 10px;
+			margin-top: 20px;
+			overflow: visible !important;
+			display: table !important;
+
+			.phd-group {
+				text-transform: uppercase;
+				// margin-top: 50px;
+				page-break-inside: avoid !important;
+
+				h2 {
+					font-size: 28px;
+					display: inline;
+				}
 		
+				.phd-label {
+					display: block !important;
+					width: 98%;
+					font-weight: 500;
+					font-size: 28px;
+					line-height: 0.83;
+					margin-bottom: 20px;
+					text-transform: uppercase;
+		
+					.phd-group-detail {
+						float: right;
+		
+						.phd-group-subtotal-label {
+							font-weight: 300;
+							font-size: 20px;
+							text-transform: none;
+						}
+		
+						.phd-group-subtotal-amount {
+							font-weight: 500;
+							font-size: 20px;
+							text-transform: none;
+						}
+					}
+				}
+		
+				.phd-sub-group {
+					h3 {
+						font-size: 14px;
+						margin: 2px;
+					}
+
+					background-color: white;
+					padding: 0 0 30px 0;
+					print-color-adjust: exact; // Needs both to support most browsers
+					-webkit-print-color-adjust: exact; 
+					display: block !important;
+					page-break-inside: avoid !important;
+		
+					.phd-header {
+						max-height: 40px;
+						height: 100%;
+						padding: 3px 10px;
+						text-transform: uppercase;
+						border: none;
+						transition: all .3s;
+						background-color: $sub-group-bg;
+						page-break-inside: avoid !important;
+					}
+
+					::ng-deep decision-point-summary:not(:last-child) .phd-point {
+						border-bottom: 1px solid #d4d4d4;
+					}
+				}
+			}
+
+			.phd-floorplan-image-section {
+				page-break-before: always;
+			}
+		}
 	}
 
 	.phd-show-on-print {
 		display: table !important;
 		width: calc(100%);
+		page-break-before: avoid;
 	}
 
 	.phd-hide-from-print {
 		display: none;
 		height: 0px;
-	}
-	
-	.phd-tree-view-on-print {
-		margin-top: 20px;
-		overflow: visible !important;
-		display: table !important;
-
-		.phd-label {
-			display: block !important;
-		}
-	}
-
-	.phd-print-header {
-		top: 0px;
-		margin-top: 0cm;
-	}
-
-	.phd-group {
-		page-break-inside: avoid;
-	}
-
-	.ifp-group {
-		page-break-inside: avoid !important;
-	}
-
-	.phd-sub-group {
-		print-color-adjust: exact; // Needs both to support most browsers
-		-webkit-print-color-adjust: exact; 
-		display: block !important;
-		page-break-inside: avoid !important;
-
-		.phd-header {
-			page-break-inside: avoid;
-		}
-	}
-
-	.phd-print-content-space {
-		height: 9in;
-	}
-
-	.phd-print-footer {
-		height: 1.5in;
 	}
 
 	.phd-print-footer-space {
@@ -190,6 +239,7 @@
 	}
 
 	.phd-print-footer {
+		height: 1.5in;
 		position: fixed;
 		width: calc(100%);
 		bottom: 0px;
