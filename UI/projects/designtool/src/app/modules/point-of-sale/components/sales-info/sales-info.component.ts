@@ -360,7 +360,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 				let programList: SalesAgreementProgram[] = programs ? [...programs] : [];
 
-				if (this.lot && this.lot.lotBuildTypeDesc === 'Spec')
+				if (this.lot && this.lot.lotBuildTypeDesc === 'Spec' && this.agreement && this.agreement.status === 'Pending')
 				{
 					//Get the Quick Move-In Sales Program.
 					const qmiSalesProgram = this.salesPrograms.find(x => x.name === 'Quick Move-in Incentive');
@@ -370,30 +370,26 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 					{
 						let qmiProgram = programList.find(x => x.salesProgramId === qmiSalesProgram.id);
 
-						//If it doesn't exist create it.
-						if (!qmiProgram)
+						//If it doesn't exist create it. Get the SpecInfo to get the correct amount value.
+						if (!qmiProgram && pulteInfo && pulteInfo.discountAmount > 0)
 						{
-							//Get the SpecInfo to get the correct amount value.
-							if (pulteInfo)
+							const salesAgreementProgram: SalesAgreementProgram =
 							{
-								const salesAgreementProgram: SalesAgreementProgram =
-								{
-									amount: pulteInfo.discountAmount,
-									salesProgramId: qmiSalesProgram.id,
-									salesAgreementId: this.agreement.id,
-									salesProgramDescription: '',
-									salesProgram:
-										{
-											salesProgramType: qmiSalesProgram.salesProgramType.toString()
-										} as ISalesProgram
-								};
+								amount: pulteInfo.discountAmount,
+								salesProgramId: qmiSalesProgram.id,
+								salesAgreementId: this.agreement.id,
+								salesProgramDescription: '',
+								salesProgram:
+									{
+										salesProgramType: qmiSalesProgram.salesProgramType.toString()
+									} as ISalesProgram
+							};
 
-								this.store.dispatch(new SalesAgreementActions.SaveProgram(salesAgreementProgram, qmiSalesProgram.name));
-							}
-							else if (jobId)
-							{
-								this.store.dispatch(new JobActions.LoadPulteInfo(jobId));
-							}
+							this.store.dispatch(new SalesAgreementActions.SaveProgram(salesAgreementProgram, qmiSalesProgram.name));
+						}
+						else if (jobId)
+						{
+							this.store.dispatch(new JobActions.LoadPulteInfo(jobId));
 						}
 					}
 				}
