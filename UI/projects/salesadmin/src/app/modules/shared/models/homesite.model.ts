@@ -114,6 +114,7 @@ export namespace HomeSiteDtos
 	export interface ILotDto
 	{
 		id: number;
+		constructionBuildingNumber: string;
 		communityId: number;
 		communityIntegrationKey: string;
 		lotBlock: string;

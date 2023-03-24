@@ -15,7 +15,6 @@
 					<ng-template ngbNavContent>
 						<div class="container pt-3">
 							<form [formGroup]="homesiteForm">
-
 								<div class="form-group mt-3" *ngIf="canEditAvailability">
 									<div class="form-check">
 										<label class="form-check-label" for="lotStatusDescription">
@@ -27,6 +26,9 @@
 											Hide Lot in THO
 										</label>
 									</div>
+								</div>
+								<div *ngIf="selectedHomesite.dto.constructionBuildingNumber" class="form-group">
+									Bldg #: {{ selectedHomesite.dto.constructionBuildingNumber }}	
 								</div>
 								<div class="form-group">
 									<label for="altLotBlock">Alternate Lot Block</label>
