@@ -7,6 +7,7 @@ import {
 
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, LoadSalesAgreement, LoadError, SalesAgreementCancelled, ChangeOrdersUpdated } from '../actions';
+import { SalesProgram } from '../../shared/models/sales-program.model';
 
 export enum SalesAgreementActionTypes
 {
@@ -49,6 +50,7 @@ export enum SalesAgreementActionTypes
 	ProgramDeleted = 'Program Deleted',
 	ProgramSaved = 'Program Saved',
 	SaveProgram = 'Save Program',
+	CreateQuickMoveInIncentive = 'Create Quick Move-In Incentive',
 	// Deposit
 	DeleteDeposit = 'Delete Deposit',
 	DepositDeleted = 'Deposit Deleted',
@@ -368,6 +370,14 @@ export class ProgramSaved implements Action
 	constructor(public program: SalesAgreementProgram, public programName: string) { }
 }
 
+@Log(true)
+export class CreateQuickMoveInIncentive implements Action
+{
+	readonly type = SalesAgreementActionTypes.CreateQuickMoveInIncentive;
+
+	constructor(public salesAgreement: SalesAgreement, public qmiSalesProgram: SalesProgram) { }
+}
+
 export class LoadRealtor implements Action
 {
 	readonly type = SalesAgreementActionTypes.LoadRealtor;
@@ -568,6 +578,7 @@ export type SalesAgreementActions =
 	ContingencyDeleted |
 	ContingencySaved |
 	CreateJIOForSpec |
+	CreateQuickMoveInIncentive |
 	CreateSalesAgreementForScenario |
 	DeleteCoBuyer |
 	DeleteContingency |

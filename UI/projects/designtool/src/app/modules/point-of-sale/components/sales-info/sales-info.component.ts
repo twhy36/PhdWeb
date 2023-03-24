@@ -20,7 +20,6 @@ import { SalesProgram } from '../../../shared/models/sales-program.model';
 
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
-import * as JobActions from '../../../ngrx-store/job/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { of, Observable, Subject } from 'rxjs';
 
@@ -353,46 +352,12 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.store.pipe(
 				this.takeUntilDestroyed(),
 				select(state => state.salesAgreement.programs),
-				combineLatest(this.store.select(state => state.changeOrder), this.store.select(state => state.job.specInformation), this.store.select(state => state.job.id))
-			).subscribe(([programs, changeOrderState, pulteInfo, jobId]) =>
+				combineLatest(this.store.select(state => state.changeOrder))
+			).subscribe(([programs, changeOrderState]) =>
 			{
 				this.isChangingOrder = changeOrderState.isChangingOrder && !!changeOrderState.changeInput;
 
 				let programList: SalesAgreementProgram[] = programs ? [...programs] : [];
-
-				if (this.lot && this.lot.lotBuildTypeDesc === 'Spec' && this.agreement && this.agreement.status === 'Pending')
-				{
-					//Get the Quick Move-In Sales Program.
-					const qmiSalesProgram = this.salesPrograms.find(x => x.name === 'Quick Move-in Incentive');
-
-					//Check if the Quick Move-In Sales Program exists.
-					if (qmiSalesProgram) 
-					{
-						let qmiProgram = programList.find(x => x.salesProgramId === qmiSalesProgram.id);
-
-						//If it doesn't exist create it. Get the SpecInfo to get the correct amount value.
-						if (!qmiProgram && pulteInfo && pulteInfo.discountAmount > 0)
-						{
-							const salesAgreementProgram: SalesAgreementProgram =
-							{
-								amount: pulteInfo.discountAmount,
-								salesProgramId: qmiSalesProgram.id,
-								salesAgreementId: this.agreement.id,
-								salesProgramDescription: '',
-								salesProgram:
-									{
-										salesProgramType: qmiSalesProgram.salesProgramType.toString()
-									} as ISalesProgram
-							};
-
-							this.store.dispatch(new SalesAgreementActions.SaveProgram(salesAgreementProgram, qmiSalesProgram.name));
-						}
-						else if (jobId)
-						{
-							this.store.dispatch(new JobActions.LoadPulteInfo(jobId));
-						}
-					}
-				}
 
 				if (this.isChangingOrder)
 				{

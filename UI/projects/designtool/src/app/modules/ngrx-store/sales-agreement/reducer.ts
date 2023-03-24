@@ -231,6 +231,8 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			}
 
 			return { ...state, programs: programs, savingSalesAgreement: false, isProgramNa: false };
+		case SalesAgreementActionTypes.CreateQuickMoveInIncentive:
+			return { ...state, savingSalesAgreement: true, saveError: false, isUnsaved: true };
 		case SalesAgreementActionTypes.DeleteDeposit:
 			return { ...state, savingSalesAgreement: true };
 		case SalesAgreementActionTypes.DepositDeleted:
