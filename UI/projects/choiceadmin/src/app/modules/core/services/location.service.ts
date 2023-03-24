@@ -179,7 +179,7 @@ export class LocationService
 	{
 		let url = settings.apiUrl;
 
-		const select = `id, locationGroupMarketId, financialCommunityId`;
+		const select = `id, locationGroupMarketId, financialCommunityId, locationGroupName`;
 		const filter = `financialCommunityId in (${financialCommunityIds.join(',')})`;
 
 		const qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}filter=${encodeURIComponent(filter)}`;
