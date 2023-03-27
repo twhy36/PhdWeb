@@ -15,6 +15,6 @@ export class SpecDiscountService
 
 	checkIfSpecDiscount(name: string): boolean
 	{
-		return name.toLowerCase() === this.specDiscountName.toLowerCase();
+		return name?.toLowerCase() === this.specDiscountName.toLowerCase();
 	}
 }
