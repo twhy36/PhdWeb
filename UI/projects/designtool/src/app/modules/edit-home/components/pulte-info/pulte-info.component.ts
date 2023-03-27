@@ -123,7 +123,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 					this.getMonthList();
 
 					this.pulteInfo = new SpecInformation(pulteInfo);
-					this.pulteInfo.discountExpirationDate = this.specDiscountService.specDiscountExpDate;
+					this.pulteInfo.discountExpirationDate = new Date(this.specDiscountService.specDiscountExpDate.toUTCString());
 				}
 
 				this.qmiSalesProgram = programs.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
@@ -181,7 +181,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
         clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value ? this.pulteInfoForm.controls['displayOnPulte'].value : false;
 		clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
-		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : this.specDiscountService.specDiscountExpDate;
+		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ?? new Date(this.specDiscountService.specDiscountExpDate.toUTCString());
         clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value ? this.pulteInfoForm.controls['hotHome'].value : false;
         clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
         clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
