@@ -34,7 +34,7 @@ import * as fromSalesAgreement from './reducer';
 
 import {
 	Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
-	SalesAgreementContingency, SalesAgreement, SpinnerService, ISalesProgram
+	SalesAgreementContingency, SalesAgreement, SpinnerService, SpecDiscountService, ISalesProgram
 } from 'phd-common';
 
 import { tryCatch } from '../error.action';
@@ -118,11 +118,11 @@ export class SalesAgreementEffects
 						}
 						else
 						{
-							const quickMoveIn = salesPrograms.find(x => x.name === 'Quick Move-in Incentive');
+							const specDiscount = salesPrograms.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
 
-							if (quickMoveIn)
+							if (specDiscount)
 							{
-								actions.push(new CreateQuickMoveInIncentive(salesAgreement, quickMoveIn));
+								actions.push(new CreateQuickMoveInIncentive(salesAgreement, specDiscount));
 							}
 						}
 
@@ -550,6 +550,10 @@ export class SalesAgreementEffects
 						};
 
 						return of(new SaveProgram(salesAgreementProgram, action.qmiSalesProgram.name));
+					}
+					else
+					{
+						return of<Action>();
 					}
 				})
 			), SaveError, 'Error creating QMI!!')
@@ -1061,6 +1065,7 @@ export class SalesAgreementEffects
 		private spinnerService: SpinnerService,
 		private liteService: LiteService,
 		private jobService: JobService,
-		private salesInfoService: SalesInfoService
+		private salesInfoService: SalesInfoService,
+		private specDiscountService: SpecDiscountService
 	) { }
 }

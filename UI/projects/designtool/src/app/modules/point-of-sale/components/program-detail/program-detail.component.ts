@@ -4,8 +4,8 @@ import { Store } from '@ngrx/store';
 import * as _ from "lodash";
 
 import 
-{ 
-	ModalService, SalesAgreementProgram, SalesAgreement, ISalesProgram, SalesChangeOrderSalesProgram 
+{
+	ModalService, SalesAgreementProgram, SalesAgreement, ISalesProgram, SalesChangeOrderSalesProgram, SpecDiscountService
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -55,7 +55,8 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 
 	constructor(
 		private store: Store<fromRoot.State>,
-		private modalService: ModalService)
+		private modalService: ModalService,
+		private specDiscountService: SpecDiscountService)
 	{
 		super();
 	}
@@ -134,7 +135,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 			programName: this.programName
 		});
 
-		if (this.programName && this.program?.salesProgram?.name === 'Quick Move-in Incentive')
+		if (this.programName && this.specDiscountService.checkIfSpecDiscount(this.program?.salesProgram?.name))
 		{
 			this.form.get('programName').disable();
 		}

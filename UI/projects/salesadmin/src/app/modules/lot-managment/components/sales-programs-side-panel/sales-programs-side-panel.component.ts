@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angu
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { SalesProgramTypeEnum, SalesProgram } from '../../../shared/models/salesPrograms.model';
-import { ConfirmModalComponent, SidePanelComponent } from 'phd-common';
+import { ConfirmModalComponent, SidePanelComponent, SpecDiscountService } from 'phd-common';
 
 import * as moment from "moment";
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -54,13 +54,14 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 	constructor(
 		private _modalService: NgbModal,
-		private _orgService: OrganizationService
+		private _orgService: OrganizationService,
+		private _specDiscountService: SpecDiscountService
 	) { }
 
 	ngOnInit()
 	{
 		this.agreementLocked = this.selectedSalesProgram ? this.selectedSalesProgram.agreementLocked : false;
-		this.isQMIIncentive = this?.selectedSalesProgram?.name === 'Quick Move-in Incentive';
+		this.isQMIIncentive = this._specDiscountService.checkIfSpecDiscount(this?.selectedSalesProgram?.name);
 		this.createForm();
 	}
 
@@ -77,12 +78,19 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	//Check to see if the name of the Sales Program contains 'Quick Move In Incentive'
 	validateIfSpecDiscount(): boolean
 	{
-		const hasQuick = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('quick') > -1;
-		const hasMove = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('move') > -1;
-		const hasIn = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('in') > -1;
-		const hasIncentive = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('incentive') > -1;
+		if (this.releaseForm.get('name')?.disabled && this._specDiscountService.checkIfSpecDiscount(this.releaseForm.get('name')?.value))
+		{
+			return false;
+		}
+		else
+		{
+			const hasQuick = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('quick') > -1;
+			const hasMove = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('move') > -1;
+			const hasIn = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('in') > -1;
+			const hasIncentive = this.releaseForm.get('name')?.value?.toLowerCase()?.indexOf('incentive') > -1;
 
-		return hasQuick && hasMove && hasIn && hasIncentive;
+			return hasQuick && hasMove && hasIn && hasIncentive;
+		}
 	}
 
 	convertDate(date)
