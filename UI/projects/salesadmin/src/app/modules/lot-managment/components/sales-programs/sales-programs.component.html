@@ -27,7 +27,7 @@
 				<phd-column header="" columnClass="phd-icon">
 					<ng-template #body let-item>
 						<i class="fa fa-trash fa-fw" (click)="inactivate(item);" phd-tooltip="Inactivate Homesite"
-							*ngIf="canEdit && item.availability == 'Yes' && checkSpecDiscountName(item.name)"></i>
+							*ngIf="canEdit && item.availability == 'Yes' && !checkSpecDiscountName(item.name)"></i>
 					</ng-template>
 				</phd-column>
 				<phd-column header="" columnClass="phd-icon">
