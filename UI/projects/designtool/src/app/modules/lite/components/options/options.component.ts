@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TrackByFunction } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
 import { delay, take } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import * as LiteActions from '../../../ngrx-store/lite/actions';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { Elevation, IOptionCategory, LitePlanOptionUI, LitePlanOption, OptionRelationEnum } from '../../../shared/models/lite.model';
+import { Elevation, IOptionCategory, LitePlanOptionUI, LitePlanOption, OptionRelationEnum, IOptionSubCategory } from '../../../shared/models/lite.model';
 import { ConfirmOptionRelationComponent } from '../confirm-option-relation/confirm-option-relation.component';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
@@ -491,5 +491,15 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			return result === 'Continue';
 		});
+	}
+
+	trackByOptionSubCategory: TrackByFunction<IOptionSubCategory> = function(_index, optionSubCategory)
+	{
+		return optionSubCategory.id;
+	}
+
+	trackByPlanOptions: TrackByFunction<LitePlanOptionUI> = function(_index, planOption)
+	{
+		return planOption.optionSubCategoryId.toString() + planOption.isSelected;
 	}
 }
