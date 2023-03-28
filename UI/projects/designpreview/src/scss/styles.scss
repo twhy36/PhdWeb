@@ -42,6 +42,14 @@ a:focus {
 	transition: all 0.5s;
 }
 
+.btn {
+	&:hover,
+	&:focus {
+		background-color: none !important;
+		box-shadow: none !important;
+	}
+}
+
 .app-root {
 	display: flex;
 	flex-direction: column;
