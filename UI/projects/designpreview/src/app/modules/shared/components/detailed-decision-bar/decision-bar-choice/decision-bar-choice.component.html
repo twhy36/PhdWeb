@@ -1,15 +1,15 @@
 <div class="choice-container" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="icon" (click)="$event.stopPropagation()">
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-			<div [class.phd-clickable]="!isReadonly">
+			<button class="phd-clickable">
 				<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart" (click)="clickToggleChoice()"></i></span>
 				<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o" (click)="clickToggleChoice()"></i>
-			</div>
+			</button>
 		</ng-container>
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-			<div class="phd-clickable">
+			<button class="phd-clickable">
 				<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
-			</div>
+			</button>
 		</ng-container>
 	</div>
 	<div class="choice-label phd-clickable" (click)="clickViewChoiceDetail()">{{choice?.label}}</div>
