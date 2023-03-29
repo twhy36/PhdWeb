@@ -24,7 +24,7 @@ import
 	CoBuyersReSorted, TrustNameSaved, LoadRealtor, RealtorLoaded, DeleteProgram, ProgramSaved, SaveProgram, ProgramDeleted, SaveDeposit, DeleteDeposit, DepositSaved,
 	DepositDeleted, DeleteContingency, ContingencyDeleted, SaveContingency, ContingencySaved, SaveNote, NoteDeleted, NoteSaved, DeleteNote, VoidSalesAgreement,
 	SignSalesAgreement, ApproveSalesAgreement, CreateJIOForSpec, JIOForSpecCreated, SetIsFloorplanFlippedAgreement, SetIsDesignComplete, IsFloorplanFlippedAgreement,
-	CancelSalesAgreement, LoadConsultants, ConsultantsLoaded, SaveSalesConsultants, SalesConsultantsSaved, SaveSalesAgreementInfoNA, SalesAgreementInfoNASaved, IsDesignCompleteSaved, CreateQuickMoveInIncentive
+	CancelSalesAgreement, LoadConsultants, ConsultantsLoaded, SaveSalesConsultants, SalesConsultantsSaved, SaveSalesAgreementInfoNA, SalesAgreementInfoNASaved, IsDesignCompleteSaved
 } from './actions';
 import { DeleteScenarioInfo, LotConflict } from '../scenario/actions';
 import { OpportunityContactAssocUpdated } from '../opportunity/actions';
@@ -100,9 +100,9 @@ export class SalesAgreementEffects
 					combineLatest(//fetch contract templates
 						this.contractService.getTemplates(store.org.salesCommunity.market.id, store.scenario.scenario.financialCommunityId).pipe(
 							map(templates => [...templates, { displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }]),
-						), this.salesInfoService.getSalesPrograms(store.scenario.scenario.financialCommunityId)),
+						)),
 					tap(([sag]) => this.router.navigateByUrl('/point-of-sale/people/' + sag.id)),
-					switchMap(([salesAgreement, templates, salesPrograms]) =>
+					switchMap(([salesAgreement, templates]) =>
 					{
 						let actions: any[] = [
 							new SalesAgreementCreated(salesAgreement),
@@ -115,15 +115,6 @@ export class SalesAgreementEffects
 						if (!isSpecSale)
 						{
 							actions.push(new LoadBuyers(salesAgreement.id));
-						}
-						else
-						{
-							const specDiscount = salesPrograms.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
-
-							if (specDiscount)
-							{
-								actions.push(new CreateQuickMoveInIncentive(salesAgreement, specDiscount));
-							}
 						}
 
 						return from(actions);
@@ -514,49 +505,6 @@ export class SalesAgreementEffects
 					]);
 				})
 			), SaveError, "Error deleting program!!")
-		);
-	});
-
-	createQuickMoveInIncentive$: Observable<Action> = createEffect(() =>
-	{
-		return this.actions$.pipe(
-			ofType<CreateQuickMoveInIncentive>(SalesAgreementActionTypes.CreateQuickMoveInIncentive),
-			withLatestFrom(this.store),
-			tryCatch(source => source.pipe(
-				switchMap(([action, store]) =>
-				{
-					return this.jobService.getPulteInfoByJobId(store.job.id).pipe(
-						map(specInfo =>
-						{
-							return { action, store, specInfo };
-						})
-					);
-				}),
-				switchMap(({ action, store, specInfo }) =>
-				{
-					if (specInfo?.discountAmount > 0 && store.job?.lot?.lotBuildTypeDesc === 'Spec'
-						&& action?.salesAgreement?.status === 'Pending' && action?.qmiSalesProgram)
-					{
-						const salesAgreementProgram: SalesAgreementProgram =
-						{
-							amount: specInfo.discountAmount,
-							salesProgramId: action.qmiSalesProgram.id,
-							salesAgreementId: action.salesAgreement.id,
-							salesProgramDescription: '',
-							salesProgram:
-								{
-									salesProgramType: action.qmiSalesProgram.salesProgramType.toString()
-								} as ISalesProgram
-						};
-
-						return of(new SaveProgram(salesAgreementProgram, action.qmiSalesProgram.name));
-					}
-					else
-					{
-						return of<Action>();
-					}
-				})
-			), SaveError, 'Error creating QMI!!')
 		);
 	});
 
