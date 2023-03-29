@@ -8,7 +8,7 @@
 						class="d-flex flex-row phd-group-subgroup-title"
 						(click)="onSubGroupClick(subGroup)">
 						<div class="phd-group-label" title="{{group.label}}">{{group.label | ellipsis: 40}}:</div>
-						<div class="phd-subgroup-label" [class.active]="currentSubGroupId === subGroup.id" title="{{subGroup.label}}" [attr.id]="'decision-bar-sg-' + subGroup.id">{{subGroup.label | ellipsis: 40}}</div>
+						<div class="phd-subgroup-label" [class.active]="currentSubGroupId === subGroup.id" title="{{subGroup.label}}" [attr.id]="'included-decision-bar-sg-' + subGroup.id">{{subGroup.label | ellipsis: 40}}</div>
 					</li>
 				</a>
 				
@@ -22,7 +22,7 @@
 							<div class="icon">
 								<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="point.completed"></i>
 							</div>
-							<div class="label" title="{{point.label}}" [attr.id]="'decision-bar-' + point.id">{{point.label | ellipsis: 40}}</div>
+							<div class="label" title="{{point.label}}" [attr.id]="'included-decision-bar-' + point.id">{{point.label | ellipsis: 40}}</div>
 						</li>
 					</a>
 				</ng-container>

@@ -293,7 +293,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			}
 		}
 
-		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
+		const decisionBarElement = document.getElementById('included-decision-bar-' + pointId?.toString());
 		if (decisionBarElement)
 		{
 			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
@@ -328,7 +328,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			}
 		}
 
-		const decisionBarSgElement = document.getElementById('decision-bar-sg-' + subGroupId?.toString());
+		const decisionBarSgElement = document.getElementById('included-decision-bar-sg-' + subGroupId?.toString());
 		if (decisionBarSgElement)
 		{
 			decisionBarSgElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
