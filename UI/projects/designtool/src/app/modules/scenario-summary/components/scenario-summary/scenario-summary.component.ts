@@ -14,7 +14,7 @@ import
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType, ConfirmModalComponent
+	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -69,7 +69,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
-	isDirtScenario: boolean;
+	allowEstimates: boolean;
 	salesAgreementId: number;
 
 	imageLoading: boolean = false;
@@ -84,7 +84,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	selectedPointFilter$: Observable<DecisionPointFilterType>;
 	enabledPointFilters$: Observable<DecisionPointFilterType[]>;
 
-	isComplete: boolean;
+	isComplete$: Observable<boolean>;
 	scenarioStatus$: Observable<ScenarioStatusType>;
 
 	hasFloorPlan: boolean = false;
@@ -104,13 +104,6 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	treeFilter$: Observable<TreeFilter>;
 	priceRangesCalculated: boolean;
 	isPhdLite: boolean = false;
-
-	get showRemoveDesignSelectionsButton(): boolean
-	{
-		const choices = this.getNonStructuralChoices();
-
-		return choices.length && this.isComplete && this.isDirtScenario && !this.isPhdLite && !this.summaryHeader.isPreview;
-	}
 
 	constructor(private route: ActivatedRoute,
 		private lotService: LotService,
@@ -201,10 +194,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement),
-			combineLatest(this.store.pipe(select(fromRoot.isDirtScenario))),
-		).subscribe(([sag, isDirtScenario]) =>
+			combineLatest(this.store.pipe(select(fromRoot.canEstimateOnSummary))),
+		).subscribe(([sag, canEstimateOnSummary]) =>
 		{
-			this.isDirtScenario = isDirtScenario;
+			this.allowEstimates = canEstimateOnSummary;
 			this.salesAgreementId = sag && sag.id;
 		});
 
@@ -312,9 +305,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(state => state.scenario.enabledPointFilters)
 		);
 
-		this.store.pipe(
+		this.isComplete$ = this.store.pipe(
 			select(fromRoot.isComplete)
-		).subscribe(isComplete => this.isComplete = isComplete);
+		);
 
 		this.scenarioStatus$ = this.store.pipe(
 			select(fromRoot.scenarioStatus)
@@ -610,10 +603,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			pdfViewer.componentInstance.pdfData = pdfData;
 			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
-		error =>
-		{
-			this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-		});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	compileSummaryData(reportType: SummaryReportType): Observable<SummaryData>
@@ -643,7 +636,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				summaryData.title = this.title;
 				summaryData.images = this.summaryImages;
 				summaryData.hasHomesite = summaryHeader.hasHomesite;
-				summaryData.allowEstimates = this.isDirtScenario;
+				summaryData.allowEstimates = this.allowEstimates;
 				summaryData.priceBreakdown = this.priceBreakdown;
 				summaryData.priceBreakdownTypes = priceBreakdown.breakdownFilters.map(x => x.toString());
 				summaryData.includeImages = reportType == SummaryReportType.OPTION_DETAILS_IMAGES || reportType == SummaryReportType.SELECTIONS_IMAGES;
@@ -894,43 +887,5 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				this.summaryImages[idx] = sdImg;
 			}
 		});
-	}
-
-	onRemoveDesignSelections()
-	{
-		let confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
-
-		confirm.componentInstance.title = 'Warning!';
-		confirm.componentInstance.body = `This will remove all Design Selections. Once removed, you must make the Design Selections again if you want to add it to the configuration.<br /><br />Do you wish to continue?`;
-		confirm.componentInstance.defaultOption = 'Continue';
-
-		confirm.result.then((result) =>
-		{
-			if (result == 'Continue')
-			{
-				let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
-				let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
-				let choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
-
-				if (choices.length > 0)
-				{
-					var deselectChoiceList = choices.map(c =>
-					{
-						return { choiceId: c.id, overrideNote: null, quantity: 0 };
-					});
-
-					this.store.dispatch(new ScenarioActions.SelectChoices(true, ...deselectChoiceList));
-				}
-			}
-		});
-	}
-
-	getNonStructuralChoices(): Choice[]
-	{
-		let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
-		let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
-		let choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
-
-		return choices;
 	}
 }

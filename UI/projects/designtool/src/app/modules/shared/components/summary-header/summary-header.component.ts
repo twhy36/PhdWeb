@@ -25,20 +25,18 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	@Input() pointStatusFilter: PointStatusFilter;
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
-	@Input() isDirtScenario: boolean;
+	@Input() allowEstimates: boolean;
 	@Input() canEditHanding: boolean;
 	@Input() canConfigure: boolean;
 	@Input() disableHanding: boolean;
 	@Input() canOverride: boolean;
 	@Input() isPhdLite: boolean;
-	@Input() showRemoveDesignSelectionsButton: boolean;
 
 	@Output() pointStatusFilterChanged = new EventEmitter<PointStatusFilter>();
 	@Output() toggleAllAttributesChanged = new EventEmitter<boolean>();
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() toggleImagesChanged = new EventEmitter<boolean>();
 	@Output() handingChanged = new EventEmitter<string>();
-	@Output() removeDesignSelectionsClicked = new EventEmitter();
 
 	get communityName(): string
 	{
@@ -142,9 +140,16 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	// Should be removed and replaced with css 'position:sticky' once edge fixes existing bugs.
 	checkIfHeaderSticky()
 	{
-		this.isSticky = this.summaryHeaderElement.nativeElement.getBoundingClientRect().top <= 0;
-
-		this.cd.detectChanges();
+		if (this.summaryHeaderElement.nativeElement.getBoundingClientRect().top <= 0)
+		{
+			this.isSticky = true;
+			this.cd.detectChanges();
+		}
+		else
+		{
+			this.isSticky = false;
+			this.cd.detectChanges();
+		}
 
 		this.isStickyChanged.emit(this.isSticky);
 
@@ -169,11 +174,6 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	{
 		this.summaryHeader.handing = handing;
 		this.handingChanged.emit(handing);
-	}
-
-	onRemoveDesignSelections()
-	{
-		this.removeDesignSelectionsClicked.emit();
 	}
 }
 

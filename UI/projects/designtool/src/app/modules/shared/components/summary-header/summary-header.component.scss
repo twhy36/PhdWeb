@@ -108,7 +108,6 @@
 				.phd-switch-text {
 					vertical-align: top;
 					display: inline-block;
-					margin-left: 5px;
 				}
 			}
 		}
@@ -137,14 +136,4 @@
 	.phd-attribute-toggle {
 		margin-right: 20px;
 	}	
-}
-
-.phd-summary-header-row {
-	display: flex;
-	justify-content: space-between;
-
-	.phd-remove-design-selections-btn {
-		font-weight: 500;
-		font-size: 12px;
-	}
 }

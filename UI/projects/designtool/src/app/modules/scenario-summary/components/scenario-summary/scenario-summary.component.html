@@ -10,7 +10,7 @@
 			[selectedPointFilter]="(selectedPointFilter$ | async)"
 			[enabledPointFilters]="(enabledPointFilters$ | async)"
 			[scenarioStatus]="(scenarioStatus$ | async)"
-			[complete]="isComplete"
+			[complete]="(isComplete$ | async)"
 			[inChangeOrder]="(isChangingOrder$ | async)"
 			errorMessage=""
 			[treeFilter]="(treeFilter$ | async)"
@@ -41,16 +41,13 @@
 						(toggleImagesChanged)="onToggleImagesChanged($event)"
 						(isStickyChanged)="onIsStickyChanged($event)"
 						(handingChanged)="onHandingChanged($event)"
-						(removeDesignSelectionsClicked)="onRemoveDesignSelections()"
 						[summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
-						[isDirtScenario]="isDirtScenario"
+						[allowEstimates]="allowEstimates"
 						[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
 						[canConfigure]="canConfigure$ | async"
 						[disableHanding]="disableHanding"
-						[canOverride]="canOverride$ | async"
-						[showRemoveDesignSelectionsButton]="showRemoveDesignSelectionsButton">
-		</summary-header>
+						[canOverride]="canOverride$ | async"></summary-header>
 
 		<div class="tree-view d-flex flex-column" [class.phd-is-sticky]="isSticky">
 			<ng-container *ngFor="let group of groups">
@@ -84,7 +81,7 @@
 			</ng-container>
 		</div>
 
-		<summary-action-bar [isComplete]="isComplete"
+		<summary-action-bar [isComplete]="(isComplete$ | async)"
 							[selectedPointFilter]="(selectedPointFilter$ | async)"
 							[enabledPointFilters]="(enabledPointFilters$ | async)"
 							[priceBreakdown]="priceBreakdown"

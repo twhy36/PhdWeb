@@ -2,17 +2,18 @@
 
 <div class="d-flex justify-content-center">
 	<div class="phd-summary-container d-flex flex-column">
-		<summary-header [summaryHeader]="summaryHeader"
-						[priceBreakdown]="priceBreakdown"
-						[isDirtScenario]="allowEstimates$ | async"
-						[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
-						[canConfigure]="canConfigure$ | async"
-						[disableHanding]="disableHanding"
-						[canOverride]="canOverride$ | async"
-						[isPhdLite]="true"
-						(toggleAllAttributesChanged)="onToggleAllColorsChanged($event)"
-						(isStickyChanged)="onIsStickyChanged($event)"
-						(handingChanged)="onHandingChanged($event)">
+		<summary-header
+			[summaryHeader]="summaryHeader"
+			[priceBreakdown]="priceBreakdown"
+			[allowEstimates]="allowEstimates$ | async"
+			[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
+			[canConfigure]="canConfigure$ | async"
+			[disableHanding]="disableHanding"
+			[canOverride]="canOverride$ | async"
+			[isPhdLite]="true"
+			(toggleAllAttributesChanged)="onToggleAllColorsChanged($event)"
+			(isStickyChanged)="onIsStickyChanged($event)"
+			(handingChanged)="onHandingChanged($event)">
 		</summary-header>
 
 		<div class="phd-tree-view d-flex flex-column" [class.phd-is-sticky]="isSticky">
@@ -39,12 +40,12 @@
 		</div>
 
 		<action-bar [actionBarStatus]="(isLiteComplete$ | async) ? 'COMPLETE' : 'INCOMPLETE'"
-					[primaryAction]="primaryAction"
-					[price]="priceBreakdown.totalPrice"
-					[changePrice]="priceBreakdown.changePrice"
-					[inChangeOrder]="(isChangingOrder$ | async)"
-					[canChange]="(canConfigure$ | async) && canEditSummary"
-					(callToAction)="onBuildIt()">
+			[primaryAction]="primaryAction"
+			[price]="priceBreakdown.totalPrice"
+			[changePrice]="priceBreakdown.changePrice"
+			[inChangeOrder]="(isChangingOrder$ | async)"
+			[canChange]="(canConfigure$ | async) && canEditSummary"
+			(callToAction)="onBuildIt()">
 
 			<ng-template #rightCellTemplate>
 				<div class="d-flex flex-column flex-grow-1 align-items-center mr-4 links">
