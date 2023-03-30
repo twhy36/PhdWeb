@@ -97,7 +97,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isEditingEnvelopeDraft: boolean;
 	isOutForESign: boolean;
 	canApprove: boolean;
-	salesAgreementId: number;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -160,7 +159,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(agreementState =>
 		{
 			this.savingAgreement = agreementState.savingSalesAgreement;
-			this.salesAgreementId = agreementState.id;
 		});
 
 		this.store.pipe(
@@ -595,9 +593,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			// #353697 Revert all new TimeOFSaleOptionPrice records
 			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
-
-			// #392019 Reload the agreement to restore old options 
-			this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
 
 			this.router.navigateByUrl('/change-orders');
 		}
