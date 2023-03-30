@@ -8,9 +8,9 @@
 	</div>
 
 	<div class="phd-options-grid">
-		<ng-container *ngFor="let subCategory of selectedCategory.optionSubCategories; trackBy:trackByOptionSubCategory">
+		<ng-container *ngFor="let subCategory of selectedCategory.optionSubCategories">
 			<span class="phd-sub-category">{{subCategory.name}}</span>
-				<div *ngFor="let option of subCategory.planOptions; trackBy:trackByPlanOptions" class="phd-grid-row">
+				<div *ngFor="let option of subCategory.planOptions" class="phd-grid-row">
 					<ng-container *ngIf="option.isActive || option.previouslySelected">
 						<div class="phd-row-fields">
 							<div class="phd-selected-option form-check">
