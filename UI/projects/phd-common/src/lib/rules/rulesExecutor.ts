@@ -723,18 +723,12 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		{
 			for (let i = choice.lockedInOptions.length - 1; i >= 0; i--)
 			{
-				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions?.length
+				const filteredOptRules = rules.optionRules.filter(optRule => optRule.replaceOptions && optRule.replaceOptions.length
 					&& optRule.replaceOptions.includes(choice.lockedInOptions[i].optionId)
-					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity))
-						|| (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))
-					// #389738
-					// If a replacing option is locked in to a choice, disregard this replace rule
-					// since the rule may have been added to the tree after the agreement
-					&& optRule.choices.some(c => !find(c.id)?.lockedInOptions?.map(lio => lio.optionId).includes(optRule.optionId))
-				);
+					&& optRule.choices.every(c => (c.mustHave && choices.find(ch => ch.id === c.id && ch.quantity) || (!c.mustHave && choices.find(ch => ch.id === c.id && !ch.quantity)))));
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption
-				if (filteredOptRules?.length) 
+				if (filteredOptRules && filteredOptRules.length) 
 				{
 					const removedMapping = choice.lockedInOptions.splice(i, 1);
 
