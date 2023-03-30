@@ -73,13 +73,8 @@ export function selectChoice(tree: Tree, selectedChoice: number)
 export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOption[], lotId: number = 0, timeOfSaleOptionPrices: TimeOfSaleOptionPrice[] = [])
 {
 	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId === tree.treeVersion.id);
-
-	// #384993 Find any selected choices as part of a removed DP
-	// Any DP with a TreeVersionId that does not match the current tree is considered removed
-	let oldPoints = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).filter(x => x.treeVersionId !== tree.treeVersion.id);
-
 	let choices = _.flatMap(points, p => p.choices).filter(x => x.treeVersionId === tree.treeVersion.id);
-	let treeChoices = _.flatMap(points.concat(oldPoints), p => p.choices);
+	let treeChoices = _.flatMap(points, p => p.choices);
 
 	let find = id => choices.find(ch => ch.id === id);
 
@@ -883,34 +878,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			{
 				const choicesWithLockedInOpt = choices.filter(ch => ch.lockedInOptions.find(lio => lio.optionId === opt.financialOptionIntegrationKey) && ch.id !== choice.id).map(ch => ch.id);
 
-				if (choicesWithLockedInOpt?.length)
+				if (choicesWithLockedInOpt)
 				{
 					choice.disabledByRelocatedMapping = choice.disabledByRelocatedMapping.concat(choicesWithLockedInOpt);
 				}
-
-				// #384993
-				// Handles a mapping change on a replace option, between tree versions
-				const optionsReplacedByThisOpt = _.flatMap(choice.lockedInOptions.filter(lio => lio.optionId === opt.financialOptionIntegrationKey), lio => lio.replaceOptions);
-				const choicesWithReplacedOpt = choices.filter(ch => ch.options.find(chOpt => optionsReplacedByThisOpt.includes(chOpt.financialOptionIntegrationKey)));
-				choicesWithReplacedOpt.forEach(ch =>
-				{
-					const optionsOnChoice = ch.options.map(o => o.id);
-					optionsOnChoice.forEach(chOpt =>
-					{
-						// Get the choice from the previous tree
-						const timeOfSaleDivChoiceCatalogId = timeOfSaleOptionPrices.find(tos => chOpt === tos.edhPlanOptionID).divChoiceCatalogID;
-
-						if (timeOfSaleDivChoiceCatalogId)
-						{
-							const oldChoice = treeChoices.find(tc => tc.divChoiceCatalogId === timeOfSaleDivChoiceCatalogId)?.id;
-
-							// Find the current version of the choice to disable it until the "old" choice is deselected
-							const choiceToDisable = choices.find(c => ch.divChoiceCatalogId === c.divChoiceCatalogId);
-
-							choiceToDisable.disabledByRelocatedMapping = choiceToDisable.disabledByRelocatedMapping.concat(oldChoice);
-						}
-					});
-				});
 			}
 		});
 
