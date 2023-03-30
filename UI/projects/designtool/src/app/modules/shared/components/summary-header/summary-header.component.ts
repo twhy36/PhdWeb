@@ -25,7 +25,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 	@Input() pointStatusFilter: PointStatusFilter;
 	@Input() summaryHeader: SummaryHeader;
 	@Input() priceBreakdown: PriceBreakdown;
-	@Input() isDirtScenario: boolean;
+	@Input() allowEstimates: boolean;
 	@Input() canEditHanding: boolean;
 	@Input() canConfigure: boolean;
 	@Input() disableHanding: boolean;

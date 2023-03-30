@@ -69,8 +69,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
-	isDirtScenario: boolean;
+	allowEstimates: boolean;
 	salesAgreementId: number;
+	isSpecOrModel: boolean;
 
 	imageLoading: boolean = false;
 	activeIndex: any = { current: 0, direction: '', prev: 0 };
@@ -109,7 +110,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	{
 		const choices = this.getNonStructuralChoices();
 
-		return choices.length && this.isComplete && this.isDirtScenario && !this.isPhdLite && !this.summaryHeader.isPreview;
+		return choices.length && this.isComplete && !this.isSpecOrModel && this.salesAgreementId === 0 && !this.isPhdLite && !this.summaryHeader.isPreview;
 	}
 
 	constructor(private route: ActivatedRoute,
@@ -201,11 +202,15 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement),
-			combineLatest(this.store.pipe(select(fromRoot.isDirtScenario))),
-		).subscribe(([sag, isDirtScenario]) =>
+			combineLatest(
+				this.store.pipe(select(fromRoot.allowEstimates)),
+				this.store.pipe(select(fromRoot.isSpecOrModel))
+			),
+		).subscribe(([sag, allowEstimates, isSpecOrModel]) =>
 		{
-			this.isDirtScenario = isDirtScenario;
-			this.salesAgreementId = sag && sag.id;
+			this.allowEstimates = allowEstimates;
+			this.isSpecOrModel = isSpecOrModel;
+			this.salesAgreementId = sag?.id ?? 0;
 		});
 
 		this.store.pipe(
@@ -574,7 +579,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 						this.lotService.buildScenario();
 					}
 				}
-				else if (this.salesAgreementId)
+				else if (this.salesAgreementId !== 0)
 				{
 					this.router.navigateByUrl(`/point-of-sale/people/${this.salesAgreementId}`);
 				}
@@ -643,7 +648,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				summaryData.title = this.title;
 				summaryData.images = this.summaryImages;
 				summaryData.hasHomesite = summaryHeader.hasHomesite;
-				summaryData.allowEstimates = this.isDirtScenario;
+				summaryData.allowEstimates = this.allowEstimates;
 				summaryData.priceBreakdown = this.priceBreakdown;
 				summaryData.priceBreakdownTypes = priceBreakdown.breakdownFilters.map(x => x.toString());
 				summaryData.includeImages = reportType == SummaryReportType.OPTION_DETAILS_IMAGES || reportType == SummaryReportType.SELECTIONS_IMAGES;

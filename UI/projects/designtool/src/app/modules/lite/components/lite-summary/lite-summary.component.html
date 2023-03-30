@@ -4,7 +4,7 @@
 	<div class="phd-summary-container d-flex flex-column">
 		<summary-header [summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
-						[isDirtScenario]="allowEstimates$ | async"
+						[allowEstimates]="allowEstimates$ | async"
 						[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
 						[canConfigure]="canConfigure$ | async"
 						[disableHanding]="disableHanding"
