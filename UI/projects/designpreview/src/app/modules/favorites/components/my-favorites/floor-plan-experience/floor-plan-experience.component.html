@@ -54,7 +54,7 @@
 			</div>
 		</div>
 		<div class="phd-point-container">
-			<ng-container *ngIf="!noVisibleFP && subGroup.useInteractiveFloorplan">
+			<ng-container *ngIf="!noVisibleFP && subGroup?.useInteractiveFloorplan">
 				<floor-plan
 					[height]="'73vh'"
 					[planId$]="marketingPlanId"
