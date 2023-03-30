@@ -160,7 +160,9 @@ export class SummaryReportData {
 	lot?: string;
 	address?: string;
 	basePrice?: number;
+	showHomesiteEstimate?: boolean;
 	lotPremium?: number;
+	lotPremiumEstimate?: number;
 	optionsTotal?: number;
 	totalPrice?: number;
     salesProgram?: number;

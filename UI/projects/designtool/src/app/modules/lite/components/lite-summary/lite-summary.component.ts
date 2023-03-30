@@ -861,6 +861,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let summaryData = {} as SummaryReportData;
 
+		summaryData.showHomesiteEstimate = optionalPricingSelections.includes(PriceBreakdownType.HOMESITE.toString());
 		summaryData.showDesignEstimate = optionalPricingSelections.includes(PriceBreakdownType.DESIGN.toString());
 		summaryData.showClosingIncentive = optionalPricingSelections.includes(PriceBreakdownType.CLOSING.toString());
 		summaryData.showSalesProgram = optionalPricingSelections.includes(PriceBreakdownType.DISCOUNT.toString());
@@ -886,6 +887,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
 		summaryData.lotPremium = this.priceBreakdown.homesite || 0;
+		summaryData.lotPremiumEstimate = this.priceBreakdown.homesiteEstimate || 0;
 		summaryData.optionsTotal = this.priceBreakdown.selections || 0;
 		summaryData.totalPrice = this.priceBreakdown.totalPrice || 0;
 		summaryData.salesProgram = this.priceBreakdown.salesProgram || 0;
