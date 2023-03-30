@@ -1,8 +1,10 @@
 import { Component, OnInit, Input, NgZone, Renderer2, ChangeDetectorRef, OnDestroy, ElementRef, Output, EventEmitter, ViewChild } from '@angular/core';
 
-import { LotExt, Plan, PointStatus, PointStatusFilter, PriceBreakdown } from 'phd-common';
+import { LotExt, Plan, PointStatus, PriceBreakdown } from 'phd-common';
 
 import { ScenarioService } from '../../../core/services/scenario.service';
+
+import { PointStatusFilter } from '../../../shared/models/decisionPointFilter';
 
 import { PricingBreakdownComponent } from '../pricing-breakdown/pricing-breakdown.component';
 
@@ -50,7 +52,7 @@ export class SummaryHeaderComponent implements OnInit, OnDestroy
 
 	get homesite(): string
 	{
-		let homesite: string = 'No Lot Selected';
+		let homesite : string = 'No Lot Selected';
 
 		if (this.summaryHeader.lot)
 		{

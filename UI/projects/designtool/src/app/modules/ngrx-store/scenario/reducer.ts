@@ -6,11 +6,13 @@ import
 {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice, ChangeOrderHanding, DecisionPointFilterType
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice, ChangeOrderHanding
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
 import { checkSelectedAttributes } from '../../shared/classes/tree.utils';
+
+import { DecisionPointFilterType } from '../../shared/models/decisionPointFilter';
 
 import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
@@ -249,7 +251,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 
 				points.forEach(pt => setPointStatus(pt));
-				subGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newState.tree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 				if (action.type === CommonActionTypes.ScenarioLoaded)
@@ -291,7 +293,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 							checkSelectedAttributes(choices);
 
 							points.forEach(pt => setPointStatus(pt));
-							subGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+							subGroups.forEach(sg => setSubgroupStatus(sg));
 							newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 						});
@@ -395,7 +397,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			checkSelectedAttributes(choices);
 
 			points.forEach(pt => setPointStatus(pt));
-			subGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+			subGroups.forEach(sg => setSubgroupStatus(sg));
 			newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 
 			return { ...state, tree: newTree, rules: rules, options: options, isUnsaved: true, pointHasChanges: true };
@@ -417,7 +419,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				checkSelectedAttributes(choices);
 
 				points.forEach(pt => setPointStatus(pt));
-				subGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
 
@@ -460,7 +462,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				checkSelectedAttributes(choices);
 
 				points.forEach(pt => setPointStatus(pt));
-				subGroups.forEach(sg => setSubgroupStatus(sg, state.selectedPointFilter));
+				subGroups.forEach(sg => setSubgroupStatus(sg));
 				newTree.treeVersion.groups.forEach(g => setGroupStatus(g));
 			}
 
@@ -494,7 +496,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			setPointStatus(point);
 			subGroup = subGroups.find(sg => sg.points.some(p => p.id === point.id));
-			setSubgroupStatus(subGroup, state.selectedPointFilter);
+			setSubgroupStatus(subGroup);
 			setGroupStatus(newTree.treeVersion.groups.find(g => g.subGroups.some(sg => sg.id === subGroup.id)));
 
 			return { ...state, tree: newTree };
