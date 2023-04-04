@@ -26,7 +26,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
-import { HttpErrorResponse } from '@angular/common/http';
+import { LoggingService } from 'phd-common';
 
 @Injectable()
 export class CommonEffects
@@ -340,6 +340,16 @@ export class CommonEffects
 					const errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
 					const errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
 
+					const properties = {
+						FriendlyMessage: 'ErrorAction: ' + errMsg,
+						ErrorFrom: errFrom
+					};
+
+					if(errFrom !== ErrorFrom.PageNotFound)
+					{
+						this.loggingService.logError((<ErrorAction>errorScan.err).error, properties);
+					}
+					
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})
@@ -359,5 +369,6 @@ export class CommonEffects
 		private changeOrderService: ChangeOrderService,
 		private favoriteService: FavoriteService,
 		private spinnerService: SpinnerService,
+		private loggingService: LoggingService,
 		private router: Router) { }
 }

@@ -8,7 +8,6 @@ import
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
-import { Stopwatch } from './stopwatch';
 
 export enum CommonActionTypes
 {
@@ -24,7 +23,6 @@ export enum CommonActionTypes
 	TimeoutError = 'Timeout Error'
 };
 
-@Stopwatch([CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
 export class LoadSalesAgreement implements Action
 {
 	readonly type = CommonActionTypes.LoadSalesAgreement;

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -31,7 +31,7 @@ import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
 import { TokenService } from './services/token.service';
 import { InfoDisclaimerComponent } from './components/info-disclaimer/info-disclaimer.component';
-
+import { LoggingService, PhdErrorHandler } from 'phd-common';
 @NgModule({
 	exports: [
 		NavBarComponent,
@@ -70,10 +70,12 @@ import { InfoDisclaimerComponent } from './components/info-disclaimer/info-discl
 		ReportsService,
 		BrandService,
 		AdobeService,
+		LoggingService,
 		LoggedInGuard,
 		InternalGuard,
 		ExternalGuard,
-		PresaleGuard
+		PresaleGuard,
+		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
 	]
 })
 export class CoreModule { }
