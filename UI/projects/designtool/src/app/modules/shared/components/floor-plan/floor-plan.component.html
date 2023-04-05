@@ -16,7 +16,7 @@
 		<div id="phd-scroll-choices">
 			<aside id="choices" *ngIf="fpLoaded">
 				<ul>
-					<li *ngFor="let point of subGroup.points; trackBy:trackByDecisionPoints">
+					<li *ngFor="let point of subGroup.points">
 						<header [class.disabled]="point?.isPastCutOff || !canEditAgreement">
 							<h4>{{ point.label }}</h4>
 							<div><em>{{ point.pointPickTypeLabel }}</em></div>
@@ -38,7 +38,7 @@
 
 						<!--End if not disabled-->
 						<ul>
-							<ng-template ngFor [ngForOf]="point.choices" [ngForTrackBy]="trackByChoices" let-choice>
+							<ng-template ngFor [ngForOf]="point.choices" let-choice>
 								<li
 									[ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
 									<input type="checkbox" (ngModelChange)="onOptionToggled(choice)"

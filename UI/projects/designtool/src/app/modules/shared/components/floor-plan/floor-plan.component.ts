@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild, TrackByFunction } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import * as _ from 'lodash';
@@ -286,17 +286,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)
 	{
 		this.pointTypeFilterChanged.emit(pointTypeFilter);
-	}
-
-	trackByDecisionPoints: TrackByFunction<DecisionPoint> = function (_index, decisionPoint)
-	{
-		return decisionPoint.id;
-	}
-
-	trackByChoices: TrackByFunction<Choice> = function (_index, choiceSelected)
-	{
-
-		return choiceSelected.id?.toString() + choiceSelected.quantity?.toString();
 	}
 
 	ngOnChanges(changes: SimpleChanges)
