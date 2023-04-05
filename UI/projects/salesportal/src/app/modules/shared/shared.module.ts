@@ -9,6 +9,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { PhdCommonModule } from 'phd-common';
 
 import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
+import { TruncateStringPipe } from './pipes/truncateString.pipe';
 import { HomeComponent } from './components/home/home.component';
 import { PHDSearchComponent } from './components/phd-search/phd-search.component';
 import { PortalItemComponent } from './components/portal-item/portal-item.component';
@@ -31,7 +32,8 @@ const routes: Routes = [
 		UnauthorizedComponent,
 		PlanPreviewComponent,
 		PHDSearchComponent,
-		CapitalCaseSpacePipe
+		CapitalCaseSpacePipe,
+		TruncateStringPipe
 	],
 	imports: [
 		BrowserAnimationsModule,
