@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
 import _ from 'lodash';
-import { Choice, DecisionPoint, SubGroup, TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
+import { Choice, DecisionPoint, SubGroup, UnsubscribeOnDestroy } from 'phd-common';
 
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
@@ -29,10 +29,14 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	errors: Array<{ errorType: ErrorTypeEnum, disabledBy }> = []; // DP to DP, then DP to Choice, then Choice to Choice
 	hasRequiredChoice: boolean = false;
 	hiddenChoices: Choice[];
-	modalTitle: string = 'Disabled due to';
 	myFavoriteId: number;
 	points: DecisionPoint[];
 	subGroups: SubGroup[];
+
+	get modalTitle()
+	{
+		return this.point?.disabledBy[0]?.rules[0].ruleType === 1 || this.choice?.disabledBy[0]?.rules[0].ruleType === 1 ? 'Before this can be selected' : 'Disabled due to';
+	}
 
 	constructor(private adobeService: AdobeService, private store: Store<fromRoot.State>, private router: Router) 
 	{
@@ -67,8 +71,14 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 
 		this.hasRequiredChoice = this.point?.choices.find(c => c.isRequired)?.isRequired ?? false;
 
-		this.modalTitle = this.point?.disabledBy[0]?.rules[0].ruleType === 1 || this.choice?.disabledBy[0]?.rules[0].ruleType === 1 ? 'Before this can be selected' : 'Disabled due to';
+		this.setErrors();
+		this.filterErrorRules();
+		this.handleAdobeAlert();
+	}
 
+	// Creates an error object to properly display why the choice is blocked
+	setErrors()
+	{
 		if (this.point && !!this.point.disabledBy.length)
 		{
 			// break out decision point to dp rules from dp to choice rules
@@ -91,12 +101,10 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 			this.errors.push({ errorType: ErrorTypeEnum.C2C, disabledBy: this.choice.disabledBy });
 
 			// Prevent other disabled messages from duplicating choices
-			const disabledChoices = _.flatMap(this.choice.disabledBy, d => _.flatMap(d.rules, r => r.choices));
+			// const disabledChoices = _.flatMap(this.choice.disabledBy, d => _.flatMap(d.rules, r => r.choices));
+			const disabledChoices = this.choice.disabledBy.flatMap(d => d.rules.flatMap(r => r.choices));
 			this.choice.disabledByReplaceRules = this.choice.disabledByReplaceRules.filter(ch => !disabledChoices.includes(ch));
 		}
-
-		this.filterErrorRules();
-		this.handleAdobeAlert();
 	}
 
 	/**
@@ -137,12 +145,13 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	checkHiddenFromBuyerView(choiceId: number)
 	{
 		const point = this.points.find(p => p.choices.filter(c => c.id === choiceId).length > 0);
-		const choice = point.choices.find(c => c.id === choiceId);
+		const choice = point?.choices.find(c => c.id === choiceId);
 
-		if (choice.isHiddenFromBuyerView || point.isHiddenFromBuyerView)
+		if (choice?.isHiddenFromBuyerView || point?.isHiddenFromBuyerView)
 		{
 			return true;
 		}
+		return false;
 	}
 
 	private handleBlockedItemClick(pointId: number)

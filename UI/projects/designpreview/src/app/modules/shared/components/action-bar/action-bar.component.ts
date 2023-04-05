@@ -9,14 +9,11 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
-import { ActionBarCallType } from '../../classes/constants.class';
-
 @Component({
 	selector: 'action-bar',
 	templateUrl: 'action-bar.component.html',
 	styleUrls: ['action-bar.component.scss']
 })
-
 export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit 
 {
 	@Input() scrollListener = window;
@@ -33,7 +30,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	@Input() isFixedWidth: boolean = false;
 	@Input() isContractedPage: boolean = false;
 
-	@Output() callToAction = new EventEmitter<{ actionBarCallType: ActionBarCallType }>();
+	@Output() callToAction = new EventEmitter();
 	@Output() toggleContractedOptions = new EventEmitter();
 
 	@ViewChild('btnActionBar') button: ElementRef;
@@ -134,7 +131,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrimaryCallToActionClick()
 	{
-		this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
+		this.callToAction.emit();
 	}
 
 	onHomePage()
