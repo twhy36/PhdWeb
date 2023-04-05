@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 {
 	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption
 } from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -78,6 +78,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	unsavedQty: number = 0;
 	lots: LotExt;
 	plan: Plan;
+	jobPlanOptions: JobPlanOption[];
 	isFavorite: boolean;
 	loadingChoiceImage = true;
 	loadingAttributeImage = true;
@@ -112,7 +113,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get optionDisabled(): boolean
 	{
-		return !(this.agreementStatus && this.choice.quantity > 0) && this.choice.options ? this.choice.options.some(option => !option.isActive) : false;
+		return !(this.agreementStatus && this.choice.quantity > 0) && this.choice.options ? this.choice.options.some(option => !option.isActive && !this.jobPlanOptions?.some(jobPlanOption => jobPlanOption?.planOptionId === option.id)) : false;
 	}
 
 	get showDisabledButton(): boolean
@@ -264,9 +265,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				this.store.pipe(select(fromScenario.choiceOverrides)),
 				this.store.pipe(select(selectSelectedLot)),
 				this.store.pipe(select(selectedPlanData)),
+				this.store.pipe(select(state => state.job.jobPlanOptions)),
 				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id])
 			))
-			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
+			.subscribe(([monotonyChoices, choiceOverride, lots, plan, jobPlanOptions, choiceImages]) =>
 			{
 				this.choiceImages = choiceImages;
 				this.loadingChoiceImage = false;
@@ -292,6 +294,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 				this.lots = lots;
 				this.plan = plan;
+				this.jobPlanOptions = jobPlanOptions;
 
 				this.setAttributeMonotonyConflict();
 			});
