@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 
 import { ModalRef, ModalService, UnsubscribeOnDestroy } from 'phd-common';
@@ -18,6 +18,7 @@ import { InfoDisclaimerComponent } from '../../../core/components/info-disclaime
 })
 export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	@Input() useSecondaryColor: boolean = false;
 
 	currentYear = new Date().getFullYear();
 	accessibilityImgSrc = 'assets/icon_accessibility.png';
@@ -44,9 +45,12 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 		case environment.brandMap.americanWest:
 			//use different accessibility and equal icons for American West
-			this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
-			this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
-
+			if(!this.useSecondaryColor)
+			{
+				this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
+				this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
+			}
+			
 			//Terms/Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
 			this.termsUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/terms-of-use/';
 			this.policyUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/privacy-policy/';

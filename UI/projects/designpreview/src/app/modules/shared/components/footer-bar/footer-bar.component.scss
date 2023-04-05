@@ -21,6 +21,14 @@
 	}
 }
 
+.phd-secondary-background {
+	background: var(--secondary-ribbon-background-color);
+	color: white;
+	.phd-disclaimer{
+		color: white;
+	}
+}
+
 .phd-footer a:hover {
 	font-weight: bold;
 }
