@@ -43,8 +43,8 @@
 											</li>
 										</ul>
 									</ng-container>
-									<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || (!choice.selectedAttributes.length && !isDesignComplete))">
-										<a [ngClass]="contractedOptionsPage ? 'phd-contracted-additional-selections' : 'phd-summary-additional-selections'"
+									<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || !choice.selectedAttributes.length)">
+										<a [ngClass]="(contractedOptionsPage || isDesignComplete) ? 'phd-unlinked-additional-selections' : 'phd-summary-additional-selections'"
 											(click)="onAdditionalSelections(choice)">Additional Selections Required</a>
 									</ng-container>
 								</div>
