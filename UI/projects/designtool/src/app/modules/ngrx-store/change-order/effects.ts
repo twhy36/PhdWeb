@@ -197,19 +197,12 @@ export class ChangeOrderEffects
 				{
 					const changePrice = priceBreakdown.totalPrice - store.salesAgreement.salePrice;
 
-					let data = this.changeOrderService.getSalesChangeOrderData(
+					const data = this.changeOrderService.getSalesChangeOrderData(
 						store.changeOrder.currentChangeOrder,
 						store.salesAgreement,
 						store.changeOrder.changeInput,
 						store.job.id,
 						action.specSales);
-
-					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
-					const pendingJobSummary = isPhdLite
-						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
-					
-					data = { ...data, pendingJobSummary: pendingJobSummary };
 
 					return forkJoin(
 						this.changeOrderService.createJobChangeOrder(data, changePrice),
