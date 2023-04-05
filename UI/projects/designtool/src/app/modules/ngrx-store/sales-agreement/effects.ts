@@ -74,7 +74,7 @@ export class SalesAgreementEffects
 				const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 				const pendingJobSummary = isPhdLite
 					? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-					: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
+					: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 
 				const createSalesAgreementForScenario = store.lite.isPhdLite
 					? this.liteService.createSalesAgreementForLiteScenario(
@@ -197,7 +197,7 @@ export class SalesAgreementEffects
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 
 					return forkJoin([
 						this.salesAgreementService.updateSalesAgreement(sa),
@@ -951,7 +951,7 @@ export class SalesAgreementEffects
 			withLatestFrom(this.store, this.store.pipe(select(fromRoot.priceBreakdown))),
 			exhaustMap(([action, store, priceBreakdown]) =>
 			{
-				const pendingJobSummary = this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
+				const pendingJobSummary = this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 
 				return this.salesAgreementService.createJIOForSpec(
 					store.scenario.tree, 
