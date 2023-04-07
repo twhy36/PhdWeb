@@ -8,7 +8,7 @@
 					<li class="phd-choice-detail phd-choice-detail-presale-print" role="group" attr.aria-label="{{choice.label}}" *ngIf="choice.quantity > 0">
 						<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
 							<button class="phd-choice-expand">
-								<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes">
+								<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes && isChoiceComplete(choice) && choice.selectedAttributes.length">
 									<span *ngIf="!choice.showAttributes" attr.id="{{ 'expand-' + choice.id }}" aria-expanded="false" attr.aria-label="{{'Expand ' + choice.label}}">
 										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" attr.aria-controls="{{ 'expand-' + choice.id }}" aria-hidden="true"></i>
 									</span>
