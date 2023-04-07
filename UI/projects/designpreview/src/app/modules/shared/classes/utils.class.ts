@@ -145,3 +145,13 @@ export function clearPresaleSessions()
 		sessionStorage.removeItem('authProvider');
 	}
 }
+
+//scroll to top of page when page has previous vertical offset
+export function ScrollTop()
+{
+	const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+	if (scrollPosition > 0)
+	{
+		window.scrollTo(0, 0);
+	}	
+}

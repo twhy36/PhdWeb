@@ -34,6 +34,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { InfoModalComponent } from '../../../shared/components/info-modal/info-modal.component';
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
+import { ScrollTop } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'favorites-summary',
@@ -319,13 +320,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.isFloorplanFlipped = sag.isFloorplanFlipped;
 		});
 
-		//scroll to top on inital load when previous scroll is not top
-		const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-		if (scrollPosition > 0)
-		{
-			this.isInitScrollTop = true;
-			window.scrollTo(0, 0);
-		}
+		ScrollTop();
 	}
 
 	onBack()
