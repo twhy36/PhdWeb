@@ -1207,8 +1207,9 @@ export class ContractService
 	getProgramDetails(programs: Array<SalesAgreementProgram>, changeOrders: Array<ChangeOrderGroup>, salesProgramType: string): any[]
 	{
 		let mappedPrograms = _.cloneDeep(programs) || [];
-		let clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved'))
+		let clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved' && co.salesStatusDescription !== 'Pending'))
 			.reverse();
+		
 		let coPrograms = _.flatten(clonedCOs.map(cog =>
 		{
 			return _.flatten(cog.jobChangeOrders.filter(co => co.jobSalesChangeOrderSalesPrograms && co.jobSalesChangeOrderSalesPrograms.length !== 0)
@@ -1233,9 +1234,32 @@ export class ContractService
 			});
 		}));
 
+		// #393416 Combine programs between COs
+		coPrograms = coPrograms
+			.reduce((arr, prog) =>
+			{
+				const existing = arr.find(obj => obj.salesAgreementProgram.salesProgramId === prog.salesAgreementProgram.salesProgramId || obj.salesAgreementProgram.salesProgram.name === prog.salesAgreementProgram.salesProgram.name);
+
+				if (existing)
+				{
+					existing.salesAgreementProgram.amount += prog.salesAgreementProgram.amount;
+
+					if (prog.salesAgreementProgram.salesProgramDescription)
+					{
+						existing.salesAgreementProgram.salesProgramDescription = (existing.salesAgreementProgram.salesProgramDescription ? existing.salesAgreementProgram.salesProgramDescription + '; ' : '') + prog.salesAgreementProgram.salesProgramDescription;
+					}
+				}
+				else
+				{
+					arr.push(prog);
+				}
+				
+				return arr;
+			}, []);
+
 		mappedPrograms.forEach(p =>
 		{
-			p.amount += _.sum(coPrograms.filter(cop => cop.approved && cop.salesAgreementProgram.salesProgramId === p.salesProgramId).map(cop => cop.salesAgreementProgram.amount));
+			p.amount -= _.sum(coPrograms.filter(cop => cop.approved && (cop.salesAgreementProgram.salesProgramId === p.salesProgramId)).map(cop => cop.salesAgreementProgram.amount));
 
 			for (let cog of clonedCOs)
 			{
@@ -1250,27 +1274,22 @@ export class ContractService
 					break;
 				}
 			}
-
 		});
 
 		return mappedPrograms.filter(p => p.salesProgram.salesProgramType === salesProgramType && p.amount > 0)
-			.map(mp => { return { approved: true, salesAgreementProgram: mp } })
-			.concat(coPrograms)
-			// #382452 Combine sales programs by ID and get the total sum of their values	
-			// We need to include the `approved` value to determine if the amount 
-			// has already been factored into the sum from the preceding logic.
+			.concat(coPrograms.map(p => p.salesAgreementProgram))
+			// #382452 Combine sales programs by ID/Name and get the total sum of their values
 			.reduce((arr, prog) =>
 			{
-				const existing = arr.find(obj => obj.salesAgreementProgram.salesProgramId === prog.salesAgreementProgram.salesProgramId);
+				const existing = arr.find(obj => obj.salesProgramId === prog.salesProgramId || obj.salesProgram.name === prog.salesProgram.name);
+
 				if (existing)
 				{
-					// Only add amount if the sales program hasn't been approved
-					existing.salesAgreementProgram.amount = !prog.approved ? existing.salesAgreementProgram.amount + prog.salesAgreementProgram.amount : prog.salesAgreementProgram.amount;
+					existing.amount += prog.amount;
 
-					// Join together every description for each instance of the sales program
-					if (!prog.approved && prog.salesAgreementProgram.salesProgramDescription)
+					if (prog.salesProgramDescription)
 					{
-						existing.salesAgreementProgram.salesProgramDescription = (existing.salesAgreementProgram.salesProgramDescription ? existing.salesAgreementProgram.salesProgramDescription + '; ' : '') + prog.salesAgreementProgram.salesProgramDescription;
+						existing.salesProgramDescription = (existing.salesProgramDescription ? existing.salesProgramDescription + '; ' : '') + prog.salesProgramDescription;
 					}
 				}
 				else
@@ -1280,10 +1299,7 @@ export class ContractService
 
 				return arr;
 			}, [])
-			.map(sap =>
-			{
-				return { salesProgramDescription: sap?.salesAgreementProgram?.salesProgramDescription, amount: sap?.salesAgreementProgram?.amount, name: sap?.salesAgreementProgram?.salesProgram.name, salesProgramId: sap?.salesAgreementProgram?.salesProgramId };
-			});
+			.map(sap => { return { salesProgramDescription: sap.salesProgramDescription, amount: sap.amount, name: sap.salesProgram.name, salesProgramId: sap.salesProgramId }; });
 	}
 
 	getSnapShot(jobId: number, changeOrderId: number): Observable<any>
