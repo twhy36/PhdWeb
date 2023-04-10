@@ -46,7 +46,15 @@ namespace Phd.WebHost
                     if (context.Request.Query.ContainsKey("code"))
                     {
                         var uri = context.Request.Cookies["uri_state"];
-                        context.Response.Redirect(uri + context.Request.QueryString.Value);
+                        var redirectUri = uri + context.Request.QueryString.Value;
+
+                        if (context.Request.Cookies.ContainsKey("uri_query_params"))
+                        {
+                            context.Response.Cookies.Delete("uri_query_params");
+                            redirectUri += context.Request.Cookies["uri_query_params"];
+                        }
+
+                        context.Response.Redirect(redirectUri);
                         return;
                     }
                 }
@@ -85,6 +93,12 @@ namespace Phd.WebHost
             app.Use(async (context, next) =>
             {
                 context.Response.Cookies.Append("uri_state", context.Request.Path.Value,
+                    new CookieOptions
+                    {
+                        SameSite = SameSiteMode.Lax,
+                        MaxAge = TimeSpan.FromMinutes(5)
+                    });
+                context.Response.Cookies.Append("uri_query_params", context.Request.QueryString.Value.Replace("?", "&"),
                     new CookieOptions
                     {
                         SameSite = SameSiteMode.Lax,
