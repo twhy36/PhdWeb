@@ -39,7 +39,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     minDate: Date = new Date();
     pulteInfoSet = false;
 	canEdit: boolean;
-	canAddIncentive: boolean;
 
     canSell$: Observable<boolean>;
     priceBreakdown$: Observable<PriceBreakdown>;
@@ -142,11 +141,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
             this.takeUntilDestroyed(),
             select(fromRoot.canConfigure)
 		).subscribe(canConfigure => this.canEdit = canConfigure);
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromRoot.canAddIncentive)
-		).subscribe(canAddIncentive => this.canAddIncentive = canAddIncentive);
     }
 
     createForm()
