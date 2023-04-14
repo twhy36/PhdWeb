@@ -98,7 +98,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	get floorPlanDisclaimer()
 	{
-		return this.isPresale 
+		return this.isPresale
 			? '*Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.'
 			: '*Floorplan may show options you selected as well as previously contracted options. Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.';
 	}
@@ -121,12 +121,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				// or the passed in sales agreement id is different than that of the id in the store...
 				const salesAgreementId = +params.get('salesAgreementId');
 
-				//reload data in BuyerPreview mode when valid passing querystring sales agreement ID changes, 
-				//or current store buildMode is not BuyerPreview (assuming BuyerPreview entry with FavoritesSummary)
+				//BuyerPreview mode with querystring SA ID changes, or store buildMode != BuyerPreview
+				//reload SA and update store buildmode
 				if (salesAgreementId > 0 &&
-						(salesAgreementState.id !== salesAgreementId
-							|| !scenarioState.buildMode
-							|| scenarioState.buildMode !== BuildMode.BuyerPreview)
+					(salesAgreementState.id !== salesAgreementId
+						|| !scenarioState.buildMode
+						|| scenarioState.buildMode !== BuildMode.BuyerPreview)
 				)
 				{
 					this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
