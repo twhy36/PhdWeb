@@ -98,6 +98,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isOutForESign: boolean;
 	canApprove: boolean;
 	salesAgreementId: number;
+	primaryActionClicked: boolean = false;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -503,6 +504,10 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		if (this.actionBarStatus === 'COMPLETE')
 		{
+			if (this.primaryAction === 'Create Model' || this.primaryAction === 'Create Spec')
+			{
+				this.primaryActionClicked = true;
+			}
 			this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
 		}
 	}

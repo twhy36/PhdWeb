@@ -131,7 +131,7 @@
 				[class.phd-action-not-allowed]="actionNotAllowed()"
 				type="button"
 				(click)="inChangeOrder ? onChangeIt(changeNoteModal) : onPrimaryCallToActionClick()"
-				[disabled]="!inChangeOrder ? (agreement && agreement.status === 'Void') : (actionBarStatus!=='COMPLETE' || errorInSavingChangeOrder)">
+				[disabled]="primaryActionClicked || (!inChangeOrder ? (agreement && agreement.status === 'Void') : (actionBarStatus!=='COMPLETE' || errorInSavingChangeOrder))">
 			<div class="circle d-flex align-items-center justify-content-center">
 				<span *ngIf="getActionBarStatus() === 'COMPLETE'">
 					<i class="fa fa-check"></i>
