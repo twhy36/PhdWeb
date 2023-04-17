@@ -607,8 +607,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			// #353697 Revert all new TimeOFSaleOptionPrice records
 			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
 
-			// #392019 Reload the agreement to restore old options 
-			this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+			// #395819 only reload if there is a salesAgreementId
+			if (this.salesAgreementId !== 0)
+			{
+				// #392019 Reload the agreement to restore old options 
+				this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+			}
 
 			this.router.navigateByUrl('/change-orders');
 		}
