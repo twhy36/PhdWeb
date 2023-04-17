@@ -1,0 +1,52 @@
+@import "../../../../../scss/color-pallet.scss";
+
+.modal-body {
+	padding: 0;
+	background: $twilight-blue;
+
+	a {
+		display: block;
+		cursor: pointer;
+		padding: 20px 0;
+		border-left: 1px solid #033048;
+		border-right: 1px solid #3e7a99;
+		line-height: 30px;
+		color: #fff;
+
+		span {
+			font-size: 35px;
+			font-weight: bold;
+			display: block;
+			color: #fff;
+			text-shadow: 2px 1px #3e7a99;
+		}
+
+		&:hover {
+			background: #1e6990;
+			border-left: 1px solid #1e6990;
+			color: #fff;
+		}
+	}
+
+	.phd-advisement {
+		font-weight: 500;
+		padding: 5px;
+		background:#fff;
+	}
+
+	.phd-links {
+		display: flex;
+
+		.phd-links-left, .phd-links-right {
+			flex: 1;
+			text-align: center;
+		}
+
+		.phd-lot {
+			display: flex;
+			justify-content:center;
+			flex-direction:column;
+			height:100%;
+		}
+	}
+}

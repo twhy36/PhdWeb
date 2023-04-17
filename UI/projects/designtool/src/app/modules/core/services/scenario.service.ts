@@ -2,22 +2,28 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Observable, throwError as _throw } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, switchMap, catchError } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
 import {
 	withSpinner, JobChoice, Scenario, DtoScenario, DtoScenarioChoice, DtoScenarioChoiceAttribute, DtoScenarioChoiceLocation,
-	SelectedChoice, DtoScenarioInfo, Tree, Choice, FloorPlanImage
+	SelectedChoice, DtoScenarioInfo, Tree, Choice, FloorPlanImage, ModalService
 } from 'phd-common';
+import { Router } from '@angular/router';
+import { LotService } from './lot.service';
 
 @Injectable()
 export class ScenarioService
 {
 	private _ds: string = encodeURIComponent("$");
 
-	constructor(private _http: HttpClient) { }
+	constructor(
+		private _http: HttpClient,
+		private modalService: ModalService,
+		private router: Router,
+		private lotService: LotService) { }
 
 	isScenarioNameUsed(scenarioName: string, opportunityId: string): Observable<boolean>
 	{
@@ -69,27 +75,6 @@ export class ScenarioService
 			})
 		);
 	}
-
-
-	//savePlan(treeVersionId: number): Observable<Scenario> {
-	//	if (!Number.isInteger(treeVersionId)) {
-	//		return empty<Scenario>();
-	//	}
-
-	//	console.log('saving a plan');
-
-	//	return this.save(treeVersionId)
-	//		.pipe(
-	//		map(scenario => {
-	//			if (!scenario) {
-	//				throw new Error(`response error when saving a plan with treeVersionId: ${treeVersionId}`);
-	//			}
-	//			this.setScenarioId(scenario.scenarioId);
-	//			console.log('plan save complete...', scenario);
-	//			return scenario;
-	//		})
-	//		);
-	//}
 
 	saveScenario(scenario: Scenario, tree?: Tree, jobChoices?: JobChoice[]): Observable<Scenario>
 	{
@@ -365,5 +350,96 @@ export class ScenarioService
 		});
 
 		return attributesDto;
+	}
+
+	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, salesAssociateId: number)
+	{
+		if (salesAssociateId === null)
+		{
+			const title = 'Missing Sales Consultant';
+			const body = 'The D365 opportunity associated to this configuration is missing a Sales Consultant. <br><br> Please assign a Sales Consultant to the opportunity in D365';
+
+			this.modalService.showOkOnlyModal(body, title, true);
+		}
+		else if (buildMode === 'spec' || buildMode === 'model')
+		{
+			if (buildMode === 'model' && lotStatus === 'Available')
+			{
+				const title = 'Create Model';
+				const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
+				const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+
+				this.showConfirmModal(body, title, primaryButton).subscribe(result =>
+				{
+					this.lotService.buildScenario();
+				});
+			}
+			else if (buildMode === 'model' && lotStatus === 'PendingRelease')
+			{
+				this.lotService.getLotReleaseDate(selectedLotId).pipe(
+					switchMap((releaseDate) =>
+					{
+						const title = 'Create Model';
+						const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
+
+						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+						const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+						return this.showConfirmModal(body, title, primaryButton, secondaryButton);
+					})).subscribe(result =>
+					{
+						if (result)
+						{
+							this.lotService.buildScenario();
+						}
+					});
+			}
+			else
+			{
+				this.lotService.buildScenario();
+			}
+		}
+		else if (salesAgreementId)
+		{
+			this.router.navigateByUrl(`/point-of-sale/people/${salesAgreementId}`);
+		}
+		else
+		{
+			const title = 'Generate Home Purchase Agreement';
+			const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
+
+			const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+			const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+			{
+				if (result)
+				{
+					this.lotService.buildScenario();
+				}
+			});
+		}
+	}
+
+	private showConfirmModal(body: string, title: string, primaryButton: any = null, secondaryButton: any = null): Observable<boolean>
+	{
+		const buttons = [];
+
+		if (primaryButton)
+		{
+			buttons.push(primaryButton);
+		}
+
+		if (secondaryButton)
+		{
+			buttons.push(secondaryButton);
+		}
+
+		return this.modalService.showModal({
+			buttons: buttons,
+			content: body,
+			header: title,
+			type: 'normal'
+		});
 	}
 }

@@ -99,3 +99,11 @@
 		</summary-action-bar>
 	</div>
 </div>
+
+<ng-template #monotonyConflictModal>
+	<monotony-conflict-modal [monotonyConflict]="monotonyConflict"
+							 (onNavigateToElevation)="navigateToElevation()"
+							 (onNavigateToColorScheme)="navigateToColorScheme()"
+							 (onNavigateToLot)="navigateToLot()">
+	</monotony-conflict-modal>
+</ng-template>

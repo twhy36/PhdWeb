@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
 
-import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
+import { MonotonyConflict } from '../../models/monotony-conflict.model';
 
 @Component({
 	selector: 'monotony-conflict-modal',
@@ -39,5 +39,5 @@ export class MonotonyConflictModalComponent extends UnsubscribeOnDestroy
 	navigateToLot()
 	{
 		this.onNavigateToLot.emit();
-	}	
+	}
 }

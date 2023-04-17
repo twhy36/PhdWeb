@@ -10,7 +10,6 @@
 		</ng-container>
 	</div>
 
-
 	<ng-container *ngIf="!(isTablet$ | async)">
 		<ng-container *ngTemplateOutlet="configInfo"></ng-container>
 		<ng-container *ngTemplateOutlet="navMenu"></ng-container>
@@ -60,7 +59,7 @@
 				<p>
 					Agreement Number:
 					<br>
-					<a [routerLink]="['/point-of-sale/agreement']" class="phd-summary-link"><strong>{{ salesAgreementNumber }}</strong></a>
+					<a [routerLink]="['/point-of-sale/agreement', salesAgreementId]" class="phd-summary-link"><strong>{{ salesAgreementNumber }}</strong></a>
 				</p>
 			</div>
 			<div class="phd-summary text-uppercase" *ngIf="salesAgreementStatus">
@@ -80,11 +79,15 @@
 
 <ng-template #navMenu>
 	<phd-nav-menu class="menu">
-		<phd-nav-menu-item *ngIf="!salesAgreementNumber && !isActiveModelOrSpec()" label="New Home" (click)="newHomeNavPath()"
-						   [isActive]="currentRoute?.startsWith('/new-home')" [showStatusIndicator]="true"
+		<phd-nav-menu-item *ngIf="!salesAgreementNumber && !isActiveModelOrSpec()"
+						   label="New Home"
+						   (click)="newHomeNavPath()"
+						   [isActive]="currentRoute?.startsWith('/new-home')"
+						   [showStatusIndicator]="true"
 						   [status]="newHomeStatus"
 						   [disabled]="isPreview"
-						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"></phd-nav-menu-item>
+						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+		</phd-nav-menu-item>
 		<phd-nav-menu-item *ngIf="displayChangeOrderMenuItem" (click)="onChangeOrderMenuItem()"
 						   [isActive]="displayChangeOrderMenuItem && currentRoute?.startsWith('/change-orders/')"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
@@ -96,8 +99,10 @@
 		<ng-container *ngIf="!(isSalesAgreementCancelledOrVoided && specCancelled) && !(isPhdLite$ | async)">
 			<ng-container *ngFor="let group$ of groups">
 				<ng-container *ngIf="(group$ | async) as group">
-					<phd-nav-menu-item *ngIf="group.subGroups.length > 0 && displayGroupMenuItem(group)" label="{{ group.label | lowercase }}"
-									   [status]="group.status" [showStatusIndicator]="showStatusIndicator$ | async"
+					<phd-nav-menu-item *ngIf="group.subGroups.length > 0 && displayGroupMenuItem(group)"
+									   label="{{ group.label | lowercase }}"
+									   [status]="group.status"
+									   [showStatusIndicator]="showStatusIndicator$ | async"
 									   (click)="navigate(['/edit-home', scenarioId], group)"
 									   [isActive]="currentRoute?.startsWith('/edit-home') && selectedGroup === group.id"
 									   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
@@ -107,31 +112,28 @@
 		</ng-container>
 
 		<ng-container *ngIf="displayGroupMenuItem(null) && selectedPlanId && !(isSalesAgreementCancelledOrVoided && specCancelled) && (isPhdLite$ | async)">
-			<phd-nav-menu-item
-				label="Exterior"
-				[status]="exteriorStatus"
-				[showStatusIndicator]="showStatusIndicator$ | async"
-				[isActive]="currentRoute?.startsWith('/lite/elevation') || currentRoute?.startsWith('/lite/color-scheme')"
-				[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
-				(click)="onExteriorPath()">
+			<phd-nav-menu-item label="Exterior"
+							   [status]="exteriorStatus"
+							   [showStatusIndicator]="showStatusIndicator$ | async"
+							   [isActive]="currentRoute?.startsWith('/lite/elevation') || currentRoute?.startsWith('/lite/color-scheme')"
+							   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+							   (click)="onExteriorPath()">
 			</phd-nav-menu-item>
 			<ng-container *ngIf="optionsAndColorsMenuAreVisible">
-				<phd-nav-menu-item
-					label="Options"
-					[showStatusIndicator]="false"
-					[disabled]="false"
-					[isActive]="currentRoute?.startsWith('/lite/options')"
-					[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
-					(click)="onOptionsNavPath()">
+				<phd-nav-menu-item label="Options"
+								   [showStatusIndicator]="false"
+								   [disabled]="false"
+								   [isActive]="currentRoute?.startsWith('/lite/options')"
+								   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+								   (click)="onOptionsNavPath()">
 				</phd-nav-menu-item>
-				<phd-nav-menu-item
-					label="Colors"
-					[status]="PointStatus.REQUIRED"
-					[showStatusIndicator]="false"
-					[disabled]="colorMenuIsDisabled"
-					[isActive]="currentRoute?.startsWith('/lite/colors')"
-					[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
-					(click)="onColorsPath()">
+				<phd-nav-menu-item label="Colors"
+								   [status]="PointStatus.REQUIRED"
+								   [showStatusIndicator]="false"
+								   [disabled]="colorMenuIsDisabled"
+								   [isActive]="currentRoute?.startsWith('/lite/colors')"
+								   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+								   (click)="onColorsPath()">
 				</phd-nav-menu-item>
 			</ng-container>
 		</ng-container>
@@ -140,14 +142,18 @@
 	<hr *ngIf="!(isTablet$ | async) && !isSalesOnlyChangeOrder && (!isSalesAgreementCancelledOrVoided)">
 
 	<phd-nav-menu class="menu">
-		<phd-nav-menu-item *ngIf="isActiveModelOrSpec() && (!isSalesAgreementCancelledOrVoided && !specCancelled)" (click)="navigate(['/spec'])" [isActive]="currentRoute?.startsWith('/spec')"
+		<phd-nav-menu-item *ngIf="isActiveModelOrSpec() && (!isSalesAgreementCancelledOrVoided && !specCancelled)"
+						   (click)="navigate(['/spec'])"
+						   [isActive]="currentRoute?.startsWith('/spec')"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			<ng-template>
 				<span class="phd-no-transform">Spec Info On Pulte.com </span>
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<phd-nav-menu-item *ngIf="groups?.length > 0 && (!isSalesAgreementCancelledOrVoided && !specCancelled)" (click)="navigate(['/scenario-summary'])" [isActive]="currentRoute?.startsWith('/scenario-summary')"
+		<phd-nav-menu-item *ngIf="groups?.length > 0 && (!isSalesAgreementCancelledOrVoided && !specCancelled)"
+						   (click)="navigate(['/scenario-summary'])"
+						   [isActive]="currentRoute?.startsWith('/scenario-summary')"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			<ng-template>
 				<span>Summary </span>
@@ -156,19 +162,17 @@
 
 		<!-- Show Summary in PhdLite -->
 		<phd-nav-menu-item *ngIf="selectedPlanId && (isPhdLite$ | async) && (!isSalesAgreementCancelledOrVoided && !specCancelled)"
-			[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
-			[isActive]="currentRoute?.startsWith('/lite-summary')"
-			(click)="navigate(['/lite-summary'])">
+						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null"
+						   [isActive]="currentRoute?.startsWith('/lite-summary')"
+						   (click)="navigate(['/lite-summary'])">
 			<ng-template>
 				<span>Summary </span>
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<phd-nav-menu-item (click)="changeOrderType !== 3 ? (!isPreview && buildItStatus === PointStatus.COMPLETED) && buildIt() : buildIt()"
+		<phd-nav-menu-item (click)="navigate(['/point-of-sale/people', salesAgreementId])"
 						   *ngIf="salesAgreementStatus && salesAgreementStatus.length > 0"
-						   [isActive]="currentRoute?.startsWith('/point-of-sale')" [status]="buildItStatus"
-						   [showStatusIndicator]="true"
-						   [disabled]="changeOrderType !== 3 ? (isPreview || buildItStatus !== PointStatus.COMPLETED) : false"
+						   [isActive]="currentRoute?.startsWith('/point-of-sale')"
 						   [isLockedIn]="isLockedIn"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			<ng-template>
@@ -176,7 +180,8 @@
 			</ng-template>
 		</phd-nav-menu-item>
 
-		<phd-nav-menu-item (click)="navigateToPath(['/change-orders'])" [disabled]="disableChangeOrders"
+		<phd-nav-menu-item (click)="navigateToPath(['/change-orders'])"
+						   [disabled]="disableChangeOrders"
 						   *ngIf="job.id > 0 && (buildMode === 'spec' || buildMode === 'model' || (salesAgreementStatus && salesAgreementStatus.length > 0))"
 						   [isActive]="currentRoute === '/change-orders/change-orders-summary' || currentRoute === '/change-orders'"
 						   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
@@ -186,8 +191,10 @@
 		</phd-nav-menu-item>
 
 		<ng-container *ngIf="isDesignPreviewEnabled && !(isPhdLite$ | async)">
-			<phd-nav-menu-item label="Design Preview" (click)="launchPreview()" [isActive]="false"
-								[ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
+			<phd-nav-menu-item label="Design Preview"
+							   (click)="launchPreview()"
+							   [isActive]="false"
+							   [ngClass]="(isTablet$ | async) && invertHamburgerMenuColor ? 'phd-menu-item-color' : null">
 			</phd-nav-menu-item>
 		</ng-container>
 	</phd-nav-menu>

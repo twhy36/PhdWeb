@@ -20,12 +20,13 @@ import * as fromJobs from '../../../ngrx-store/job/reducer';
 
 import
 {
-	UnsubscribeOnDestroy, ModalRef, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
+	UnsubscribeOnDestroy, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice, DecisionPointFilterType
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice, DecisionPointFilterType, ModalRef
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
+import { OpportunityService } from '../../../core/services/opportunity.service';
 
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
@@ -33,6 +34,9 @@ import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model
 // PHD Lite
 import { LiteService } from '../../../core/services/lite.service';
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+import { PhdSubMenu } from '../../../new-home/subNavItems';
+import { ScenarioService } from '../../../core/services/scenario.service';
+
 
 @Component({
 	selector: 'edit-home',
@@ -59,7 +63,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	@ViewChild('optionPriceChangedModal') optionPriceChangedModal: TemplateRef<any>;
 	@ViewChild('optionMappingAdjustedModal') optionMappingAdjustedModal: TemplateRef<any>;
 
-	acknowledgedMonotonyConflict: boolean;
+	@ViewChild('monotonyConflictModal') monotonyConflictModal: any;
+
 	agreementStatus$: Observable<string>;
 	buildMode: string;
 	canConfigure$: Observable<boolean>;
@@ -72,8 +77,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	isChangingOrder: boolean;
 	lotcheckModalDisplayed: boolean;
 	marketingPlanId: number[];
-	modal: ModalRef;
 	monotonyConflict: MonotonyConflict;
+	monotonyConflictModalRef: ModalRef;
 	overrideReason$: Observable<string>;
 	scenarioHasSalesAgreement: boolean;
 	pointsById = {};
@@ -101,6 +106,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	isPhdLite: boolean = false;
 	jobId: number;
 	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
+	opportunityId: string;
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -113,7 +119,10 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
 		private router: Router,
-		private modalService: ModalService) { super(); }
+		private modalService: ModalService,
+		private opportunityService: OpportunityService,
+		private scenarioService: ScenarioService)
+	{ super(); }
 
 	ngOnInit()
 	{
@@ -190,6 +199,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				return;
 			}
+
+			this.opportunityId = scenarioState?.scenario?.opportunityId;
 
 			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).pipe(take(1)).subscribe(isPhdLiteEnabled => 
 			{
@@ -411,8 +422,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					setTimeout(() => this.loadMonotonyModal());
 				}
 			}
-		}
-		);
+		});
 
 		this.isChangingOrder$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -458,10 +468,39 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		super.ngOnDestroy();
 	}
 
+	onBuildIt() 
+	{
+		this.lotService.hasMonotonyConflict().pipe(
+			combineLatest(this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId))
+		).subscribe(([mc, salesAssociateId]) =>
+		{
+			if (mc.monotonyConflict)
+			{
+				this.monotonyConflict = mc;
+
+				this.loadMonotonyModal();
+			}
+			else
+			{
+				this.scenarioService.onGenerateSalesAgreement(
+					this.buildMode,
+					this.lotStatus,
+					this.selectedLot.id,
+					this.salesAgreementId,
+					salesAssociateId
+				);
+			}
+		});
+	}
+
+	loadMonotonyModal()
+	{
+		this.monotonyConflictModalRef = this.modalService.open(this.monotonyConflictModal);
+		this.monotonyConflictModalRef.result.catch(err => console.log(err));
+	}
+
 	navigateToElevation()
 	{
-		this.modal.dismiss();
-
 		this.store.pipe(
 			select(fromScenario.elevationDP),
 			withLatestFrom(this.store.pipe(select(store => store.scenario.scenario.scenarioId))),
@@ -469,13 +508,12 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			const elevationUrl = 'edit-home/' + scenario + '/' + mytree.divPointCatalogId;
 
-			this.router.navigateByUrl(elevationUrl);
+			this.navigateTo([elevationUrl]);
 		});
 	}
 
 	navigateToColorScheme()
 	{
-		this.modal.dismiss();
 		this.store.pipe(
 			select(fromScenario.elevationDP),
 			combineLatest(
@@ -488,99 +526,32 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				const colorSchemeUrl = 'edit-home/' + scenario + '/' + colorSchemeDP.divPointCatalogId;
 
-				this.router.navigateByUrl(colorSchemeUrl);
+				this.navigateTo([colorSchemeUrl]);
 			}
 			else
 			{
 				const elevationUrl = 'edit-home/' + scenario + '/' + elevationDP.divPointCatalogId;
 
-				this.router.navigate([elevationUrl, { 'choiceId': elevationDP.choices.find(z => z.quantity > 0).id }]);
+				this.navigateTo([elevationUrl, { 'choiceId': elevationDP.choices.find(z => z.quantity > 0).id }]);
 			}
 		});
 	}
 
-	navigate(path: any[])
+	navigateToLot()
 	{
-		this.modal.dismiss();
-		this.router.navigate([...path]);
+		this.navigateTo(['/new-home/lot'], PhdSubMenu.ChooseLot);
 	}
 
-	acknowledgeMonotonyConflict()
+	navigateTo(navUrl: any[], navItem: number = null)
 	{
-		this.acknowledgedMonotonyConflict = !this.acknowledgedMonotonyConflict;
-	}
+		this.monotonyConflictModalRef.dismiss();
 
-	onBuildIt() 
-	{
-		this.lotService.hasMonotonyConflict().subscribe(mc =>
+		if (navItem !== null)
 		{
-			if (mc.monotonyConflict)
-			{
-				this.loadMonotonyModal();
-			}
-			else
-			{
-				if (this.buildMode === 'spec' || this.buildMode === 'model')
-				{
-					if (this.buildMode === 'model' && this.lotStatus === 'Available')
-					{
-						const title = 'Create Model';
-						const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
-						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(navItem));
+		}
 
-						this.showConfirmModal(body, title, primaryButton).subscribe(result =>
-						{
-							this.lotService.buildScenario();
-						});
-					}
-					else if (this.buildMode === 'model' && this.lotStatus === 'PendingRelease')
-					{
-						this.lotService.getLotReleaseDate(this.selectedLot.id).pipe(
-							switchMap((releaseDate) =>
-							{
-								const title = 'Create Model';
-								const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
-
-								const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-								const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-
-								return this.showConfirmModal(body, title, primaryButton, secondaryButton);
-							})).subscribe(result =>
-							{
-								if (result)
-								{
-									this.lotService.buildScenario();
-								}
-							});
-					}
-					else
-					{
-						this.lotService.buildScenario();
-					}
-				}
-				else if (this.salesAgreementId)
-				{
-					this.router.navigateByUrl(`/point-of-sale/people/${this.salesAgreementId}`);
-				}
-				else
-				{
-					const title = 'Generate Home Purchase Agreement';
-					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-
-					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-
-					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
-					{
-						if (result)
-						{
-							// this really needs to get fixed.  the alert messsage isn't correct.
-							this.lotService.buildScenario();
-						}
-					});
-				}
-			}
-		});
+		this.router.navigate(navUrl);
 	}
 
 	onChoiceChange(c: Choice)
@@ -797,42 +768,43 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new ScenarioActions.SetPointTypeFilter(pointTypeFilter));
 	}
 
-	loadMonotonyModal()
-	{
-		this.modal = this.modalService.open(this.content);
-
-		this.modal.result.catch(err => console.log(err));
-	}
-
 	private showChoiceImpactModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
 		return this.showConfirmModal(this.impactedChoicesModal, 'Impact', primaryButton, secondaryButton);
 	}
 
 	private showOptionMappingChangedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
 		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
 	private showOptionPriceChangedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
 		return this.showConfirmModal(this.optionPriceChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
 	private showOptionMappingAdjustedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
+
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
 		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
@@ -840,6 +812,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.store.dispatch(new NavActions.SetSubNavItems(ExteriorSubNavItems));
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+
 		this.router.navigateByUrl('/lite/elevation');
 	}
 
