@@ -519,6 +519,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				this.primaryActionClicked = true;
 			}
+
 			this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
 		}
 	}
