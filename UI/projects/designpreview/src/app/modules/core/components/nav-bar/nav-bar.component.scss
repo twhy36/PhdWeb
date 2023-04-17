@@ -6,6 +6,7 @@
 	border-bottom: var(--home-page-floorplan-border);
 	height: 70px;
 	text-transform: uppercase;
+	white-space: nowrap;
 
 	.phd-nav-bar-header {
 		display: inline-block;
@@ -21,12 +22,12 @@
 
 	.phd-nav-bar-title {
 		color: var(--nav-bar-text-color);
-		margin-left: 30px;
 		width: max-content;
-		margin-top: 9px;
+		margin: 9px 0 0 30px;
 
 		.phd-nav-bar-label {
 			font-size: 14px;
+			height: 16px;
 		}
 
 		.phd-nav-bar-config {
@@ -48,23 +49,17 @@
 
 	.phd-page-separator {
 		border-right: 1px solid var(--nav-bar-text-color);
-  		padding: 0 10px;
-	}
-
-	.phd-nav-page {
-		margin-left: 2px;
+  		margin: 0 10px !important;
 	}
 
 	a {
 		font-size: 16px;
 		color: var(--nav-bar-text-color);
-		padding-right: 5px;
-		padding-left: 10px;
 	}
 
 	.phd-active-link-full {
-		font-weight: bold;
 		font-size: 18px;
+		font-weight: bold;
 		cursor: default;
 	}
 
@@ -104,14 +99,18 @@
 	overflow-x: hidden;
 	transition: 0.5s;
 
+	ul {
+		margin: 0;
+		padding: 0 0 10px 10px;
+	}
+
 	a {
 		font-size: 20px;
 		color: var(--nav-bar-text-color);
 		display: block;
 		text-transform: uppercase;
 		text-decoration: none;
-		padding: 15px 8px 15px 0px;
-		margin-left: -10px;
+		padding: 15px;
 	}
 
 	.phd-collapsable-menu-link-full {

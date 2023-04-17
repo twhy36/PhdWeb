@@ -43,6 +43,8 @@ import { MinusSignToParens } from './pipes/minusSignToParens.pipe';
 import { PrimeNGCorrectionService } from './services/primeng.service';
 import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
 import { NavigationService } from './services/navigation.service';
+import { LoggingService } from './services/logging.service';
+import { SpecDiscountService } from './services/spec-discount.service';
 
 export function oAuthModuleConfigFactory(apiUrl: string)
 {
@@ -146,7 +148,9 @@ export class PhdCommonModule
 				ClaimGuard,
 				PrimeNGCorrectionService,
 				ModalService,
-				NavigationService
+				NavigationService,
+				LoggingService,
+				SpecDiscountService
 			]
 		};
 	}

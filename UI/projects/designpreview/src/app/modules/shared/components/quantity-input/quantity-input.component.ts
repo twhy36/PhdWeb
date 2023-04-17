@@ -22,6 +22,7 @@ export class QuantityInputComponent
 	@ViewChild('quantity') element: ElementRef;
 
 	currentQty: number;
+	timeout: null | ReturnType<typeof setTimeout> = null
 
 	constructor(private cd: ChangeDetectorRef)
 	{
@@ -30,25 +31,21 @@ export class QuantityInputComponent
 
 	enforceMinMax(value)
 	{
-		if (this.currentQty !== value)
+		// add 1 second delay before processing QTY input		
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(() =>
 		{
-			if (value < this.min)
+			if (this.currentQty !== value)
 			{
-				this.currentQty = this.min;
-				this.quantityChange.emit(this.currentQty);
-			}
-			else if (value > this.max)
-			{
-				this.quantityChange.emit(null);
-			}
-			else
-			{
-				this.currentQty = value;
-				this.quantityChange.emit(this.currentQty);
-			}
+				//reset currentQty when input is out of range, otherwise set to input value
+				this.currentQty = (Number(value) && value >= this.min && value <= this.max) ? value : this.currentQty;
 
-			this.element.nativeElement.value = this.currentQty;
-			this.cd.detectChanges();
-		}
+				//set valid input, only alert user when input exceed max allowed
+				this.quantityChange.emit(value > this.max ? null : this.currentQty);
+
+				this.element.nativeElement.value = this.currentQty;
+				this.cd.detectChanges();
+			}
+		}, 1000);
 	}
 }

@@ -23,6 +23,7 @@ export class AttributeLocationComponent implements OnInit
 	@Input() overrideReason: string;
 	@Input() monotonyConflict: MonotonyConflict;
 	@Input() favoriteChoiceLocations: MyFavoritesChoiceLocation[];
+	@Input() isDesignComplete: boolean;
 
 	@Output() onAttributeLocationChanged: EventEmitter<{ overrideNote: string, isOverride: boolean }> = new EventEmitter();
 

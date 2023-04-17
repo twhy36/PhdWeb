@@ -243,7 +243,7 @@
 						<ng-template #body let-lot>
 							<!--If sold in Home Selections-->
 							<span *ngIf="lot.activeChangeOrderText" class="phd-active-change-order">
-								<a href="{{getChangeOrderLink(lot)}}" target="_blank" [attr.title]="lot.activeChangeOrderText">{{lot.activeChangeOrderText}}</a>
+								<a href="{{getChangeOrderLink(lot)}}" target="_blank" [attr.title]="lot.activeChangeOrderText">{{lot.activeChangeOrderText | ellipsis: 50}}</a>
 							</span>
 						</ng-template>
 					</phd-column>

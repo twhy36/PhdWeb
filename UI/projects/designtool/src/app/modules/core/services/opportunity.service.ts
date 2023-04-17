@@ -86,6 +86,27 @@ export class OpportunityService
 		);
 	}
 
+	getOpportunitySalesAssociateId(oppId: string): Observable<number>
+	{
+		const entity = 'opportunities';
+		const filter = `dynamicsOpportunityId eq ${oppId}`;
+		const select = 'id,salesAssociateId';
+		const endpoint = `${environment.apiUrl}${entity}?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
+
+		return this._http.get<any>(endpoint).pipe(
+			map(response =>
+			{
+				return response.value[0].salesAssociateId;
+			}),
+			catchError(error =>
+			{
+				console.error(error);
+
+				return _throw(error);
+			})
+		);
+	}
+
 	/**
 	 * this will create the contactOpportunityAssoc record in EDH or get the existing one
 	 * */

@@ -5,23 +5,25 @@
 	margin-top: 10px;
 	width: 100%;
 
-    .phd-contracted-title {
-        font-size: 28px;
-        padding: 0px 10px 0px 10px;
-    }	
+	h1 {
+		font-size: 28px;
+		padding: 0 10px;
+		margin: 0;
+		font-weight: bold;
+	}
 }
 
-.tree-view {
+.phd-tree-view {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	padding: 0px 10px 0px 10px;
+	padding: 0px 10px;
 
-	.group {
+	.phd-group {
 		text-transform: uppercase;
-		margin-top: 50px;
+		margin-top: 30px;
 
-		.label {
+		.phd-label h2 {
 			display: inline-block;
 			width: 98%;
 			font-weight: 500;
@@ -47,19 +49,18 @@
 			}
 		}
 
-		.sub-group {
+		.phd-sub-group {
 			background-color: white;
-			border-radius: 4px;
-			min-height: 45px;
-			margin-bottom: 10px;
-			font-size: 14px;
-			font-weight: 500;
-			line-height: 1.36;
+			padding: 0;
 
-			.header {
+			.phd-header {
+				h3 {
+					font-size: 14px;
+				}
+
 				max-height: 40px;
 				height: 100%;
-				padding: 15px;
+				padding: 15px 0 5px 15px;
 				text-transform: uppercase;
 				border: none;
 				transition: all .3s;

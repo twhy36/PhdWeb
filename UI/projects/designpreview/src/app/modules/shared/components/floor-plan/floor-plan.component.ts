@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef } from '@angular/core';
 import * as _ from 'lodash';
 import { combineLatest, Observable, Subject, timer } from 'rxjs';
-import { map, mergeMap, switchMap } from 'rxjs/operators';
+import { mergeMap } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import { UnsubscribeOnDestroy, loadScript, unloadScript, SubGroup, Group, FloorPlanImage } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 
@@ -66,11 +65,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				try
 				{
 					this.fp = window['fp'] = new AVFloorplan(environment.alphavision.builderId, '' + planId, document.querySelector('#' + this.ifpID), [], this.fpInitialized.bind(this));
-
-					if (this.floorPlanImages.length === 0) 
-					{
-						this.saveFloorPlanImages();
-					}
 				}
 				catch (err)
 				{
@@ -89,61 +83,56 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.jobId = jobId;
 		})
 
-		// On subGroup Changes (ie when a choice is favorited) this can modify the ifp image based on the options
 		combineLatest([
-			this.subGroup$,
-			this.initialized$
-		]).pipe(
-			switchMap(([subGroup]) =>
-				this.store.pipe(
-					select(state => state.scenario),
-					map(scenario => ({
-						subGroup,
-						unfilteredSubGroup: _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups).find(sg => sg.id === subGroup.id)
-					}))
-				)
-			)
-		).subscribe((data: { subGroup: SubGroup, unfilteredSubGroup: SubGroup }) =>
+			this.initialized$,
+			this.store.pipe(
+				this.takeUntilDestroyed(),
+				select(state => state.scenario),
+			),
+		]).subscribe(([init, scenario]) =>
 		{
-			const previousEnabled = [...this.enabledOptions];
-			this.enabledOptions = [];
-
-			// We want to use the unfiltered tree so that all enabled options will appear on the ifp and not just the DPs and choices shown
-			if (data.unfilteredSubGroup)
+			if (init && scenario)
 			{
-				_.flatMap(data.unfilteredSubGroup.points, p => p.choices).forEach(c =>
+				const unfilteredSubGroup = scenario.tree.treeVersion.groups.flatMap(g => g.subGroups).find(sg => sg.id === this.subGroup.id);
+				const previousEnabled = [...this.enabledOptions];
+				this.enabledOptions = [];
+				// We want to use the unfiltered tree so that all enabled options will appear on the ifp and not just the DPs and choices shown
+				if (unfilteredSubGroup)
 				{
-					if (!this.isPlainFloorplan)
+					_.flatMap(unfilteredSubGroup.points, p => p.choices).forEach(c =>
 					{
-						if (c.quantity)
+						if (!this.isPlainFloorplan)
 						{
-							this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
+							if (c.quantity)
+							{
+								this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
+							}
 						}
+					});
+
+					let changed = false;
+
+					_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
+					{
+						changed = true;
+						this.fp.disableOption(opt);
+					});
+
+					_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
+					{
+						changed = true;
+						this.fp.enableOption(opt);
+					});
+
+					if (this.selectedFloor && this.selectedFloor.id)
+					{
+						this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
 					}
-				});
 
-				let changed = false;
-
-				_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
-				{
-					changed = true;
-					this.fp.disableOption(opt);
-				});
-
-				_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
-				{
-					changed = true;
-					this.fp.enableOption(opt);
-				});
-
-				if (this.selectedFloor && this.selectedFloor.id)
-				{
-					this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
-				}
-
-				if (changed)
-				{
-					this.saveFloorPlanImages();
+					if (changed)
+					{
+						this.saveFloorPlanImages();
+					}
 				}
 			}
 		});
@@ -171,11 +160,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.fp.setFloor(changes['selectedFloor'].currentValue?.id);
 		}
-
-		if (changes['subGroup'] && !changes['subGroup'].isFirstChange())
-		{
-			this.subGroup$.next(changes['subGroup'].currentValue);
-		}
 	}
 
 	private fpInitialized(): void
@@ -185,7 +169,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.fp.addHomeFootPrint('#eaf1fc');
 		this.floorPlanLoaded.emit(this.fp);
 		this.fp.graphic.flip(this.isFlipped || false);
-		this.initialized$.next();
+		this.initialized$.next(true);
 		this.initialized$.complete();
 	}
 

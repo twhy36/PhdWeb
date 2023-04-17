@@ -11,33 +11,39 @@
 						<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
 					</div>
 					<div *ngIf="highlightedAttribute">
-						<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content"></cl-image>
+						<cl-image public-id="{{attributeImageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" alt=""></cl-image>
 					</div>
-					<div *ngIf="!highlightedAttribute">
+					<section aria-label="Carousel" *ngIf="!highlightedAttribute">
+						<span class="phd-visually-hidden" aria-label="Image Carousel Instructions">This is a carousel with slides. Use Next and Previous buttons to navigate, or jump to a slide using the thumbnail.</span>
 						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
 							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
 								<!--eslint-disable-next-line @angular-eslint/template/eqeqeq-->
-								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)"
+									type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" alt="" role="group"
+									attr.aria-label="{{'Slide ' + (currentIndex + 1) + ' of ' + choiceImages.length}}"
+									*ngIf="activeIndex?.current == currentIndex"></cl-image>
 							</ng-template>
 						</ngb-carousel>
-					</div>
+					</section>
 				</div>
 				<span class="phd-image-caption">Images are examples only. Products are subject to change.</span>
 			</div>
 			<div class="phd-image-carousel">
 				<ng-container *ngIf="choiceImages.length <= 10">
-					<button *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
-						<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-								  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
-								  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
-						</cl-image>
-					</button>
+					<ul class="phd-thumbnail-image-list">
+						<button *ngFor="let image of choiceImages" class="phd-image-thumbnail phd-clickable">
+							<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad" attr.aria-label="{{ 'Image ' + (image.sortKey + 1) + ' of ' + choiceImages.length}}"
+									  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL" alt=""
+									  attr.aria-current="{{!highlightedAttribute && selectedImageUrl === image.imageURL}}"(onError)="onLoadImageError($event)" (click)="imageClick(image)">
+							</cl-image>
+						</button>
+					</ul>
 				</ng-container>
 				<ng-container *ngIf="choiceImages.length > 10">
 					<p-carousel [value]="choiceImages" [numVisible]="10" [numScroll]="1">
 						<ng-template let-image pTemplate="item">
 							<cl-image public-id="{{image.imageURL}}" type="fetch" background="#ffffff" crop="lpad"
-									  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL"
+									  class="phd-choice-image" [class.phd-choice-image-selected]="!highlightedAttribute && selectedImageUrl === image.imageURL" alt=""
 									  (onError)="onLoadImageError($event)" (click)="imageClick(image)">
 							</cl-image>
 						</ng-template>
@@ -66,28 +72,28 @@
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 				<button [class.phd-clickable]="!isReadonly" class="phd-favorite-selector">
 					<span>
-						<i [ngClass]="choice.isFavorite ? 'fa fa-heart phd-icon-selected' : 'fa fa-heart-o'" (click)="toggleChoiceClicked()"></i>
+						<i [ngClass]="choice.isFavorite ? 'fa fa-heart phd-icon-selected' : 'fa fa-heart-o'" attr.aria-pressed="{{choice.isFavorite}}" (click)="toggleChoiceClicked()"></i>
 					</span>
 				</button>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
 				<button class="phd-clickable phd-favorite-selector">
-					<i class="fa fa-ban" (click)="openBlockedChoiceModal()"></i>
+					<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 				</button>
 			</ng-container>
 		</div>
 	</div>
 	<div class="phd-info-section">	
-		<div class="d-flex flex-column flex-1 phd-choice-desc-section" [ngClass]="{'phd-choice-desc-section-long' : !hasAttributes}">
-			<div class="phd-choice-label">{{choice?.label}}</div>
+		<div class="phd-choice-desc-section">
+			<h1 class="phd-choice-label">{{choice?.label}}</h1>
 			<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-choice-desc">
 				<div *ngFor="let description of choiceDescriptions">{{ description }}</div>
 			</div>
 		</div>
-		<div class="d-flex flex-column flex-1 phd-selections-section" *ngIf="hasAttributes">
-			<div class="phd-available-selections">
+		<div class="phd-selections-section" *ngIf="hasAttributes">
+			<h2 class="phd-available-selections">
 				<span>{{isDesignComplete ? 'SELECTIONS:' : 'AVAILABLE SELECTIONS:'}}</span>
-			</div>
+			</h2>
 
 			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
 				<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">

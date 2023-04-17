@@ -141,13 +141,13 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		switch (this.buildMode)
 		{
 		case (BuildMode.Preview):
-			this.router.navigateByUrl('/preview');
+			this.router.navigate(['/preview'], { queryParamsHandling: 'merge' });
 			break;
 		case (BuildMode.Presale):
 			this.router.navigate(['presale'], { queryParamsHandling: 'merge' });
 			break;
 		default:
-			this.router.navigateByUrl('/home');
+			this.router.navigate(['/home'], { queryParamsHandling: 'merge' });
 			break;
 		}
 	}

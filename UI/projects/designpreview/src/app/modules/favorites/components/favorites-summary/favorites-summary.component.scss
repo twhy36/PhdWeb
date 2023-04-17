@@ -10,17 +10,25 @@
 	}
 }
 
-.tree-view {
+.phd-tree-view {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 	padding: 0px 10px 0px 10px;
 
-	.group {
+	.phd-group-list {
+		padding: 0;
+	}
+
+	.phd-group {
 		text-transform: uppercase;
 		margin-top: 50px;
+		h2 {
+			font-size: 28px;
+			display: inline;
+		}
 
-		.label {
+		.phd-label {
 			display: inline-block;
 			width: 98%;
 			font-weight: 500;
@@ -46,19 +54,19 @@
 			}
 		}
 
-		.sub-group {
-			background-color: white;
-			border-radius: 4px;
-			min-height: 45px;
-			margin-bottom: 10px;
-			font-size: 14px;
-			font-weight: 500;
-			line-height: 1.36;
+		.phd-sub-group {
+			h3 {
+				font-size: 14px;
+				margin: 2px;
+			}
 
-			.header {
+			background-color: white;
+			padding: 0 0 30px 0;
+
+			.phd-header {
 				max-height: 40px;
 				height: 100%;
-				padding: 3px 10px 3px 10px;
+				padding: 3px 10px;
 				text-transform: uppercase;
 				border: none;
 				transition: all .3s;
@@ -135,12 +143,12 @@
 		height: 0px;
 	}
 	
-	.tree-view-on-print {
+	.phd-tree-view-on-print {
 		margin-top: 20px;
 		overflow: visible !important;
 		display: table !important;
 
-		.label {
+		.phd-label {
 			display: block !important;
 		}
 	}
@@ -150,11 +158,7 @@
 		margin-top: 0cm;
 	}
 
-	.group {
-		page-break-inside: avoid;
-	}
-
-	.point {
+	.phd-group {
 		page-break-inside: avoid;
 	}
 
@@ -162,13 +166,13 @@
 		page-break-inside: avoid !important;
 	}
 
-	.sub-group {
+	.phd-sub-group {
 		print-color-adjust: exact; // Needs both to support most browsers
 		-webkit-print-color-adjust: exact; 
 		display: block !important;
 		page-break-inside: avoid !important;
 
-		.header {
+		.phd-header {
 			page-break-inside: avoid;
 		}
 	}

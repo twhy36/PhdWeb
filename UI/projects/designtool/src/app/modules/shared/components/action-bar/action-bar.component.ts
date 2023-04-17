@@ -97,6 +97,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isEditingEnvelopeDraft: boolean;
 	isOutForESign: boolean;
 	canApprove: boolean;
+	salesAgreementId: number;
+	allowedToCancelSpec: boolean;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -159,6 +161,8 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		).subscribe(agreementState =>
 		{
 			this.savingAgreement = agreementState.savingSalesAgreement;
+			this.salesAgreementId = agreementState.id;
+			this.allowedToCancelSpec = ['Void', 'Cancel'].indexOf(agreementState.status) !== -1;
 		});
 
 		this.store.pipe(
@@ -441,34 +445,43 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
-			: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
-		const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
-		const confirmDefaultOption = 'Continue';
-		const primaryButton = { hide: false, text: 'Yes' };
-		const secondaryButton = { hide: false, text: 'No' };
-
-		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
+		if (isSpec && (this.salesAgreementId !== 0 || !this.allowedToCancelSpec))
 		{
-			const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
+			const modalTitle = 'Cancel Spec';
+			const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec. You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';			
+			this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);			
+		}
 
-			if (currentChangeOrderGroup)
+		if (this.allowedToCancelSpec)
+		{
+			const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+				: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
+			const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
+			const confirmDefaultOption = 'Continue';
+			const primaryButton = { hide: false, text: 'Yes' };
+			const secondaryButton = { hide: false, text: 'No' };
+
+			if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
 			{
-				currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
+				const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
 
-				this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders =>
+				if (currentChangeOrderGroup)
 				{
-					this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
+					currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
+
+					this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders => {
+						this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
+						this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+
+						this.router.navigateByUrl('/change-orders');
+					});
+				}
+				else
+				{
 					this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
 
 					this.router.navigateByUrl('/change-orders');
-				});
-			}
-			else
-			{
-				this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
-
-				this.router.navigateByUrl('/change-orders');
+				}
 			}
 		}
 	}
@@ -593,6 +606,13 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 			// #353697 Revert all new TimeOFSaleOptionPrice records
 			this.store.dispatch(new JobActions.DeleteReplaceOptionPrice(true));
+
+			// #395819 only reload if there is a salesAgreementId
+			if (this.salesAgreementId !== 0)
+			{
+				// #392019 Reload the agreement to restore old options 
+				this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+			}
 
 			this.router.navigateByUrl('/change-orders');
 		}

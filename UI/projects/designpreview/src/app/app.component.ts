@@ -40,7 +40,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		return build.version;
 	}
-	
+
 	//navService is needed here to initalize the routing history, please do not remove
 	constructor(
 		private idle: Idle,
@@ -95,7 +95,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 	}
 
-	watchIdle() 
+	watchIdle()
 	{
 		// sets an idle timeout of 14 minutes (840 seconds)
 		this.idle.setIdle(840);
@@ -182,8 +182,9 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			const isEdge = /edg/.test(browserInfo);
 			const isChrome = /chrome/.test(browserInfo);
 			const isSafari = /safari/.test(browserInfo);
+			const isOpera = /opera/.test(browserInfo) || /opr/.test(browserInfo);
 
-			isSupported = (isChrome || isEdge || isSafari);
+			isSupported = (isChrome || isEdge || isSafari) && !isOpera;
 		}
 
 		return isSupported;

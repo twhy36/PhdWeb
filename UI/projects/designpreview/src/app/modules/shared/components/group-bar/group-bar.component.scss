@@ -16,10 +16,10 @@
 
 	.phd-community-name {
 		color: var(--group-bar-text-color);
-		text-transform: uppercase;		
+		text-transform: uppercase;
 		font-size: 15px;
 		font-weight: bold;
-		margin: 3px 0 2px 0;
+		height: 18px;
 	}
 
 	.phd-plan-name {
@@ -69,9 +69,7 @@
 
 @media(max-width: 650px) {
 	.phd-community-name {
-		h2 {
-			font-size: 11px !important;			
-		}
+		font-size: 11px !important;
 	}
 
 	.phd-plan-name {
@@ -81,9 +79,7 @@
 
 @media(max-width: 1085px) {
 	.phd-community-name {
-		h2 {
-			font-size: 12px !important;			
-		}
+		font-size: 12px !important;
 	}
 
 	.phd-plan-name {
@@ -118,6 +114,7 @@
 		padding: 0;
 	}
 }
+
 .phd-hamburger-menu {
 	display: none;
 	justify-content: flex-start !important;
@@ -126,13 +123,6 @@
 	flex-grow: 1;
 	margin-top: 2px;
 	margin-left: 30px;
-
-	.phd-group-menu-item {
-		color: var(--group-bar-text-color);
-		text-transform: uppercase;
-		font-size: 13px;
-		outline: none;
-	}
 
 	.phd-group-menu-selected {
 		color: var(--group-bar-selected-color);
@@ -155,6 +145,7 @@
 	.phd-primary-menu {
 		display: none !important;
 	}
+
 	.phd-hamburger-menu {
 		display: flex;
 	}
@@ -163,10 +154,6 @@
 		button {
 			outline: none;
 		}
-	}
-
-	::ng-deep .phd-pop-menu-selected {
-		font-weight: bold;
 	}
 }
 

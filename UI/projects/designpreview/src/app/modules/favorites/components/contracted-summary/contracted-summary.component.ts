@@ -11,6 +11,7 @@ import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { ScrollTop } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'contracted-summary',
@@ -67,6 +68,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 			this.isPreview = scenario.buildMode === BuildMode.Preview;
 			this.isPresale = scenario.buildMode === BuildMode.Presale;
 		});
+
+		ScrollTop();
 	}
 
 	onBack()

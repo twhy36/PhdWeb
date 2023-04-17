@@ -1,6 +1,6 @@
 <page-header mainTitle="Build It" [subTitle]="subTitle"></page-header>
 
-<pos-progress-bar (onViewAgreementInfo)="onViewAgreementInfo($event)" [isAgreementInfoViewed]="isAgreementInfoViewed$ | async" [isPeopleComplete]="isPeopleComplete$ | async" [isSalesInfoComplete]="isSalesInfoComplete$ | async"></pos-progress-bar>
+<pos-progress-bar (onViewAgreementInfo)="onViewAgreementInfo($event)" [salesAgreementId]="salesAgreement?.id" [isAgreementInfoViewed]="isAgreementInfoViewed$ | async" [isPeopleComplete]="isPeopleComplete$ | async" [isSalesInfoComplete]="isSalesInfoComplete$ | async"></pos-progress-bar>
 
 <ng-container *ngIf="!isChangingOrder">
 	<pos-header (toggleCollapse)="onToggleCollapse($event)" (showSalesConsultants)="onShowSalesConsultants()"></pos-header>

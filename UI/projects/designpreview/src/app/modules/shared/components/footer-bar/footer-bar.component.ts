@@ -42,26 +42,26 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 		
 		switch (window.location.host)
 		{
-			case environment.brandMap.americanWest:
-				//use different accessibility and equal icons for American West
-				this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
-				this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
+		case environment.brandMap.americanWest:
+			//use different accessibility and equal icons for American West
+			this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
+			this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
 
-				//Terms/Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
-				this.termsUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/terms-of-use/';
-				this.policyUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/privacy-policy/';
-				break;
+			//Terms/Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
+			this.termsUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/terms-of-use/';
+			this.policyUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/privacy-policy/';
+			break;
 
-			case environment.brandMap.johnWieland:
-				//Terms/Policy links: use /sitecore URLs in lower enviornments
-				this.termsUrl = brandBaseUrl + (environment.production ? '' : sitecorePartialUrl) + '/terms-of-use/';
-				this.policyUrl = brandBaseUrl + (environment.production ? '' : sitecorePartialUrl) + '/privacy-policy/';
-				break;
+		case environment.brandMap.johnWieland:
+			//Terms/Policy links: use /sitecore URLs in lower enviornments
+			this.termsUrl = brandBaseUrl + (environment.production ? '' : sitecorePartialUrl) + '/terms-of-use/';
+			this.policyUrl = brandBaseUrl + (environment.production ? '' : sitecorePartialUrl) + '/privacy-policy/';
+			break;
 
-			default:
-				this.termsUrl = brandBaseUrl + '/terms-of-use/';
-				this.policyUrl = brandBaseUrl + '/privacy-policy/';
-				break;
+		default:
+			this.termsUrl = brandBaseUrl + '/terms-of-use/';
+			this.policyUrl = brandBaseUrl + '/privacy-policy/';
+			break;
 		}
 
 		this.store.pipe(

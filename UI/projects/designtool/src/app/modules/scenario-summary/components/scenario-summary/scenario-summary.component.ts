@@ -15,33 +15,37 @@ import
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
 	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType,
-	ConfirmModalComponent, ChoiceImageAssoc, SDChoiceImage
+	ConfirmModalComponent, ChoiceImageAssoc, SDChoiceImage, ModalRef
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
 
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as fromLot from '../../../ngrx-store/lot/reducer';
+import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+
+import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import * as JobActions from '../../../ngrx-store/job/actions';
 import * as SummaryActions from '../../../ngrx-store/summary/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
-import * as fromLot from '../../../ngrx-store/lot/reducer';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { LotService } from '../../../core/services/lot.service';
 import { ReportsService } from '../../../core/services/reports.service';
 import { ScenarioService } from '../../../core/services/scenario.service';
 import { JobService } from '../../../core/services/job.service';
 import { ChangeOrderService } from '../../../core/services/change-order.service';
+import { LiteService } from '../../../core/services/lite.service';
+import { OpportunityService } from '../../../core/services/opportunity.service';
+import { TreeService } from '../../../core/services/tree.service';
+
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
-
-import * as JobActions from '../../../ngrx-store/job/actions';
-
 import { DecisionPointSummaryComponent } from '../../../shared/components/decision-point-summary/decision-point-summary.component';
 import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
 
-import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
-import { TreeService } from '../../../core/services/tree.service';
-import { LiteService } from '../../../core/services/lite.service';
+import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
+import { PhdSubMenu } from '../../../new-home/subNavItems';
 
 @Component({
 	selector: 'app-scenario-summary',
@@ -55,6 +59,8 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 {
 	@ViewChildren(DecisionPointSummaryComponent) decisionPoints: QueryList<DecisionPointSummaryComponent>;
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
+
+	@ViewChild('monotonyConflictModal') monotonyConflictModal: any;
 
 	isSticky: boolean = false;
 
@@ -72,8 +78,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	summaryHeader: SummaryHeader = new SummaryHeader();
 	priceBreakdown: PriceBreakdown;
-	isDirtScenario: boolean;
+	allowEstimates: boolean;
 	salesAgreementId: number;
+	isSpecOrModel: boolean;
 
 	imageLoading: boolean = false;
 	activeIndex: any = { current: 0, direction: '', prev: 0 };
@@ -108,12 +115,15 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	choiceImagesLoaded: boolean = false;
 	priceRangesCalculated: boolean;
 	isPhdLite: boolean = false;
+	monotonyConflict: MonotonyConflict;
+	monotonyConflictModalRef: ModalRef;
+	opportunityId: string;
 
 	get showRemoveDesignSelectionsButton(): boolean
 	{
 		const choices = this.getNonStructuralChoices();
 
-		return choices.length && this.isComplete && this.isDirtScenario && !this.isPhdLite && !this.summaryHeader.isPreview;
+		return choices.length && this.isComplete && !this.isSpecOrModel && this.salesAgreementId === 0 && !this.isPhdLite && !this.summaryHeader.isPreview;
 	}
 
 	constructor(private route: ActivatedRoute,
@@ -128,7 +138,8 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		private changeOrderService: ChangeOrderService,
 		private router: Router,
 		private treeService: TreeService,
-		private liteService: LiteService
+		private liteService: LiteService,
+		private opportunityService: OpportunityService
 	) { super(); }
 
 	isDirty(status: { pointId: number, isDirty: boolean, updatedChoices: { choiceId: number, quantity: number }[] }[]): boolean
@@ -145,13 +156,15 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	{
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromScenario.buildMode)).subscribe((build) => this.buildMode = build);
+			select(fromScenario.buildMode)
+		).subscribe((build) => this.buildMode = build);
 
 		this.store.dispatch(new SummaryActions.SetPointStatusFilter({ statusFilters: [PointStatus.COMPLETED, PointStatus.PARTIALLY_COMPLETED] }));
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(state => state.scenario.overrideReason)).subscribe(overrideReason => this.overrideReason = overrideReason);
+			select(state => state.scenario.overrideReason)
+		).subscribe(overrideReason => this.overrideReason = overrideReason);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -245,11 +258,15 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement),
-			combineLatest(this.store.pipe(select(fromRoot.isDirtScenario))),
-		).subscribe(([sag, isDirtScenario]) =>
+			combineLatest(
+				this.store.pipe(select(fromRoot.allowEstimates)),
+				this.store.pipe(select(fromRoot.isSpecOrModel))
+			),
+		).subscribe(([sag, allowEstimates, isSpecOrModel]) =>
 		{
-			this.isDirtScenario = isDirtScenario;
-			this.salesAgreementId = sag && sag.id;
+			this.allowEstimates = allowEstimates;
+			this.isSpecOrModel = isSpecOrModel;
+			this.salesAgreementId = sag?.id ?? 0;
 		});
 
 		this.store.pipe(
@@ -259,7 +276,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(selectSelectedLot)
+			select(fromLot.selectSelectedLot)
 		).subscribe(lot => this.summaryHeader.lot = lot);
 
 		this.store.pipe(
@@ -300,6 +317,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			else if (scenario.scenario)
 			{
 				this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
+				this.opportunityId = scenario.scenario.opportunityId;
 			}
 
 			this.selectedHanding = this.summaryHeader.handing;
@@ -599,55 +617,88 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	async onBuildIt()
 	{
-		this.lotService.hasMonotonyConflict().subscribe(async mc =>
+		this.lotService.hasMonotonyConflict().pipe(
+			combineLatest(this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId))
+		).subscribe(([mc, salesAssociateId]) =>
 		{
 			if (mc.monotonyConflict)
 			{
-				// this really needs to get fixed.  the alert messsage isn't correct.
-				alert('Danger! Monotony Issues!  Please fix!');
+				this.monotonyConflict = mc;
+
+				this.loadMonotonyModal();
 			}
 			else
 			{
-				if (this.buildMode === 'spec' || this.buildMode === 'model')
-				{
-					if (this.buildMode === 'model' && this.summaryHeader.lot.lotStatusDescription === 'Available')
-					{
-						const title = 'Create Model';
-						const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
-						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-
-						this.showConfirmModal(body, title, primaryButton).subscribe(result =>
-						{
-							this.lotService.buildScenario();
-						});
-					}
-					else
-					{
-						this.lotService.buildScenario();
-					}
-				}
-				else if (this.salesAgreementId)
-				{
-					this.router.navigateByUrl(`/point-of-sale/people/${this.salesAgreementId}`);
-				}
-				else
-				{
-					const title = 'Generate Home Purchase Agreement';
-					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-
-					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
-					{
-						if (result)
-						{
-							// this really needs to get fixed.  the alert messsage isn't correct.
-							this.lotService.buildScenario();
-						}
-					});
-				}
+				this.scenarioService.onGenerateSalesAgreement(
+					this.buildMode,
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId,
+					salesAssociateId
+				);
 			}
 		});
+	}
+
+	loadMonotonyModal()
+	{
+		this.monotonyConflictModalRef = this.modalService.open(this.monotonyConflictModal);
+		this.monotonyConflictModalRef.result.catch(err => console.log(err));
+	}
+
+	navigateToElevation()
+	{
+		this.store.pipe(
+			select(fromScenario.elevationDP),
+			withLatestFrom(this.store.pipe(select(store => store.scenario.scenario.scenarioId))),
+		).subscribe(([mytree, scenario]) =>
+		{
+			const elevationUrl = 'edit-home/' + scenario + '/' + mytree.divPointCatalogId;
+
+			this.navigateTo([elevationUrl]);
+		});
+	}
+
+	navigateToColorScheme()
+	{
+		this.store.pipe(
+			select(fromScenario.elevationDP),
+			combineLatest(
+				this.store.pipe(select(store => store.scenario.scenario.scenarioId)),
+				this.store.pipe(select(fromScenario.colorSchemeDP))
+			)
+		).subscribe(([elevationDP, scenario, colorSchemeDP]) =>
+		{
+			if (colorSchemeDP)
+			{
+				const colorSchemeUrl = 'edit-home/' + scenario + '/' + colorSchemeDP.divPointCatalogId;
+
+				this.navigateTo([colorSchemeUrl]);
+			}
+			else
+			{
+				const elevationUrl = 'edit-home/' + scenario + '/' + elevationDP.divPointCatalogId;
+
+				this.navigateTo([elevationUrl, { 'choiceId': elevationDP.choices.find(z => z.quantity > 0).id }]);
+			}
+		});
+	}
+
+	navigateToLot()
+	{
+		this.navigateTo(['/new-home/lot'], PhdSubMenu.ChooseLot);
+	}
+
+	navigateTo(navUrl: any[], navItem: number = null)
+	{
+		this.monotonyConflictModalRef.dismiss();
+
+		if (navItem !== null)
+		{
+			this.store.dispatch(new NavActions.SetSelectedSubNavItem(navItem));
+		}
+
+		this.router.navigate(navUrl);
 	}
 
 	printPreview(reportType: SummaryReportType)
@@ -662,10 +713,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			pdfViewer.componentInstance.pdfData = pdfData;
 			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
-		error =>
-		{
-			this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-		});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	compileSummaryData(reportType: SummaryReportType): Observable<SummaryData>
@@ -695,7 +746,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				summaryData.title = this.title;
 				summaryData.images = this.summaryImages;
 				summaryData.hasHomesite = summaryHeader.hasHomesite;
-				summaryData.allowEstimates = this.isDirtScenario;
+				summaryData.allowEstimates = this.allowEstimates;
 				summaryData.priceBreakdown = this.priceBreakdown;
 				summaryData.priceBreakdownTypes = priceBreakdown.breakdownFilters.map(x => x.toString());
 				summaryData.includeImages = reportType == SummaryReportType.OPTION_DETAILS_IMAGES || reportType == SummaryReportType.SELECTIONS_IMAGES;

@@ -37,6 +37,10 @@
 			flex-direction: column;
 			flex: 1;
 			margin-top: 5px;
+			
+			.phd-choice-list {
+				padding: 0;
+			}
 
 			.phd-choice-detail {
 				display: flex;
@@ -84,6 +88,10 @@
 					position: relative;
 					top: -10px;
 
+					.phd-choice-attribute-list {
+						padding: 0;
+					}
+
 					.phd-choice-attributes-body {
 						display: flex;
 						flex-direction: row;
@@ -120,7 +128,7 @@
 						text-decoration: underline;
 					}
 
-					.phd-contracted-additional-selections {
+					.phd-unlinked-additional-selections {
 						font-size: 10px;
 						text-decoration: none;
 						color: black;

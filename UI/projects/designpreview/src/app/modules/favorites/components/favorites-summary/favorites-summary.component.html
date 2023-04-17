@@ -7,7 +7,7 @@
 </div>
 
 <ng-template #content>
-	<div class="d-flex">
+	<main class="d-flex">
 		<div ngClass="phd-favorites-summary">
 			<summary-header class="phd-hide-from-print" 
 				[summaryHeader]="summaryHeader"
@@ -27,60 +27,66 @@
 				(contractedOptionsToggled)="onContractedOptionsToggled()">
 			</summary-header>
 
-			<div class="tree-view tree-view-on-print" [class.phd-is-sticky]="isSticky"
+			<div class="phd-tree-view phd-tree-view-on-print" [class.phd-is-sticky]="isSticky"
 				[class.phd-tree-view-presale]="isPresale">
-				<ng-container *ngFor="let group of groups">
-					<div class="group" *ngIf="group.subGroups.length > 0">
-						<div class="label">
-							<span>{{group.label}}</span>
-							<div *ngIf="!isPresale" class="phd-group-detail">
-								<span class="phd-group-subtotal-label">Subtotal : </span>
-								<span class="phd-group-subtotal-amount"> {{group.price |
-									currency:'USD':'symbol':'0.0-0'}} </span>
+				<ul class="phd-group-list">
+					<ng-container *ngFor="let group of groups">
+						<div class="phd-group" role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups.length > 0">
+							<div class="phd-label">
+								<h2>{{group.label}}</h2>
+								<div *ngIf="!isPresale" class="phd-group-detail">
+									<span class="phd-group-subtotal-label">Subtotal : </span>
+									<span class="phd-group-subtotal-amount"> {{group.price |
+										currency:'USD':'symbol':'0.0-0'}} </span>
+								</div>
 							</div>
+							<ul class="phd-sub-group d-flex flex-column justify-content-between"
+								*ngFor="let subGroup of group.subGroups">
+								<div role="group" attr.aria-label="{{subGroup.label}}">
+									<div class="phd-header d-flex justify-content-between align-items-center">
+										<h3>{{subGroup.label}}</h3>
+									</div>
+									<ng-container *ngFor="let dp of subGroup.points">
+										<decision-point-summary *ngIf="displayPoint(dp)"
+											[decisionPoint]="dp"
+											[subGroup]="subGroup"
+											[group]="group"
+											[salesChoices]="salesChoices"
+											[includeContractedOptions]="includeContractedOptions"
+											[buildMode]="buildMode"
+											[isDesignComplete]="isDesignComplete"
+											[isPresale]="isPresale"
+											[favoritesId]="favoritesId" 
+											(viewFavorites)="onViewFavorites($event)"
+											(removeFavorites)="onRemoveFavorites($event)">
+										</decision-point-summary>
+									</ng-container>
+								</div>
+							</ul>
 						</div>
-						<div class="sub-group d-flex flex-column justify-content-between"
-							*ngFor="let subGroup of group.subGroups">
-							<div class="header d-flex justify-content-between align-items-center">
-								<span>{{subGroup.label}}</span>
-							</div>
-							<ng-container *ngFor="let dp of subGroup.points">
-								<decision-point-summary *ngIf="displayPoint(dp)" 
-									[decisionPoint]="dp"
-									[subGroup]="subGroup" 
-									[group]="group" 
-									[salesChoices]="salesChoices"
-									[includeContractedOptions]="includeContractedOptions" 
-									[buildMode]="buildMode"
-									[isDesignComplete]="isDesignComplete" 
-									[isPresale]="isPresale"
-									[favoritesId]="favoritesId" 
-									(viewFavorites)="onViewFavorites($event)"
-									(removeFavorites)="onRemoveFavorites($event)">
-								</decision-point-summary>
-							</ng-container>
-						</div>
-					</div>
-				</ng-container>
+					</ng-container>
+				</ul>
 
 				<!-- Show Floorplan(s) -->
 				<ng-container *ngIf="!noVisibleFP">
-					<div class="group ifp-group">
+					<div class="phd-group ifp-group">
 						<div class="phd-floorplan-image-section">
 							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
 								<button class="phd-expendable-circle" (click)="toggleCollapsed()">
-									<span *ngIf="!showFloorplan"><i
-											class="fa fa-fw phd-clickable fa-chevron-circle-right"></i></span>
-									<span *ngIf="showFloorplan"><i
-											class="fa fa-fw phd-clickable fa-chevron-circle-down"></i></span>
+									<span *ngIf="!showFloorplan" id="expand-ifp" aria-expanded="false" aria-label="Expand Floorplan">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-controls="expand-ifp" aria-hidden="true"></i>
+									</span>
+									<span *ngIf="showFloorplan" id="collapse-ifp" aria-expanded="true" aria-label="Collapse Floorplan">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-controls="expand-ifp" aria-hidden="true"></i>
+									</span>
 								</button>
-								<div class="label">floorplan image</div>
+								<h2 class="phd-label">floorplan image</h2>
 							</div>
-							<div *ngIf="isPresale" class="label">floorplan image</div>
+							<h2 *ngIf="isPresale" class="phd-label">floorplan image</h2>
 							<ng-container *ngIf="showFloorplan || isPresale">
 								<ng-container *ngFor="let fpImage of floorPlanImages">
-									<div class="sub-group d-flex flex-column justify-content-between">
-										<div class="header d-flex justify-content-between align-items-center">
+									<div class="phd-sub-group d-flex flex-column justify-content-between">
+										<div class="phd-header d-flex justify-content-between align-items-center">
 											<span>{{ fpImage.floorName }}</span>
 										</div>
 										<span *ngIf="fpImage.floorIndex === 0"
@@ -108,7 +114,7 @@
 			</div>
 			<div class="phd-disclaimer phd-hide-from-print">{{ disclaimerText }}</div>
 		</div>
-	</div>
+	</main>
 </ng-template>
 
 <div class="phd-hide-from-print">

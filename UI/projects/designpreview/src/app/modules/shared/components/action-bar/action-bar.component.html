@@ -1,4 +1,7 @@
-<div id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
+<footer id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
+	<h1 class="phd-visually-hidden">
+		Footer
+	</h1>
 	<ul class="d-flex flex-row flex-grow-1 phd-action-icons">
 		<a href="" (click)="$event.preventDefault(); onHomePage();" class="d-flex phd-clickable">
 			<span aria-hidden="true"><i class="fa fa-home fa-2x"></i></span>
@@ -11,7 +14,7 @@
 		</button>
 
 		<a href="" (click)="$event.preventDefault(); onViewFavorites();" *ngIf="showFavorites" class="d-flex phd-clickable">
-			<img class="phd-favorites-list" [src]="favoritesListIcon">
+			<img class="phd-favorites-list" [src]="favoritesListIcon" alt="">
 			<span class="align-self-center">My Favorites</span>
 		</a>
 		<div *ngIf="!isPreview && !hideContractedToggle && !isPresale" class="d-flex phd-contracted-options">
@@ -47,7 +50,7 @@
 	<div *ngIf="primaryAction">
 		<a #btnActionBar href="" title="{{isEllipsisActive() ? primaryAction : null}}" [class.phd-btn-fixed-width]="isFixedWidth" class="btn btn-lg phd-action-bar-action-btn" (click)="$event.preventDefault(); onPrimaryCallToActionClick();">{{primaryAction}}</a>
 	</div>
-</div>
+</footer>
 
 
 <ng-template #totalPricing>
@@ -60,7 +63,7 @@
 
 <ng-template #contractedOptions>
 	<div>
-		<p>Move the toggle to “On” to display the options you have previously selected with a consultant throughout the site. This will include options that are under contract as well as any options that are pending on an open change order.</p>
-		<p><em>(Option pricing is subject to change and are not final until placed under contract with a Sales Consultant.)</em></p>
+		<p>Move the toggle to “ON” to display the options you have previously selected with a consultant throughout the site. This will include options that are under contract as well as any options that are pending on an open change order.</p>
+		<p><em>(Option pricing is subject to change until placed under contract with a Sales Consultant)</em></p>
 	</div>
 </ng-template>

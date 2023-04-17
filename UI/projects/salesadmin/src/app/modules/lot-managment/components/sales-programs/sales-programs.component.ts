@@ -12,7 +12,7 @@ import { MessageService } from 'primeng/api';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
+import { ConfirmModalComponent, PhdTableComponent, SpecDiscountService } from 'phd-common';
 import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
 
 import * as moment from 'moment';
@@ -47,8 +47,12 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		private _orgService: OrganizationService,
 		private _modalService: NgbModal,
 		private _msgService: MessageService,
+		private _specDiscountService: SpecDiscountService,
 		private _route: ActivatedRoute
-	) { super(); }
+	)
+	{
+		super();
+	}
 
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean
@@ -442,5 +446,10 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		confirm.componentInstance.defaultOption = 'Cancel';
 
 		return confirm;
+	}
+
+	checkSpecDiscountName(name: string): boolean
+	{
+		return this._specDiscountService.checkIfSpecDiscount(name);
 	}
 }

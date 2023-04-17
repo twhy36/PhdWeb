@@ -19,7 +19,21 @@
 	font-size: 18px;
 	margin-top: -4px;
 
+	.fa {
+		margin-right: 6px;
+	}
+
+	.fa-ban {
+		margin-right: 8.5px;
+	}
+
 	.phd-icon-selected {
 		color: var(--heart-icon-color);
 	}
+}
+
+.phd-clickable {
+	background: none;
+	border: none;
+	padding: 0;
 }

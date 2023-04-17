@@ -2019,16 +2019,31 @@ export class ChangeOrderService
 		}, null);
 	}
 
-	mapPendingJobSummary(jobId: number, priceBreakdown: PriceBreakdown, tree: Tree) : IPendingJobSummary
+	mapPendingJobSummary(jobId: number, priceBreakdown: PriceBreakdown, tree: Tree, options: PlanOption[]) : IPendingJobSummary
 	{
 		const elevationChoice = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1)?.choices?.find(ch => ch.quantity > 0) : null;
-		const elevationOption = !!elevationChoice?.options?.length ? elevationChoice.options[0] : null;
+		let elevationOptionId : number = null;
+		let elevationOptionPrice: number = null;
+
+		if (elevationChoice?.lockedInOptions?.length)
+		{
+			const lockedInOptionKey = elevationChoice.lockedInOptions[0].optionId;
+			const lockedInOption = options.find(option => option.financialOptionIntegrationKey === lockedInOptionKey);
+			elevationOptionId = lockedInOption?.id;
+			elevationOptionPrice = lockedInOption?.listPrice;
+		}
+		else
+		{
+			const elevationOption = !!elevationChoice?.options?.length ? elevationChoice.options[0] : null;
+			elevationOptionId = elevationOption?.id;
+			elevationOptionPrice = elevationOption?.listPrice;
+		}
 
 		return {
             jobId: jobId,
             planPrice: priceBreakdown.baseHouse,
-            elevationPlanOptionId: elevationOption?.id,
-            elevationPrice: elevationOption?.listPrice,
+            elevationPlanOptionId: elevationOptionId,
+            elevationPrice: elevationOptionPrice,
             totalOptionsPrice: priceBreakdown.selections,
             salesProgramAmount: priceBreakdown.salesProgram,
             totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,

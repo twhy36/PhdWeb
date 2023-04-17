@@ -11,7 +11,7 @@
 			<div class="phd-attribute-group-instruction" *ngIf="!isCollapsed && !isBlocked">
 				Please select all that interest you
 			</div>
-			<div class="phd-selected-attributes" *ngIf="isCollapsed">{{getSelectedAttributes()}}</div>
+			<h4 class="phd-selected-attributes" *ngIf="isCollapsed">{{getSelectedAttributes()}}</h4>
 		</ng-container>
 
 		<ng-container *ngIf="isDesignComplete">

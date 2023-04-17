@@ -8,7 +8,7 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as JobActions from '../../../ngrx-store/job/actions';
 
-import { UnsubscribeOnDestroy, ChangeTypeEnum, Job, SpecInformation, PriceBreakdown } from 'phd-common';
+import { UnsubscribeOnDestroy, ChangeTypeEnum, Job, SpecInformation, PriceBreakdown, SpecDiscountService } from 'phd-common';
 import _ from 'lodash';
 import { SalesInfoService } from '../../../core/services/sales-info.service';
 import { SalesProgram } from '../../../shared/models/sales-program.model';
@@ -38,12 +38,12 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     availableDates: Array<Date>;
     minDate: Date = new Date();
     pulteInfoSet = false;
-    canEdit: boolean;
+	canEdit: boolean;
 
     canSell$: Observable<boolean>;
     priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
-    isChangingOrder: boolean;
+	isChangingOrder: boolean;
 
     get actionBarStatus(): string
     {
@@ -52,7 +52,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     constructor(
         private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
-		private salesInfoService: SalesInfoService) { super(); }
+		private salesInfoService: SalesInfoService,
+		private specDiscountService: SpecDiscountService) { super(); }
 
     ngOnInit()
     {
@@ -100,7 +101,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.job = job;
 				this.jobId = job.id;
-				this.projectedFinalDate = job.projectedFinalDate && !isNaN(job.projectedFinalDate.getTime()) ? job.projectedFinalDate : null;
+				this.projectedFinalDate = job.projectedFinalDate && !isNaN(new Date(job.projectedFinalDate).getTime()) ? new Date(job.projectedFinalDate) : null;
 				this.fullBathsDefault = this.job.plan.fullBaths;
 				this.halfBathsDefault = this.job.plan.halfBaths;
 				this.bedroomsDefault = this.job.plan.bedrooms;
@@ -121,10 +122,11 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 					this.getMonthList();
 
 					this.pulteInfo = new SpecInformation(pulteInfo);
-					this.pulteInfo.discountExpirationDate = new Date('12/31/9999');
+					this.pulteInfo.discountExpirationDate = new Date(this.specDiscountService.specDiscountExpDate.toUTCString());
 				}
 
-				this.qmiSalesProgram = programs.find(x => x.name === 'Quick Move-in Incentive');
+				this.qmiSalesProgram = programs.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
+				this.loadingInfo = false;
 				this.pulteInfoSet = true;
 				this.createForm();
 			}
@@ -138,7 +140,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         this.store.pipe(
             this.takeUntilDestroyed(),
             select(fromRoot.canConfigure)
-        ).subscribe(canConfigure => this.canEdit = canConfigure);
+		).subscribe(canConfigure => this.canEdit = canConfigure);
     }
 
     createForm()
@@ -172,8 +174,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         clonePulteInfo.jobId = this.jobId;
         clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
         clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value ? this.pulteInfoForm.controls['displayOnPulte'].value : false;
-        clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
-		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : new Date('12/31/9999');
+		clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
+		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ?? new Date(this.specDiscountService.specDiscountExpDate.toUTCString());
         clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value ? this.pulteInfoForm.controls['hotHome'].value : false;
         clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
         clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
@@ -187,7 +189,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         clonePulteInfo.squareFeetOverride = this.pulteInfoForm.controls['squareFeet'].value;
         clonePulteInfo.numberGarageOverride = this.pulteInfoForm.controls['numberOfGarages'].value;
         clonePulteInfo.specPrice = this.pulteInfo.specPrice;
-        clonePulteInfo.webSiteAvailableDate = this.pulteInfo.webSiteAvailableDate;
+		clonePulteInfo.webSiteAvailableDate = this.pulteInfo.webSiteAvailableDate;
+
         this.pulteInfoForm.markAsPristine();
         this.store.dispatch(new JobActions.SavePulteInfo(clonePulteInfo));
     }

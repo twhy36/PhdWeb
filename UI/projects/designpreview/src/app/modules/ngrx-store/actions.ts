@@ -8,7 +8,6 @@ import
 } from 'phd-common';
 
 import { ErrorAction } from './error.action';
-import { Stopwatch } from './stopwatch';
 
 export enum CommonActionTypes
 {
@@ -20,10 +19,10 @@ export enum CommonActionTypes
 	PageNotFound = 'Page Not Found',
 	SetLatestError = 'Set Latest Error',
 	ClearLatestError = 'Clear Latest Error',
-	GuardError = 'Guard Error'
+	GuardError = 'Guard Error',
+	TimeoutError = 'Timeout Error'
 };
 
-@Stopwatch([CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.LoadError])
 export class LoadSalesAgreement implements Action
 {
 	readonly type = CommonActionTypes.LoadSalesAgreement;

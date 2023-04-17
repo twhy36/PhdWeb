@@ -4,7 +4,7 @@
 			<cl-image public-id="{{getImageSrc(attribute)}}" title="{{attribute.name}}" type="fetch"
 				crop="fill" height="80" width="80" (click)="clickAttributeClick(attribute)" (onError)="onLoadImageError($event)" 
 				class="phd-attribute-item-image"
-				[class.phd-attribute-item-image-selected]="highlightedAttributeId === attribute.id">
+				[class.phd-attribute-item-image-selected]="highlightedAttributeId === attribute.id" alt="">
 			</cl-image>
 			<span class="phd-attribute-name" title="{{attribute.name}}" (click)="clickAttributeClick(attribute)">
 				{{attribute.name}}
@@ -15,8 +15,8 @@
 				</ng-container>
 				<ng-container *ngIf="attribute.attributeStatus === 'Available'">
 					<div [class.phd-clickable]="!isReadonly" *ngIf="!isBlocked">
-						<span class="phd-icon-selected"><i *ngIf="attribute.isFavorite" class="fa fa-heart" (click)="clickToggleAttribute(attribute)"></i></span>
-						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" (click)="clickToggleAttribute(attribute)"></i>
+						<span class="phd-icon-selected"><i *ngIf="attribute.isFavorite" class="fa fa-heart" aria-pressed="true" (click)="clickToggleAttribute(attribute)"></i></span>
+						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" aria-pressed="false" (click)="clickToggleAttribute(attribute)"></i>
 					</div>			
 				</ng-container>	
 			</button>		

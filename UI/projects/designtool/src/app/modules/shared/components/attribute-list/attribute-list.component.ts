@@ -29,6 +29,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() isCollapsed: boolean;
 	@Input() updateParent: boolean = false;
 	@Input() favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
+	@Input() isDesignComplete: boolean;
 
 	@Output() closeExpandedAttribute: EventEmitter<boolean> = new EventEmitter();
 	@Output() onPreview: EventEmitter<Attribute> = new EventEmitter();

@@ -2,7 +2,7 @@
 	<banner class="phd-home-images-container"></banner>
 	<div class="d-flex flex-row phd-error-row">
 		<div class="d-flex flex-column align-items-center phd-logo-section">
-			<img class="phd-logo-image" [src]="getImageSrc()">
+			<img class="phd-logo-image" [src]="getImageSrc()" alt="">
 		</div>
 		<div class="phd-vertical-line"></div>
 		<div *ngIf="isLoadPresaleInactiveNoPublish || isTimeout; else defaultErrorSection"

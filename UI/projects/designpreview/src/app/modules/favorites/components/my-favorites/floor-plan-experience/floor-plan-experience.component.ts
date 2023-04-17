@@ -49,6 +49,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
+	floorPlanLoaded: boolean = false;
 	floors;
 	fpOptions;
 	selectedFloor;
@@ -95,7 +96,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	selectDecisionPointHandler(pointId: number)
 	{
-		if (pointId)
+		if (pointId && this.currentSubgroup.useInteractiveFloorplan)
 		{
 			setTimeout(() =>
 			{
@@ -143,6 +144,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	loadFloorPlan(fp) 
 	{
+		this.floorPlanLoaded = true;
 		// load floors
 		this.floors = fp.floors;
 		if (!this.selectedFloor) 
@@ -173,10 +175,14 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	scrollPointIntoView(pointId: number)
 	{
-		const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
-		if (decisionBarElement)
+		const decisionBarElement = <HTMLElement>document.getElementById('ifp-decision-bar-' + pointId?.toString());
+
+		if (decisionBarElement && this.subGroup.useInteractiveFloorplan)
 		{
-			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			setTimeout(() =>
+			{
+				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+			}, 250);
 		}
 	}
 

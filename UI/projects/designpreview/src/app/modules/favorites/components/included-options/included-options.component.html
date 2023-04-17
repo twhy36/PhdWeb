@@ -1,11 +1,9 @@
-<div>
-	<header-bar
+<header-bar
 		[communityName]="communityName"
 		[planName]="planName">
-	</header-bar>
-</div>
+</header-bar>
 
-<div class="phd-included-options">
+<main class="phd-included-options">
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
 			<included-decision-bar
@@ -16,8 +14,8 @@
 			</included-decision-bar>
 		</div>
 		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
-			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" (click)="togglePointPanel()"></i>
-			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" (click)="togglePointPanel()"></i>
+			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" aria-expanded="true" aria-label="Collapse Decision Bar" (click)="togglePointPanel()"></i>
+			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" aria-expanded="false" aria-label="Expand Decision Bar" (click)="togglePointPanel()"></i>
 		</button>	
 	</div>
 
@@ -27,10 +25,10 @@
 				<ng-container *ngFor="let group of filteredTree.groups">
 					<ng-container *ngFor="let subGroup of group.subGroups">
 						<ng-container *ngIf="defaultChoicePresent(subGroup)">
-							<div class="d-flex flex-row phd-group-subgroup-header" [attr.id]="'included-subgroup-' + subGroup.id">
+							<h3 class="d-flex flex-row phd-group-subgroup-header" [attr.id]="'included-subgroup-' + subGroup.id">
 								<div class="phd-group-label">{{group.label}}:</div>
 								<div class="phd-subgroup-label">{{subGroup.label}}</div>
-							</div>
+							</h3>
 							<div class="d-flex flex-wrap phd-choice-container">
 								<ng-container *ngFor="let point of subGroup.points">
 									<div *ngIf="displayDecisionPoint(point)">
@@ -58,7 +56,7 @@
 			</div>
 		</ng-container>
 	</div>
-</div>
+</main>
 
 <action-bar primaryAction="Next: Additional Options"
 			[isPresale]="true"

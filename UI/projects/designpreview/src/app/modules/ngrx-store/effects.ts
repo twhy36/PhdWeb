@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Action, Store, select } from '@ngrx/store';
 import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { switchMap, map, scan, withLatestFrom, tap, filter } from 'rxjs/operators';
-import { combineLatest, Observable, of, forkJoin, from, TimeoutError } from 'rxjs';;
+import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
@@ -26,7 +26,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
-import { HttpErrorResponse } from '@angular/common/http';
+import { LoggingService } from 'phd-common';
 
 @Injectable()
 export class CommonEffects
@@ -206,7 +206,10 @@ export class CommonEffects
 										};
 									}),
 									mergeIntoTree(
-										[...result.job.jobChoices, ...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])],
+										[
+											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Delete' && coc.dpChoiceId === jc.dpChoiceId)),
+											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])
+										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
 										this.treeService,
 										result.changeOrderGroup),
@@ -327,27 +330,29 @@ export class CommonEffects
 				}),
 			{ prev: false, action: false, err: <ErrorAction>null }
 			),
-			filter((errorScan: { prev: boolean; action: boolean; err: null; }) => !errorScan.prev && errorScan.action),
-			map((errorScan: { prev: boolean; action: boolean; err: null; }) =>
+			filter((errorScan: { prev: boolean; action: boolean; err: Action; }) => !errorScan.prev && errorScan.action),
+			map((errorScan: { prev: boolean; action: boolean; err: Action; }) =>
 			{
 				this.router.navigate(['error']);
 
 				if (errorScan.err)
 				{
-					const err = errorScan.err as LoadError
-					const httpError = err.error as HttpErrorResponse;
 					const errStack = (<ErrorAction>errorScan.err).error ?
 						((<ErrorAction>errorScan.err).error.stack ? (<ErrorAction>errorScan.err).error.stack : JSON.stringify((<ErrorAction>errorScan.err).error))
 						: '';
 					const errMsg = (<ErrorAction>errorScan.err).friendlyMessage ? (<ErrorAction>errorScan.err).friendlyMessage : '';
-					let errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
-					const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
+					const errFrom = (<ErrorAction>errorScan.err).errFrom ? (<ErrorAction>errorScan.err).errFrom : '';
 
-					if (httpError.status === 408)
+					const properties = {
+						FriendlyMessage: 'ErrorAction: ' + errMsg,
+						ErrorFrom: errFrom
+					};
+
+					if(errFrom !== ErrorFrom.PageNotFound)
 					{
-						errFrom = timeoutErrName;
+						this.loggingService.logError((<ErrorAction>errorScan.err).error, properties);
 					}
-
+					
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})
@@ -367,5 +372,6 @@ export class CommonEffects
 		private changeOrderService: ChangeOrderService,
 		private favoriteService: FavoriteService,
 		private spinnerService: SpinnerService,
+		private loggingService: LoggingService,
 		private router: Router) { }
 }

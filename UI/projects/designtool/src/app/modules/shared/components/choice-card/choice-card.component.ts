@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 {
 	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption
 } from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -49,6 +49,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	@Input() agreementStatus: string;
 	@Input() overrideReason: string;
 	@Input() buildMode: 'buyer' | 'spec' | 'model' | 'preview';
+	@Input() isDesignComplete: boolean;
 
 	@Output() toggled: EventEmitter<{ choice: Choice, saveNow: boolean, quantity?: number; }> = new EventEmitter();
 	@Output() saveAttributes = new EventEmitter<void>();
@@ -77,6 +78,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	unsavedQty: number = 0;
 	lots: LotExt;
 	plan: Plan;
+	jobPlanOptions: JobPlanOption[];
 	isFavorite: boolean;
 	loadingChoiceImage = true;
 	loadingAttributeImage = true;
@@ -111,7 +113,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get optionDisabled(): boolean
 	{
-		return !(this.agreementStatus && this.choice.quantity > 0) && this.choice.options ? this.choice.options.some(option => !option.isActive) : false;
+		return !(this.agreementStatus && this.choice.quantity > 0) && this.choice.options ? this.choice.options.some(option => !option.isActive && !this.jobPlanOptions?.some(jobPlanOption => jobPlanOption?.planOptionId === option.id)) : false;
 	}
 
 	get showDisabledButton(): boolean
@@ -284,8 +286,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		combineLatest([selectMonotonyChoiceIds$, this.store.pipe(select(fromScenario.choiceOverrides)),
 			this.store.pipe(select(selectSelectedLot)),
 			this.store.pipe(select(selectedPlanData)),
+			this.store.pipe(select(state => state.job.jobPlanOptions)),
 			choiceImages$])
-			.subscribe(([monotonyChoices, choiceOverride, lots, plan, choiceImages]) =>
+			.subscribe(([monotonyChoices, choiceOverride, lots, plan, jobPlanOptions, choiceImages]) =>
 			{
 				this.choiceImages = choiceImages.length ? choiceImages.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1) : [];
 				this.loadingChoiceImage = false;
@@ -312,6 +315,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 				this.lots = lots;
 				this.plan = plan;
+				this.jobPlanOptions = jobPlanOptions;
 
 				this.setAttributeMonotonyConflict();
 			});

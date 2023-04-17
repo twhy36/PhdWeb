@@ -1,17 +1,17 @@
 <div class="d-flex flex-column">
 	<ul class="phd-progress-indicators d-flex justify-content-around">
 		<li class="d-flex justify-content-center" [ngClass]="{ 'phd-not-complete': !isPeopleComplete }">
-			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/people']">
+			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/people', salesAgreementId]">
 				1
 			</div>
 		</li>
 		<li class="d-flex justify-content-center" [ngClass]="{ 'phd-not-complete': !isPeopleComplete || !isSalesInfoComplete }">
-			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/sales-info']">
+			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/sales-info', salesAgreementId]">
 				2
 			</div>
 		</li>
 		<li class="d-flex justify-content-center" [ngClass]="{ 'phd-not-complete': !isPeopleComplete || !isSalesInfoComplete || !isAgreementInfoViewed}">
-			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/agreement']" (click)="openAgreementInfo()">
+			<div class="d-flex align-items-center justify-content-center" routerLinkActive="active" [routerLink]="['/point-of-sale/agreement', salesAgreementId]" (click)="openAgreementInfo()">
 				3
 			</div>
 		</li>

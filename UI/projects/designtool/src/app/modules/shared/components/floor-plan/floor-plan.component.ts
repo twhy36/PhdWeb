@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild, TrackByFunction } from '@angular/core';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import * as _ from 'lodash';
@@ -10,6 +10,7 @@ import { AttributeService } from '../../../core/services/attribute.service';
 import { JobService } from '../../../core/services/job.service';
 import { ScenarioService } from '../../../core/services/scenario.service';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -75,6 +76,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	jobId: number;
 	buildMode: string;
 	favoriteChoices: MyFavoritesChoice[];
+	isDesignComplete: boolean;
 
 	get fpFloors()
 	{
@@ -248,14 +250,17 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.takeUntilDestroyed(),
 			select(fromFavorite.myFavoriteChoices),
 			withLatestFrom(
-				this.store.pipe(select(fromRoot.isDesignPreviewEnabled))
+				this.store.pipe(select(fromRoot.isDesignPreviewEnabled)),
+				this.store.pipe(select(fromSalesAgreement.isDesignComplete))
 			)
-		).subscribe(([choices, isDesignPreviewEnabled]) =>
+		).subscribe(([choices, isDesignPreviewEnabled, isDesignComplete]) =>
 		{
 			if (isDesignPreviewEnabled)
 			{
 				this.favoriteChoices = choices;
 			}
+
+			this.isDesignComplete = isDesignComplete;
 		});
 	}
 
@@ -281,6 +286,17 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)
 	{
 		this.pointTypeFilterChanged.emit(pointTypeFilter);
+	}
+
+	trackByDecisionPoints: TrackByFunction<DecisionPoint> = function (_index, decisionPoint)
+	{
+		return decisionPoint.id;
+	}
+
+	trackByChoices: TrackByFunction<Choice> = function (_index, choiceSelected)
+	{
+
+		return choiceSelected.id?.toString() + choiceSelected.quantity?.toString();
 	}
 
 	ngOnChanges(changes: SimpleChanges)

@@ -42,3 +42,10 @@
 	color: var(--link-color);
   	text-decoration: underline;
 }
+
+.phd-hidden-choice {
+	cursor: default;
+	font-weight: bold;
+	color: black;
+	text-decoration: none !important;
+}

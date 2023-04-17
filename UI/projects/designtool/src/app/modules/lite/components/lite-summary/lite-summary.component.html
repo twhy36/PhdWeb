@@ -4,7 +4,7 @@
 	<div class="phd-summary-container d-flex flex-column">
 		<summary-header [summaryHeader]="summaryHeader"
 						[priceBreakdown]="priceBreakdown"
-						[isDirtScenario]="allowEstimates$ | async"
+						[allowEstimates]="allowEstimates$ | async"
 						[canEditHanding]="(canEditAgreement$ | async) && (canConfigure$ | async) && canEditHanding"
 						[canConfigure]="canConfigure$ | async"
 						[disableHanding]="disableHanding"
@@ -66,3 +66,11 @@
 
 	</div>
 </div>
+
+<ng-template #monotonyConflictModal>
+	<monotony-conflict-modal [monotonyConflict]="monotonyConflict"
+							 (onNavigateToElevation)="navigateToElevation()"
+							 (onNavigateToColorScheme)="navigateToColorScheme()"
+							 (onNavigateToLot)="navigateToLot()">
+	</monotony-conflict-modal>
+</ng-template>

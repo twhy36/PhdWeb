@@ -198,6 +198,6 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 			keyboard: false,
 		}
 		this.maxQuantityModalRef = this.modalService.open(this.maxQuantityModal, modalOptions, true);
-		this.adobeService.setAlertEvent('You won\'t need that many for your home. Max quantity is ' + (this.maxQuantity !== null ? this.maxQuantity : 0).toString() + '.', 'Max Quantity Alert');
+		this.adobeService.setAlertEvent('You won\'t need that many for your home. Max quantity is ' + (this.currentChoice.maxQuantity !== null ? this.currentChoice.maxQuantity : 0).toString() + '.', 'Max Quantity Alert');
 	}
 }

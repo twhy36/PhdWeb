@@ -1,9 +1,8 @@
 <div class="phd-progress-bar">
-	<phase-progress-bar
-		[items]="(subNavItems$ | async)"
-		[selectedItem]="(selectedSubNavItem$ | async)"
-		(onItemSelected)="onSubNavItemSelected($event)"
-		[showStatusIndicator]="(canConfigure$ | async) && showStatusIndicator">
+	<phase-progress-bar [items]="(subNavItems$ | async)"
+						[selectedItem]="(selectedSubNavItem$ | async)"
+						(onItemSelected)="onSubNavItemSelected($event)"
+						[showStatusIndicator]="(canConfigure$ | async) && showStatusIndicator">
 	</phase-progress-bar>
 </div>
 
@@ -21,11 +20,9 @@
 </action-bar>
 
 <ng-template #monotonyConflictModal>
-	<monotony-conflict-modal
-		[monotonyConflict]="monotonyConflict"
-		(onNavigateToElevation)="navigateToElevation()"
-		(onNavigateToColorScheme)="navigateToColorScheme()"
-		(onNavigateToLot)="navigateToLot()"
-	>
+	<monotony-conflict-modal [monotonyConflict]="monotonyConflict"
+							 (onNavigateToElevation)="navigateToElevation()"
+							 (onNavigateToColorScheme)="navigateToColorScheme()"
+							 (onNavigateToLot)="navigateToLot()">
 	</monotony-conflict-modal>
 </ng-template>

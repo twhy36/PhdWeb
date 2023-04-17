@@ -9,7 +9,6 @@ import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ErrorFrom, PageNotFound } from '../../../ngrx-store/error.action';
 import { DesignPreviewError } from '../../../shared/models/error.model';
-import { TimeoutError } from 'rxjs';
 
 @Component({
 	selector: 'default-error',
@@ -48,9 +47,8 @@ export class DefaultErrorComponent extends UnsubscribeOnDestroy implements OnIni
 			}
 			else
 			{
-				//display different error for presale inactive or no published tree
-				const timeoutErrName = TimeoutError?.name?.toLowerCase().replace('impl', '');
-				if (latestError?.occuredFrom?.includes(timeoutErrName))
+				// display different error for presale inactive or no published tree
+				if (latestError?.occuredFrom === ErrorFrom.TimeoutError)
 				{
 					this.isTimeout = true;
 					this.errMessage = 'The connection timed out and we are unable to load the page right now.  Please try again later.';

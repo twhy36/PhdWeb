@@ -2,8 +2,10 @@ import { Component, OnInit, ChangeDetectorRef, ViewChildren, QueryList, ViewChil
 import { Observable, combineLatest } from 'rxjs';
 import { withLatestFrom, map, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
+import { Router } from "@angular/router";
 
-import * as _ from "lodash";
+import * as _ from 'lodash';
+import { ToastrService } from 'ngx-toastr';
 
 import
 {
@@ -11,29 +13,39 @@ import
 	ChangeOrderHanding, ModalService, SummaryData, BuyerInfo,
 	PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
 	SDChoice, ScenarioOption,
-	PriceBreakdownType
+	PriceBreakdownType,
+    ModalRef
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
+import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
+
 import * as SummaryActions from '../../../ngrx-store/summary/actions';
-import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { ChangeOrderService } from '../../../core/services/change-order.service';
+import { OpportunityService } from '../../../core/services/opportunity.service';
 import { LiteService } from '../../../core/services/lite.service';
-import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 
+import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/components/summary-header/summary-header.component';
+import { OptionSummaryComponent } from '../option-summary/option-summary.component';
+
 import
 {
 	LitePlanOption, IOptionSubCategory, LiteReportType, SummaryReportData,
-	SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption, LegacyColorScheme
+	SummaryReportGroup, SummaryReportSubGroup, SummaryReportOption, SummaryReportSubOption, LegacyColorScheme,
+	LiteSubMenu
 } from '../../../shared/models/lite.model';
-import { OptionSummaryComponent } from '../option-summary/option-summary.component';
+import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
+
+import { PhdSubMenu } from '../../../new-home/subNavItems';
+
 import { environment } from '../../../../../environments/environment';
-import { ToastrService } from 'ngx-toastr';
+import { ScenarioService } from '../../../core/services/scenario.service';
 
 @Component({
 	selector: 'lite-summary',
@@ -44,6 +56,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChildren(OptionSummaryComponent) options: QueryList<OptionSummaryComponent>;
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
+
+	@ViewChild('monotonyConflictModal') monotonyConflictModal: any;
 
 	title: string;
 	summaryHeader: SummaryHeader = new SummaryHeader();
@@ -65,13 +79,19 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	isChangingOrder$: Observable<boolean>;
 	summaryReportType = [LiteReportType.PRICE_LIST_WITH_SALES_DESCRIPTION, LiteReportType.PRICE_LIST, LiteReportType.SUMMARY];
 	buildMode: string;
+	opportunityId: string;
+	monotonyConflict: MonotonyConflict;
+	monotonyConflictModalRef: ModalRef;
 
 	constructor(private store: Store<fromRoot.State>,
 		private cd: ChangeDetectorRef,
 		private modalService: ModalService,
 		private _toastr: ToastrService,
 		private changeOrderService: ChangeOrderService,
-		private liteService: LiteService)
+		private liteService: LiteService,
+		private router: Router,
+		private opportunityService: OpportunityService,
+		private scenarioService: ScenarioService)
 	{
 		super();
 	}
@@ -88,7 +108,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 
-		this.allowEstimates$ = this.store.select(fromRoot.isDirtScenario);
+		this.allowEstimates$ = this.store.select(fromRoot.allowEstimates);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -125,6 +145,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				else if (scenario.scenario)
 				{
 					this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
+					this.opportunityId = scenario.scenario.opportunityId;
 				}
 
 				this.selectedHanding = this.summaryHeader.handing;
@@ -449,33 +470,68 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		combineLatest([
 			this.liteService.hasLiteMonotonyConflict(),
+			this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId),
 			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
-		])
-			.subscribe(([mc, areColorsValid]) =>
+		]).subscribe(([mc, salesAssociateId, areColorsValid]) =>
+		{
+			if (mc.monotonyConflict)
 			{
-				if (mc.monotonyConflict)
-				{
-					alert('Danger! Monotony Issues!  Please fix!')
-				}
-				else if (!areColorsValid)
-				{
-					this.liteService.onGenerateSalesAgreementWithColorWarning(
-						this.buildMode,
-						this.summaryHeader.lot.lotStatusDescription,
-						this.summaryHeader.lot.id,
-						this.salesAgreementId
-					);
-				}
-				else
-				{
-					this.liteService.onGenerateSalesAgreement(
-						this.buildMode,
-						this.summaryHeader.lot.lotStatusDescription,
-						this.summaryHeader.lot.id,
-						this.salesAgreementId
-					);
-				}
-			});
+				this.loadMonotonyModal();
+			}
+			else if (!areColorsValid)
+			{
+				this.liteService.onGenerateSalesAgreementWithColorWarning(
+					this.buildMode,
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId,
+					salesAssociateId
+				);
+			}
+			else
+			{
+				this.scenarioService.onGenerateSalesAgreement(
+					this.buildMode,
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId,
+					salesAssociateId
+				);
+			}
+		});
+	}
+
+	loadMonotonyModal()
+	{
+		this.monotonyConflictModalRef = this.modalService.open(this.monotonyConflictModal);
+		this.monotonyConflictModalRef.result.catch(err => console.log(err));
+	}
+
+	navigateToElevation()
+	{
+		this.monotonyConflictModalRef.dismiss();
+
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+
+		this.router.navigateByUrl('/lite/elevation');
+	}
+
+	navigateToColorScheme()
+	{
+		this.monotonyConflictModalRef.dismiss();
+
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.ColorScheme));
+
+		this.router.navigateByUrl('/lite/color-scheme');
+	}
+
+	navigateToLot()
+	{
+		this.monotonyConflictModalRef.dismiss();
+
+		this.store.dispatch(new NavActions.SetSelectedSubNavItem(PhdSubMenu.ChooseLot));
+
+		this.router.navigateByUrl('/new-home/lot');
 	}
 
 	printConfig(reportType: LiteReportType)
@@ -861,6 +917,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let summaryData = {} as SummaryReportData;
 
+		summaryData.showHomesiteEstimate = optionalPricingSelections.includes(PriceBreakdownType.HOMESITE.toString());
 		summaryData.showDesignEstimate = optionalPricingSelections.includes(PriceBreakdownType.DESIGN.toString());
 		summaryData.showClosingIncentive = optionalPricingSelections.includes(PriceBreakdownType.CLOSING.toString());
 		summaryData.showSalesProgram = optionalPricingSelections.includes(PriceBreakdownType.DISCOUNT.toString());
@@ -886,6 +943,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 		summaryData.basePrice = this.priceBreakdown.baseHouse || 0;
 		summaryData.lotPremium = this.priceBreakdown.homesite || 0;
+		summaryData.lotPremiumEstimate = this.priceBreakdown.homesiteEstimate || 0;
 		summaryData.optionsTotal = this.priceBreakdown.selections || 0;
 		summaryData.totalPrice = this.priceBreakdown.totalPrice || 0;
 		summaryData.salesProgram = this.priceBreakdown.salesProgram || 0;

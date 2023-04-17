@@ -10,7 +10,7 @@
 	<form [formGroup]="noteForm">
 		<div class="form-group">
 			<label for="description" class="col-form-label">Change Order Description</label>
-			<input type="text" class="form-control" id="description" maxlength="50" formControlName="description" required />
+			<textarea class="form-control" id="description" rows="3" maxlength="250" formControlName="description" required></textarea>
 		</div>
 
 		<div class="form-group">

@@ -3,48 +3,25 @@
 
 .phd-choice-card-detail {
 	display: flex;
+	overflow: auto;
+	margin-bottom: 20px;
 }
 
-.phd-close {
-	cursor: pointer;
-	padding: 5px 5px 0px 0px;
+.phd-favorite-selector {
+	font-size: 30px;
+	border: none;
 }
 
-.phd-blocked-title {
-	padding: 2px 0px 10px 20px;
-	font-weight: 600;
-}
-
-.phd-blocked-list {
-	width: 300px;
-	margin-left: 40px;
-}
-
-.phd-blocked-link {
-	color: var(--link-color);
-	text-decoration: underline;
-}
-
+//image display
 .phd-image-section {
+	height: calc(100vh - 197px);
+	flex: 1 52%;
 	background: $gray-lighter;
 	display: flex;
 	flex-direction: column;
 	padding: 0px 10px;
 
-	.phd-choice-path {
-		span {
-			margin: 5px 0px 5px 10px;
-			font-size: 11px;
-			font-weight: bold;
-		}
-	}
-
-	.phd-image-caption {
-		font-size: 11px;
-		font-weight: bold;
-		padding: 5px 0px;
-	}
-
+	//spinner
 	.phd-image-loading {
 		height: 367px;
 		width: 550px;
@@ -61,20 +38,113 @@
 		top: 40%;
 	}
 
+	//back nav
+	.phd-choice-path span {
+		margin: 5px 0px 5px 10px;
+		font-size: 11px;
+		font-weight: bold;
+	}
+
+	//caption below large image
+	.phd-image-caption {
+		font-size: 11px;
+		font-weight: bold;
+		padding: 5px 0px;
+	}
+	
 	.phd-icon-selected {
 		color: var(--heart-icon-color);
 	}
 
-	.phd-image-thumbnail {
-		margin-right: 0;
-		padding: 0 10px 0 0;
-		border: none;
+	//container for both Carousel
+	.phd-image-container {
+		display: flex;
+		flex-direction: column;
+		overflow: scroll;
+	}
 
-		cl-image {
-			border: none;
+	.phd-image-container::-webkit-scrollbar {
+		-webkit-appearance: none;
+		width: 7px;
+		height: 0px;
+	}
+
+	.phd-image-container::-webkit-scrollbar-thumb {
+		background-color: rgba(0, 0, 0, .5);
+		border-radius: 4px;
+		box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+	}
+
+	.phd-image-container::-webkit-scrollbar-corner {
+		background: rgba(0, 0, 0, 0);
+	}
+
+	//NGB bootstrap carousel large image	
+	.phd-card-detail-image-body {
+		display: flex !important;
+		justify-content: center !important;
+	
+		.carousel:focus {
+			outline: none;
 		}
 	}
 
+	//PrimeNG carousel thumbnail
+	.phd-image-carousel {
+		display: flex;
+
+		.phd-thumbnail-image-list {
+			padding: 0;
+		}
+
+		.phd-image-thumbnail {
+			margin-right: 0;
+			padding: 0 10px 0 0;
+			border: none;
+	
+			cl-image {
+				border: none;
+			}
+		}
+
+		::ng-deep .phd-choice-image {
+			border: 2px solid #ccc;
+			cursor: pointer;
+		
+			.phd-choice-image-selected {
+				border: solid 4px var(--selected-border-color);
+			}
+
+			img {
+				width: 50px;
+				height: 50px;
+			}
+		}
+	}
+
+	//ngb carousel slide indicator
+	::ng-deep .carousel-indicators {
+		display: none;
+	}
+	
+	//large image nav icon
+	::ng-deep .carousel {
+		.carousel-control-next,
+		.carousel-control-prev {
+			background-color: transparent;
+			height: 50px;
+			width: 50px;
+			margin: auto;
+
+			.carousel-control-next-icon,
+			.carousel-control-prev-icon {
+				-webkit-filter: drop-shadow(0px 0px 2px black);
+				filter: drop-shadow(0px 0px 2px black);
+			}
+		}
+	}
+
+	//image price section below carousel
 	.phd-price {
 		display: flex;
 		flex-direction: row;
@@ -95,45 +165,22 @@
 		}
 	}
 
+	//icon only without price
 	.phd-price-right-justified {
 		justify-content: end !important;
 	}
 }
 
-::ng-deep .p-carousel-dots-container {
-	display: none !important;
-}
-
-::ng-deep .phd-choice-image {
-	border: 2px solid #ccc;
-	cursor: pointer;
-
-	.phd-choice-image-selected {
-		border: solid 4px var(--selected-border-color);
-	}
-}
-
-.phd-card-detail-image-body {
-	display: flex !important;
-	justify-content: center !important;
-
-	.carousel:focus {
-		outline: none;
-	}
-}
-
-::ng-deep .carousel-indicators {
-	display: none;
-}
-
+//attribute/location display
 .phd-info-section {
+	flex: 1 48%;
 	display: flex;
 	flex-direction: column;
+	justify-content: space-between;
 	padding: 5px;
+	height: calc(100vh - 200px);
 
 	.phd-choice-desc-section {
-		max-height: calc((100vh - 248px) / 2);
-
 		.phd-choice-label {
 			font-size: 22px;
 			font-weight: bold;
@@ -144,15 +191,16 @@
 			margin-left: 10px;
 			height: auto;
 			overflow-y: auto;
-			padding: 0 10px 10px 15px;
+			padding: 0 10px 5px 15px;
 		}
 	}
 
-	.phd-choice-desc-section-long {
-		max-height: calc(100vh - 197px);
-	}
-
 	.phd-selections-section {
+		h2 {
+			font-size: 1rem !important;
+			padding: 2px 0;
+		}
+
 		.phd-available-selections {
 			background-color: var(--choice-detail-ribbon-color);
 			color: white;
@@ -164,46 +212,17 @@
 			}
 		}
 	}
-}
 
-.phd-descriptive-text {
-	font-size: 11px;
-	font-weight: bold;
-	margin-left: 10px;
-	margin-bottom: -10px;
-	position: absolute;
-	bottom: 85px;
-}
-
-::ng-deep .carousel-item {
-	display: flex !important;
-	justify-content: center !important;
-}
-
-.phd-favorite-selector {
-	font-size: 30px;
-	border: none;
-}
-
-.phd-attribute-group-container {
-	display: flex;
-	align-items: flex-start;
-	flex-direction: column;
-	padding-top: 10px;
-}
-
-.phd-attribute-group-container:not(:last-child) {
-	border-bottom: solid 1px #ccc;
-	padding-bottom: 10px;
+	.phd-descriptive-text {
+		font-size: 11px;
+		font-weight: bold;
+		padding: 3px 10px;
+		background-color: white;
+	}
 }
 
 // Normal view
 @media screen and (min-width: ($tablet-max-width + 1)) {
-	.phd-choice-card-detail {
-		flex-direction: row;
-		overflow: hidden;
-	}
-
 	.phd-image-section {
 		width: calc(52vw);
 		height: calc(100vh - 197px);
@@ -214,66 +233,6 @@
 				max-height: calc(60vh);
 			}
 		}
-
-		.phd-image-container {
-			display: flex;
-			flex-direction: column;
-			overflow: scroll;
-		}
-
-		.phd-image-container::-webkit-scrollbar {
-			-webkit-appearance: none;
-			width: 7px;
-			height: 0px;
-		}
-
-		.phd-image-container::-webkit-scrollbar-thumb {
-			background-color: rgba(0, 0, 0, .5);
-			border-radius: 4px;
-			box-shadow: 0 0 1px rgba(255, 255, 255, .5);
-		}
-
-		.phd-image-container::-webkit-scrollbar-corner {
-			background: rgba(0, 0, 0, 0);
-		}
-
-		.phd-image-carousel {
-			display: flex;
-			flex-direction: row;
-
-			.phd-choice-image {
-				::ng-deep img {
-					width: 50px;
-					height: 50px;
-				}
-			}
-		}
-	}
-
-	.phd-info-section {
-		width: calc(48vw);
-		height: calc(100vh - 208px - 25px);
-
-		.phd-selections-section {
-			min-height: calc((100vh - 248px) / 2);
-		}
-
-		.phd-attr-loc-group-container {
-			padding-left: 10px;
-			width: calc(48vw - 7px);
-			overflow-y: auto;
-		}
-
-		::-webkit-scrollbar {
-			-webkit-appearance: none;
-			width: 7px;
-		}
-
-		::-webkit-scrollbar-thumb {
-			border-radius: 4px;
-			background-color: rgba(0, 0, 0, .5);
-			-webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
-		}
 	}
 }
 
@@ -281,35 +240,17 @@
 @media screen and (max-width: $tablet-max-width) {
 	.phd-choice-card-detail {
 		flex-direction: column;
-		overflow-y: auto;
 	}
 
-	.phd-image-section {
-		width: calc(100vw);
-
-		.phd-image-content {
-			::ng-deep img {
-				width: calc(80vw);
-			}
-		}
-
-		.phd-image-container {
-			display: flex;
-			flex-direction: row;
-
-			.phd-image-carousel {
-				order: 1;
-			}
-
-			.phd-image-card {
-				order: 2;
-			}
-		}
+	.phd-image-container {
+		display: flex;
+		flex-direction: row !important;
+		overflow-y: hidden !important;
 
 		.phd-image-carousel {
 			display: flex;
 			flex-direction: column;
-			order: 2;
+			order: 1;
 
 			.phd-choice-image {
 				::ng-deep img {
@@ -320,50 +261,23 @@
 			}
 		}
 
-		.phd-price {
-			.phd-favorite-selector {
-				font-size: 2em;
-				border: none;
-				padding: 0 0 5px 0;
-				margin: 0;
-			}
-
-			.phd-price-label {
-				font-size: 2em;
+		.phd-image-card {
+			order: 2;
+		}
+		
+		.phd-image-content {
+			::ng-deep img {
+				width: calc(80vw);
 			}
 		}
-	}
-
-	.phd-info-section {
-		width: calc(100vw);
-		margin-bottom: 10px;
-	}
-
-	.phd-descriptive-text {
-		font-size: 11px;
-		font-weight: bold;
-		position: relative;
-		padding: 5px 0px;
-		bottom: 5px !important;
-		display: flex;
-		flex-direction: column;
-	}
+	}	
 }
 
-::ng-deep .carousel {
-
-	.carousel-control-next,
-	.carousel-control-prev {
-		background-color: transparent;
-		height: 50px;
-		width: 50px;
-		margin: auto;
-
-		.carousel-control-next-icon,
-		.carousel-control-prev-icon {
-			-webkit-filter: drop-shadow(0px 0px 2px black);
-			filter: drop-shadow(0px 0px 2px black);
-
+// small screens
+@media screen and (max-width: 640px) {
+	.phd-image-content {
+		::ng-deep img {
+			width: calc(100%);
 		}
 	}
 }

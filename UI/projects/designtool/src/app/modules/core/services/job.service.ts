@@ -7,7 +7,8 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, ManagerName
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, ManagerName,
+	IPendingJobSummary
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -420,7 +421,7 @@ export class JobService
 
 	getSpecJobs(lotIDs: number[]): Observable<Job[]>
 	{
-		const expand = `jobChoices($select=id;$top=1),jobPlanOptions($select=id,jobOptionTypeName;$filter=jobOptionTypeName eq 'Elevation'),jobSalesInfos($select=specPrice),lot($select=id,lotBlock)`;
+		const expand = `jobChoices($select=id;$top=1),jobPlanOptions($select=id,planOptionId,jobOptionTypeName;$filter=jobOptionTypeName eq 'Elevation'),jobSalesInfos($select=specPrice),lot($select=id,lotBlock)`;
 		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,createdBy`;
 		const COGExpand = `jobChangeOrderGroups($select=id,jobId,jobChangeOrderGroupDescription,salesStatusDescription,constructionStatusDescription,createdUtcDate)`
 		const filter = `lotId in (${lotIDs.join(',')})`;
@@ -605,4 +606,13 @@ export class JobService
 			map(response => response.value)
 		);
 	}
+
+	updatePendingJobSummary(pendingJobSummary: IPendingJobSummary)
+	{
+		const url = `${environment.apiUrl}pendingJobSummary(${pendingJobSummary.jobId})`;
+
+		return this._http.patch(url, pendingJobSummary).pipe(
+			map(resp => resp as IPendingJobSummary)
+		);
+	}	
 }

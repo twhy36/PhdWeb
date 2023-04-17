@@ -34,6 +34,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { InfoModalComponent } from '../../../shared/components/info-modal/info-modal.component';
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
+import { ScrollTop } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'favorites-summary',
@@ -97,7 +98,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	get floorPlanDisclaimer()
 	{
-		return this.isPresale 
+		return this.isPresale
 			? '*Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.'
 			: '*Floorplan may show options you selected as well as previously contracted options. Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.';
 	}
@@ -120,12 +121,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				// or the passed in sales agreement id is different than that of the id in the store...
 				const salesAgreementId = +params.get('salesAgreementId');
 
-				//reload data in BuyerPreview mode when valid passing querystring sales agreement ID changes, 
-				//or current store buildMode is not BuyerPreview (assuming BuyerPreview entry with FavoritesSummary)
+				//BuyerPreview mode with querystring SA ID changes, or store buildMode != BuyerPreview
+				//reload SA and update store buildmode
 				if (salesAgreementId > 0 &&
-						(salesAgreementState.id !== salesAgreementId
-							|| !scenarioState.buildMode
-							|| scenarioState.buildMode !== BuildMode.BuyerPreview)
+					(salesAgreementState.id !== salesAgreementId
+						|| !scenarioState.buildMode
+						|| scenarioState.buildMode !== BuildMode.BuyerPreview)
 				)
 				{
 					this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
@@ -282,6 +283,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			withLatestFrom(this.store.pipe(select(state => state.scenario)))
 		).subscribe(([plan, scenario]) =>
 		{
+			this.noVisibleFP = false; // Default this value to false
 			if (plan && plan.marketingPlanId && plan.marketingPlanId.length)
 			{
 				if (scenario.tree && scenario.tree.treeVersion)
@@ -318,13 +320,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.isFloorplanFlipped = sag.isFloorplanFlipped;
 		});
 
-		//scroll to top on inital load when previous scroll is not top
-		const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-		if (scrollPosition > 0)
-		{
-			this.isInitScrollTop = true;
-			window.scrollTo(0, 0);
-		}
+		ScrollTop();
 	}
 
 	onBack()

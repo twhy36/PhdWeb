@@ -147,7 +147,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	onAdditionalSelections(choice: ChoiceCustom)
 	{
-		if (!this.contractedOptionsPage)
+		if (!this.contractedOptionsPage && !this.isDesignComplete)
 		{
 			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, this.subGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParamsHandling: 'merge' });
 		}

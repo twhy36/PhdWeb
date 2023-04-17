@@ -123,7 +123,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	selectDecisionPointHandler(pointId: number, interval?: number) 
 	{
-		if (pointId)
+		if (pointId && !this.currentSubgroup.useInteractiveFloorplan)
 		{
 			setTimeout(() =>
 			{
@@ -189,7 +189,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
 		const pointCardElement = <HTMLElement>document.getElementById(`point-card-${pointId?.toString()}`);
-		if (pointCardElement)
+
+		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
 			if (isFirstPoint)
 			{
@@ -214,10 +215,14 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			}
 		}
 
-		const decisionBarElement = document.getElementById('decision-bar-' + pointId?.toString());
-		if (decisionBarElement)
+		const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
+
+		if (decisionBarElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			setTimeout(() => 
+			{
+				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+			}, 1000);
 		}
 	}
 

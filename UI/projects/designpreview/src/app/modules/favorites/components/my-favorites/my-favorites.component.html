@@ -7,53 +7,52 @@
 			   (setTreeFilter)="treeFilterChanged()">
 	</group-bar>
 </div>
-<div class="phd-my-favorites">
-	<ng-container *ngIf="!showDetails && !selectedSubGroup?.useInteractiveFloorplan">
+<main class="phd-my-favorites">
+	<div [ngClass]="!showDetails && !selectedSubGroup?.useInteractiveFloorplan ? '' : 'phd-hidden'">
 		<normal-experience [groupName]="groupName"
-						[currentSubgroup]="selectedSubGroup"
-						[errorMessage]="errorMessage"
-						[myFavoritesChoices]="myFavoritesChoices"
-						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
-						[decisionPointId]="selectedPointId"
-						[salesChoices]="salesChoices"
-						[groups]="groups"
-						[tree]="tree"
-						[isReadonly]="isReadonly"
-						[isPresale]="isPresale"
-						[noVisibleGroups]="noVisibleGroups"
-						[unfilteredPoints]="unfilteredPoints"
-						(toggleChoice)="toggleChoice($event)"
-						(viewChoiceDetail)="viewChoiceDetail($event)"
-						(selectDecisionPoint)="selectDecisionPoint($event)"
-						(declineDecisionPoint)="declineDecisionPoint($event)"
-						>
+			[currentSubgroup]="selectedSubGroup"
+			[errorMessage]="errorMessage"
+			[myFavoritesChoices]="myFavoritesChoices"
+			[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+			[decisionPointId]="selectedPointId"
+			[salesChoices]="salesChoices"
+			[groups]="groups"
+			[tree]="tree"
+			[isReadonly]="isReadonly"
+			[isPresale]="isPresale"
+			[noVisibleGroups]="noVisibleGroups"
+			[unfilteredPoints]="unfilteredPoints"
+			(toggleChoice)="toggleChoice($event)"
+			(viewChoiceDetail)="viewChoiceDetail($event)"
+			(selectDecisionPoint)="selectDecisionPoint($event)"
+			(declineDecisionPoint)="declineDecisionPoint($event)">
 		</normal-experience>
-	</ng-container>
-	<ng-container *ngIf="!showDetails && selectedSubGroup?.useInteractiveFloorplan">
+	</div>
+	<div [ngClass]="!showDetails && selectedSubGroup?.useInteractiveFloorplan ? '' : 'phd-hidden'">
 		<floor-plan-experience [groupName]="groupName"
-						[currentSubgroup]="selectedSubGroup"
-						[errorMessage]="errorMessage"
-						[myFavoritesChoices]="myFavoritesChoices"
-						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
-						[decisionPointId]="selectedPointId"
-						[salesChoices]="salesChoices"
-						[marketingPlanId]="marketingPlanId$"
-						[isFloorplanFlipped]="isFloorplanFlipped"
-						[groups]="groups"
-						[tree]="tree"
-						[isReadonly]="isReadonly"
-						[isPreview]="isPreview"
-						[isPresale]="isPresale"
-						[isDesignComplete]="isDesignComplete"
-						[noVisibleGroups]="noVisibleGroups"
-						[noVisibleFP]="noVisibleFP"
-						[unfilteredPoints]="unfilteredPoints"
-						(toggleChoice)="toggleChoice($event)"
-						(viewChoiceDetail)="viewChoiceDetail($event)"
-						(selectDecisionPoint)="selectDecisionPoint($event)"
-						(declineDecisionPoint)="declineDecisionPoint($event)">
+			[currentSubgroup]="selectedSubGroup"
+			[errorMessage]="errorMessage"
+			[myFavoritesChoices]="myFavoritesChoices"
+			[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
+			[decisionPointId]="selectedPointId"
+			[salesChoices]="salesChoices"
+			[marketingPlanId]="marketingPlanId$"
+			[isFloorplanFlipped]="isFloorplanFlipped"
+			[groups]="groups"
+			[tree]="tree"
+			[isReadonly]="isReadonly"
+			[isPreview]="isPreview"
+			[isPresale]="isPresale"
+			[isDesignComplete]="isDesignComplete"
+			[noVisibleGroups]="noVisibleGroups"
+			[noVisibleFP]="noVisibleFP"
+			[unfilteredPoints]="unfilteredPoints"
+			(toggleChoice)="toggleChoice($event)"
+			(viewChoiceDetail)="viewChoiceDetail($event)"
+			(selectDecisionPoint)="selectDecisionPoint($event)"
+			(declineDecisionPoint)="declineDecisionPoint($event)">
 		</floor-plan-experience>
-	</ng-container>
+	</div>
 	<ng-container *ngIf="showDetails">
 		<choice-card-detail	[choice]="selectedChoice"
 						[path]="getChoicePath()"
@@ -68,7 +67,7 @@
 						(toggleChoice)="toggleChoice($event)">
 		</choice-card-detail>
 	</ng-container>
-</div>
+</main>
 
 <action-bar [primaryAction]="showDetails ? 'Back' : 'Next: ' + (nextSubGroup ? nextSubGroup.label : 'MY FAVORITES')"
 			[price]="priceBreakdown?.totalPrice"

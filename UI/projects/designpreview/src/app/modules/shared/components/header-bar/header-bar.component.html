@@ -1,14 +1,16 @@
-<nav id="phd-header-bar">
-	<div class="d-flex flex-row justify-content-between phd-header-bar-content">
-		<div class="d-flex flex-column">
-			<div class="phd-community-name">{{communityName}} : </div>
-			<div class="phd-plan-name">{{planName}}</div>
-		</div>
+<header>
+	<nav id="phd-header-bar">
+		<div class="d-flex flex-row justify-content-between phd-header-bar-content">
+			<h2 class="d-flex flex-column">
+				<div class="phd-community-name">{{communityName}} : </div>
+				<div class="phd-plan-name">{{planName}}</div>
+			</h2>
 
-        <div class="phd-included-label">INCLUDED OPTIONS</div>
+			<h1 class="phd-included-label">INCLUDED OPTIONS</h1>
 
-		<div class="phd-tree-filter">
-			<tree-filter (setTreeFilter)="clickSetTreeFilter()"></tree-filter>
+			<div class="phd-tree-filter">
+				<tree-filter (setTreeFilter)="clickSetTreeFilter()"></tree-filter>
+			</div>
 		</div>
-	</div>
-</nav>
+	</nav>
+</header>

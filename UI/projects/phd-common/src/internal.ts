@@ -66,6 +66,8 @@ export * from './lib/services/spinner.service';
 export * from './lib/services/modal.service';
 export * from './lib/services/feature-switch.service';
 export * from './lib/services/navigation.service';
+export * from './lib/services/logging.service';
+export * from './lib/services/spec-discount.service';
 
 //utils
 export * from './lib/utils/animations.class';

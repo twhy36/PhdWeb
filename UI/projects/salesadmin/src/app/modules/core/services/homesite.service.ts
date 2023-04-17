@@ -132,7 +132,7 @@ export class HomeSiteService
 				let retVal = response.value.map(data =>
 				{
 					let lotDto = this.mapLotDto(data, viewAdjacencies, lotTypes);
-
+					
 					return lotDto;
 				});
 
@@ -212,7 +212,8 @@ export class HomeSiteService
 				lotTypes.find(item => item.label === data.lotPhysicalLotTypeAssocs[0].physicalLotType.description) as HomeSiteDtos.ILabel || '',
 			isMasterUnit: data.isMasterUnit,
 			isHiddenInTho: data.isHiddenInTho,
-			job: data.jobs && data.jobs[0] ? data.jobs[0] : null
+			job: data.jobs && data.jobs[0] ? data.jobs[0] : null,
+			constructionBuildingNumber: data.constructionBuildingNumber
 		} as HomeSiteDtos.ILotDto;
 	}
 

@@ -57,6 +57,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	monotonyElevationChoiceIds$: Observable<Array<number>>;
 	primaryAction: string = 'Generate Agreement';
 	salesAgreementId: number;
+	isDesignComplete: boolean;
 
 	constructor(
 		private route: ActivatedRoute,
@@ -85,6 +86,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				this.primaryAction = 'Create Model';
 			}
+
+			this.isDesignComplete = salesAgreement.isDesignComplete;
 		});
 
 		if (this.point)

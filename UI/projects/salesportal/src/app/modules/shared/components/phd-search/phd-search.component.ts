@@ -365,7 +365,7 @@ export class PHDSearchComponent
 
 		this.searchActiveOnly = true;
 		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity.toString();
-		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.toString();
+		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this._searchService.searchActiveCOHomesites(financialCommunityString, salesCommunityString).subscribe(lots => 
 		{

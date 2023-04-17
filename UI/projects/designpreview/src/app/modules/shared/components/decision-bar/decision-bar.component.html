@@ -1,16 +1,21 @@
-<ul class="list-unstyled">
-	<ng-container *ngFor="let point of points">
-		<a href="" class="phd-point-link" (click)="$event.preventDefault(); ">
-			<li *ngIf="displayDecisionPoint(point)"
-				[class.active]="currentPointId === point.id"
-				class="d-flex align-items-center justify-content-start"
-				(click)="onDecisionPointClick(point)"
-				[@slideOut]>
-				<div class="icon">
-					<i class="fa fa-check" *ngIf="point.completed"></i>
-				</div>
-				<div class="label" title="{{point.label}}" [attr.id]="'decision-bar-' + point.id">{{point.label | ellipsis: 40}}</div>
-			</li>
-		</a>
-	</ng-container>
-</ul>
+<nav>
+	<h3 class="phd-visually-hidden">
+		Side Navigation
+	</h3>
+	<ul class="list-unstyled">
+		<ng-container *ngFor="let point of points">
+			<a attr.href="{{ getPointCardId(point) }}" class="phd-point-link" [attr.aria-current]="currentPointId === point.id ? 'page' : null" (click)="$event.preventDefault(); ">
+				<li *ngIf="displayDecisionPoint(point)"
+					[class.active]="currentPointId === point.id"
+					class="d-flex align-items-center justify-content-start"
+					(click)="onDecisionPointClick(point)"
+					[@slideOut]>
+					<div class="icon">
+						<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="point.completed" aria-label="Checkmark"></i>
+					</div>
+					<div class="label" title="{{point.label}}" [attr.id]="'decision-bar-' + point.id">{{point.label | ellipsis: 40}}</div>
+				</li>
+			</a>
+		</ng-container>
+	</ul>
+</nav>

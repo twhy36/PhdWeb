@@ -1,10 +1,10 @@
 <div class="d-flex flex-column phd-home">
 	<banner class="phd-home-images-container"></banner>
-	<div class="d-flex flex-row phd-elevation-row">
+	<main class="d-flex flex-row phd-elevation-row">
 		<div class="d-flex flex-column align-items-center">
-			<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="max-width:calc(25vw);max-height:calc(25vh);object-fit:contain;">
+			<cl-image *ngIf="planImageUrl" public-id="{{planImageUrl}}" type="fetch" class="phd-elevation-image" style="max-width:calc(25vw);max-height:calc(25vh);object-fit:contain;" alt="">
 			</cl-image>
-			<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl">
+			<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!planImageUrl" alt="">
 			<ng-container *ngIf="isPresale">
 				<div class="phd-community-name">
 					{{communityName}}
@@ -18,7 +18,7 @@
 		<div class="phd-review-section">
 			<div class="d-flex flex-column align-items-center">
 				<div class="phd-start-reviewing-title">
-					<strong>Let's start personalizing your <ng-container *ngIf="isPresale">future</ng-container> home.</strong>
+					<h1>Let's start personalizing your <ng-container *ngIf="isPresale">future</ng-container> home.</h1>
 				</div>
 				<div class="phd-start-reviewing-desc">
 					Browse the different options available for your home. Select the <span class="phd-start-reviewing-heart" aria-label="Heart">♡</span> symbols to add to your <strong>MY FAVORITES</strong> list<ng-container *ngIf="!isPresale"> and review them later</ng-container>.					
@@ -28,7 +28,7 @@
 				<a class="btn phd-design-list-button" (click)="viewOptions()">View Options</a>
 			</div>
 		</div>
-	</div>
+	</main>
 </div>
 
 <p>&nbsp;</p>

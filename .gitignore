@@ -1,7 +1,6 @@
 **/.vs/*
 **/packages/*
 **/$tf/
-/.vscode/launch.json
-/.vscode/settings.json
-/UI/.vscode/launch.json
+**/.vscode/*
+**/Phd.WebHost/dist
 /.idea/

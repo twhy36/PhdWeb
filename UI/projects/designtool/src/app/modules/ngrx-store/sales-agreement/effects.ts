@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import { SalesAgreementService } from '../../core/services/sales-agreement.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import { ContractService } from '../../core/services/contract.service';
+import { SalesInfoService } from '../../core/services/sales-info.service';
 
 import * as JobActions from '../job/actions';
 import * as ChangeOrderActions from '../change-order/actions';
@@ -33,7 +34,7 @@ import * as fromSalesAgreement from './reducer';
 
 import {
 	Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
-	SalesAgreementContingency, SalesAgreement, SpinnerService
+	SalesAgreementContingency, SalesAgreement, SpinnerService, SpecDiscountService, ISalesProgram
 } from 'phd-common';
 
 import { tryCatch } from '../error.action';
@@ -56,7 +57,8 @@ export class SalesAgreementEffects
 				this.store.pipe(select(fromRoot.priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme)),
 			),
-			exhaustMap(([action, store, priceBreakdown, legacyColorScheme]) => {
+			exhaustMap(([action, store, priceBreakdown, legacyColorScheme]) =>
+			{
 				// start spinner
 				this.spinnerService.showSpinner(true);
 
@@ -72,7 +74,7 @@ export class SalesAgreementEffects
 				const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 				const pendingJobSummary = isPhdLite
 					? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-					: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
+					: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 
 				const createSalesAgreementForScenario = store.lite.isPhdLite
 					? this.liteService.createSalesAgreementForLiteScenario(
@@ -100,7 +102,8 @@ export class SalesAgreementEffects
 							map(templates => [...templates, { displayName: "JIO", displayOrder: 2, documentName: "JIO", templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }]),
 						)),
 					tap(([sag]) => this.router.navigateByUrl('/point-of-sale/people/' + sag.id)),
-					switchMap(([salesAgreement, templates]) => {
+					switchMap(([salesAgreement, templates]) =>
+					{
 						let actions: any[] = [
 							new SalesAgreementCreated(salesAgreement),
 							new DeleteScenarioInfo(),
@@ -109,20 +112,23 @@ export class SalesAgreementEffects
 							new TemplatesLoaded(templates)
 						];
 
-						if (!isSpecSale) {
+						if (!isSpecSale)
+						{
 							actions.push(new LoadBuyers(salesAgreement.id));
 						}
 
 						return from(actions);
 					}),
 					catchError(error => {
-						if (error.error.Message === 'Lot Unavailable') {
+						if (error.error.Message === 'Lot Unavailable')
+						{
 							return of(new LotConflict());
 						}
 
 						return of(new SaveError(error));
 					}),
-					finalize(() => {
+					finalize(() =>
+					{
 						// stop spinner
 						this.spinnerService.showSpinner(false);
 					})
@@ -176,18 +182,29 @@ export class SalesAgreementEffects
 	updateSalesAgreement$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<UpdateSalesAgreement>(SalesAgreementActionTypes.UpdateSalesAgreement),
-			withLatestFrom(this.store.pipe(select(fromRoot.priceBreakdown))),
+			withLatestFrom(
+				this.store, 
+				this.store.pipe(select(fromRoot.priceBreakdown))
+			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) => {
 					const sa = new SalesAgreement(action.salesAgreement);
 
 					if (sa.status == 'Pending' || sa.status == 'OutforSignature') {
 						sa.salePrice = priceBreakdown.totalPrice;
 					}
 
-					return this.salesAgreementService.updateSalesAgreement(sa);
+					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
+					const pendingJobSummary = isPhdLite
+						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+
+					return forkJoin([
+						this.salesAgreementService.updateSalesAgreement(sa),
+						this.jobService.updatePendingJobSummary(pendingJobSummary)
+					]);
 				}),
-				switchMap(salesAgreement => of(new SalesAgreementSaved(salesAgreement)))
+				switchMap(([salesAgreement]) => of(new SalesAgreementSaved(salesAgreement)))
 			), SaveError, 'Error updating sales agreement!!')
 		);
 	});
@@ -934,7 +951,7 @@ export class SalesAgreementEffects
 			withLatestFrom(this.store, this.store.pipe(select(fromRoot.priceBreakdown))),
 			exhaustMap(([action, store, priceBreakdown]) =>
 			{
-				const pendingJobSummary = this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
+				const pendingJobSummary = this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 
 				return this.salesAgreementService.createJIOForSpec(
 					store.scenario.tree, 
@@ -995,6 +1012,8 @@ export class SalesAgreementEffects
 		private router: Router,
 		private spinnerService: SpinnerService,
 		private liteService: LiteService,
-		private jobService: JobService
+		private jobService: JobService,
+		private salesInfoService: SalesInfoService,
+		private specDiscountService: SpecDiscountService
 	) { }
 }

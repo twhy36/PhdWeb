@@ -7,6 +7,9 @@
 <div class="phd-floor-plan-experience" [class.phd-hide]="errorMessage.length > 0">
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
+			<h3 class="phd-visually-hidden">
+				Side Bar Header
+			</h3>
 			<div class="phd-selected-group">
 				<ng-container *ngIf="!noVisibleGroups">
 					<div class="phd-group-name">{{groupName}}: </div>
@@ -23,7 +26,7 @@
 						[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 						[groups]="groups"
 						[tree]="tree"
-						[isReadonly]="isReadonly"
+						[isReadonly]="isReadonly || !floorPlanLoaded"
 						[isPreview]="isPreview"
 						[isPresale]="isPresale"
 						[isDesignComplete]="isDesignComplete"
@@ -37,8 +40,8 @@
 			</div>
 		</div>
 		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
-			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" (click)="togglePointPanel()"></i>
-			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" (click)="togglePointPanel()"></i>
+			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" aria-expanded="true" aria-label="Collapse Decision Bar" (click)="togglePointPanel()"></i>
+			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" aria-expanded="false" aria-label="Expand Decision Bar" (click)="togglePointPanel()"></i>
 		</button>
 	</div>
 
@@ -46,12 +49,12 @@
 		<div class="phd-include-options">
 			<div class="floor-select-container" *ngIf="floors && floors.length > 1">
 				<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
-					<option *ngFor="let floor of floors" [ngValue]="floor">{{ floor.name }}</option>
+					<option *ngFor="let floor of floors" [ngValue]="floor"><h2>{{ floor.name }}</h2></option>
 				</select>
 			</div>
 		</div>
 		<div class="phd-point-container">
-			<ng-container *ngIf="!noVisibleFP">
+			<ng-container *ngIf="!noVisibleFP && subGroup?.useInteractiveFloorplan">
 				<floor-plan
 					[height]="'73vh'"
 					[planId$]="marketingPlanId"
@@ -63,10 +66,8 @@
 				</floor-plan>
 			</ng-container>
 			<ng-container *ngIf="noVisibleFP">
-				<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" >
+				<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" alt="">
 			</ng-container>
 		</div>
 	</div>
-
 </div>
-
