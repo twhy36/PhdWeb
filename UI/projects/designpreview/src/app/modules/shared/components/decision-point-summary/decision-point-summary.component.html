@@ -44,7 +44,7 @@
 										</ul>
 									</ng-container>
 									<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || !choice.selectedAttributes.length)">
-										<a [ngClass]="(contractedOptionsPage || isDesignComplete) ? 'phd-unlinked-additional-selections' : 'phd-summary-additional-selections'"
+										<a href="javascript:void(0)" [ngClass]="(contractedOptionsPage || isDesignComplete) ? 'phd-unlinked-additional-selections' : 'phd-summary-additional-selections'"
 											(click)="onAdditionalSelections(choice)">Additional Selections Required</a>
 									</ng-container>
 								</div>
@@ -65,7 +65,7 @@
 								</span>
 							</ng-container>
 							<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
-								<a class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
+								<a href="javascript:void(0)" class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
 									<span class="phd-choice-action-label">{{actionLabel}}</span>
 								</a>
 								<button *ngIf="!isReadonly" type="button" class="btn ml-auto btn-secondary phd-remove-button" (click)="onRemove(choice)">
