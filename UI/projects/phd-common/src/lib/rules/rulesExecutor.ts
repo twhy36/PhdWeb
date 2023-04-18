@@ -886,7 +886,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					optionsOnChoice.forEach(chOpt =>
 					{
 						// Get the choice from the previous tree
-						const timeOfSaleDivChoiceCatalogId = timeOfSaleOptionPrices.find(tos => chOpt === tos.edhPlanOptionID).divChoiceCatalogID;
+						const timeOfSaleDivChoiceCatalogId = timeOfSaleOptionPrices.find(tos => chOpt === tos.edhPlanOptionID)?.divChoiceCatalogID;
 
 						if (timeOfSaleDivChoiceCatalogId)
 						{
