@@ -16,6 +16,11 @@ steps:
     folderPath: 'UI/projects/$(module)/src/app'
     fileType: 'json'
     targetFiles: 'build.json'
+- task: Cache@2
+  inputs:
+    key: '"npm" | "$(Agent.OS)" | UI/package-lock.json'
+    path: $(npm_config_cache)
+  displayName: Cache Node Modules
 - task: Npm@1
   displayName: Install Dependencies
   inputs:
