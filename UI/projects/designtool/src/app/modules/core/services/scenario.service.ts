@@ -13,6 +13,7 @@ import {
 } from 'phd-common';
 import { Router } from '@angular/router';
 import { LotService } from './lot.service';
+import { OpportunityService } from './opportunity.service';
 
 @Injectable()
 export class ScenarioService
@@ -23,7 +24,8 @@ export class ScenarioService
 		private _http: HttpClient,
 		private modalService: ModalService,
 		private router: Router,
-		private lotService: LotService) { }
+		private lotService: LotService,
+		private opportunityService: OpportunityService) { }
 
 	isScenarioNameUsed(scenarioName: string, opportunityId: string): Observable<boolean>
 	{
@@ -352,16 +354,9 @@ export class ScenarioService
 		return attributesDto;
 	}
 
-	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, salesAssociateId: number)
+	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, opportunityId: string)
 	{
-		if (salesAssociateId === null)
-		{
-			const title = 'Missing Sales Consultant';
-			const body = 'The D365 opportunity associated to this configuration is missing a Sales Consultant. <br><br> Please assign a Sales Consultant to the opportunity in D365';
-
-			this.modalService.showOkOnlyModal(body, title, true);
-		}
-		else if (buildMode === 'spec' || buildMode === 'model')
+		if (buildMode === 'spec' || buildMode === 'model')
 		{
 			if (buildMode === 'model' && lotStatus === 'Available')
 			{
@@ -405,17 +400,30 @@ export class ScenarioService
 		}
 		else
 		{
-			const title = 'Generate Home Purchase Agreement';
-			const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-
-			const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-			const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-
-			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
-			{
-				if (result)
+			this.opportunityService.getOpportunitySalesAssociateId(opportunityId).subscribe(salesAssociateId =>
+			{ 
+				if (salesAssociateId === null)
 				{
-					this.lotService.buildScenario();
+					const title = 'Missing Sales Consultant';
+					const body = 'The D365 opportunity associated to this configuration is missing a Sales Consultant. <br><br> Please assign a Sales Consultant to the opportunity in D365';
+
+					this.modalService.showOkOnlyModal(body, title, true);
+				}
+				else
+				{
+					const title = 'Generate Home Purchase Agreement';
+					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
+
+					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+
+					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
+					{
+						if (result)
+						{
+							this.lotService.buildScenario();
+						}
+					});
 				}
 			});
 		}
