@@ -21,6 +21,7 @@ import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption, LegacyColorScheme } f
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { LiteService } from '../../../core/services/lite.service';
 import { PhdSubMenu } from '../../../new-home/subNavItems';
+import { ScenarioService } from '../../../core/services/scenario.service';
 
 @Component({
 	selector: 'lite-experience',
@@ -47,12 +48,14 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	monotonyConflictModalRef: ModalRef;
 	inChangeOrder$: Observable<boolean>;
 	inChangeOrder: boolean;
+	opportunityId: string;
 
 	constructor(
 		private store: Store<fromRoot.State>,
 		private router: Router,
 		private liteService: LiteService,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private scenarioService: ScenarioService
 	)
 	{
 		super();
@@ -188,6 +191,11 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 				return this.inChangeOrder;
 			})
 		);
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.scenario)
+		).subscribe(scenario => this.opportunityId = scenario?.scenario?.opportunityId);
 	}
 
 	setExteriorItemsStatus(elevation: LitePlanOption, colorScheme: ScenarioOptionColor, legacyColorScheme: LegacyColorScheme)
@@ -238,33 +246,35 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		combineLatest([
 			this.liteService.hasLiteMonotonyConflict(),
 			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
-		])
-			.subscribe(([mc, areColorsValid]) =>
+		]).subscribe(([mc, areColorsValid]) =>
+		{
+			const specOrModel = this.buildMode === 'spec' || this.buildMode === 'model';
+
+			if (mc.monotonyConflict)
 			{
-				const specOrModel = this.buildMode === 'spec' || this.buildMode === 'model';
-				if (mc.monotonyConflict)
-				{
-					this.loadMonotonyModal();
-				}
-				else if (!areColorsValid && !specOrModel)
-				{
-					this.liteService.onGenerateSalesAgreementWithColorWarning(
-						this.buildMode,
-						this.lotStatus,
-						this.selectedLot.id,
-						this.salesAgreementId
-					);
-				}
-				else
-				{
-					this.liteService.onGenerateSalesAgreement(
-						this.buildMode,
-						this.lotStatus,
-						this.selectedLot.id,
-						this.salesAgreementId
-					);
-				}
-			});
+				this.loadMonotonyModal();
+			}
+			else if (!areColorsValid && !specOrModel)
+			{
+				this.liteService.onGenerateSalesAgreementWithColorWarning(
+					this.buildMode,
+					this.lotStatus,
+					this.selectedLot.id,
+					this.salesAgreementId,
+					this.opportunityId
+				);
+			}
+			else
+			{
+				this.scenarioService.onGenerateSalesAgreement(
+					this.buildMode,
+					this.lotStatus,
+					this.selectedLot.id,
+					this.salesAgreementId,
+					this.opportunityId
+				);
+			}
+		});
 	}
 
 	loadMonotonyModal()
@@ -276,21 +286,27 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	navigateToElevation()
 	{
 		this.monotonyConflictModalRef.dismiss();
+
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.Elevation));
+
 		this.router.navigateByUrl('/lite/elevation');
 	}
 
 	navigateToColorScheme()
 	{
 		this.monotonyConflictModalRef.dismiss();
+
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(LiteSubMenu.ColorScheme));
+
 		this.router.navigateByUrl('/lite/color-scheme');
 	}
 
 	navigateToLot()
 	{
 		this.monotonyConflictModalRef.dismiss();
+
 		this.store.dispatch(new NavActions.SetSelectedSubNavItem(PhdSubMenu.ChooseLot));
+
 		this.router.navigateByUrl('/new-home/lot');
 	}
 }

@@ -215,3 +215,9 @@ $toggle-content-after: 'Must Have';
 		}
 	}
 }
+
+@media print {
+	.phd-main-container {
+		padding-top: 0 !important;
+	}
+}

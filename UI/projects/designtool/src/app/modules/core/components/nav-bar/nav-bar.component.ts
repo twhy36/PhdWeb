@@ -6,7 +6,7 @@ import { switchMap } from 'rxjs/operators';
 
 import {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
-	Group, DecisionPoint, BrowserService, ModalService, BrandService, FinancialBrand, getBrandUrl
+	Group, DecisionPoint, BrowserService, BrandService, FinancialBrand, getBrandUrl
 } from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -15,9 +15,6 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 
-import { LotService } from '../../services/lot.service';
-
-import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import { environment } from '../../../../../environments/environment';
 
 import * as fromLite from '../../../ngrx-store/lite/reducer';
@@ -71,12 +68,11 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	currentChangeOrderSalesStatus: string;
 	colorMenuIsDisabled: boolean;
 
-	constructor(private lotService: LotService,
+	constructor(
 		private identityService: IdentityService,
 		private router: Router,
 		private browser: BrowserService,
 		private store: Store<fromRoot.State>,
-		private modalService: ModalService,
 		private brandService: BrandService)
 	{
 		super();
@@ -206,6 +202,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.isPhdLite = state.lite?.isPhdLite;
 				this.setVisibilityOfOptionsAndColorsMenu();
+
 				return state.lite?.isPhdLite;
 			})
 		);
@@ -341,8 +338,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				if ((this.buildMode === 'spec' || this.buildMode === 'model'))
 				{
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
-					newPath = ['/new-home/lot'];
 
+					newPath = ['/new-home/lot'];
 				}
 				else
 				{
@@ -352,7 +349,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this.router.navigate(newPath);
 		}
-
 	}
 
 	newHomeNavPath()
@@ -369,56 +365,6 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this.router.navigate(['/new-home/name-scenario']);
 		}
-	}
-
-	async buildIt()
-	{
-		if (this.salesAgreementId)
-		{
-			this.router.navigateByUrl(`/point-of-sale/people/${this.salesAgreementId}`);
-		}
-		else
-		{
-			this.lotService.hasMonotonyConflict().subscribe(async mc =>
-			{
-				if (mc.monotonyConflict)
-				{
-					this.router.navigate(['/edit-home', this.scenarioId])
-				}
-				else
-				{
-					if (this.buildMode === 'spec' || this.buildMode === 'model')
-					{
-						this.lotService.buildScenario();
-					}
-					else
-					{
-						const title = 'Generate Home Purchase Agreement';
-						const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-
-						if (await this.showConfirmModal(body, title, 'Continue'))
-						{
-							// this really needs to get fixed.  the alert messsage isn't correct.
-							this.lotService.buildScenario();
-						}
-					}
-				}
-			});
-		}
-	}
-
-	private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
-	{
-		const confirm = this.modalService.open(ConfirmModalComponent);
-
-		confirm.componentInstance.title = title;
-		confirm.componentInstance.body = body;
-		confirm.componentInstance.defaultOption = defaultButton;
-
-		return confirm.result.then((result) =>
-		{
-			return result === 'Continue';
-		});
 	}
 
 	toggleSiteMenu()
@@ -518,6 +464,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		const brandUrl = getBrandUrl(this.financialBrand?.key, dpUrls);
 
 		const url = `${brandUrl}${buyerSpecific}${this.salesAgreementId}`;
+
 		window.open(url, '_blank');
 	}
 

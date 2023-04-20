@@ -10,6 +10,7 @@ export class PosProgressBarComponent implements OnInit
 	@Input() isPeopleComplete: boolean;
 	@Input() isSalesInfoComplete: boolean;
 	@Input() isAgreementInfoViewed: boolean;
+	@Input() salesAgreementId: number;
 
 	@Output() onViewAgreementInfo = new EventEmitter();
 

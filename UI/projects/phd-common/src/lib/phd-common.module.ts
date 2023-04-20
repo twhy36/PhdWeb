@@ -35,6 +35,8 @@ import { SpinnerService } from './services/spinner.service';
 import { BrowserService } from './services/browser.service';
 import { BrandService } from './services/brand.service';
 import { ModalService } from './services/modal.service';
+import { TreeService } from './services/tree.service';
+import { TokenService } from './services/token.service';
 import { FeatureSwitchService } from './services/feature-switch.service';
 import { ColorDisplayPipe } from './pipes/colorDisplay.pipe';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
@@ -148,6 +150,8 @@ export class PhdCommonModule
 				ClaimGuard,
 				PrimeNGCorrectionService,
 				ModalService,
+				TreeService,
+				TokenService,
 				NavigationService,
 				LoggingService,
 				SpecDiscountService

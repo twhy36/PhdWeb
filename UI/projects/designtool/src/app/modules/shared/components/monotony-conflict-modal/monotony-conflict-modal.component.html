@@ -1,0 +1,41 @@
+<div class="modal-body">
+	<div *ngIf="!acknowledgedMonotonyConflict">
+		<div class="phd-advisement" >
+			<ng-container *ngIf="monotonyConflict.elevationConflict && !monotonyConflict.colorSchemeConflict">
+				The selected Elevation is no longer available for the lot you've chosen.
+				Please review and adjust either your Elevation or Lot selection to resolve the conflict.
+			</ng-container>
+
+			<ng-container *ngIf="!monotonyConflict.elevationConflict && monotonyConflict.colorSchemeConflict">
+				The selected Color Scheme is no longer available for the lot you've chosen.
+				Please review and adjust either your Color Scheme or Lot selection to resolve the conflict.
+			</ng-container>
+
+			<ng-container *ngIf="monotonyConflict.elevationConflict && monotonyConflict.colorSchemeConflict">
+				The selected Elevation and Color Scheme is no longer available for the lot you've chosen.
+				Please review and adjust both your Elevation and Color Scheme selections, or adjust your Lot
+				selection to resolve the conflict.
+			</ng-container>
+		</div>
+		<div>
+			<a class="text-center phd-single" (click)="acknowledgeMonotonyConflict()">
+				<span>Okay</span>
+			</a>
+		</div>
+	</div>
+	<div class="phd-links" *ngIf="acknowledgedMonotonyConflict">
+		<div class="phd-links-left">
+			<a class="phd-elevation" (click)="navigateToElevation()" *ngIf="monotonyConflict.elevationConflict">
+				Choose a new <span>Elevation</span>
+			</a>
+			<a class="phd-colorScheme" (click)="navigateToColorScheme()" *ngIf="monotonyConflict.colorSchemeConflict">
+				Choose a new <span>Color Scheme</span>
+			</a>
+		</div>
+		<div class="phd-links-right">
+			<a class="phd-lot" (click)="navigateToLot()">
+				Choose a new <span>Lot</span>
+			</a>
+		</div>
+	</div>
+</div>

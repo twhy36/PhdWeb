@@ -14,15 +14,15 @@
 				<div>
 					<strong></strong>
 				</div>
-				<ng-container>
-					<button class="phd-non-clickable" (click)="$event.stopPropagation()">
-						<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart" (click)="toggleDecline()"></i></span>
-						<i *ngIf="!isDeclined && currentPoint.enabled" aria-pressed="false" class="fa fa-heart-o" (click)="toggleDecline()"></i>
+				<ng-container *ngIf="currentPoint.enabled">
+					<button class="phd-non-clickable" (click)="$event.stopPropagation();toggleDecline()">
+						<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart"></i></span>
+						<i *ngIf="!isDeclined" aria-pressed="false" class="fa fa-heart-o"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="!currentPoint.enabled">
-					<button class="phd-clickable phd-favorite-selector">
-						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
+					<button class="phd-clickable phd-favorite-selector" (click)="openBlockedChoiceModal()">
+						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}"></i>
 					</button>
 				</ng-container>
 			</div>

@@ -34,6 +34,7 @@ import { ChangeOrderService } from './change-order.service';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
 import * as LiteActions from '../../ngrx-store/lite/actions';
 import * as moment from 'moment';
+import { ScenarioService } from './scenario.service';
 
 @Injectable()
 export class LiteService
@@ -50,6 +51,7 @@ export class LiteService
 		private modalService: ModalService,
 		private store: Store<fromRoot.State>,
 		private actions: ActionsSubject,
+		private scenarioService: ScenarioService,
 		private featureSwitchService: FeatureSwitchService
 	) { }
 
@@ -794,9 +796,9 @@ export class LiteService
 		}, []);
 	}
 
-	onGenerateSalesAgreementWithColorWarning(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number)
+	onGenerateSalesAgreementWithColorWarning(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, opportunityId: string)
 	{
-		const title = "Generate Home Purchase Agreement";
+		const title = 'Generate Home Purchase Agreement';
 		const body = 'This House Configuration has Options selected that require a color.  Either some colors were not selected or some colors you selected have been set to inactive.  Click Continue to generate this sales agreement now, or click Cancel to select the colors for options.';
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
@@ -805,71 +807,9 @@ export class LiteService
 		{
 			if (result)
 			{
-				this.onGenerateSalesAgreement(buildMode, lotStatus, selectedLotId, salesAgreementId);
+				this.scenarioService.onGenerateSalesAgreement(buildMode, lotStatus, selectedLotId, salesAgreementId, opportunityId);
 			}
 		});
-	}
-
-	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number)
-	{
-		if (buildMode === 'spec' || buildMode === 'model')
-		{
-			if (buildMode === 'model' && lotStatus === 'Available')
-			{
-				const title = 'Create Model';
-				const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
-				const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-
-				this.showConfirmModal(body, title, primaryButton).subscribe(result =>
-				{
-					this.lotService.buildScenario();
-				});
-			}
-			else if (buildMode === 'model' && lotStatus === 'PendingRelease')
-			{
-				this.lotService.getLotReleaseDate(selectedLotId).pipe(
-					switchMap((releaseDate) =>
-					{
-						const title = 'Create Model';
-						const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
-
-						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-						const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-
-						return this.showConfirmModal(body, title, primaryButton, secondaryButton);
-					})).subscribe(result =>
-					{
-						if (result)
-						{
-							this.lotService.buildScenario();
-						}
-					});
-			}
-			else
-			{
-				this.lotService.buildScenario();
-			}
-		}
-		else if (salesAgreementId)
-		{
-			this.router.navigateByUrl(`/point-of-sale/people/${salesAgreementId}`);
-		}
-		else
-		{
-			const title = 'Generate Home Purchase Agreement';
-			const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
-
-			const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-			const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
-
-			this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
-			{
-				if (result)
-				{
-					this.lotService.buildScenario();
-				}
-			});
-		}
 	}
 
 	private showConfirmModal(body: string, title: string, primaryButton: any = null, secondaryButton: any = null): Observable<boolean>

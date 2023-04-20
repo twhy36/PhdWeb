@@ -18,7 +18,6 @@ import { OptionService } from './services/option.service';
 import { OrganizationService } from './services/organization.service';
 import { PlanService } from './services/plan.service';
 import { SalesAgreementService } from './services/sales-agreement.service';
-import { TreeService } from './services/tree.service';
 import { AttributeService } from './services/attribute.service';
 import { AuthService } from './services/auth.service';
 import { ReportsService } from './services/reports.service';
@@ -29,7 +28,6 @@ import { InternalGuard } from './guards/internal.guard';
 import { ExternalGuard } from './guards/external.guard';
 import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
-import { TokenService } from './services/token.service';
 import { InfoDisclaimerComponent } from './components/info-disclaimer/info-disclaimer.component';
 import { LoggingService, PhdErrorHandler } from 'phd-common';
 @NgModule({
@@ -63,10 +61,8 @@ import { LoggingService, PhdErrorHandler } from 'phd-common';
 		OrganizationService,
 		PlanService,
 		SalesAgreementService,
-		TreeService,
 		AttributeService,
 		AuthService,
-		TokenService,
 		ReportsService,
 		BrandService,
 		AdobeService,

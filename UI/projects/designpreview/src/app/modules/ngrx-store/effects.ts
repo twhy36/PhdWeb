@@ -7,13 +7,15 @@ import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
-import { SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages } from 'phd-common';
+import { 
+	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined, 
+	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService
+} from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
 import { ErrorAction, ErrorFrom, SetLatestError, tryCatch } from './error.action';
 import { LoadSelectedPlan } from './plan/actions';
 
-import { TreeService } from '../core/services/tree.service';
 import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
@@ -24,9 +26,8 @@ import { ChangeOrderService } from '../core/services/change-order.service';
 import { FavoriteService } from '../core/services/favorite.service';
 
 import { State, showSpinner } from './reducers';
-import { setTreePointsPastCutOff, mergeIntoTree } from '../shared/classes/tree.utils';
+import { setTreePointsPastCutOff } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
-import { LoggingService } from 'phd-common';
 
 @Injectable()
 export class CommonEffects
@@ -65,7 +66,7 @@ export class CommonEffects
 
 					const favoriteChoices = _.flatMap(result.myFavorites, x => x.myFavoritesChoice);
 					const favoritePointsDeclined = _.flatMap(result.myFavorites, x => x.myFavoritesPointDeclined);
-					const getPointsDeclined: Observable<MyFavoritesPointDeclined[]> = favoritePointsDeclined.length > 0 ? this.treeService.getPointCatalogIds(favoritePointsDeclined) : of([]);
+					const getPointsDeclined: Observable<MyFavoritesPointDeclined[]> = favoritePointsDeclined.length > 0 ? this.treeService.getDeclinedPointCatalogIds(favoritePointsDeclined) : of([]);
 
 					return combineLatest(([
 						this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true),
@@ -177,8 +178,9 @@ export class CommonEffects
 						return this.changeOrderService.getTreeVersionIdByJobPlan(result.selectedPlanId).pipe(
 							switchMap(treeVersionId =>
 							{
+								const fetchChoiceCatalogData = true;
 								return combineLatest(([
-									this.treeService.getTree(treeVersionId),
+									this.treeService.getTree(treeVersionId, fetchChoiceCatalogData),
 									this.treeService.getRules(treeVersionId, true),
 									this.optionService.getPlanOptions(result.selectedPlanId, null, true),
 									this.treeService.getOptionImages(treeVersionId, [], null, true),
@@ -205,13 +207,12 @@ export class CommonEffects
 											myFavorites: result.myFavorites
 										};
 									}),
-									mergeIntoTree(
+									this.treeService.mergeIntoTree(
 										[
 											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Delete' && coc.dpChoiceId === jc.dpChoiceId)),
 											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])
 										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
-										this.treeService,
 										result.changeOrderGroup),
 									map(data =>
 									{

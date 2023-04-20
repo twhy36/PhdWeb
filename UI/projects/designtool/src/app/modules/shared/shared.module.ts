@@ -39,6 +39,7 @@ import { PlanComponent } from './components/plan/plan.component';
 import { PlanCardComponent } from './components/plan-card/plan-card.component';
 import { SummaryHeaderComponent } from './components/summary-header/summary-header.component';
 import { PricingBreakdownComponent } from './components/pricing-breakdown/pricing-breakdown.component';
+import { MonotonyConflictModalComponent } from './components/monotony-conflict-modal/monotony-conflict-modal.component';
 
 import { CapitalCaseSpacePipe } from './pipes/capitalCaseSpace.pipe';
 import { ChoiceIdToNamePipe } from './pipes/choiceIdToName.pipe';
@@ -101,7 +102,8 @@ import { NewHomeService } from '../new-home/services/new-home.service';
 		PriceRangePipe,
 		FloorPlanComponent,
 		SummaryHeaderComponent,
-		PricingBreakdownComponent
+		PricingBreakdownComponent,
+		MonotonyConflictModalComponent
 	],
 	declarations: [
 		AttributeListComponent,
@@ -145,7 +147,8 @@ import { NewHomeService } from '../new-home/services/new-home.service';
 		PriceRangePipe,
 		FloorPlanComponent,
 		SummaryHeaderComponent,
-		PricingBreakdownComponent
+		PricingBreakdownComponent,
+		MonotonyConflictModalComponent
 	],
 	imports: [
 		BrowserAnimationsModule,
