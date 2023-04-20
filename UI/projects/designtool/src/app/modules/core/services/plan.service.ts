@@ -4,10 +4,9 @@ import { Observable, from, EMPTY as empty, throwError as _throw, of, combineLate
 import { map, catchError, flatMap, toArray, switchMap, take } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { withSpinner, SalesCommunity, Plan, FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
+import { withSpinner, SalesCommunity, Plan, FeatureSwitchService, IFeatureSwitchOrgAssoc, TreeService } from 'phd-common';
 
 import { OptionService } from './option.service';
-import { TreeService } from './tree.service';
 
 @Injectable()
 export class PlanService
@@ -26,7 +25,7 @@ export class PlanService
 		const communityIds = salesCommunity.financialCommunities.map(c => c.id);
 
 		return combineLatest([
-				this.treeService.getTreeVersions(communityIds),
+				this.treeService.getTreeVersionsByCommIds(communityIds),
 				this.getCommunityPlans(salesCommunity.id),
 				this.featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', communityIds)
 			])

@@ -4,10 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { withSpinner, defaultOnNotFound, SalesAgreement, ISalesAgreementInfo, SalesAgreementInfo } from 'phd-common';
+import { withSpinner, defaultOnNotFound, SalesAgreement, ISalesAgreementInfo, SalesAgreementInfo, ODataResponse } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { ODataResponse } from '../../shared/models/odata-response.model';
 
 @Injectable()
 export class SalesAgreementService

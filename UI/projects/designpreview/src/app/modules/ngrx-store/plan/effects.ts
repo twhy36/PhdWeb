@@ -8,8 +8,8 @@ import { PlanActionTypes, LoadSelectedPlan, SelectedPlanLoaded, LoadError } from
 import { ErrorFrom, tryCatch } from '../error.action';
 
 import { PlanService } from '../../core/services/plan.service';
-import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
+import { TreeService } from 'phd-common';
 
 @Injectable()
 export class PlanEffects
@@ -42,7 +42,7 @@ export class PlanEffects
 						const baseHouseKey = '00001';
 						const plan = result.plans[0];
 
-						return this.treeService.getTreeVersions(plan.integrationKey, plan.communityId).pipe(
+						return this.treeService.getTreeVersionsByPlanKeyAndCommId(plan.integrationKey, plan.communityId).pipe(
 							switchMap(treeVersions => 
 							{
 								if (treeVersions && treeVersions.length) 
