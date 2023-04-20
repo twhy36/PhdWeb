@@ -133,18 +133,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			});
 		});
 
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped),
-			combineLatest(
-				this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped))
-			)
-		).subscribe(([isAgreementFlipped, isScenarioFlipped]) =>
-		{
-			this.handleFlip(isAgreementFlipped, isScenarioFlipped);
-		});
-
 		let wd: any = window;
 
 		wd.message = function (str) { };
@@ -157,7 +145,6 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			)
 		).subscribe(([canEditAgreement, canConfigure]) =>
 		{
-
 			this.canEditAgreement = canEditAgreement && (canConfigure);
 
 			if (this.canEditAgreement || this.canForceSave)
@@ -261,6 +248,17 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}
 
 			this.isDesignComplete = isDesignComplete;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped),
+			combineLatest(
+				this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped))
+			)
+		).subscribe(([isAgreementFlipped, isScenarioFlipped]) =>
+		{
+			this.handleFlip(isAgreementFlipped, isScenarioFlipped);
 		});
 	}
 
@@ -494,6 +492,9 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.fp?.graphic.flip(isFlipped);
 
 			this.isFloorplanFlipped = isFlipped;
+
+			//must save floorplan image
+			this.saveFloorPlanImages();
 		}
 
 		this.flipping = false;
@@ -578,6 +579,14 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				const floor1 = this.fp.floors.find(x => x.name === 'Floor 1');
 
 				this.selectedFloor = floor1;
+			}
+
+			if (this.isFloorplanFlipped !== undefined || this.isFloorplanFlipped !== null)
+			{
+				this.fp?.graphic.flip(this.isFloorplanFlipped);
+
+				//must save floorplan image 
+				this.saveFloorPlanImages();
 			}
 
 			this.setFloorPlanColors();
