@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild, Attribute } from '@angular/core';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import * as _ from 'lodash';
@@ -356,39 +356,40 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 
 		//IFPs do not load attributes for an attribute group,
-		//need to fetch them to determine if any are auto selected if the user doesn't
-		//open the modal
-		if (choice.mappedAttributeGroups.length === 1)
+		//need to fetch them to determine if any are auto selected if the user doesn't open the modal
+		if (choice.mappedAttributeGroups.length > 0)
 		{
 			this.attributeService.getAttributeGroups(choice).subscribe(attributeGroups =>
 			{
-				//if there is only 1 attribute group that has 1 attribute, auto select that attribute to the choice
-				if (attributeGroups.length === 1 && attributeGroups[0].attributes.length === 1)
-				{
-					const attributeGroup = attributeGroups[0];
-					const attribute = attributeGroup.attributes[0];
+				attributeGroups.forEach(attributeGroup =>
+				{ 
+					//if attributeGroup only has 1 attribute, auto select that attribute to the choice
+					if (attributeGroup.attributes.length === 1)
+					{
+						const attribute = attributeGroup.attributes[0];
 
-					const selectedAttribute: DesignToolAttribute = {
-						attributeId: attribute.id,
-						attributeName: attribute.name,
-						attributeImageUrl: attribute.imageUrl,
-						attributeGroupId: attributeGroup.id,
-						attributeGroupName: attributeGroup.name,
-						attributeGroupLabel: attributeGroup.label,
-						locationGroupId: null,
-						locationGroupName: null,
-						locationGroupLabel: null,
-						locationId: null,
-						locationName: null,
-						locationQuantity: null,
-						scenarioChoiceLocationId: null,
-						scenarioChoiceLocationAttributeId: null,
-						sku: attribute.sku,
-						manufacturer: attribute.manufacturer
-					};
+						const selectedAttribute: DesignToolAttribute = {
+							attributeId: attribute.id,
+							attributeName: attribute.name,
+							attributeImageUrl: attribute.imageUrl,
+							attributeGroupId: attributeGroup.id,
+							attributeGroupName: attributeGroup.name,
+							attributeGroupLabel: attributeGroup.label,
+							locationGroupId: null,
+							locationGroupName: null,
+							locationGroupLabel: null,
+							locationId: null,
+							locationName: null,
+							locationQuantity: null,
+							scenarioChoiceLocationId: null,
+							scenarioChoiceLocationAttributeId: null,
+							sku: attribute.sku,
+							manufacturer: attribute.manufacturer
+						};
 
-					choice.selectedAttributes.push(selectedAttribute);
-				}
+						choice.selectedAttributes.push(selectedAttribute);
+					}
+				});
 
 				this.onSelectChoice.emit({ choice, saveNow: false, quantity: choice.quantity ? 0 : 1 });
 			});
