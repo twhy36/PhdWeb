@@ -72,18 +72,18 @@
 					<div class="phd-group ifp-group">
 						<div class="phd-floorplan-image-section">
 							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
-								<button class="phd-expendable-circle" (click)="toggleCollapsed()">
-									<span *ngIf="!showFloorplan" id="expand-ifp" aria-expanded="false" aria-label="Expand Floorplan">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-controls="expand-ifp" aria-hidden="true"></i>
+								<button class="phd-expendable-circle" (click)="toggleCollapsed()" aria-controls="floorplans">
+									<span *ngIf="!showFloorplan" aria-expanded="false" aria-label="Expand Floorplan">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-hidden="true"></i>
 									</span>
-									<span *ngIf="showFloorplan" id="collapse-ifp" aria-expanded="true" aria-label="Collapse Floorplan">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-controls="expand-ifp" aria-hidden="true"></i>
+									<span *ngIf="showFloorplan" aria-expanded="true" aria-label="Collapse Floorplan">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-hidden="true"></i>
 									</span>
 								</button>
 								<h2 class="phd-label">floorplan image</h2>
 							</div>
 							<h2 *ngIf="isPresale" class="phd-label">floorplan image</h2>
-							<ng-container *ngIf="showFloorplan || isPresale">
+							<span id="floorplans" *ngIf="showFloorplan || isPresale">
 								<ng-container *ngFor="let fpImage of floorPlanImages">
 									<div class="phd-sub-group d-flex flex-column justify-content-between">
 										<div class="phd-header d-flex justify-content-between align-items-center">
@@ -107,7 +107,7 @@
 										(floorPlanSaved)="onFloorPlanSaved($event)"
 									></floor-plan>
 								</div>
-							</ng-container>
+							</span>
 						</div>
 					</div>
 				</ng-container>

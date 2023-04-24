@@ -220,11 +220,19 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			points = _.flatMap(subGroups, sg => sg.points);
 			choices = _.flatMap(points, p => p.choices);
 
+			document.getElementById("hiddenAlert").innerHTML = "";
+
 			for (const choice of action.choices)
 			{
 				const c = choices.find(ch => ch.id === choice.choiceId || ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 				if (c)
 				{
+					//selection changed from attribute or attributes cleared by un-favorite
+					if (choice.attributes?.length && ((!c.quantity && choice.quantity) || (c.quantity && !choice.quantity)))
+					{
+						document.getElementById("hiddenAlert").innerHTML = 'Updating this element will cause content on the page to be updated.';
+					}
+
 					c.quantity = choice.quantity;
 
 					if (choice.attributes)
@@ -274,9 +282,17 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			}
 
+			document.getElementById("hiddenAlert").innerHTML = "";
 			points.forEach(point =>
 			{
+				const initPointCompleted = point.completed;
 				point.completed = point && point.choices && point.choices.some(ch => ch.quantity > 0);
+
+				//related point updated per select choice, raise aria warning
+				if (initPointCompleted !== point.completed)
+				{
+					document.getElementById("hiddenAlert").innerHTML = 'Updating this element will cause content on the page to be updated.';
+				}
 			});
 			applyRules(newTree, rules, options);
 

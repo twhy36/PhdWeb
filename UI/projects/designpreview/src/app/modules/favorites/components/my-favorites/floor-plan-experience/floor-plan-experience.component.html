@@ -6,7 +6,7 @@
 
 <div class="phd-floor-plan-experience" [class.phd-hide]="errorMessage.length > 0">
 	<div class="d-flex flex-row phd-point-panel">
-		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
+		<div id="detailedDecisionBar" *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
 			<h3 class="phd-visually-hidden">
 				Side Bar Header
 			</h3>
@@ -39,7 +39,7 @@
 				</ng-container>
 			</div>
 		</div>
-		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''" (click)="togglePointPanel()">
+		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''" (click)="togglePointPanel()" aria-controls="detailedDecisionBar">
 			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" aria-expanded="true" aria-label="Collapse Decision Bar"></i>
 			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" aria-expanded="false" aria-label="Expand Decision Bar"></i>
 		</button>

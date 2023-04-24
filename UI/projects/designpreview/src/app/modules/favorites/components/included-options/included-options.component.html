@@ -1,3 +1,5 @@
+<div id="hiddenAlert" role="alert" class="phd-visually-hidden"></div>
+
 <header-bar
 		[communityName]="communityName"
 		[planName]="planName">
@@ -5,7 +7,7 @@
 
 <main class="phd-included-options">
 	<div class="d-flex flex-row phd-point-panel">
-		<div *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
+		<div id="includedDecisionBar" *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
 			<included-decision-bar
 				[tree]="filteredTree"
 				[points]="points"
@@ -13,7 +15,7 @@
 				(selectSubGroup)="selectSubGroup($event)">
 			</included-decision-bar>
 		</div>
-		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
+		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''" aria-controls="includedDecisionBar">
 			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" aria-expanded="true" aria-label="Collapse Decision Bar" (click)="togglePointPanel()"></i>
 			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" aria-expanded="false" aria-label="Expand Decision Bar" (click)="togglePointPanel()"></i>
 		</button>	
