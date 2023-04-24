@@ -971,12 +971,14 @@ export class ChangeOrderService
 
 		if (fromChoice)
 		{
-			option.attributeGroups?.forEach(attributeGroup => {
+			option.attributeGroups?.forEach(attributeGroup =>
+			{
 				// Find the choice that an attribute is reassigned to
 				const choicesWithReassignments = treeChoices.find(c => c.mappedAttributeGroups?.find(mappedGroup => mappedGroup.attributeReassignmentFromChoiceId === fromChoice.id && mappedGroup.id === attributeGroup));
-				
+
 				// Find the selected attributes in the choice with reassignments
 				const selectedAttribute = choicesWithReassignments?.selectedAttributes?.find(sa => sa.attributeGroupId === attributeGroup);
+
 				if (selectedAttribute && !selectedAttribute.locationGroupId)
 				{
 					let attribute = {
@@ -988,9 +990,9 @@ export class ChangeOrderService
 						manufacturer: selectedAttribute.manufacturer
 					};
 
-					if (action)
+					if (action && action === 'Change')
 					{
-						(attribute as any).action = action;
+						(attribute as any).action = 'Add';
 					}
 
 					reassignedAttributesDto.push(attribute);
@@ -1352,9 +1354,9 @@ export class ChangeOrderService
 
 			if (changedJobLocation)
 			{
-                changedJobLocation.quantity = loc.quantity;
-                changedJobLocation.locationGroupLabel = loc.locationGroupLabel;
-                changedJobLocation.locationName = loc.locationName;
+				changedJobLocation.quantity = loc.quantity;
+				changedJobLocation.locationGroupLabel = loc.locationGroupLabel;
+				changedJobLocation.locationName = loc.locationName;
 
 				this.mergeSelectedLocationAttributes(changedJobLocation, loc);
 			}
