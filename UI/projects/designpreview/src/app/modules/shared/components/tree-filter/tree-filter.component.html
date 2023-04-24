@@ -1,8 +1,8 @@
 <div class="input-group">
 	<input type="text" aria-label="Search" label="Search" [(ngModel)]="keyword" class="form-control phd-search-input" placeholder="Search" maxlength="100">
-	<span class="phd-search-clear" (click)="clearFilter()">
+	<button class="phd-search-clear" (click)="clearFilter()">
 		<span aria-hidden="true"><i class="fa fa-fw fa-times"></i></span>
-	</span>
+	</button>
 
 	<div (click)="keywordSearch()">
 		<button type="button" aria-label="Search" class="btn btn-secondary" [disabled]="!canSearch">

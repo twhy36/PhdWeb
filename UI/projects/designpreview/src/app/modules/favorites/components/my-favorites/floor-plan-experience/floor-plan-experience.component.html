@@ -39,9 +39,9 @@
 				</ng-container>
 			</div>
 		</div>
-		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''">
-			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" aria-expanded="true" aria-label="Collapse Decision Bar" (click)="togglePointPanel()"></i>
-			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" aria-expanded="false" aria-label="Expand Decision Bar" (click)="togglePointPanel()"></i>
+		<button class="d-flex justify-content-center align-items-center phd-collapse-icon" [ngClass]="isPointPanelCollapsed ? 'phd-collapsed-icon-bg' : ''" (click)="togglePointPanel()">
+			<i *ngIf="!isPointPanelCollapsed" class="fa fa-angle-double-left" aria-expanded="true" aria-label="Collapse Decision Bar"></i>
+			<i *ngIf="isPointPanelCollapsed" class="fa fa-angle-double-right" aria-expanded="false" aria-label="Expand Decision Bar"></i>
 		</button>
 	</div>
 

@@ -5,8 +5,8 @@
 				<h1 class="phd-visually-hidden">
 					Header
 				</h1>
-				<a class="phd-nav-bar-header phd-clickable">
-					<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="onHomePage()" alt="">
+				<a href="" class="phd-nav-bar-header phd-clickable">
+					<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="$event.preventDefault(); onHomePage()" alt="">
 				</a>
 				<div class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
 					<span class="phd-nav-bar-label">Design Preview</span>
