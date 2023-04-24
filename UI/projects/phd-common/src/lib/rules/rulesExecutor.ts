@@ -1060,7 +1060,7 @@ export function setSubgroupStatus(subGroup: SubGroup, selectedPointFilter?: Deci
 	{
 		subGroup.status = PointStatus.COMPLETED;
 	}
-	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.viewed || p.status === (PointStatus.CONFLICTED)))
+	else if (subGroup.points.filter(p => getFilteredPoint(p, selectedPointFilter)).every(p => p.viewed || p.status === (PointStatus.CONFLICTED) || p.status === PointStatus.COMPLETED || p.pointPickTypeId === PickType.Pick0or1))
 	{
 		subGroup.status = PointStatus.VIEWED;
 	}
