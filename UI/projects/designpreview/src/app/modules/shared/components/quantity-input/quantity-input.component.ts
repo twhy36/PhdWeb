@@ -38,7 +38,7 @@ export class QuantityInputComponent
 			if (this.currentQty !== value)
 			{
 				//reset currentQty when input is out of range, otherwise set to input value
-				this.currentQty = (Number(value) && value >= this.min && value <= this.max) ? value : this.currentQty;
+				this.currentQty = (Number(value) && value >= this.min && value <= this.max) || value === 0 ? value : this.currentQty;
 
 				//set valid input, only alert user when input exceed max allowed
 				this.quantityChange.emit(value > this.max ? null : this.currentQty);
