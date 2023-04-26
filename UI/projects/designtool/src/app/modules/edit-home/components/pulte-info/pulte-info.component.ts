@@ -39,7 +39,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     minDate: Date = new Date();
     pulteInfoSet = false;
 	canEdit: boolean;
-
     canSell$: Observable<boolean>;
     priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
@@ -137,10 +136,16 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
-        this.store.pipe(
-            this.takeUntilDestroyed(),
-            select(fromRoot.canConfigure)
-		).subscribe(canConfigure => this.canEdit = canConfigure);
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			combineLatest(
+				this.store.pipe(select(fromRoot.canConfigure)),
+				this.store.pipe(select(fromRoot.canCreateSpecOrModel))
+			)
+		).subscribe(([canConfigure, canCreateSpecOrModel]) =>
+		{
+			this.canEdit = canConfigure && canCreateSpecOrModel;
+		});
     }
 
     createForm()
