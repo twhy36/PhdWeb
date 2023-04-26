@@ -17,7 +17,6 @@ import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from '
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
-import { ScrollTop } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'home',
@@ -52,8 +51,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit()
 	{
-		ScrollTop();
-
 		combineLatest([
 			this.activatedRoute.paramMap,
 			this.store.pipe(select(state => state.salesAgreement)),
