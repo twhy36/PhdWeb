@@ -57,14 +57,14 @@
 					</a>
 				</ul>
 			</div>
-			<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu" aria-controls="navMenu">
-				<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" aria-expanded="false" aria-label="Expand Menu" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
-				<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" aria-expanded="true" aria-label="Collapse Menu" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+			<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu">
+				<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+				<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			</button>
 		</div>
 	</nav>
 
-	<nav *ngIf="!isMenuCollapsed" class="phd-collapsable-menu" id="navMenu">
+	<nav *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
 		<h1 class="phd-visually-hidden">
 			Navigation
 		</h1>

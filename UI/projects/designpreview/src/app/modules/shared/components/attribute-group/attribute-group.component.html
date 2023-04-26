@@ -1,11 +1,11 @@
 <div class="d-flex">
 	<ng-container *ngIf="!isDesignComplete">
-		<button class="phd-attribute-group-toggle phd-clickable" [attr.aria-controls]="'att' + attributeGroup.id">
-			<i class="fa fa-angle-up" *ngIf="!isCollapsed" aria-expanded="true" aria-label="Collaps Attribute Group" (click)="onToggleAttributeGroup()"></i>
-			<i class="fa fa-angle-down" *ngIf="isCollapsed" aria-expanded="false" aria-label="Expand Attribute Group" (click)="onToggleAttributeGroup()"></i>
+		<button class="phd-attribute-group-toggle phd-clickable">
+			<i class="fa fa-angle-up" *ngIf="!isCollapsed" (click)="onToggleAttributeGroup()"></i>
+			<i class="fa fa-angle-down" *ngIf="isCollapsed" (click)="onToggleAttributeGroup()"></i>
 		</button>
 	</ng-container>
-	<div [class.phd-attribute-group-complete]="isDesignComplete" id="{{'att' + attributeGroup.id}}">
+	<div [class.phd-attribute-group-complete]="isDesignComplete">
 		<ng-container *ngIf="!isDesignComplete">
 			<span class="phd-attribute-group-header" [class.phd-location-attribute-header]="isLocationAttribute" title="{{attributeGroup.label}}">{{attributeGroup.label}}</span>
 			<div class="phd-attribute-group-instruction" *ngIf="!isCollapsed && !isBlocked">
@@ -15,7 +15,7 @@
 		</ng-container>
 
 		<ng-container *ngIf="isDesignComplete">
-			<h3 class="phd-attribute-group-header" [class.phd-location-attribute-header-complete]="isLocationAttribute" title="{{attributeGroup.label}}">{{attributeGroup.label}}</h3>
+			<div class="phd-attribute-group-header" [class.phd-location-attribute-header-complete]="isLocationAttribute" title="{{attributeGroup.label}}">{{attributeGroup.label}}</div>
 		</ng-container>
 
 		<div *ngIf="!isCollapsed"
