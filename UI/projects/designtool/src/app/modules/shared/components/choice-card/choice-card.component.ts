@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 {
 	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption, TreeService
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption
 } from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -29,6 +29,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import * as _ from 'lodash';
 import { selectedPlanData } from '../../../ngrx-store/plan/reducer';
+import { TreeService } from '../../../core/services/tree.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -265,7 +266,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				this.store.pipe(select(selectSelectedLot)),
 				this.store.pipe(select(selectedPlanData)),
 				this.store.pipe(select(state => state.job.jobPlanOptions)),
-				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id], true)
+				this.treeService.getChoiceImageAssoc([this.choice.lockedInChoice ? this.choice.lockedInChoice.choice.dpChoiceId : this.choice.id])
 			))
 			.subscribe(([monotonyChoices, choiceOverride, lots, plan, jobPlanOptions, choiceImages]) =>
 			{

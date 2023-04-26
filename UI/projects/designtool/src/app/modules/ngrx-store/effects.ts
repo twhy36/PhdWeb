@@ -9,18 +9,17 @@ import * as _ from 'lodash';
 import
 {
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
-	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, 
-	TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc, DesignToolAttribute, TreeService,
-	updateWithNewTreeVersion
+	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree, TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc, DesignToolAttribute
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
 import { tryCatch } from './error.action';
 import { ScenarioService } from '../core/services/scenario.service';
+import { TreeService } from '../core/services/tree.service';
 import { OptionService } from '../core/services/option.service';
 import { LotService } from '../core/services/lot.service';
 import { OrganizationService } from '../core/services/organization.service';
-import { setTreePointsPastCutOff, mapAttributes } from '../shared/classes/tree.utils';
+import { setTreePointsPastCutOff, mergeIntoTree, updateWithNewTreeVersion, mapAttributes } from '../shared/classes/tree.utils';
 import { JobService } from '../core/services/job.service';
 import { PlanService } from '../core/services/plan.service';
 import { OpportunityService } from '../core/services/opportunity.service';
@@ -167,7 +166,7 @@ export class CommonEffects
 									]).pipe(
 										switchMap(([sc, claims, markets]: [SalesCommunity, Claims, IMarket[]]) =>
 										{
-											return this.treeService.getChoiceCatalogIds(job.jobChoices, true).pipe(
+											return this.treeService.getChoiceCatalogIds(job.jobChoices).pipe(
 												map(res =>
 												{
 													job.jobChoices = res;
@@ -186,7 +185,7 @@ export class CommonEffects
 											{
 												return of({ job, salesCommunity: sc, claims, markets, tree: result.tree, options: result.options, isPhdLite: result.isPhdLite }).pipe(
 													//do this before checking cutoffs
-													this.treeService.mergeIntoTree(job.jobChoices, job.jobPlanOptions, null, false),
+													mergeIntoTree(job.jobChoices, job.jobPlanOptions, this.treeService, null, false),
 													map(res =>
 													{
 														//add selections from the job into the tree
@@ -468,7 +467,7 @@ export class CommonEffects
 
 					return combineLatest([
 						this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true),
-						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices], true),
+						this.treeService.getChoiceCatalogIds([...result.job.jobChoices, ...changeOrderChoices]),
 						selectedPlan$,
 						this.liteService.isPhdLiteEnabled(result.job.financialCommunityId)
 					]).pipe(
@@ -583,7 +582,7 @@ export class CommonEffects
 							switchMap(([treeVersionId, favorites]) =>
 							{
 								const favoriteChoices = !!favorites ? _.flatMap(favorites, x => x.myFavoritesChoice) : [];
-								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices], true) : of([]);
+								const getFavoritesChoiceCatalogIds = !!favoriteChoices?.length ? this.treeService.getChoiceCatalogIds([...favoriteChoices]) : of([]);
 
 								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of<Tree>(null);
 								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of<TreeVersionRules>(null);
@@ -648,12 +647,13 @@ export class CommonEffects
 											isPhdLite: isPhdLite
 										};
 									}),
-									this.treeService.mergeIntoTree(
-										[ 
+									mergeIntoTree(
+										[
 											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Delete' && coc.dpChoiceId === jc.dpChoiceId)),
 											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])
 										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
+										this.treeService,
 										result.changeOrderGroup,
 										result.salesAgreement && ['OutforSignature', 'Signed', 'Approved', 'Closed'].indexOf(result.salesAgreement.status) !== -1),
 									map(data =>

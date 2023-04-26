@@ -5,10 +5,11 @@ import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
 import {
 	UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete, DesignToolAttribute, PointStatus, DecisionPoint,
-	Group, SubGroup, Choice, TreeService
+	Group, SubGroup, Choice
 } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 
+import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'decision-point-summary',

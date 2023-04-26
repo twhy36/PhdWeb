@@ -226,8 +226,7 @@ describe('ChoiceCardComponent', () =>
 			component.currentPoint = component.groups[0].subGroups[0].points[0];
 			component.tree = {
 				id: 15, orgId: 22, marketKey: 'e', planId: 24, planKey: 'abc', communityId: 25, communityKey: 'f', marketId: 26, financialCommunityId: 27,
-				treeVersion: {id: 16, name: 'testing tree', treeId: 15, planKey: 'abc', groups: component.groups, communityId: 23, description: 'description', 
-					publishStartDate: new Date(), publishEndDate: new Date(), lastModifiedDate: new Date(), includedOptions: ['option', 'option']}
+				treeVersion: {id: 16, name: 'testing tree', treeId: 15, planKey: 'abc', groups: component.groups}
 			};
 		});
 		it('should open the modal', () => 

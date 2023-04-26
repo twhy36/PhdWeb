@@ -14,7 +14,8 @@ import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { MyFavoritesComponent } from './my-favorites.component';
-import { ModalService, NavigationService, PointStatus, TreeService } from 'phd-common';
+import { ModalService, NavigationService, PointStatus } from 'phd-common';
+import { TreeService } from '../../../core/services/tree.service';
 
 describe('MyFavoritesComponent', () =>
 {

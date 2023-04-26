@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { withSpinner, PlanOption, OptionImage, ODataResponse, PlanOptionCommunityDto } from 'phd-common';
+import { withSpinner, PlanOption, OptionImage } from 'phd-common';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
+import { ODataResponse, PlanOptionCommunityDto } from '../../shared/models/odata-response.model';
 
 @Injectable()
 export class OptionService

@@ -6,7 +6,7 @@ import { switchMap, withLatestFrom, map, tap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
-import { DesignToolAttribute, MyFavorite, PickType, TreeService } from 'phd-common';
+import { DesignToolAttribute, MyFavorite, PickType } from 'phd-common';
 
 import
 { 	FavoriteActionTypes, SetCurrentFavorites, MyFavoriteCreated, SaveMyFavoritesChoices,
@@ -21,6 +21,7 @@ import { SelectChoices, SetStatusForPointsDeclined } from '../scenario/actions';
 import { ErrorFrom, tryCatch } from '../error.action';
 
 import { FavoriteService } from '../../core/services/favorite.service';
+import { TreeService } from '../../core/services/tree.service';
 
 import * as fromRoot from '../reducers';
 import * as fromFavorite from './reducer';
@@ -255,7 +256,7 @@ export class FavoriteEffects
 						return this.favoriteService.addMyFavoritesPointDeclined(action.myFavoriteId, action.pointId).pipe(
 							switchMap(pointDeclined => 
 							{
-								return this.treeService.getDeclinedPointCatalogIds([pointDeclined]);
+								return this.treeService.getPointCatalogIds([pointDeclined]);
 							})
 						);
 					}

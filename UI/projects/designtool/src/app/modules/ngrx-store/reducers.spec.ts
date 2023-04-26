@@ -35,8 +35,6 @@ import
 
 describe('Common reducer', function ()
 {
-	const testDate = new Date(123456789);
-
 	it('title displays preview', () =>
 	{
 		let state: State = <any>{
@@ -3418,12 +3416,6 @@ describe('Common reducer', function ()
 						treeId: 23,
 						planKey: 'plan',
 						name: 'someTree',
-						communityId: 23,
-						description: 'description',
-						publishStartDate: testDate,
-						publishEndDate: testDate,
-						lastModifiedDate: testDate,
-						includedOptions: ['option', 'option'],
 						groups: [{
 							groupCatalogId: 3,
 							id: 16760,
@@ -3614,12 +3606,6 @@ describe('Common reducer', function ()
 			treeId: 23,
 			planKey: 'plan',
 			name: 'someTree',
-			communityId: 23,
-			description: 'description',
-			publishStartDate: testDate,
-			publishEndDate: testDate,
-			lastModifiedDate: testDate,
-			includedOptions: ['option', 'option'],
 			groups: [{
 				groupCatalogId: 3,
 				id: 16760,
@@ -3769,12 +3755,6 @@ describe('Common reducer', function ()
 						treeId: 23,
 						planKey: 'plan',
 						name: 'someTree',
-						communityId: 23,
-						description: 'description',
-						publishStartDate: testDate,
-						publishEndDate: testDate,
-						lastModifiedDate: testDate,
-						includedOptions: ['option', 'option'],
 						groups: [{
 							groupCatalogId: 3,
 							id: 16760,
@@ -3965,12 +3945,6 @@ describe('Common reducer', function ()
 			treeId: 23,
 			planKey: 'plan',
 			name: 'someTree',
-			communityId: 23,
-			description: 'description',
-			publishStartDate: testDate,
-			publishEndDate: testDate,
-			lastModifiedDate: testDate,
-			includedOptions: ['option', 'option'],
 			groups: [{
 				groupCatalogId: 3,
 				id: 16760,
@@ -4062,12 +4036,6 @@ describe('Common reducer', function ()
 						treeId: 23,
 						planKey: 'plan',
 						name: 'someTree',
-						communityId: 23,
-						description: 'description',
-						publishStartDate: testDate,
-						publishEndDate: testDate,
-						lastModifiedDate: testDate,
-						includedOptions: ['option', 'option'],
 						groups: [{
 							groupCatalogId: 3,
 							id: 16760,
@@ -4258,12 +4226,6 @@ describe('Common reducer', function ()
 			treeId: 23,
 			planKey: 'plan',
 			name: 'someTree',
-			communityId: 23,
-			description: 'description',
-			publishStartDate: testDate,
-			publishEndDate: testDate,
-			lastModifiedDate: testDate,
-			includedOptions: ['option', 'option'],
 			groups: [{
 				groupCatalogId: 3,
 				id: 16760,

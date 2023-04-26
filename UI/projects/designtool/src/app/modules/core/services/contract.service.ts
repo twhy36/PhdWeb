@@ -8,7 +8,7 @@ import
 {
 	defaultOnNotFound, withSpinner, Buyer, Contact, PhoneType, ESignTypeEnum, ChangeOrderChoice, ChangeOrderNonStandardOption,
 	ChangeOrderGroup, LotExt, Plan, SalesAgreementProgram, SDPoint, DecisionPoint, formatPhoneNumber, PriceBreakdown,
-	ScenarioOptionColor, TreeService
+	ScenarioOptionColor
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -27,6 +27,7 @@ import * as fromRoot from '../../../modules/ngrx-store/reducers';
 import { isNull } from '../../shared/classes/string-utils.class';
 import * as fromLot from '../../ngrx-store/lot/reducer';
 import * as fromChangeOrder from '../../ngrx-store/change-order/reducer';
+import { TreeService } from '../../core/services/tree.service';
 import { _throw } from 'rxjs/observable/throw';
 
 // PHD Lite
@@ -731,7 +732,7 @@ export class ContractService
 
 	createSnapShot(changeOrder: any): Observable<any>
 	{
-		return this.treeService.getChoiceCatalogIds(changeOrder.jobChangeOrderChoices || [], true).pipe(
+		return this.treeService.getChoiceCatalogIds(changeOrder.jobChangeOrderChoices || []).pipe(
 			switchMap(changeOrderChoices => this.store.pipe(
 				withLatestFrom(this.store.select(fromRoot.priceBreakdown),
 					this.store.select(fromRoot.isSpecSalePending),

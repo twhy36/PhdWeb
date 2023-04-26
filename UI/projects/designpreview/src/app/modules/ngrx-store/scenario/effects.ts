@@ -12,10 +12,11 @@ import * as _ from 'lodash';
 import { DeleteMyFavoritesPointDeclined } from '../favorite/actions';
 import { from } from 'rxjs';
 import { ErrorFrom, tryCatch } from '../error.action';
+import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
-import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, TreeService } from 'phd-common';
+import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages } from 'phd-common';
 import { LoadError } from '../actions';
 import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
 import { AdobeService } from '../../core/services/adobe.service';
@@ -64,9 +65,8 @@ export class ScenarioEffects
 			tryCatch(source => source.pipe(
 				switchMap(action =>
 				{
-					const fetchChoiceCatalogData = true;
 					return combineLatest([
-						this.treeService.getTree(action.treeVersionId, fetchChoiceCatalogData),
+						this.treeService.getTree(action.treeVersionId),
 						this.treeService.getRules(action.treeVersionId),
 						this.treeService.getOptionImages(action.treeVersionId),
 						this.treeService.getTreeBaseHouseOptions(action.treeVersionId)
@@ -132,10 +132,9 @@ export class ScenarioEffects
 							}
 
 							const treeversionId = planComm.dTreeVersionId;
-							const fetchChoiceCatalogData = true;
 
 							return combineLatest([
-								this.treeService.getTree(treeversionId, fetchChoiceCatalogData),
+								this.treeService.getTree(treeversionId),
 								this.treeService.getRules(treeversionId),
 								this.treeService.getOptionImages(treeversionId),
 								this.treeService.getTreeBaseHouseOptions(treeversionId)

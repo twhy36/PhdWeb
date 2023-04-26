@@ -9,13 +9,14 @@ import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, de
 import * as _ from 'lodash';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-import { Plan, DtoScenarioInfo, TreeService } from 'phd-common';
+import { Plan, DtoScenarioInfo } from 'phd-common';
 
 import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
 import { ScenarioService } from '../../core/services/scenario.service';
+import { TreeService } from '../../core/services/tree.service';
 
 import
 	{
@@ -262,7 +263,7 @@ export class ScenarioEffects
 						combineLatest(
 							this.treeService.getRules(action.treeVersionId),
 							this.treeService.getOptionImages(action.treeVersionId),
-							this.treeService.getTreeBaseHouseOptions(action.treeVersionId, true)
+							this.treeService.getTreeBaseHouseOptions(action.treeVersionId)
 						)
 					);
 				}),

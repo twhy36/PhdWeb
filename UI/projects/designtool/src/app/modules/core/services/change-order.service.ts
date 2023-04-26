@@ -11,10 +11,11 @@ import
 	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
 	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
 	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, PriceBreakdown, IPendingJobSummary, TreeService
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, PriceBreakdown, IPendingJobSummary
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
+import { TreeService } from '../../core/services/tree.service';
 import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType, getLockedInChoice } from '../../shared/classes/tree.utils';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };

@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
-import { Plan, withSpinner, DTreeVersionDto, ODataResponse, PlanCommunityDto } from 'phd-common';
+import { Plan, withSpinner } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 import { OptionService } from './option.service';
+import { DTreeVersionDto, ODataResponse, PlanCommunityDto } from '../../shared/models/odata-response.model';
 import { PlanCommunity } from '../../shared/models/plan-community.model';
 
 

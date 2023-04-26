@@ -5,14 +5,13 @@ import { Observable, from } from 'rxjs';
 import { switchMap, withLatestFrom, combineLatest, map } from 'rxjs/operators';
 
 import { PlanService } from '../../core/services/plan.service';
+import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { PlanActionTypes, LoadPlans, PlansLoaded, LoadError, LoadSelectedPlan, SelectedPlanLoaded } from './actions';
 import { TreeLoadedFromJob } from '../scenario/actions';
 import { SetChangeOrderPlanId } from '../change-order/actions';
 import { tryCatch } from '../error.action';
 import { setTreePointsPastCutOff } from '../../shared/classes/tree.utils';
-
-import { TreeService } from 'phd-common';
 
 import * as fromRoot from '../reducers';
 

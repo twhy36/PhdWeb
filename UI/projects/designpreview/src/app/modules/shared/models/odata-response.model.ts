@@ -10,7 +10,7 @@ export class ODataResponse<T>
 export class BatchResponse<T>
 {
 	responses: {
-		body: ODataResponse<T>;
+		body: ODataResponse<T>
 		headers;
 		id: number;
 		status: number;
@@ -24,7 +24,7 @@ export interface AttributeGroupDto
 	groupLabel: string;
 	groupName: string;
 	id: number;
-	isActive: boolean;
+	isActive: boolean
 	attributeGroupAttributeCommunityAssocs: AttributeGroupAttributeCommunityAssocDto[];
 	attributeGroupOptionCommunityAssocs: AttributeGroupOptionCommunityAssocDto[];
 }
@@ -51,8 +51,8 @@ export interface AttributeCommunityDto
 	attributeGroupAttributeCommunityAssocs: AttributeGroupAttributeCommunityAssocDto[];
 	attributeMarketId: number;
 	createdBy: string;
-	createdUtcDate: Date;
-	endDate: Date;
+	createdUtcDate: Date
+	endDate: Date
 	financialCommunityId: number;
 	id: number;
 	imageUrl: string;
@@ -120,7 +120,7 @@ export interface LocationDto
 
 export interface LocationGroupDto
 {
-	locationGroupCommunity: LocationGroupCommunityDto;
+	locationGroupCommunity: LocationGroupCommunityDto
 }
 
 // Option Dtos
@@ -191,10 +191,10 @@ export interface OrgDto
 
 export interface BaseHouseOptionDto
 {
-	planOption: DPPlanOptionDto;
+	planOption: PlanOptionDto;
 }
 
-export interface DPPlanOptionDto
+export interface PlanOptionDto
 {
 	integrationKey: string;
 	planID: number;
@@ -211,7 +211,7 @@ export interface DGroupDto
 
 export interface DSubGroupDto
 {
-	dGroup: DGroupDto;
+	dGroup: DGroupDto
 	dSubGroupCatalog: DSubGroupCatalogDto;
 	dSubGroupCatalogID: number;
 	dSubGroupSortOrder: number;
@@ -319,13 +319,13 @@ export interface OptionRuleDto
 	dpChoice_OptionRuleAssoc: DpChoiceOptionRuleAssocDto[];
 	optionRuleID: number;
 	optionRuleReplaces: OptionRuleReplaceDto[];
-	planOption: DPPlanOptionDto;
+	planOption: PlanOptionDto;
 	planOptionID: number;
 }
 
 export interface DpChoiceOptionRuleAssocDto
 {
-	attributeReassignments: AttributeReassignmentDto[];
+	attributeReassignments: AttributeReassignmentDto[]
 	dpChoice: DPChoiceDto;
 	dpChoiceID: number;
 	mustHave: boolean;
@@ -336,10 +336,9 @@ export interface AttributeReassignmentDto
 	attributeGroupID: number;
 	attributeReassignmentID: number;
 	todpChoiceID: number;
-	todpChoice: DPChoiceDto;
 }
 
 export interface OptionRuleReplaceDto
 {
-	planOption: DPPlanOptionDto;
+	planOption: PlanOptionDto;
 }
