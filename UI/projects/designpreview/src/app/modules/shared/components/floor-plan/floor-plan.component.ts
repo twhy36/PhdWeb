@@ -41,6 +41,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	enabledOptions: number[] = [];
 	unfilteredGroups: Group[];
 	floorPlanImages: FloorPlanImage[] = [];
+	floorPlanModified: boolean = true;
 
 	constructor(
 		private store: Store<fromRoot.State>
@@ -110,17 +111,17 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 						}
 					});
 
-					let changed = false;
+					// let changed = false;
 
 					_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
 					{
-						changed = true;
+						this.floorPlanModified = true;
 						this.fp.disableOption(opt);
 					});
 
 					_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
 					{
-						changed = true;
+						this.floorPlanModified = true;
 						this.fp.enableOption(opt);
 					});
 
@@ -129,9 +130,10 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 						this.fp.setFloor(this.selectedFloor?.id); //AlphaVision automatically changes the floor if you select an option on a different floor
 					}
 
-					if (changed)
+					if (this.floorPlanModified)
 					{
 						this.saveFloorPlanImages();
+						this.floorPlanModified = false;
 					}
 				}
 			}
