@@ -10,7 +10,6 @@ export type ClaimTypes =
 	'SalesAdmin' |
 	'ContractTemplates' |
 	'JobChangeOrders' |
-	'SpecOrModel' |
 	'Incentives' |
 	'AutoApproval' |
 	'PhdReports' |

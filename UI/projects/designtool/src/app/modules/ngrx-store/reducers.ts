@@ -180,12 +180,6 @@ export const canApproveChangeOrder = createSelector(
 	(market, user) => !!market && user.canApproveChangeOrder && user.assignedMarkets.some(m => m.number === market.number)
 )
 
-export const canCreateSpecOrModel = createSelector(
-	fromOrg.market,
-	fromUser.selectUser,
-	(market, user) => !!market && user.canCreateSpecOrModel && user.assignedMarkets.some(m => m.number === market.number)
-)
-
 export const canAddIncentive = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
