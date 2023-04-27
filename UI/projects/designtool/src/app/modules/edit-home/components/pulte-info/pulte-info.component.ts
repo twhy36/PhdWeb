@@ -38,8 +38,9 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     availableDates: Array<Date>;
     minDate: Date = new Date();
     pulteInfoSet = false;
-	canEdit: boolean;
-    canSell$: Observable<boolean>;
+	canSell$: Observable<boolean>;
+	canConfigure: boolean = false;
+	canCreateSpecOrModel: boolean = false;
     priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
 	isChangingOrder: boolean;
@@ -47,7 +48,13 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     get actionBarStatus(): string
     {
         return !((this.pulteInfoForm && this.pulteInfoForm.pristine) || !this.canEdit || (this.pulteInfoForm && this.pulteInfoForm.invalid)) ? 'COMPLETE' : 'INCOMPLETE';
-    }
+	}
+
+	get canEdit(): boolean
+	{
+		return this.canConfigure && this.canCreateSpecOrModel;
+	}
+
     constructor(
         private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
@@ -57,8 +64,17 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     ngOnInit()
     {
         this.canSell$ = this.store.pipe(select(fromRoot.canSell));
-        this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
+		this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
 
+		this.store.pipe(select(fromRoot.canConfigure)).subscribe(canConfigure =>
+		{
+			this.canConfigure = canConfigure;
+		});
+
+		this.store.pipe(select(fromRoot.canCreateSpecOrModel)).subscribe(canCreateSpecOrModel =>
+		{
+			this.canCreateSpecOrModel = canCreateSpecOrModel;
+		});;
 
         this.isChangingOrder$ = this.store.pipe(
             this.takeUntilDestroyed(),
@@ -134,17 +150,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 				this.loadingInfo = true;
 				this.store.dispatch(new JobActions.LoadPulteInfo(job.id));
 			}
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			combineLatest(
-				this.store.pipe(select(fromRoot.canConfigure)),
-				this.store.pipe(select(fromRoot.canCreateSpecOrModel))
-			)
-		).subscribe(([canConfigure, canCreateSpecOrModel]) =>
-		{
-			this.canEdit = canConfigure && canCreateSpecOrModel;
 		});
     }
 
