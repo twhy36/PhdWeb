@@ -1090,6 +1090,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1159,6 +1165,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1225,6 +1237,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1292,6 +1310,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1359,6 +1383,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1428,6 +1458,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1497,6 +1533,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
@@ -1566,6 +1608,12 @@ describe('Common reducer', function ()
 				selectedPlan: 12345
 			},
 			lot: {
+				lots: [
+					{
+						id: 3424,
+						lotStatusDescription: 'Available'
+					},
+				],
 				selectedLot: {
 					monotonyRules: [{
 						edhLotId: 1234,
