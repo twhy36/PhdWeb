@@ -1206,7 +1206,7 @@ export class ContractService
 	getProgramDetails(programs: Array<SalesAgreementProgram>, changeOrders: Array<ChangeOrderGroup>, salesProgramType: string): any[]
 	{
 		let mappedPrograms = _.cloneDeep(programs) || [];
-		let clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved'))
+		let clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved' && co.salesStatusDescription !== 'Pending'))
 			.reverse();
 		
 		let coPrograms = _.flatten(clonedCOs.map(cog =>
