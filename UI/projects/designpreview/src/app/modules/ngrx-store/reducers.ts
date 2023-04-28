@@ -267,16 +267,18 @@ export const contractedTree = createSelector(
 
 export const selectedPlanPrice = createSelector(
 	fromPlan.selectedPlanData,
-	fromSalesAgreement.selectSelectedLot,
-	(selectedPlan, selectedLot) =>
+	fromSalesAgreement.salesAgreementState,
+	(selectedPlan, sag) =>
 	{
 		let price = selectedPlan ? selectedPlan.price : 0;
 
-		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs)
+		if (selectedPlan && sag.selectedLot && sag.selectedLot.salesPhase && sag.selectedLot.salesPhase.salesPhasePlanPriceAssocs
+			&& (sag.status === 'Pending' || !sag?.id))
 		{
-			const phasePlanPrice = selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
+			const isPhaseEnabled = sag.selectedLot.financialCommunity && sag.selectedLot.financialCommunity.isPhasedPricingEnabled;
+			const phasePlanPrice = sag.selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
 
-			if (phasePlanPrice)
+			if (isPhaseEnabled && phasePlanPrice)
 			{
 				price = phasePlanPrice.price;
 			}
