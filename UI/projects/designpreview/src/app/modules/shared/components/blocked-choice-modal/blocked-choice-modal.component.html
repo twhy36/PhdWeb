@@ -57,22 +57,22 @@
 
 				<!-- Split errors by whether they are Must Have or Must Not Have rules -->
 				<ng-container *ngIf="d.mustHaves?.length > 0">
-					<span *ngIf="e.errorType === 0">Select </span>
-					<span *ngIf="e.errorType !== 0">Make a </span>
 					<span *ngFor="let mustHave of d.mustHaves; let mh = index">
 						<span *ngIf="mh > 0"> OR<br/> </span>
 
+						<span *ngIf="mustHave?.points?.length > 0">Make a </span>
 						<span *ngFor="let p of mustHave.points; let pi = index">
 							<span *ngIf="pi > 0"> and </span>
 							<a class="phd-clickable phd-link phd-point" (click)="handleDisabledPointClick(p)">{{p | pointIdToName | async}}</a>
+							<span> selection{{d.mustHaves.length > 1 ? 's' : ''}} </span>
 						</span>
 
+						<span *ngIf="mustHave?.choices?.length > 0">Select </span>
 						<span *ngFor="let c of mustHave.choices; let ci = index">
 							<span *ngIf="ci > 0"> and </span>
 							<a class="phd-clickable phd-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
 						</span>
 					</span>
-					<span *ngIf="e.errorType !== 0"> selection{{d.mustHaves.length > 1 ? 's' : ''}} </span>
 				</ng-container>
 
 				<!-- Rules with both Must Have and Must Not Have would be treated as either-or -->
