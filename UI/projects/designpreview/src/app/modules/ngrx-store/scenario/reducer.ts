@@ -220,7 +220,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			points = _.flatMap(subGroups, sg => sg.points);
 			choices = _.flatMap(points, p => p.choices);
 
-			document.getElementById("hiddenAlert").innerHTML = "";
+			const hiddenAlert: HTMLElement = document.getElementById("hiddenAlert");
+
+			if (hiddenAlert) {
+				hiddenAlert.innerHTML = "";
+			}
 
 			for (const choice of action.choices)
 			{
@@ -230,7 +234,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 					//selection changed from attribute or attributes cleared by un-favorite
 					if (choice.attributes?.length && ((!c.quantity && choice.quantity) || (c.quantity && !choice.quantity)))
 					{
-						document.getElementById("hiddenAlert").innerHTML = 'Updating this element will cause content on the page to be updated.';
+						if (hiddenAlert) {
+							hiddenAlert.innerHTML = 'Updating this element will cause content on the page to be updated.';
+						}
 					}
 
 					c.quantity = choice.quantity;
@@ -282,7 +288,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			}
 
-			document.getElementById("hiddenAlert").innerHTML = "";
+			if (hiddenAlert) {
+				hiddenAlert.innerHTML = "";
+			}
 			points.forEach(point =>
 			{
 				const initPointCompleted = point.completed;
@@ -291,7 +299,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				//related point updated per select choice, raise aria warning
 				if (initPointCompleted !== point.completed)
 				{
-					document.getElementById("hiddenAlert").innerHTML = 'Updating this element will cause content on the page to be updated.';
+					if (hiddenAlert) {
+						hiddenAlert.innerHTML = 'Updating this element will cause content on the page to be updated.';
+					}
 				}
 			});
 			applyRules(newTree, rules, options);
