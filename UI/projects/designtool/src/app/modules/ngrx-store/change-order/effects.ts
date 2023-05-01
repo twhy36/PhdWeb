@@ -132,7 +132,7 @@ export class ChangeOrderEffects
 
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
 					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };	
 
 					const data = this.changeOrderService.mergePosData(
@@ -206,7 +206,7 @@ export class ChangeOrderEffects
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
 					
 					data = { ...data, pendingJobSummary: pendingJobSummary };
 
@@ -326,7 +326,7 @@ export class ChangeOrderEffects
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
 					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 					const data = this.changeOrderService.mergePosData(
@@ -440,7 +440,7 @@ export class ChangeOrderEffects
 
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
 					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 						
 					const data = this.changeOrderService.mergePosData(
@@ -810,7 +810,7 @@ export class ChangeOrderEffects
 
 						const pendingJobSummary = isPhdLite
 							? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-							: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+							: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
 						inputData = { ...inputData, pendingJobSummary: pendingJobSummary };			
 
 						if (isSpecSalePending)
