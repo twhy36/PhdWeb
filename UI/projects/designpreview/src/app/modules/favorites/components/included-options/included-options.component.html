@@ -34,7 +34,7 @@
 							<div class="d-flex flex-wrap phd-choice-container">
 								<ng-container *ngFor="let point of subGroup.points">
 									<div *ngIf="displayDecisionPoint(point)">
-										<div class="phd-point-label" [attr.id]="'included-point-' + point.id" (click)="onViewDecisionPoint(point)">{{point?.label}}</div>
+										<a href="" class="phd-point-label" [attr.id]="'included-point-' + point.id" (click)="$event.preventDefault(); onViewDecisionPoint(point)">{{point?.label}}</a>
 										<div class="phd-choice-cards">
 											<ng-container *ngFor="let choice of displayedChoices(point.choices)">
 												<choice-card *ngIf="!choice.isHiddenFromBuyerView"

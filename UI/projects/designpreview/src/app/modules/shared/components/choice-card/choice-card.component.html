@@ -49,15 +49,15 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<div class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
+					<button class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o"></i>
-					</div>
+					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<div class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
+					<button class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}"></i>
-					</div>
+					</button>
 				</ng-container>
 			</div>
 		</div>
