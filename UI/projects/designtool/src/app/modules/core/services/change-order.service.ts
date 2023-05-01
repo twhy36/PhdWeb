@@ -990,8 +990,9 @@ export class ChangeOrderService
 						manufacturer: selectedAttribute.manufacturer
 					};
 
-					if (action && action === 'Change')
+					if (action)
 					{
+						// bug: 395892/397488 default to Add no matter what the action is
 						(attribute as any).action = 'Add';
 					}
 
