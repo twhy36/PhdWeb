@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
 
@@ -22,7 +22,7 @@ export class SaveCancelButtonsComponent extends UnsubscribeOnDestroy implements 
 	@Input() fromState: string = 'salesAgreement';
 	@Input() unsavedProp: string = 'isUnsaved';
 	@Input() errorProp: string = 'saveError';
-	@Input() form: FormGroup;
+	@Input() form: UntypedFormGroup;
 
 	@Output() onSave = new EventEmitter<void>();
 	@Output() onCancel = new EventEmitter<void>();

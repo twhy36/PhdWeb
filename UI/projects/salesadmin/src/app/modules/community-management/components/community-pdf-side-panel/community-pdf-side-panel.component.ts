@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { SidePanelComponent } from 'phd-common';
 import { CommunityPdf, ISectionHeader, SectionHeader } from '../../../shared/models/communityPdf.model';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
@@ -26,7 +26,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 	@Input() saving: boolean;
 	@Input() sidePanelOpen: boolean = false;
 
-	communityPdfForm: FormGroup;
+	communityPdfForm: UntypedFormGroup;
 
 	customMsgBody: string;
 	oneDay: number = 86400000;
@@ -164,15 +164,15 @@ export class CommunityPdfSidePanelComponent implements OnInit
 		let sectionHeader = this.selected ? this.selected.sectionHeader : null;
 		let description = this.selected ? this.selected.description : '';
 
-		this.communityPdfForm = new FormGroup({
-			'sortOrder': new FormControl(sortOrder),
-			'linkText': new FormControl( linkText, Validators.required),
-			'fileName': new FormControl({ value: fileName, disabled: (this.selected) }, { validators: [Validators.required, this.duplicateName()]}),
-			'sectionHeader': new FormControl({ value: sectionHeader, disabled: (this.selected) }, { validators: [Validators.required]}),
-			'effectiveDate': new FormControl(this.effectiveDate ? this.effectiveDate.toISOString() : null),
-			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
-			'description': new FormControl(description),
-			'pdf': new FormControl({ value: this.pdf, disabled: (this.selected) }, [Validators.required, this.requiredFileType('pdf')])
+		this.communityPdfForm = new UntypedFormGroup({
+			'sortOrder': new UntypedFormControl(sortOrder),
+			'linkText': new UntypedFormControl( linkText, Validators.required),
+			'fileName': new UntypedFormControl({ value: fileName, disabled: (this.selected) }, { validators: [Validators.required, this.duplicateName()]}),
+			'sectionHeader': new UntypedFormControl({ value: sectionHeader, disabled: (this.selected) }, { validators: [Validators.required]}),
+			'effectiveDate': new UntypedFormControl(this.effectiveDate ? this.effectiveDate.toISOString() : null),
+			'expirationDate': new UntypedFormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
+			'description': new UntypedFormControl(description),
+			'pdf': new UntypedFormControl({ value: this.pdf, disabled: (this.selected) }, [Validators.required, this.requiredFileType('pdf')])
 		}, []);
 	}
 
@@ -183,7 +183,7 @@ export class CommunityPdfSidePanelComponent implements OnInit
 
 	requiredFileType(type: string)
 	{
-		return function (control: FormControl)
+		return function (control: UntypedFormControl)
 		{
 			const file = control.value;
 

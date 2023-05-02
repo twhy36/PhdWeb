@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmModalComponent, ModalService, IColor } from 'phd-common';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { IOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
@@ -16,7 +16,7 @@ import { IToastInfo } from '../../../../../../../phd-common/src/lib/models/toast
 
 export class EditColorItemDialogComponent implements OnInit
 {
-	editColorItemForm: FormGroup;
+	editColorItemForm: UntypedFormGroup;
 	nameIsMissing: boolean;
 	availableColors: IColor[] = [];
 	selectedColors: IColor[] = [];
@@ -40,7 +40,7 @@ export class EditColorItemDialogComponent implements OnInit
 
 	constructor(
 		private _modalService: ModalService,
-		private _fb: FormBuilder,
+		private _fb: UntypedFormBuilder,
 		private _colorService: ColorService,
 		private _msgService: MessageService
 	) { }

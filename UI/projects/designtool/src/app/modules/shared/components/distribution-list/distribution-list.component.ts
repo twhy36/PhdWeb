@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, Inject, Input, HostListener } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
 
@@ -31,7 +31,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	distributionList: DistributionListItem[] = [];
 	recipients: IESignRecipient[] = [];
 
-	distributionForm: FormGroup;
+	distributionForm: UntypedFormGroup;
 	salesAgreementId: number;
 	financialCommunityId: number;
 
@@ -63,7 +63,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 
 	ngOnInit()
 	{
-		this.distributionForm = new FormGroup({});
+		this.distributionForm = new UntypedFormGroup({});
 
 		this.store.pipe(
 			select(store => store.job.financialCommunityId),
@@ -183,8 +183,8 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	{
 		const pattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{1,61}$/;
 
-		this.distributionForm.addControl(item.emailFormKey, new FormControl(item.email, [Validators.required, Validators.email, Validators.pattern(pattern), Validators.maxLength(250)]));
-		this.distributionForm.addControl(item.nameFormKey, new FormControl(item.name, [Validators.required]));
+		this.distributionForm.addControl(item.emailFormKey, new UntypedFormControl(item.email, [Validators.required, Validators.email, Validators.pattern(pattern), Validators.maxLength(250)]));
+		this.distributionForm.addControl(item.nameFormKey, new UntypedFormControl(item.name, [Validators.required]));
 	}
 
 	closeClicked()

@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 
 import { Store, select } from '@ngrx/store';
 
@@ -23,7 +23,7 @@ export class CancelAgreementComponent extends UnsubscribeOnDestroy implements On
 	@Output() close = new EventEmitter<void>();
 	@Input() agreement: SalesAgreement;
 
-	cancelForm: FormGroup;
+	cancelForm: UntypedFormGroup;
 	cancelDate: Date = new Date();
 	constructionStageName: string;
 
@@ -81,9 +81,9 @@ export class CancelAgreementComponent extends UnsubscribeOnDestroy implements On
 
 	createForm()
 	{
-		this.cancelForm = new FormGroup({
-			'reason': new FormControl(this.reasonValue || null, Validators.required),
-			'detail': new FormControl(this.default && this.default.noteContent || '')
+		this.cancelForm = new UntypedFormGroup({
+			'reason': new UntypedFormControl(this.reasonValue || null, Validators.required),
+			'detail': new UntypedFormControl(this.default && this.default.noteContent || '')
 		});
 	}
 

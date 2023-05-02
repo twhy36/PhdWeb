@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, OnDestroy, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, UntypedFormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription, Observable } from 'rxjs';
 
@@ -23,7 +23,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 	@Output() attributeChanged = new EventEmitter();
 
-	attributeForm: FormGroup;
+	attributeForm: UntypedFormGroup;
 	attribute: Attribute;
 	isSaving: boolean;
 
@@ -73,16 +73,16 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 			this.attribute.endDate = null;
 		}
 
-		this.attributeForm = new FormGroup({
-			'name': new FormControl(this.attribute.name, { validators: [this.duplicateName()], updateOn: 'blur' }),
-			'image': new FormControl(this.attribute.imageUrl),
-			'manufacturer': new FormControl(this.attribute.manufacturer),
-			'sku': new FormControl(this.attribute.sku),
-			'searchTag': new FormControl('', this.duplicateTag()),
-			'tags': new FormArray([]),
-			'description': new FormControl(this.attribute.attributeDescription),
-			'startDate': new FormControl(this.attribute.startDate),
-			'endDate': new FormControl(this.attribute.endDate),
+		this.attributeForm = new UntypedFormGroup({
+			'name': new UntypedFormControl(this.attribute.name, { validators: [this.duplicateName()], updateOn: 'blur' }),
+			'image': new UntypedFormControl(this.attribute.imageUrl),
+			'manufacturer': new UntypedFormControl(this.attribute.manufacturer),
+			'sku': new UntypedFormControl(this.attribute.sku),
+			'searchTag': new UntypedFormControl('', this.duplicateTag()),
+			'tags': new UntypedFormArray([]),
+			'description': new UntypedFormControl(this.attribute.attributeDescription),
+			'startDate': new UntypedFormControl(this.attribute.startDate),
+			'endDate': new UntypedFormControl(this.attribute.endDate),
 		});
 
 		this.attributeForm.validator = this.validateDates;
@@ -92,9 +92,9 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 			this.attributeForm.get('sku').valueChanges.subscribe(() => this.attributeForm.get('name').updateValueAndValidity())
 		];
 
-		const tagsArray = this.attributeForm.get('tags') as FormArray;
+		const tagsArray = this.attributeForm.get('tags') as UntypedFormArray;
 
-		this.attribute.tags.forEach(t => tagsArray.push(new FormControl(t)));
+		this.attribute.tags.forEach(t => tagsArray.push(new UntypedFormControl(t)));
 
 		this.attributeForm.valueChanges.subscribe(() =>
 		{
@@ -104,7 +104,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 	getFormData(): Attribute
 	{
-		const tagsArray = this.attributeForm.get('tags') as FormArray;
+		const tagsArray = this.attributeForm.get('tags') as UntypedFormArray;
 
 		this.attribute.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.attribute.name = this.attributeForm.get('name').value;
@@ -136,7 +136,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 		this.attribute = new Attribute();
 		this.imgUrl = '';
 
-		let tags = <FormArray>this.attributeForm.controls['tags'];
+		let tags = <UntypedFormArray>this.attributeForm.controls['tags'];
 
 		for (let i = tags.length - 1; i >= 0; i--)
 		{
@@ -154,8 +154,8 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 
 			if (!existingTag)
 			{
-				const tagsArray = this.attributeForm.get('tags') as FormArray;
-				const tagControl = new FormControl(tag);
+				const tagsArray = this.attributeForm.get('tags') as UntypedFormArray;
+				const tagControl = new UntypedFormControl(tag);
 
 				tagsArray.push(tagControl);
 
@@ -175,7 +175,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	{
 		if (!this.isSaving)
 		{
-			const tagsArray = this.attributeForm.get('tags') as FormArray;
+			const tagsArray = this.attributeForm.get('tags') as UntypedFormArray;
 
 			tagsArray.removeAt(index);
 
@@ -183,7 +183,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 		}
 	}
 
-	validateDates(formGroup: FormGroup): { [key: string]: boolean }
+	validateDates(formGroup: UntypedFormGroup): { [key: string]: boolean }
 	{
 		let startDate = formGroup.controls['startDate'];
 		let endDate = formGroup.controls['endDate'];
@@ -207,7 +207,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			const tagsArray = this.attributeForm?.get('tags') as FormArray;
+			const tagsArray = this.attributeForm?.get('tags') as UntypedFormArray;
 			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
 
 			return existingTag ? { duplicateTag: true } : null;
@@ -268,7 +268,7 @@ export class AttributeDetailsTabComponent implements OnInit, OnDestroy
 	 * and marks the FormArray for tags dirty or pristine 
 	 * @param tagsArray
 	 */
-	private detectChangesInTags(tagsArray: FormArray)
+	private detectChangesInTags(tagsArray: UntypedFormArray)
 	{
 		const tags = tagsArray.controls.map(c => c.value as string);
 

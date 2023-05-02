@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { MessageService } from 'primeng/api';
 import { mergeMap } from 'rxjs/operators';
@@ -35,7 +35,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	selectedTemplateTypeId: number;
 
-	viewContractsForm: FormGroup;
+	viewContractsForm: UntypedFormGroup;
 	allCommunities: Array<FinancialCommunity> = [];
 	communitiesForSelectedTemplate: Array<FinancialCommunity> = [];
 	selectedCommunities: Array<FinancialCommunity> = [];
@@ -160,18 +160,18 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 		const pattern = "^[^\\\\/:*?<>]*$";
 
-		this.viewContractsForm = new FormGroup({
-			'isPhd': new FormControl({ value: isPhd, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
-			'isTho': new FormControl({ value: isTho, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
-			'documentName': new FormControl({ value: documentName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.duplicateName(), this.whiteSpaceValidator(), Validators.pattern(pattern)]),
-			'displayName': new FormControl({ value: displayName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.whiteSpaceValidator()]),
-			'templateTypeId': new FormControl(templateTypeId),
-			'addendumTypeId': new FormControl(addendumTypeId),
-			'effectiveDate': new FormControl({ value: this.effectiveDate ? this.effectiveDate.toISOString() : null, disabled: (this.selected && this.selected.status === "In Use") }),
-			'expirationDate': new FormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
-			'assignedCommunityIds': new FormControl(assignedCommunityIds),
-			'parentTemplateId': new FormControl(parentTemplateId),
-			'templateId': new FormControl(templateId)
+		this.viewContractsForm = new UntypedFormGroup({
+			'isPhd': new UntypedFormControl({ value: isPhd, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
+			'isTho': new UntypedFormControl({ value: isTho, disabled: (this.selected && templateTypeId !== 2 && this.selected.status === "In Use") }),
+			'documentName': new UntypedFormControl({ value: documentName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.duplicateName(), this.whiteSpaceValidator(), Validators.pattern(pattern)]),
+			'displayName': new UntypedFormControl({ value: displayName, disabled: (this.selected && this.selected.status === "In Use") }, [Validators.required, this.whiteSpaceValidator()]),
+			'templateTypeId': new UntypedFormControl(templateTypeId),
+			'addendumTypeId': new UntypedFormControl(addendumTypeId),
+			'effectiveDate': new UntypedFormControl({ value: this.effectiveDate ? this.effectiveDate.toISOString() : null, disabled: (this.selected && this.selected.status === "In Use") }),
+			'expirationDate': new UntypedFormControl(this.expirationDate ? this.expirationDate.toISOString() : null),
+			'assignedCommunityIds': new UntypedFormControl(assignedCommunityIds),
+			'parentTemplateId': new UntypedFormControl(parentTemplateId),
+			'templateId': new UntypedFormControl(templateId)
 		}, [this.requireCheckBoxesToBeCheckedValidator(), this.addendumTypeValidator()]);
 	}
 
@@ -339,7 +339,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	requireCheckBoxesToBeCheckedValidator(): ValidatorFn
 	{
-		return (formGroup: FormGroup): { [key: string]: any } =>
+		return (formGroup: UntypedFormGroup): { [key: string]: any } =>
 		{
 			if (formGroup.controls['isPhd'].value === false && formGroup.controls['isTho'].value === false)
 			{
@@ -352,7 +352,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 	addendumTypeValidator(): ValidatorFn
 	{
-		return (formGroup: FormGroup): { [key: string]: any } =>
+		return (formGroup: UntypedFormGroup): { [key: string]: any } =>
 		{
 			if (formGroup.controls['templateTypeId'].value === 2 && formGroup.controls['addendumTypeId'].value === null)
 			{

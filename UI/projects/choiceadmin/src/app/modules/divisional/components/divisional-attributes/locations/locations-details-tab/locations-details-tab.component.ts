@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, UntypedFormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
@@ -21,7 +21,7 @@ export class LocationsDetailsTabComponent implements OnInit
 
 	@Output() locationChanged = new EventEmitter();
 
-	locationForm: FormGroup;
+	locationForm: UntypedFormGroup;
 	location: Location;
 	isSaving: boolean;
 
@@ -46,16 +46,16 @@ export class LocationsDetailsTabComponent implements OnInit
 	{
 		this.location = new Location(this.selectedLocation);
 
-		this.locationForm = new FormGroup({
-			'locationName': new FormControl(this.location.locationName, { validators: [this.duplicateName()], updateOn: 'blur' }),
-			'searchTag': new FormControl('', this.duplicateTag()),
-			'tags': new FormArray([]),
-			'locationDescription': new FormControl(this.location.locationDescription)
+		this.locationForm = new UntypedFormGroup({
+			'locationName': new UntypedFormControl(this.location.locationName, { validators: [this.duplicateName()], updateOn: 'blur' }),
+			'searchTag': new UntypedFormControl('', this.duplicateTag()),
+			'tags': new UntypedFormArray([]),
+			'locationDescription': new UntypedFormControl(this.location.locationDescription)
 		});
 
-		const tagsArray = this.locationForm.get('tags') as FormArray;
+		const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
 
-		this.location.tags.forEach(t => tagsArray.push(new FormControl(t)));
+		this.location.tags.forEach(t => tagsArray.push(new UntypedFormControl(t)));
 
 		this.locationForm.valueChanges.subscribe(() =>
 		{
@@ -65,7 +65,7 @@ export class LocationsDetailsTabComponent implements OnInit
 
 	getFormData(): Location
 	{
-		const tagsArray = this.locationForm.get('tags') as FormArray;
+		const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
 
 		this.location.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.location.locationName = this.locationForm.get('locationName').value;
@@ -80,7 +80,7 @@ export class LocationsDetailsTabComponent implements OnInit
 		this.locationForm.reset();
 		this.location = new Location();
 
-		let tags = <FormArray>this.locationForm.controls['tags'];
+		let tags = <UntypedFormArray>this.locationForm.controls['tags'];
 
 		for (let i = tags.length - 1; i >= 0; i--)
 		{
@@ -98,8 +98,8 @@ export class LocationsDetailsTabComponent implements OnInit
 
 			if (!existingTag)
 			{
-				const tagsArray = this.locationForm.get('tags') as FormArray;
-				const tagControl = new FormControl(tag);
+				const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
+				const tagControl = new UntypedFormControl(tag);
 
 				tagsArray.push(tagControl);
 
@@ -119,7 +119,7 @@ export class LocationsDetailsTabComponent implements OnInit
 	{
 		if (!this.isSaving)
 		{
-			const tagsArray = this.locationForm.get('tags') as FormArray;
+			const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
 
 			tagsArray.removeAt(index);
 
@@ -132,7 +132,7 @@ export class LocationsDetailsTabComponent implements OnInit
 	 * and marks the FormArray for tags dirty or pristine 
 	 * @param tagsArray
 	 */
-	private detectChangesInTags(tagsArray: FormArray)
+	private detectChangesInTags(tagsArray: UntypedFormArray)
 	{
 		const tags = tagsArray.controls.map(c => c.value as string);
 
@@ -155,7 +155,7 @@ export class LocationsDetailsTabComponent implements OnInit
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			const tagsArray = this.locationForm?.get('tags') as FormArray;
+			const tagsArray = this.locationForm?.get('tags') as UntypedFormArray;
 			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
 
 			return existingTag ? { duplicateTag: true } : null;

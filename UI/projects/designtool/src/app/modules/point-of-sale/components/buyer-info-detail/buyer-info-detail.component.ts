@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { Validators, UntypedFormBuilder, UntypedFormGroup, UntypedFormArray } from '@angular/forms';
 
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -32,8 +32,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 	@Output() onCancel = new EventEmitter();
 	@Output() onSave = new EventEmitter<Buyer | Realtor | string>();
 
-	buyerForm: FormGroup;
-	trustForm: FormGroup;
+	buyerForm: UntypedFormGroup;
+	trustForm: UntypedFormGroup;
 
 	private primaryBuyer: Buyer;
 	disabledInputs: boolean = false;
@@ -42,7 +42,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 	constructor(
 		private contactService: ContactService,
 		private modalService: ModalService,
-		private fb: FormBuilder,
+		private fb: UntypedFormBuilder,
 		private store: Store<fromRoot.State>)
 	{
 		super();
@@ -71,9 +71,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		{
 			this.createBuyerForm(this.buyer);
 
-			const addressFormArray = this.buyerForm.get('addresses') as FormArray;
+			const addressFormArray = this.buyerForm.get('addresses') as UntypedFormArray;
 			// we are only working with the primary address for now so there will only be one Form Group
-			const addressFormGroup = (addressFormArray.controls as Array<FormGroup>)[0];
+			const addressFormGroup = (addressFormArray.controls as Array<UntypedFormGroup>)[0];
 			const address1Control = addressFormGroup.get('address1');
 			const cityControl = addressFormGroup.get('city');
 			const stateProvinceControl = addressFormGroup.get('stateProvince');
@@ -119,8 +119,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				addressFormArray.updateValueAndValidity({ onlySelf: true, emitEvent: false });
 			});
 
-			const phoneFormArray = this.buyerForm.get('phones') as FormArray;
-			const phoneFormGroups = (phoneFormArray.controls as FormGroup[]);
+			const phoneFormArray = this.buyerForm.get('phones') as UntypedFormArray;
+			const phoneFormGroups = (phoneFormArray.controls as UntypedFormGroup[]);
 
 			this.buyerForm.get('phones').valueChanges.subscribe((phones: any[]) =>
 			{
@@ -165,7 +165,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	get isRequiredSecondaryPhoneType(): boolean
 	{
-		const phones = this.buyerForm.get('phones') as FormArray;
+		const phones = this.buyerForm.get('phones') as UntypedFormArray;
 		const secondaryPhone = phones.controls[1];
 		const phoneType = secondaryPhone.get('phoneType');
 
@@ -234,8 +234,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	copyPrimaryBuyerAddress()
 	{
-		const formAddresses = this.buyerForm.get('addresses') as FormArray;
-		const primaryAddressGroup = formAddresses.controls[0] as FormGroup;
+		const formAddresses = this.buyerForm.get('addresses') as UntypedFormArray;
+		const primaryAddressGroup = formAddresses.controls[0] as UntypedFormGroup;
 		const primaryBuyerAddress = this.primaryBuyer.opportunityContactAssoc.contact.addressAssocs.find(a => a.isPrimary);
 
 		if (primaryBuyerAddress && primaryBuyerAddress.address)
@@ -309,8 +309,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			contact.lastName = trim(this.buyerForm.get('lastName').value);
 			contact.suffix = this.buyerForm.get('suffix').value;
 
-			const formAddresses = this.buyerForm.get('addresses') as FormArray;
-			const primaryAddressGroup = formAddresses.controls[0] as FormGroup;
+			const formAddresses = this.buyerForm.get('addresses') as UntypedFormArray;
+			const primaryAddressGroup = formAddresses.controls[0] as UntypedFormGroup;
 			const primaryAddressAssocId = primaryAddressGroup.get('id').value as number;
 
 			// add/update buyer address
@@ -361,11 +361,11 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				}
 			}
 
-			const formPhones = this.buyerForm.get('phones') as FormArray;
+			const formPhones = this.buyerForm.get('phones') as UntypedFormArray;
 
 			for (var i = 0; i < formPhones.controls.length; i++)
 			{
-				const phone = formPhones.controls[i] as FormGroup;
+				const phone = formPhones.controls[i] as UntypedFormGroup;
 				const phoneAssocId = phone.get('id').value as number;
 				const phoneNumber = stripPhoneNumber(phone.get('phoneNumber').value as string);
 
@@ -408,11 +408,11 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				}
 			}
 
-			const formEmails = this.buyerForm.get('emails') as FormArray;
+			const formEmails = this.buyerForm.get('emails') as UntypedFormArray;
 
 			for (var i = 0; i < formEmails.controls.length; i++)
 			{
-				const email = formEmails.controls[i] as FormGroup;
+				const email = formEmails.controls[i] as UntypedFormGroup;
 				const emailAddress = email.get('emailAddress').value as string;
 				const emailAssocId = email.get('id').value as number;
 
@@ -549,7 +549,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private createAddressesFormArray(addressAssocs: Array<AddressAssoc>)
 	{
-		let formGroupArray: Array<FormGroup> = [];
+		let formGroupArray: Array<UntypedFormGroup> = [];
 
 		if (addressAssocs.length)
 		{
@@ -582,7 +582,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private createPhonesFormArray(phoneAssocs: Array<PhoneAssoc>)
 	{
-		const formGroupArray: Array<FormGroup> = [];
+		const formGroupArray: Array<UntypedFormGroup> = [];
 		const primaryPhone = phoneAssocs.find(x => x.isPrimary);
 		const secondaryPhone = phoneAssocs.find(x => !x.isPrimary);
 
@@ -627,7 +627,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private createEmailsFormArray(emailAssocs: Array<EmailAssoc>)
 	{
-		const formGroupArray: Array<FormGroup> = [];
+		const formGroupArray: Array<UntypedFormGroup> = [];
 		const primaryEmail = emailAssocs.find(x => x.isPrimary);
 		const secondaryEmail = emailAssocs.find(x => !x.isPrimary);
 
@@ -739,8 +739,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private clearValidators()
 	{
-		const addressFormArray = this.buyerForm.get('addresses') as FormArray;
-		const addressFormGroup = (addressFormArray.controls as Array<FormGroup>)[0];
+		const addressFormArray = this.buyerForm.get('addresses') as UntypedFormArray;
+		const addressFormGroup = (addressFormArray.controls as Array<UntypedFormGroup>)[0];
 		const address1Control = addressFormGroup.get("address1");
 
 		if (address1Control)
@@ -776,8 +776,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			countryControl.clearValidators();
 		}
 
-		const emailFormArray = this.buyerForm.get('emails') as FormArray;
-		const emailFormGroup = (emailFormArray.controls as Array<FormGroup>)[0];
+		const emailFormArray = this.buyerForm.get('emails') as UntypedFormArray;
+		const emailFormGroup = (emailFormArray.controls as Array<UntypedFormGroup>)[0];
 		const primaryEmailAddressControl = emailFormGroup.get('emailAddress');
 
 		if (primaryEmailAddressControl)
@@ -785,8 +785,8 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 			primaryEmailAddressControl.clearValidators();
 		}
 
-		const phoneFormArray = this.buyerForm.get('phones') as FormArray;
-		const phoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[0];
+		const phoneFormArray = this.buyerForm.get('phones') as UntypedFormArray;
+		const phoneFormGroup = (phoneFormArray.controls as Array<UntypedFormGroup>)[0];
 		const primaryPhoneNumberControl = phoneFormGroup.get('phoneNumber');
 
 		if (primaryPhoneNumberControl)
@@ -802,14 +802,14 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		}
 	}
 
-	private validateEmails(formGroup: FormGroup): { [key: string]: boolean }
+	private validateEmails(formGroup: UntypedFormGroup): { [key: string]: boolean }
 	{
-		const emailFormArray = formGroup.controls['emails'] as FormArray;
+		const emailFormArray = formGroup.controls['emails'] as UntypedFormArray;
 
-		const primaryEmailFormGroup = (emailFormArray.controls as Array<FormGroup>)[0];
+		const primaryEmailFormGroup = (emailFormArray.controls as Array<UntypedFormGroup>)[0];
 		const primaryEmail = primaryEmailFormGroup.value.emailAddress || '';
 
-		const secondaryEmailFormGroup = (emailFormArray.controls as Array<FormGroup>)[1];
+		const secondaryEmailFormGroup = (emailFormArray.controls as Array<UntypedFormGroup>)[1];
 		const secondaryEmail = secondaryEmailFormGroup.value.emailAddress || '';
 
 		if (primaryEmail && primaryEmail === secondaryEmail)
@@ -822,16 +822,16 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 		return null;
 	}
 
-	private validatePhones(formGroup: FormGroup): { [key: string]: boolean }
+	private validatePhones(formGroup: UntypedFormGroup): { [key: string]: boolean }
 	{
-		const phoneFormArray = formGroup.controls['phones'] as FormArray;
+		const phoneFormArray = formGroup.controls['phones'] as UntypedFormArray;
 
-		const primaryPhoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[0];
+		const primaryPhoneFormGroup = (phoneFormArray.controls as Array<UntypedFormGroup>)[0];
 		const primaryPhone = primaryPhoneFormGroup.value.phoneNumber || '';
 		const primaryPhoneExt = primaryPhoneFormGroup.value.phoneExt || '';
 		const primaryPhoneType = primaryPhoneFormGroup.value.phoneType || '';
 
-		const secondaryPhoneFormGroup = (phoneFormArray.controls as Array<FormGroup>)[1];
+		const secondaryPhoneFormGroup = (phoneFormArray.controls as Array<UntypedFormGroup>)[1];
 		const secondaryPhone = secondaryPhoneFormGroup.value.phoneNumber || '';
 		const secondaryPhoneExt = secondaryPhoneFormGroup.value.phoneExt || '';
 		const secondaryPhoneType = secondaryPhoneFormGroup.value.phoneType || '';

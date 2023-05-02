@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output, ViewChild } from '@angular/core';
-import { Validators, FormGroup, FormControl } from '@angular/forms';
+import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 import * as _ from "lodash";
@@ -35,13 +35,13 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 	@Output() checkChanges = new EventEmitter<boolean>();
 	@Output() onEdit = new EventEmitter<SalesAgreementDeposit>();
 
-	form: FormGroup;
-	depositTypeDesc: FormControl;
-	amount: FormControl;
-	description: FormControl;
-	dueDate: FormControl;
-	paidDate: FormControl;
-	processElectronically: FormControl;
+	form: UntypedFormGroup;
+	depositTypeDesc: UntypedFormControl;
+	amount: UntypedFormControl;
+	description: UntypedFormControl;
+	dueDate: UntypedFormControl;
+	paidDate: UntypedFormControl;
+	processElectronically: UntypedFormControl;
 
 	hasEBillInvoice: boolean;
 	paidDateReadonly: boolean = true;
@@ -103,7 +103,7 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 
 	createForm()
 	{
-		this.form = new FormGroup({
+		this.form = new UntypedFormGroup({
 			description: this.description,
 			amount: this.amount,
 			depositTypeDesc: this.depositTypeDesc,
@@ -116,12 +116,12 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 	setFormData()
 	{
 		// Setup form controls, only on component creation/init
-		this.description = new FormControl(this.deposit.description || null, [Validators.maxLength(this.maxDescriptionLength)]);
-		this.amount = new FormControl(this.deposit.amount ? this.formatDepositAmount(this.deposit.amount) : null, [Validators.required]);
-		this.depositTypeDesc = new FormControl(this.deposit.depositTypeDesc || '', [Validators.required]);
-		this.dueDate = new FormControl(this.ngbDueDate, [Validators.required]);
-		this.paidDate = new FormControl(this.ngbPaidDate);
-		this.processElectronically = new FormControl({ value: this.deposit.id ? this.hasEBillInvoice : true, disabled: this.deposit.id && (!!this.deposit.paidDate || this.hasEBillInvoice) });
+		this.description = new UntypedFormControl(this.deposit.description || null, [Validators.maxLength(this.maxDescriptionLength)]);
+		this.amount = new UntypedFormControl(this.deposit.amount ? this.formatDepositAmount(this.deposit.amount) : null, [Validators.required]);
+		this.depositTypeDesc = new UntypedFormControl(this.deposit.depositTypeDesc || '', [Validators.required]);
+		this.dueDate = new UntypedFormControl(this.ngbDueDate, [Validators.required]);
+		this.paidDate = new UntypedFormControl(this.ngbPaidDate);
+		this.processElectronically = new UntypedFormControl({ value: this.deposit.id ? this.hasEBillInvoice : true, disabled: this.deposit.id && (!!this.deposit.paidDate || this.hasEBillInvoice) });
 
 		this.createForm();
 	}

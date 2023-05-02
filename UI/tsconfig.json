@@ -1,28 +1,29 @@
 {
 	"compileOnSave": false,
 	"compilerOptions": {
-		"baseUrl": "./",
-		"outDir": "./dist/out-tsc",
-		"sourceMap": true,
-		"declaration": false,
-		"downlevelIteration": true,
-		"experimentalDecorators": true,
-		"module": "es2020",
-		"moduleResolution": "node",
-		"importHelpers": true,
-		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
-		"target": "es2015",
-		"lib": [
-			"es2018",
-			"dom"
-		],
-		"paths": {
-			"phd-common": [
-				"./projects/phd-common/src/internal"
-			]
-		}
-	},
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "module": "es2020",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2022",
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "phd-common": [
+        "./projects/phd-common/src/internal"
+      ]
+    },
+    "useDefineForClassFields": false
+  },
 	"angularCompilerOptions": {
 		"fullTemplateTypeCheck": true,
 		"strictInjectionParameters": true

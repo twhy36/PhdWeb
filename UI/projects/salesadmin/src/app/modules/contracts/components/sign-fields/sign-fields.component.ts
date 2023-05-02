@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, HostListener, EventEmitter, Output } from '@angular/core';
-import { FormGroup, FormArray, FormControl, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 
 import { Observable, of } from 'rxjs';
 import { mergeMap, switchMap } from 'rxjs/operators';
@@ -29,7 +29,7 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	@Output() signFieldSaved = new EventEmitter<object>();
 
-	signFieldForm: FormGroup;
+	signFieldForm: UntypedFormGroup;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -73,25 +73,25 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 		let repeatReminderDays = this.existingSignField ? this.existingSignField.repeatReminderDays : null;
 		let defaultEmailForSignedCopies = this.existingSignField && this.existingSignField.defaultEmailForSignedCopies ? this.existingSignField.defaultEmailForSignedCopies.split(';') : null;
 
-		this.signFieldForm = new FormGroup({
-			'agentName': new FormControl({ value: agentName, disabled: !this.canEdit }),
-			'emailAddress': new FormControl({ value: emailAddress, disabled: !this.canEdit }, Validators.email),
-			'expirationDays': new FormControl({ value: expirationDays, disabled: !this.canEdit }, [Validators.max(999)]),
-			'expirationWarnDays': new FormControl({ value: expirationWarnDays, disabled: !this.canEdit }, [Validators.max(999), this.expireValidator()]),
-			'reminderDays': new FormControl({ value: reminderDays, disabled: !this.canEdit }, Validators.max(999)),
-			'repeatReminderDays': new FormControl({ value: repeatReminderDays, disabled: !this.canEdit }, Validators.max(999)),
-			'defaultEmailForSignedCopies': new FormArray([])
+		this.signFieldForm = new UntypedFormGroup({
+			'agentName': new UntypedFormControl({ value: agentName, disabled: !this.canEdit }),
+			'emailAddress': new UntypedFormControl({ value: emailAddress, disabled: !this.canEdit }, Validators.email),
+			'expirationDays': new UntypedFormControl({ value: expirationDays, disabled: !this.canEdit }, [Validators.max(999)]),
+			'expirationWarnDays': new UntypedFormControl({ value: expirationWarnDays, disabled: !this.canEdit }, [Validators.max(999), this.expireValidator()]),
+			'reminderDays': new UntypedFormControl({ value: reminderDays, disabled: !this.canEdit }, Validators.max(999)),
+			'repeatReminderDays': new UntypedFormControl({ value: repeatReminderDays, disabled: !this.canEdit }, Validators.max(999)),
+			'defaultEmailForSignedCopies': new UntypedFormArray([])
 		});
 
-		const signedCopiesArray = this.signFieldForm.get("defaultEmailForSignedCopies") as FormArray;
+		const signedCopiesArray = this.signFieldForm.get("defaultEmailForSignedCopies") as UntypedFormArray;
 
 		if (defaultEmailForSignedCopies?.length)
 		{
-			defaultEmailForSignedCopies.forEach(sc => signedCopiesArray.push(new FormControl({ value: sc, disabled: !this.canEdit }, [this.emailValidator()])));
+			defaultEmailForSignedCopies.forEach(sc => signedCopiesArray.push(new UntypedFormControl({ value: sc, disabled: !this.canEdit }, [this.emailValidator()])));
 		}
 		else
 		{
-			signedCopiesArray.push(new FormControl({ value: null, disabled: !this.canEdit }, [this.emailValidator()]));
+			signedCopiesArray.push(new UntypedFormControl({ value: null, disabled: !this.canEdit }, [this.emailValidator()]));
 		}
 
 		this.signFieldForm.get('expirationDays').valueChanges.subscribe(val =>
@@ -139,13 +139,13 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	addInput()
 	{
-		(<FormArray>this.signFieldForm.get('defaultEmailForSignedCopies')).push(new FormControl('', Validators.email));
+		(<UntypedFormArray>this.signFieldForm.get('defaultEmailForSignedCopies')).push(new UntypedFormControl('', Validators.email));
 		this.signFieldForm.markAsDirty();
 	}
 
 	deleteInput(index: number)
 	{
-		(<FormArray>this.signFieldForm.get('defaultEmailForSignedCopies')).removeAt(index);
+		(<UntypedFormArray>this.signFieldForm.get('defaultEmailForSignedCopies')).removeAt(index);
 		this.signFieldForm.markAsDirty();
 	}
 
@@ -164,7 +164,7 @@ export class SignFieldsComponent extends UnsubscribeOnDestroy implements OnInit,
 				const signField = this.signFieldForm.value as ESignField;
 
 				signField.orgId = data.orgID;
-				signField.defaultEmailForSignedCopies = (<FormArray>this.signFieldForm.get('defaultEmailForSignedCopies')).controls.map(c => c.value).join(';');
+				signField.defaultEmailForSignedCopies = (<UntypedFormArray>this.signFieldForm.get('defaultEmailForSignedCopies')).controls.map(c => c.value).join(';');
 
 				// Set the EDH properties
 				signField.id = this.existingSignField ? this.existingSignField.id : 0; // ContactFinancialCommunityAuthorizedAgentAssocId

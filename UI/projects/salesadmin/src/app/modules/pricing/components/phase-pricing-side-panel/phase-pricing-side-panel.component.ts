@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, ViewChild, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
@@ -29,7 +29,7 @@ export class PhasePricingSidePanelComponent implements OnInit
 
 	selectedCommunityLots: ILot[] = [];
 	salesPhase: ISalesPhase;
-	phasePriceForm: FormGroup;
+	phasePriceForm: UntypedFormGroup;
 	selectedItems: Array<ILot> = [];
 	sidePanelLots: Array<ILot> = [];
 	filteredLotTags: Array<ILot> = [];
@@ -82,10 +82,10 @@ export class PhasePricingSidePanelComponent implements OnInit
 			})
 		};
 
-		this.phasePriceForm = new FormGroup({
-			'salesPhaseName': new FormControl(this.salesPhase.salesPhaseName, [Validators.required, this.duplicateName(), this.excludeName()]),
-			'lotsPendingSelection': new FormControl(),
-			'selectedLots': new FormControl(this.selectedItems.length > 0 ? '1' : '')
+		this.phasePriceForm = new UntypedFormGroup({
+			'salesPhaseName': new UntypedFormControl(this.salesPhase.salesPhaseName, [Validators.required, this.duplicateName(), this.excludeName()]),
+			'lotsPendingSelection': new UntypedFormControl(),
+			'selectedLots': new UntypedFormControl(this.selectedItems.length > 0 ? '1' : '')
 		});
 
 		this.salesPhase.phasePlans.forEach((p, i) =>
@@ -102,7 +102,7 @@ export class PhasePricingSidePanelComponent implements OnInit
 				validators.push(Validators.required);
 			}
 
-			this.phasePriceForm.addControl(p.plan.id.toString(), new FormControl({ value: p.listPrice || 0, disabled: !isPhasePlanActive }, validators));
+			this.phasePriceForm.addControl(p.plan.id.toString(), new UntypedFormControl({ value: p.listPrice || 0, disabled: !isPhasePlanActive }, validators));
 		});
 	}
 

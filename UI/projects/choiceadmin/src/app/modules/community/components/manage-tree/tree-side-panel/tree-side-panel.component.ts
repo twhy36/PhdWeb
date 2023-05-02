@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, Validators, UntypedFormBuilder } from '@angular/forms';
 
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
 import { DTVersion } from '../../../../shared/models/tree.model';
@@ -13,7 +13,7 @@ import * as moment from 'moment';
 export class TreeSidePanelComponent implements OnInit
 {
 	constructor(
-		private _fb: FormBuilder
+		private _fb: UntypedFormBuilder
 	) { }
 
 	@ViewChild(SidePanelComponent)
@@ -36,7 +36,7 @@ export class TreeSidePanelComponent implements OnInit
 
 	hasBeenPublished: boolean = false;
 
-	treeDetailsForm: FormGroup;
+	treeDetailsForm: UntypedFormGroup;
 
 	ngOnInit(): void
 	{

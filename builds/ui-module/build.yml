@@ -9,7 +9,7 @@ steps:
 - task: NodeTool@0
   displayName: 'Set Node Version'
   inputs:
-    versionSpec: '16.10.x'
+    versionSpec: '16.13.x'
 - task: FileTransform@1
   displayName: 'Set Build Info'
   inputs:
