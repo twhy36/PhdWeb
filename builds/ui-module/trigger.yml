@@ -8,6 +8,8 @@ variables:
   value: $(Build.SourceBranch)
 - name: version
   value: $(Build.BuildNumber)
+- name: npm_config_cache
+  value: $(Pipeline.Workspace)/.npm
 
 name: '$(BuildDefinitionName)_$(MajorVersion).$(MinorVersion).$(Revision).$(BuildID)'
 

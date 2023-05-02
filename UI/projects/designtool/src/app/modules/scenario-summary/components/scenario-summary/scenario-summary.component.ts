@@ -15,7 +15,7 @@ import
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
 	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType,
-	ConfirmModalComponent, ChoiceImageAssoc, SDChoiceImage, ModalRef
+	ConfirmModalComponent, ChoiceImageAssoc, SDChoiceImage, ModalRef, TreeService
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -37,8 +37,6 @@ import { ScenarioService } from '../../../core/services/scenario.service';
 import { JobService } from '../../../core/services/job.service';
 import { ChangeOrderService } from '../../../core/services/change-order.service';
 import { LiteService } from '../../../core/services/lite.service';
-import { OpportunityService } from '../../../core/services/opportunity.service';
-import { TreeService } from '../../../core/services/tree.service';
 
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
 import { DecisionPointSummaryComponent } from '../../../shared/components/decision-point-summary/decision-point-summary.component';
@@ -138,8 +136,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		private changeOrderService: ChangeOrderService,
 		private router: Router,
 		private treeService: TreeService,
-		private liteService: LiteService,
-		private opportunityService: OpportunityService
+		private liteService: LiteService
 	) { super(); }
 
 	isDirty(status: { pointId: number, isDirty: boolean, updatedChoices: { choiceId: number, quantity: number }[] }[]): boolean
@@ -617,9 +614,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	async onBuildIt()
 	{
-		this.lotService.hasMonotonyConflict().pipe(
-			combineLatest(this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId))
-		).subscribe(([mc, salesAssociateId]) =>
+		this.lotService.hasMonotonyConflict().subscribe(mc =>
 		{
 			if (mc.monotonyConflict)
 			{
@@ -634,7 +629,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 					this.summaryHeader.lot.lotStatusDescription,
 					this.summaryHeader.lot.id,
 					this.salesAgreementId,
-					salesAssociateId
+					this.opportunityId
 				);
 			}
 		});

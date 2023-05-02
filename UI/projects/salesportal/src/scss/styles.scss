@@ -99,3 +99,7 @@ main {
 .phd-btn-save {
 	margin-right: 15px;
 }
+
+ngb-modal-backdrop {
+	z-index: 1050 !important;
+}

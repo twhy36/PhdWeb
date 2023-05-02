@@ -5,8 +5,8 @@
 				<h1 class="phd-visually-hidden">
 					Header
 				</h1>
-				<a class="phd-nav-bar-header phd-clickable">
-					<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="onHomePage()" alt="">
+				<a href="" class="phd-nav-bar-header phd-clickable">
+					<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="$event.preventDefault(); onHomePage()" alt="">
 				</a>
 				<div class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
 					<span class="phd-nav-bar-label">Design Preview</span>
@@ -25,6 +25,8 @@
 						[class.phd-active-link-full]="isLaunchedInBuyerPreview"
 						[routerLink]="['/favorites/summary']"
 						[routerLinkActive]="['phd-active-link-full']"
+						#favoritesRouterLink="routerLinkActive"
+						[attr.aria-current]="favoritesRouterLink.isActive ? 'page': undefined" 
 						queryParamsHandling="merge"
 						(click)="toFavoritesPage ? onViewFavorites() : false">
 						My Favorites
@@ -35,6 +37,8 @@
 						class="phd-nav-page"
 						[routerLink]="['/floorplan']"
 						[routerLinkActive]="['phd-active-link-full']"
+						#floorplanRouterLink="routerLinkActive"
+						[attr.aria-current]="floorplanRouterLink.isActive ? 'page': undefined" 
 						queryParamsHandling="merge">
 						Floorplan
 					</a>
@@ -44,6 +48,8 @@
 						class="phd-nav-page"
 						[routerLink]="['/contracted']" 
 						[routerLinkActive]="['phd-active-link-full']"
+						#contractedRouterLink="routerLinkActive"
+						[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
 						queryParamsHandling="merge">
 						Contracted Options
 					</a>
@@ -52,19 +58,21 @@
 						class="phd-nav-page"
 						[routerLink]="['/included']"
 						[routerLinkActive]="['phd-active-link-full']"
+						#includedRouterLink="routerLinkActive"
+						[attr.aria-current]="includedRouterLink.isActive ? 'page': undefined" 
 						queryParamsHandling="merge">
 						Included Options
 					</a>
 				</ul>
 			</div>
-			<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu">
-				<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
-				<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+			<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu" aria-controls="navMenu">
+				<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" aria-expanded="false" aria-label="Expand Menu" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
+				<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" aria-expanded="true" aria-label="Collapse Menu" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			</button>
 		</div>
 	</nav>
 
-	<nav *ngIf="!isMenuCollapsed" class="phd-collapsable-menu">
+	<nav *ngIf="!isMenuCollapsed" class="phd-collapsable-menu" id="navMenu">
 		<h1 class="phd-visually-hidden">
 			Navigation
 		</h1>
@@ -72,19 +80,27 @@
 			<a *ngIf="showMyFavoritesLink"
 				[routerLink]="['/favorites/summary']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
+				#favoriteRouterLink="routerLinkActive"
+				[attr.aria-current]="favoriteRouterLink.isActive ? 'page': undefined" 
 				[class.phd-collapsable-menu-link-full]="isLaunchedInBuyerPreview"
 				queryParamsHandling="merge">My Favorites</a>
 			<a *ngIf="showFloorplanLink"
 				[routerLink]="['/floorplan']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
+				#floorplanRouterLink="routerLinkActive"
+				[attr.aria-current]="floorplanRouterLink.isActive ? 'page': undefined" 
 				queryParamsHandling="merge">Floorplan</a>
 			<a *ngIf="showContractedOptionsLink"
 				[routerLink]="['/contracted']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
+				#contractedRouterLink="routerLinkActive"
+				[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
 				queryParamsHandling="merge">Contracted Options</a>
 			<a *ngIf="showIncludedOptionsLink"
 				[routerLink]="['/included']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
+				#includedRouterLink="routerLinkActive"
+				[attr.aria-current]="includedRouterLink.isActive ? 'page': undefined" 
 				queryParamsHandling="merge">Included Options</a>
 		</ul>
 	</nav>

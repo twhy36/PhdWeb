@@ -291,7 +291,7 @@ export class ReportComponent implements OnInit
 		}
 
 		function getNodes(data: AreaSales[], groupBy: string[], isMobile: boolean) {
-			let groups = _.groupBy(data, groupBy[0]);
+			let groups = _.groupBy(data, groupBy[0]) as unknown as AreaSales[];
 			return Object.keys(groups).sort().map(group => ({
 				data: {
 					name: group,

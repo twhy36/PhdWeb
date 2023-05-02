@@ -38,6 +38,15 @@ $headerTextPadding: 15px;
 		display: flex;
 		transform: translateY(30px);
 		color: var(--action-icon-color);
+
+		button {
+			color: var(--action-icon-color);
+			background: transparent;
+			border: none;
+			padding: 0;
+			display: flex;
+			justify-content: start;
+		}
 	}
 
 	.phd-print-text {

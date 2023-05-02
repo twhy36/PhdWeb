@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { combineLatest, take } from 'rxjs/operators';
 
@@ -27,7 +27,7 @@ export class NonStandardChangeComponent extends UnsubscribeOnDestroy implements 
 {
 	@Input() rejectedChangeOrder: ChangeOrderGroup;
 
-	nssForm: FormGroup;
+	nssForm: UntypedFormGroup;
 	jobNonStandardOptions: Array<JobNonStandardOption> = [];
 	currentAddedOption: ChangeOrderNonStandardOption;
 	currentDeletedOptions: Array<ChangeOrderNonStandardOption> = [];
@@ -115,11 +115,11 @@ export class NonStandardChangeComponent extends UnsubscribeOnDestroy implements 
 
 	createNssForm()
 	{
-		this.nssForm = new FormGroup({
-			'name': new FormControl(this.currentAddedOption ? this.currentAddedOption.nonStandardOptionName : ''),
-			'quantity': new FormControl(this.currentAddedOption ? this.currentAddedOption.qty : ''),
-			'price': new FormControl(this.currentAddedOption ? this.currentAddedOption.unitPrice : ''),
-			'description': new FormControl(this.currentAddedOption ? this.currentAddedOption.nonStandardOptionDescription : '')
+		this.nssForm = new UntypedFormGroup({
+			'name': new UntypedFormControl(this.currentAddedOption ? this.currentAddedOption.nonStandardOptionName : ''),
+			'quantity': new UntypedFormControl(this.currentAddedOption ? this.currentAddedOption.qty : ''),
+			'price': new UntypedFormControl(this.currentAddedOption ? this.currentAddedOption.unitPrice : ''),
+			'description': new UntypedFormControl(this.currentAddedOption ? this.currentAddedOption.nonStandardOptionDescription : '')
 		});
 
 		this.nssForm.statusChanges.subscribe(change =>

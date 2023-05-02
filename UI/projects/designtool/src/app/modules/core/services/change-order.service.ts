@@ -11,11 +11,10 @@ import
 	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
 	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
 	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, PriceBreakdown, IPendingJobSummary
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, PriceBreakdown, IPendingJobSummary, TreeService
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { TreeService } from '../../core/services/tree.service';
 import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType, getLockedInChoice } from '../../shared/classes/tree.utils';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
@@ -971,12 +970,14 @@ export class ChangeOrderService
 
 		if (fromChoice)
 		{
-			option.attributeGroups?.forEach(attributeGroup => {
+			option.attributeGroups?.forEach(attributeGroup =>
+			{
 				// Find the choice that an attribute is reassigned to
 				const choicesWithReassignments = treeChoices.find(c => c.mappedAttributeGroups?.find(mappedGroup => mappedGroup.attributeReassignmentFromChoiceId === fromChoice.id && mappedGroup.id === attributeGroup));
-				
+
 				// Find the selected attributes in the choice with reassignments
 				const selectedAttribute = choicesWithReassignments?.selectedAttributes?.find(sa => sa.attributeGroupId === attributeGroup);
+
 				if (selectedAttribute && !selectedAttribute.locationGroupId)
 				{
 					let attribute = {
@@ -990,7 +991,8 @@ export class ChangeOrderService
 
 					if (action)
 					{
-						(attribute as any).action = action;
+						// bug: 395892/397488 default to Add no matter what the action is
+						(attribute as any).action = 'Add';
 					}
 
 					reassignedAttributesDto.push(attribute);
@@ -1352,9 +1354,9 @@ export class ChangeOrderService
 
 			if (changedJobLocation)
 			{
-                changedJobLocation.quantity = loc.quantity;
-                changedJobLocation.locationGroupLabel = loc.locationGroupLabel;
-                changedJobLocation.locationName = loc.locationName;
+				changedJobLocation.quantity = loc.quantity;
+				changedJobLocation.locationGroupLabel = loc.locationGroupLabel;
+				changedJobLocation.locationName = loc.locationName;
 
 				this.mergeSelectedLocationAttributes(changedJobLocation, loc);
 			}
@@ -2019,10 +2021,10 @@ export class ChangeOrderService
 		}, null);
 	}
 
-	mapPendingJobSummary(jobId: number, priceBreakdown: PriceBreakdown, tree: Tree, options: PlanOption[]) : IPendingJobSummary
+	mapPendingJobSummary(jobId: number, priceBreakdown: PriceBreakdown, tree: Tree, options: PlanOption[]): IPendingJobSummary
 	{
 		const elevationChoice = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1)?.choices?.find(ch => ch.quantity > 0) : null;
-		let elevationOptionId : number = null;
+		let elevationOptionId: number = null;
 		let elevationOptionPrice: number = null;
 
 		if (elevationChoice?.lockedInOptions?.length)
@@ -2040,17 +2042,17 @@ export class ChangeOrderService
 		}
 
 		return {
-            jobId: jobId,
-            planPrice: priceBreakdown.baseHouse,
-            elevationPlanOptionId: elevationOptionId,
-            elevationPrice: elevationOptionPrice,
-            totalOptionsPrice: priceBreakdown.selections,
-            salesProgramAmount: priceBreakdown.salesProgram,
-            totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
-            totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
-            totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
-            totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
-            netHousePrice: priceBreakdown.totalPrice			
+			jobId: jobId,
+			planPrice: priceBreakdown.baseHouse,
+			elevationPlanOptionId: elevationOptionId,
+			elevationPrice: elevationOptionPrice,
+			totalOptionsPrice: priceBreakdown.selections,
+			salesProgramAmount: priceBreakdown.salesProgram,
+			totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
+			totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
+			totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
+			totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
+			netHousePrice: priceBreakdown.totalPrice
 		} as IPendingJobSummary;
-	}	
+	}
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
 
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -29,14 +29,14 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	isOpen: boolean = true;
 	isAdd: boolean;
-	catalogForm: FormGroup;
+	catalogForm: UntypedFormGroup;
 	maxLabels: number = 10;
 	sidePanelHeader: string = '';
 	sidePanelSubheader: string = '';
 
 	get showPlus(): boolean
 	{
-		return (<FormArray>this.catalogForm.get('labelArray')).length < this.maxLabels;
+		return (<UntypedFormArray>this.catalogForm.get('labelArray')).length < this.maxLabels;
 	}
 
 	get disableIsDefault(): boolean
@@ -54,9 +54,9 @@ export class ChoiceSidePanelComponent implements OnInit
 		return this.catalogItem.parent.choices.some(x => x.isHiddenFromBuyerView == true);
 	}
 
-	get labelArray(): FormArray
+	get labelArray(): UntypedFormArray
 	{
-		return <FormArray>this.catalogForm.get('labelArray');
+		return <UntypedFormArray>this.catalogForm.get('labelArray');
 	}
 
 	get canSave(): boolean
@@ -97,15 +97,15 @@ export class ChoiceSidePanelComponent implements OnInit
 				if (labels.some(l => l && l.trim().length > 0))
 				{
 					// remove required validation if at least one label input has a value
-					(<FormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.clearValidators());
+					(<UntypedFormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.clearValidators());
 				}
 				else
 				{
 					// add required validation when no label inputs have a value
-					(<FormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.setValidators(Validators.required));
+					(<UntypedFormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.setValidators(Validators.required));
 				}
 
-				(<FormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.updateValueAndValidity({ onlySelf: true }));
+				(<UntypedFormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.updateValueAndValidity({ onlySelf: true }));
 			});
 		}
 	}
@@ -135,9 +135,9 @@ export class ChoiceSidePanelComponent implements OnInit
 
 		if (item.id == null)
 		{
-			this.catalogForm = new FormGroup({
-				'labelArray': new FormArray([
-					new FormControl(null, Validators.required, this.labelValidator.bind(this))
+			this.catalogForm = new UntypedFormGroup({
+				'labelArray': new UntypedFormArray([
+					new UntypedFormControl(null, Validators.required, this.labelValidator.bind(this))
 				])
 			});
 		}
@@ -148,22 +148,22 @@ export class ChoiceSidePanelComponent implements OnInit
 			let isHiddenFromBuyerView: boolean = item.isHiddenFromBuyerView;
 			let priceHiddenFromBuyerView: boolean = item.priceHiddenFromBuyerView;
 
-			this.catalogForm = new FormGroup({
-				'label': new FormControl(label, Validators.required, this.labelValidator.bind(this)),
-				'isDefault': new FormControl({ value: isDefault, disabled: this.disableIsDefault }),
-				'isHiddenFromBuyerView': new FormControl(isHiddenFromBuyerView),
-				'priceHiddenFromBuyerView': new FormControl(priceHiddenFromBuyerView)
+			this.catalogForm = new UntypedFormGroup({
+				'label': new UntypedFormControl(label, Validators.required, this.labelValidator.bind(this)),
+				'isDefault': new UntypedFormControl({ value: isDefault, disabled: this.disableIsDefault }),
+				'isHiddenFromBuyerView': new UntypedFormControl(isHiddenFromBuyerView),
+				'priceHiddenFromBuyerView': new UntypedFormControl(priceHiddenFromBuyerView)
 			});
 		}
 	}
 
 	onAddChoice(tabIndex?: number)
 	{
-		const labelArray = <FormArray>this.catalogForm.get('labelArray');
+		const labelArray = <UntypedFormArray>this.catalogForm.get('labelArray');
 
 		if (this.showPlus && (tabIndex === undefined || (tabIndex === labelArray.length - 1)))
 		{
-			const control = new FormControl(null, Validators.required, this.labelValidator.bind(this));
+			const control = new UntypedFormControl(null, Validators.required, this.labelValidator.bind(this));
 
 			labelArray.push(control);
 		}
@@ -185,7 +185,7 @@ export class ChoiceSidePanelComponent implements OnInit
 			{
 				if (!data && this.isAdd)
 				{
-					let labelArray = (<FormArray>this.catalogForm.get('labelArray'));
+					let labelArray = (<UntypedFormArray>this.catalogForm.get('labelArray'));
 
 					// check the current array of labels for any duplicates
 					data = labelArray.controls.some(x => x.value && (<string>x.value).toLowerCase().trim() == label && x != control);
@@ -211,7 +211,7 @@ export class ChoiceSidePanelComponent implements OnInit
 
 		if (item.id == null)
 		{
-			const labelArray = (<FormArray>form.get('labelArray'));
+			const labelArray = (<UntypedFormArray>form.get('labelArray'));
 
 			const choices = labelArray.controls.filter(c => c.value && c.value.length).map(c =>
 			{

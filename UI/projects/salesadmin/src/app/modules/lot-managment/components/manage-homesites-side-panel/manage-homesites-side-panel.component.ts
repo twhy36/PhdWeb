@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { filter } from 'rxjs/operators';
 
@@ -40,13 +40,13 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@ViewChild(AvSitePlanComponent)
 	private alphaVisionMap!: AvSitePlanComponent;
 
-	homesiteForm: FormGroup;
+	homesiteForm: UntypedFormGroup;
 	elevationAvailableLots: Array<string> = [];
 	elevationSelectedLots: Array<string> = [];
 	colorAvailableLots: Array<string> = [];
 	colorSelectedLots: Array<string> = [];
 	currentTab: string = 'details';
-	monotonyForm: FormGroup;
+	monotonyForm: UntypedFormGroup;
 	disableMonotonyForm: boolean;
 	fromMonotony: string;
 
@@ -187,29 +187,29 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	createForm()
 	{
-		this.homesiteForm = new FormGroup({
-			'premium': new FormControl({ value: this.selectedHomesite.dto.premium, disabled: this.disallowedStatusesForPremiumUpdate.includes(this.selectedHomesite.dto.lotStatusDescription) }, [Validators.required, Validators.min(0)]),
-			'lotStatusDescription': new FormControl(this.selectedHomesite.dto.lotStatusDescription !== "Available"),
-			'isHiddenInTho': new FormControl(this.selectedHomesite.dto.isHiddenInTho),
-			'facing': new FormControl({ value: this.selectedHomesite.dto.facing, disabled: this.lotInaccessible }),
-			'foundationType': new FormControl(this.selectedHomesite.dto.foundationType, Validators.required),
-			'altLotBlock': new FormControl({ value: this.selectedHomesite.dto.altLotBlock, disabled: this.lotInaccessible }, this.whiteSpaceValidator()),
-			'viewAdjacency': new FormControl({
+		this.homesiteForm = new UntypedFormGroup({
+			'premium': new UntypedFormControl({ value: this.selectedHomesite.dto.premium, disabled: this.disallowedStatusesForPremiumUpdate.includes(this.selectedHomesite.dto.lotStatusDescription) }, [Validators.required, Validators.min(0)]),
+			'lotStatusDescription': new UntypedFormControl(this.selectedHomesite.dto.lotStatusDescription !== "Available"),
+			'isHiddenInTho': new UntypedFormControl(this.selectedHomesite.dto.isHiddenInTho),
+			'facing': new UntypedFormControl({ value: this.selectedHomesite.dto.facing, disabled: this.lotInaccessible }),
+			'foundationType': new UntypedFormControl(this.selectedHomesite.dto.foundationType, Validators.required),
+			'altLotBlock': new UntypedFormControl({ value: this.selectedHomesite.dto.altLotBlock, disabled: this.lotInaccessible }, this.whiteSpaceValidator()),
+			'viewAdjacency': new UntypedFormControl({
 				value: this.selectedHomesite.dto.view &&
 					this.selectedHomesite.dto.view.value, disabled: this.lotInaccessible
 			}, Validators.required),
-			'physicalLotTypes': new FormControl({
+			'physicalLotTypes': new UntypedFormControl({
 				value: this.selectedHomesite.dto.lotType &&
 					this.selectedHomesite.dto.lotType.value, disabled: this.lotInaccessible
 			}, Validators.required),
-			'warranty': new FormControl({ value: this.selectedHomesite.phdLotWarranty, disabled: this.lotInaccessible }, Validators.required),
-			'changeModelToSpec': new FormControl({ value: this.selectedHomesite.lotBuildTypeDescription, disable: this.selectedHomesite.lotBuildTypeDescription !== 'Model' })
+			'warranty': new UntypedFormControl({ value: this.selectedHomesite.phdLotWarranty, disabled: this.lotInaccessible }, Validators.required),
+			'changeModelToSpec': new UntypedFormControl({ value: this.selectedHomesite.lotBuildTypeDescription, disable: this.selectedHomesite.lotBuildTypeDescription !== 'Model' })
 		});
 
 		//add controls for Left, Right, and NA Handing
 		this.handings.forEach(hand =>
 		{
-			this.homesiteForm.addControl('handing-' + hand, new FormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));			
+			this.homesiteForm.addControl('handing-' + hand, new UntypedFormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));			
 		});
 
 		this.homesiteForm.setValidators(this.checkRequired(this.homesiteForm.controls['handing-1'], this.homesiteForm.controls['handing-2'], this.homesiteForm.controls['handing-3']));
@@ -217,9 +217,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	createMonotonyForm()
 	{
-		this.monotonyForm = new FormGroup({
-			'elevation': new FormControl(),
-			'color': new FormControl()
+		this.monotonyForm = new UntypedFormGroup({
+			'elevation': new UntypedFormControl(),
+			'color': new UntypedFormControl()
 		});
 	}
 

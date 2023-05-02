@@ -20,7 +20,6 @@ import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption, LegacyColorScheme } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { LiteService } from '../../../core/services/lite.service';
-import { OpportunityService } from '../../../core/services/opportunity.service';
 import { PhdSubMenu } from '../../../new-home/subNavItems';
 import { ScenarioService } from '../../../core/services/scenario.service';
 
@@ -56,7 +55,6 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 		private router: Router,
 		private liteService: LiteService,
 		private modalService: ModalService,
-		private opportunityService: OpportunityService,
 		private scenarioService: ScenarioService
 	)
 	{
@@ -247,9 +245,8 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		combineLatest([
 			this.liteService.hasLiteMonotonyConflict(),
-			this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId),
 			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
-		]).subscribe(([mc, salesAssociateId, areColorsValid]) =>
+		]).subscribe(([mc, areColorsValid]) =>
 		{
 			const specOrModel = this.buildMode === 'spec' || this.buildMode === 'model';
 
@@ -264,7 +261,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 					this.lotStatus,
 					this.selectedLot.id,
 					this.salesAgreementId,
-					salesAssociateId
+					this.opportunityId
 				);
 			}
 			else
@@ -274,7 +271,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 					this.lotStatus,
 					this.selectedLot.id,
 					this.salesAgreementId,
-					salesAssociateId
+					this.opportunityId
 				);
 			}
 		});

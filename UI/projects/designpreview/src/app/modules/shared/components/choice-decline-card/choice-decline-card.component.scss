@@ -46,7 +46,7 @@
 	}
 
 	.phd-choice-decline-details {
-		margin: 10px 10px 0 10px;
+		margin: 10px 0 0 10px;
 		max-height: 220px;
 
 		h1 {
@@ -63,10 +63,10 @@
 
 		.phd-non-clickable {
 			font-size: 20px;
-			margin-top: -3px;
+			margin: 0;
+			padding: 5px 15px 0 15px;
 			background: none;
 			border: none;
-			padding: 0;
 
 			.fa-heart {
 				background: white;
@@ -79,10 +79,10 @@
 
 		.phd-clickable {
 			font-size: 20px;
-			margin-top: -3px;
+			margin: 0;
+			padding: 5px 15px 0 15px;
 			background: none;
 			border: none;
-			padding: 0;
 		}
 
 		.phd-icon-selected {
@@ -91,11 +91,12 @@
 	}
 
 	.phd-2-line-limit {
-		min-height: 35px;
+		min-height: 36px;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		overflow: hidden;
+		margin: 0;
 	}
 
 	.phd-presale-icon {

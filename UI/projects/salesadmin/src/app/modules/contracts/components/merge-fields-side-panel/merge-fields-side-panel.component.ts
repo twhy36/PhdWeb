@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { flatMap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -36,7 +36,7 @@ export class MergeFieldsSidePanelComponent implements OnInit
 		return isActive;
 	}
 
-	mergeFieldsForm: FormGroup;
+	mergeFieldsForm: UntypedFormGroup;
 
 	get isDirty(): boolean
 	{
@@ -63,19 +63,19 @@ export class MergeFieldsSidePanelComponent implements OnInit
 		let fieldValue = this.selected ? this.selected.fieldValue : null;
 		let isActive = this.selected ? this.selected.isActive : null;
 
-		this.mergeFieldsForm = new FormGroup({
-			'fieldName': new FormControl({ value: fieldName, disabled: (this.selected && isCommunityMergeField(this.selected)) }, [Validators.required, this.whiteSpaceValidator(), this.fieldNameDuplicateCheck()]),
-			'fieldValue': new FormControl(fieldValue, [Validators.required, this.whiteSpaceValidator(), this.fieldValueDuplicateCheck()]),
-			'isActive': new FormControl(isActive)
+		this.mergeFieldsForm = new UntypedFormGroup({
+			'fieldName': new UntypedFormControl({ value: fieldName, disabled: (this.selected && isCommunityMergeField(this.selected)) }, [Validators.required, this.whiteSpaceValidator(), this.fieldNameDuplicateCheck()]),
+			'fieldValue': new UntypedFormControl(fieldValue, [Validators.required, this.whiteSpaceValidator(), this.fieldValueDuplicateCheck()]),
+			'isActive': new UntypedFormControl(isActive)
 		});
 
 		if (this.selected)
 		{
-			this.mergeFieldsForm.addControl('customFieldMarketId', new FormControl(this.selected.customFieldMarketId));
+			this.mergeFieldsForm.addControl('customFieldMarketId', new UntypedFormControl(this.selected.customFieldMarketId));
 
 			if (isCommunityMergeField(this.selected))
 			{
-				this.mergeFieldsForm.addControl('customFieldFinancialCommunityId', new FormControl(this.selected.customFieldFinancialCommunityId));
+				this.mergeFieldsForm.addControl('customFieldFinancialCommunityId', new UntypedFormControl(this.selected.customFieldFinancialCommunityId));
 			}
 		}
 	}

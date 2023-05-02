@@ -7,18 +7,18 @@
 				<ng-container *ngFor="let choice of choicesCustom">
 					<li class="phd-choice-detail phd-choice-detail-presale-print" role="group" attr.aria-label="{{choice.label}}" *ngIf="choice.quantity > 0">
 						<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
-							<button class="phd-choice-expand">
+							<button class="phd-choice-expand" attr.aria-controls="{{ 'choice-detail-' + choice.id }}">
 								<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes && isChoiceComplete(choice) && choice.selectedAttributes.length">
-									<span *ngIf="!choice.showAttributes" attr.id="{{ 'expand-' + choice.id }}" aria-expanded="false" attr.aria-label="{{'Expand ' + choice.label}}">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" attr.aria-controls="{{ 'expand-' + choice.id }}" aria-hidden="true"></i>
+									<span *ngIf="!choice.showAttributes" aria-expanded="false" attr.aria-label="{{'Expand ' + choice.label}}">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-hidden="true"></i>
 									</span>
-									<span *ngIf="choice.showAttributes" attr.id="{{ 'collapse-' + choice.id }}" aria-expanded="true" attr.aria-label="{{'Collapse ' + choice.label}}">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" attr.aria-controls="{{ 'collapse-' + choice.id }}" aria-hidden="true"></i>
+									<span *ngIf="choice.showAttributes" aria-expanded="true" attr.aria-label="{{'Collapse ' + choice.label}}">
+										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-hidden="true"></i>
 									</span>
 								</div>
 							</button>
 							<span>{{ choice.label }}</span>
-							<div class="phd-choice-body">
+							<div class="phd-choice-body" attr.id="{{ 'choice-detail-' + choice.id }}">
 								<div class="my-3 phd-choice-attributes" role="group" attr.aria-label="{{choice.label + ' Attributes'}}">
 									<ng-container *ngIf="choice.showAttributes && (choice.selectedAttributes.length || isDesignComplete)">
 										<ul class="phd-choice-attribute-list">
@@ -44,8 +44,8 @@
 										</ul>
 									</ng-container>
 									<ng-container *ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || !choice.selectedAttributes.length)">
-										<a [ngClass]="(contractedOptionsPage || isDesignComplete) ? 'phd-unlinked-additional-selections' : 'phd-summary-additional-selections'"
-											(click)="onAdditionalSelections(choice)">Additional Selections Required</a>
+										<a href="" [ngClass]="(contractedOptionsPage || isDesignComplete) ? 'phd-unlinked-additional-selections' : 'phd-summary-additional-selections'"
+											(click)="$event.preventDefault(); onAdditionalSelections(choice)">Additional Selections Required</a>
 									</ng-container>
 								</div>
 							</div>
@@ -65,7 +65,7 @@
 								</span>
 							</ng-container>
 							<div *ngIf="!contractedOptionsPage" class="actions actionLinks phd-hide-from-print">
-								<a class="btn ml-auto btn-secondary phd-view-button" (click)="onViewOrEdit()">
+								<a href="" class="btn ml-auto btn-secondary phd-view-button" (click)="$event.preventDefault(); onViewOrEdit()">
 									<span class="phd-choice-action-label">{{actionLabel}}</span>
 								</a>
 								<button *ngIf="!isReadonly" type="button" class="btn ml-auto btn-secondary phd-remove-button" (click)="onRemove(choice)">

@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, switchMap, take } from 'rxjs/operators';
+import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
 import { Observable, ReplaySubject, of } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -26,7 +26,6 @@ import
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
-import { OpportunityService } from '../../../core/services/opportunity.service';
 
 import { ChoiceCardComponent } from '../../../shared/components/choice-card/choice-card.component';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
@@ -120,7 +119,6 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private modalService: ModalService,
-		private opportunityService: OpportunityService,
 		private scenarioService: ScenarioService)
 	{ super(); }
 
@@ -470,9 +468,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBuildIt() 
 	{
-		this.lotService.hasMonotonyConflict().pipe(
-			combineLatest(this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId))
-		).subscribe(([mc, salesAssociateId]) =>
+		this.lotService.hasMonotonyConflict().subscribe(mc =>
 		{
 			if (mc.monotonyConflict)
 			{
@@ -487,7 +483,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					this.lotStatus,
 					this.selectedLot.id,
 					this.salesAgreementId,
-					salesAssociateId
+					this.opportunityId
 				);
 			}
 		});

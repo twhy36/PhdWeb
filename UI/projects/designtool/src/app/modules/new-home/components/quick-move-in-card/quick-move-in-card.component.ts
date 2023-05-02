@@ -3,9 +3,8 @@ import { APP_BASE_HREF } from '@angular/common';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, Job, Plan } from 'phd-common';
+import { UnsubscribeOnDestroy, Job, Plan, TreeService } from 'phd-common';
 
-import { TreeService } from '../../../core/services/tree.service';
 import { of } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -27,7 +27,7 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 	@Output() onEdit = new EventEmitter<SalesChangeOrderPriceAdjustment>();
 	@Output() onRemove = new EventEmitter<number>();
 
-	form: FormGroup;
+	form: UntypedFormGroup;
 	minClosingCostIncentive: number;
 	priceBreakdown: PriceBreakdown;
 
@@ -102,9 +102,9 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 	{
 		this.minClosingCostIncentive = this.totalCurrentClosingCostAmount > 0 ? -Math.abs(this.totalCurrentClosingCostAmount) : 0;
 
-		this.form = new FormGroup({
-			'discount': new FormControl(this.discountAmount ? this.discountAmount.toString() : null, [Validators.max(99999999999999), this.validatePriceAdjustmentAmount()]),
-			'buyersClosingCosts': new FormControl(this.closingCostAmount ? this.closingCostAmount.toString() : null, [Validators.max(99999999999999), Validators.min(this.minClosingCostIncentive)])
+		this.form = new UntypedFormGroup({
+			'discount': new UntypedFormControl(this.discountAmount ? this.discountAmount.toString() : null, [Validators.max(99999999999999), this.validatePriceAdjustmentAmount()]),
+			'buyersClosingCosts': new UntypedFormControl(this.closingCostAmount ? this.closingCostAmount.toString() : null, [Validators.max(99999999999999), Validators.min(this.minClosingCostIncentive)])
 		});
 	}
 

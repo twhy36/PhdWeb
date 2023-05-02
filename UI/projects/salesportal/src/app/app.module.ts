@@ -6,7 +6,7 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { NgbModule, NgbButtonsModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { tap } from 'rxjs/operators';
 
@@ -52,7 +52,6 @@ const setTitle = (titleService: Title) => {
 		SharedModule,
 		SalesTallyModule,
 		NgbModule,
-		NgbButtonsModule,
 		PhdCommonModule.forRoot(environment.apiUrl),
 		ReactiveFormsModule,
 		RouterModule.forRoot([

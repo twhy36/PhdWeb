@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
 
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
 
@@ -32,7 +32,7 @@ export class NationalCatalogSidePanelComponent implements OnInit
 	isOpen: boolean = true;
 	isSaving: boolean = false;
 
-	catalogForm: FormGroup;
+	catalogForm: UntypedFormGroup;
 
 	get sidePanelHeader(): string
 	{
@@ -87,9 +87,9 @@ export class NationalCatalogSidePanelComponent implements OnInit
 			}
 		}
 
-		this.catalogForm = new FormGroup({
-			'itemLabel': new FormControl(label, Validators.required, this.labelValidator.bind(this)),
-			'itemDescription': new FormControl(description)
+		this.catalogForm = new UntypedFormGroup({
+			'itemLabel': new UntypedFormControl(label, Validators.required, this.labelValidator.bind(this)),
+			'itemDescription': new UntypedFormControl(description)
 		});
 	}
 

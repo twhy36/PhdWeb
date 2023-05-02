@@ -15,11 +15,11 @@
 			</h1>
 			<div class="d-flex flex-row justify-content-between">
 				<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
-					<strong>{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+					<span class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</span>
 				</ng-container>
 				<ng-container *ngIf="choice.priceHiddenFromBuyerView">
-					<span class="phd-hidden-price" (click)="$event.stopPropagation()">
-						<strong>Pricing Varies</strong>
+					<span class="phd-price-label" (click)="$event.stopPropagation()">
+						<span>Pricing Varies</span>
 						<info-tooltip-component [template]="infoContent"></info-tooltip-component>
 					</span>
 				</ng-container>
@@ -49,15 +49,15 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<div class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
+					<button class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o"></i>
-					</div>
+					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<div class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
+					<button class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}"></i>
-					</div>
+					</button>
 				</ng-container>
 			</div>
 		</div>

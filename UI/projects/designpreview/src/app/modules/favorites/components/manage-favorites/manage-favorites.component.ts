@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
@@ -23,7 +23,7 @@ import { AdobeService } from '../../../core/services/adobe.service';
 })
 export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	favoriteForm: FormGroup;
+	favoriteForm: UntypedFormGroup;
 	favoriteNameInput: string = '';
 	favoriteList: MyFavorite[];
 	isDuplicateName: boolean = false;
@@ -64,8 +64,8 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 
 	createForm() 
 	{
-		this.favoriteForm = new FormGroup({
-			'favoriteName': new FormControl(this.favoriteNameInput,
+		this.favoriteForm = new UntypedFormGroup({
+			'favoriteName': new UntypedFormControl(this.favoriteNameInput,
 				[Validators.maxLength(50), Validators.required])
 		});
 	}

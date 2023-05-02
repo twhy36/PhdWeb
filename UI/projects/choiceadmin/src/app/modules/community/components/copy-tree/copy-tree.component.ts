@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { combineLatest, finalize } from 'rxjs/operators';
 
@@ -27,7 +27,7 @@ import { of } from 'rxjs';
 })
 export class CopyTreeComponent implements OnInit
 {
-	copyForm: FormGroup;
+	copyForm: UntypedFormGroup;
 	hasLoaded: boolean = false;
 
 	ddMarketFrom: DropDown = new DropDown('Market');
@@ -73,18 +73,18 @@ export class CopyTreeComponent implements OnInit
 
 	createForm()
 	{
-		this.copyForm = new FormGroup({
-			'communityFrom': new FormControl(null, Validators.required),
-			'planFrom': new FormControl(null, Validators.required),
-			'treeFrom': new FormControl(null, Validators.required),
-			'communityTo': new FormControl(null, Validators.required),
-			'planTo': new FormControl(null, Validators.required)
+		this.copyForm = new UntypedFormGroup({
+			'communityFrom': new UntypedFormControl(null, Validators.required),
+			'planFrom': new UntypedFormControl(null, Validators.required),
+			'treeFrom': new UntypedFormControl(null, Validators.required),
+			'communityTo': new UntypedFormControl(null, Validators.required),
+			'planTo': new UntypedFormControl(null, Validators.required)
 		});
 
 		if (this.hasDivisionCatalogEdit)
 		{
-			this.copyForm.addControl('marketFrom', new FormControl(null, Validators.required));
-			this.copyForm.addControl('marketTo', new FormControl(null, Validators.required));
+			this.copyForm.addControl('marketFrom', new UntypedFormControl(null, Validators.required));
+			this.copyForm.addControl('marketTo', new UntypedFormControl(null, Validators.required));
 		}
 
 		this.onChanges();

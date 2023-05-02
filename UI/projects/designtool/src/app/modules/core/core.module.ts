@@ -23,7 +23,6 @@ import { PlanService } from './services/plan.service';
 import { OpportunityService } from './services/opportunity.service';
 import { OptionService } from './services/option.service';
 import { OrganizationService } from './services/organization.service';
-import { TreeService } from './services/tree.service';
 import { AlertService } from './services/alert.service';
 import { ConfirmNavigationGuard } from './guards/confirm-navigation.guard';
 import { AttributeService } from './services/attribute.service';
@@ -81,7 +80,6 @@ import { LiteService } from './services/lite.service';
 		OptionService,
 		OrganizationService,
 		SalesAgreementService,
-		TreeService,
 		ConfirmNavigationGuard,
 		AlertService,
 		AttributeService,

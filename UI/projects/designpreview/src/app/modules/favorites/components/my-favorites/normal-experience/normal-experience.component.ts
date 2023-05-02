@@ -43,6 +43,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	currentPointId: number;
 	subGroup: SubGroup;
 	choiceToggled: boolean = false;
+	viewCreated: boolean = false;
 
 	constructor() { super(); }
 
@@ -125,11 +126,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (pointId && !this.currentSubgroup.useInteractiveFloorplan)
 		{
-			setTimeout(() =>
-			{
-				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-				this.scrollPointIntoView(pointId, pointId === firstPointId);
-			}, interval || 500);
+			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+			this.scrollPointIntoView(pointId, pointId === firstPointId);
 
 			this.selectDecisionPoint.emit(pointId);
 		}
@@ -196,7 +194,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			{
 				setTimeout(() =>
 				{
-					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
+					this.viewCreated = true;
 				}, 250);
 			}
 			else
@@ -208,7 +207,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 					const top = pointCardElement.style.top;
 					pointCardElement.style.position = 'relative';
 					pointCardElement.style.top = '-200px';
-					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+					this.viewCreated = true;
 					pointCardElement.style.top = top;
 					pointCardElement.style.position = pos;
 				}, 250);

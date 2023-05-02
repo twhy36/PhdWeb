@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, EventEmitter, Output, SimpleChanges, OnChanges } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 
 import * as _ from 'lodash';
 
@@ -47,7 +47,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	@Output() isBaseHouseChange = new EventEmitter<{ option: ITreeOption, isBaseHouse: boolean }>();
 	@Output() updateTreeChoiceOptionRules = new EventEmitter<{ choices: Array<PhdApiDto.IOptionChoiceRuleChoice>, hasRules: boolean }>();
 
-	optionDetailsForm: FormGroup;
+	optionDetailsForm: UntypedFormGroup;
 
 	optionRule: PhdApiDto.IOptionChoiceRule;
 	optionRuleSelectedChoices: Array<PhdApiDto.IOptionChoiceRuleChoice> = [];
@@ -682,8 +682,8 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	{
 		const isBaseHouse: boolean = this.option.baseHouse;
 
-		this.optionDetailsForm = new FormGroup({
-			'isBaseHouse': new FormControl({ value: isBaseHouse, disabled: this.isReadOnly })
+		this.optionDetailsForm = new UntypedFormGroup({
+			'isBaseHouse': new UntypedFormControl({ value: isBaseHouse, disabled: this.isReadOnly })
 		});
 	}
 

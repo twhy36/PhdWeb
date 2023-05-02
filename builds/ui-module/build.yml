@@ -9,13 +9,18 @@ steps:
 - task: NodeTool@0
   displayName: 'Set Node Version'
   inputs:
-    versionSpec: '16.10.x'
+    versionSpec: '16.13.x'
 - task: FileTransform@1
   displayName: 'Set Build Info'
   inputs:
     folderPath: 'UI/projects/$(module)/src/app'
     fileType: 'json'
     targetFiles: 'build.json'
+- task: Cache@2
+  inputs:
+    key: '"npm" | "$(Agent.OS)" | UI/package-lock.json'
+    path: $(npm_config_cache)
+  displayName: Cache Node Modules
 - task: Npm@1
   displayName: Install Dependencies
   inputs:

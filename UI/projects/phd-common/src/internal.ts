@@ -32,6 +32,7 @@ export * from './lib/models/lot.model';
 export * from './lib/models/market';
 export * from './lib/models/my-favorite.model';
 export * from './lib/models/note.model';
+export * from './lib/models/odata-response.model';
 export * from './lib/models/opportunity.model';
 export * from './lib/models/option.model';
 export * from './lib/models/plan.model';
@@ -60,6 +61,8 @@ export * from './lib/http-interceptors/auth-interceptor';
 //services
 export * from './lib/services/browser.service';
 export * from './lib/services/identity.service';
+export * from './lib/services/tree.service';
+export * from './lib/services/token.service';
 export * from './lib/services/brand.service';
 export * from './lib/services/interceptors/spinner.interceptor';
 export * from './lib/services/spinner.service';
@@ -80,6 +83,7 @@ export * from './lib/utils/guid.class';
 export * from './lib/utils/jsUtils.class';
 export * from './lib/utils/modal.class';
 export * from './lib/utils/odata-utils.class';
+export * from './lib/utils/tree.utils';
 export * from './lib/utils/unsubscribe-on-destroy';
 export * from './lib/utils/utils.class';
 

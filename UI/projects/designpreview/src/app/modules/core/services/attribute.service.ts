@@ -8,8 +8,12 @@ import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
 
-import { withSpinner, AttributeGroup, LocationGroup, Location, Attribute, Choice, AttributeCommunityImageAssoc } from 'phd-common';
-import { AttributeCommunityDto, AttributeGroupDto, DPChoiceAttributeGroupCommunityAssocDto, LocationDto, LocationGroupCommunityDto, ODataResponse } from '../../shared/models/odata-response.model';
+import {
+	withSpinner, AttributeGroup, LocationGroup, Location, Attribute, Choice, AttributeCommunityImageAssoc, 
+	AttributeCommunityDto, AttributeGroupDto, DPChoiceAttributeGroupCommunityAssocDto, LocationDto, 
+	LocationGroupCommunityDto, ODataResponse }
+from 'phd-common';
+
 import { AttributeExt, AttributeGroupExt, ChoiceAttributeGroup } from '../../shared/models/attribute-ext.model';
 
 @Injectable()

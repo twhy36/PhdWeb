@@ -9,7 +9,7 @@ import { Action, Store, select } from '@ngrx/store';
 import
 {
 	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding,
-	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers
+	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers, TreeService
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -36,13 +36,11 @@ import * as ChangeOrderActions from '../change-order/actions';
 import * as fromRoot from '../reducers';
 
 import * as _ from 'lodash';
-import { TreeService } from '../../core/services/tree.service';
 import { OptionService } from '../../core/services/option.service';
 import { PlanService } from '../../core/services/plan.service';
 import { ContractService } from '../../core/services/contract.service';
-import { AttributeService } from '../../core/services/attribute.service';
 
-import { mergeIntoTree, setTreePointsPastCutOff } from '../../shared/classes/tree.utils';
+import { setTreePointsPastCutOff } from '../../shared/classes/tree.utils';
 import { tryCatch } from '../error.action';
 import { priceBreakdown } from '../reducers';
 
@@ -158,7 +156,7 @@ export class ChangeOrderEffects
 							else
 							{
 								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
-								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
+								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices, true).pipe(
 									map(choices => { return changeOrder })
 								);
 							}
@@ -467,7 +465,7 @@ export class ChangeOrderEffects
 							else
 							{
 								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
-								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices).pipe(
+								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices, true).pipe(
 									map(choices => { return changeOrder })
 								);
 							}
@@ -741,11 +739,9 @@ export class ChangeOrderEffects
 								return { tree, rules, options, images, job: store.job, mappings, selectedChoices };
 							}),
 							//include anything that has been previously sold or locked down in the tree
-							mergeIntoTree(
+							this.treeService.mergeIntoTree(
 								[...store.job.jobChoices, ...(currentChangeOrder && currentChangeOrder.salesStatusDescription === 'Pending' ? [] : jobChangeOrderChoices)],
 								[...store.job.jobPlanOptions, ...(currentChangeOrder && currentChangeOrder.salesStatusDescription === 'Pending' ? [] : jobChangeOrderPlanOptions)],
-								this.treeService,
-								this.attributeService,
 								currentChangeOrder),
 							map(data =>
 							{
@@ -1137,7 +1133,6 @@ export class ChangeOrderEffects
 		private store: Store<fromRoot.State>,
 		private changeOrderService: ChangeOrderService,
 		private treeService: TreeService,
-		private attributeService: AttributeService,
 		private optionService: OptionService,
 		private planService: PlanService,
 		private salesAgreementService: SalesAgreementService,

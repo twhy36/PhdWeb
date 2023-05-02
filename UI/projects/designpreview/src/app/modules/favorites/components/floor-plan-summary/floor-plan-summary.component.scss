@@ -2,6 +2,19 @@
 
 $detailed-point-panel-width: 300px;
 
+.phd-summary-container {
+	height: calc(100vh - 76px);
+
+	.phd-descriptive-text {
+		font-size: 11px;
+		font-weight: bold;
+		position: absolute;
+		margin-left: 10px;
+		bottom: 75px;
+		width: 33%;
+	}
+}
+
 .phd-floor-plan-summary {
 	display: flex;
 	flex-direction: row;
@@ -46,16 +59,11 @@ $detailed-point-panel-width: 300px;
 			height: 0;
 		}
 	}
+}
 
-	.phd-descriptive-text {
-		font-size: 11px;
-		font-weight: bold;
-		position: fixed;
-		left: 20px;
-		bottom: 74px;
-		padding: 5px 0px;
-		width: 33%;
-	}
+.phd-footer-bar {
+	padding-bottom: 70px;
+	margin-top: -64px;
 }
 
 .phd-default-ifp {

@@ -43,9 +43,6 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 		switch (window.location.host)
 		{
 		case environment.brandMap.americanWest:
-			//use different accessibility and equal icons for American West
-			this.accessibilityImgSrc = 'assets/Icon_Accessibility_AmWest.svg';
-			this.equalHousingImgSrc = 'assets/Icon_Equal Housing_AmWest.svg';
 
 			//Terms/Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
 			this.termsUrl = brandBaseUrl + (environment.production ? '/legal' : sitecorePartialUrl) + '/terms-of-use/';

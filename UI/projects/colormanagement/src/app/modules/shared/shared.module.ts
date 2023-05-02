@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { NgbModule, NgbButtonsModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -27,7 +27,6 @@ const routes: Routes = [
 		FormsModule,
 		ReactiveFormsModule,
 		MultiSelectModule,
-		NgbButtonsModule,
 		NgbModule,
 		RouterModule.forChild(routes),
 		PhdCommonModule,

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { OrganizationService } from '../../../core/services/organization.service';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { IMarket, IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
 import { FeatureSwitchService } from 'phd-common';
 
@@ -23,10 +23,10 @@ export class SalesCommunitySelectorComponent implements OnInit
 	@Output() onFinancialCommunityChange: EventEmitter<IFinancialCommunity> = new EventEmitter(true);
 	@Output() onFinancialCommunitiesForMarketChange: EventEmitter<number[]> = new EventEmitter(false);
 
-	specHomesForm: FormGroup;
-	marketsControl = new FormControl(null, Validators.required);
-	communitiesControl = new FormControl(null, Validators.required);
-	financialCommunitiesControl = new FormControl(null, Validators.required);
+	specHomesForm: UntypedFormGroup;
+	marketsControl = new UntypedFormControl(null, Validators.required);
+	communitiesControl = new UntypedFormControl(null, Validators.required);
+	financialCommunitiesControl = new UntypedFormControl(null, Validators.required);
 
 	selectedMarket: IMarket;
 	selectedCommunity: ISalesCommunity;
@@ -93,7 +93,7 @@ export class SalesCommunitySelectorComponent implements OnInit
 
 	createForm()
 	{
-		this.specHomesForm = new FormGroup({
+		this.specHomesForm = new UntypedFormGroup({
 			'marketsControl': this.marketsControl,
 			'communitiesControl': this.communitiesControl,
 			'financialCommunitiesControl': this.financialCommunitiesControl

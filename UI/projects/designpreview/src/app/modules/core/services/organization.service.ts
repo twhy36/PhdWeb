@@ -4,10 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable ,  throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { FinancialCommunity, SalesCommunity, withSpinner } from 'phd-common';
+import { FinancialCommunity, SalesCommunity, withSpinner, ODataResponse } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { ODataResponse } from '../../shared/models/odata-response.model';
 
 @Injectable()
 export class OrganizationService

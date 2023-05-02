@@ -796,9 +796,9 @@ export class LiteService
 		}, []);
 	}
 
-	onGenerateSalesAgreementWithColorWarning(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, salesAssociateId: number)
+	onGenerateSalesAgreementWithColorWarning(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, opportunityId: string)
 	{
-		const title = "Generate Home Purchase Agreement";
+		const title = 'Generate Home Purchase Agreement';
 		const body = 'This House Configuration has Options selected that require a color.  Either some colors were not selected or some colors you selected have been set to inactive.  Click Continue to generate this sales agreement now, or click Cancel to select the colors for options.';
 		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
@@ -807,7 +807,7 @@ export class LiteService
 		{
 			if (result)
 			{
-				this.scenarioService.onGenerateSalesAgreement(buildMode, lotStatus, selectedLotId, salesAgreementId, salesAssociateId);
+				this.scenarioService.onGenerateSalesAgreement(buildMode, lotStatus, selectedLotId, salesAgreementId, opportunityId);
 			}
 		});
 	}

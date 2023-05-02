@@ -4,11 +4,10 @@
 	</h3>
 	<ul class="list-unstyled">
 		<ng-container *ngFor="let point of points">
-			<a attr.href="{{ getPointCardId(point) }}" class="phd-point-link" [attr.aria-current]="currentPointId === point.id ? 'page' : null" (click)="$event.preventDefault(); ">
+			<a attr.href="{{ getPointCardId(point) }}" class="phd-point-link" [attr.aria-current]="currentPointId === point.id ? 'page' : null" (click)="$event.preventDefault(); onDecisionPointClick(point)">
 				<li *ngIf="displayDecisionPoint(point)"
 					[class.active]="currentPointId === point.id"
-					class="d-flex align-items-center justify-content-start"
-					(click)="onDecisionPointClick(point)"
+					class="d-flex align-items-center justify-content-start"			
 					[@slideOut]>
 					<div class="icon">
 						<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="point.completed" aria-label="Checkmark"></i>

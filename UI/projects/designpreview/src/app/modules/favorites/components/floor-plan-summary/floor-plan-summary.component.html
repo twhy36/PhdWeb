@@ -1,33 +1,38 @@
-<main class="phd-floor-plan-summary">
-	<h1 class="phd-names d-flex flex-column">
-		<div class="phd-community-name">{{communityName}} : </div>
-		<div class="phd-plan-name">{{planName}}</div>
-	</h1>
-	<div class="phd-floorplan-container">
-		<ng-container *ngIf="!noVisibleFP">
-			<floor-plan
-				[height]="'86vh'"
-				[planId$]="marketingPlanId$"
-				[selectedFloor]="selectedFloor"
-				[subGroup]="subGroup"
-				[isPlainFloorplan]="isPlainFloorplan"
-				[isFlipped]="isFloorplanFlipped"
-				(floorPlanLoaded)="loadFloorPlan($event)"
-			>
-			</floor-plan>
-		</ng-container>
-		<ng-container *ngIf="noVisibleFP">
-			<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" alt="">
-		</ng-container>
-	</div>
-	<div class="floor-select-container" *ngIf="floors && floors.length > 1">
-		<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
-			<option *ngFor="let floor of floors" [ngValue]="floor"><h2>{{ floor.name }}</h2></option>
-		</select>
-	</div>
-	<ng-container>
+<main>
+	<div class="phd-summary-container">
+		<div class="phd-floor-plan-summary">
+			<h1 class="phd-names d-flex flex-column">
+				<div class="phd-community-name">{{communityName}} : </div>
+				<div class="phd-plan-name">{{planName}}</div>
+			</h1>
+			<div class="phd-floorplan-container">
+				<ng-container *ngIf="!noVisibleFP">
+					<floor-plan
+						[height]="'calc(100vh - 150px)'"
+						[planId$]="marketingPlanId$"
+						[selectedFloor]="selectedFloor"
+						[subGroup]="subGroup"
+						[isPlainFloorplan]="isPlainFloorplan"
+						[isFlipped]="isFloorplanFlipped"
+						(floorPlanLoaded)="loadFloorPlan($event)"
+					>
+					</floor-plan>
+				</ng-container>
+				<ng-container *ngIf="noVisibleFP">
+					<img class="phd-default-ifp" [src]="getDefaultFPImageSrc()" alt="">
+				</ng-container>
+			</div>
+			<div class="floor-select-container" *ngIf="floors && floors.length > 1">
+				<select id="floor-select" class="form-control" [ngModel]="selectedFloor" (ngModelChange)="selectFloor($event)">
+					<option *ngFor="let floor of floors" [ngValue]="floor"><h2>{{ floor.name }}</h2></option>
+				</select>
+			</div>
+		</div>
 		<div class="phd-descriptive-text">*Floorplan may show options you selected as well as previously contracted options. Floorplans are for illustrative purposes only and may differ from actual available floor plans and actual features and measurements of completed home.</div>
-	</ng-container>
+	</div>
+	<div class="phd-footer-bar">
+		<footer-bar></footer-bar>
+	</div>
 </main>
 
 <action-bar [primaryAction]="'Back'"
@@ -37,6 +42,5 @@
 			[isPreview]="isPreview"
 			[isPresale]="isPresale"
 			[hideContractedToggle]="true"
-			(callToAction)="onBack()"
-			>
+			(callToAction)="onBack()">
 </action-bar>

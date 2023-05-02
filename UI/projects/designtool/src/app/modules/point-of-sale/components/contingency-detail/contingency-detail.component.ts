@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { Validators, FormGroup, FormControl } from '@angular/forms';
+import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 
@@ -30,10 +30,10 @@ export class ContingencyDetailComponent extends ComponentCanNavAway implements O
 	@Output() onEdit = new EventEmitter<SalesAgreementContingency>();
 	@Output() checkChanges = new EventEmitter<boolean>();
 
-	form: FormGroup;
-	expirationDate: FormControl;
-	completionDate: FormControl;
-	contingencyTypeDesc: FormControl;
+	form: UntypedFormGroup;
+	expirationDate: UntypedFormControl;
+	completionDate: UntypedFormControl;
+	contingencyTypeDesc: UntypedFormControl;
 	maxDate: NgbDate;
 	maxDescriptionLength: number = 175;
 
@@ -89,7 +89,7 @@ export class ContingencyDetailComponent extends ComponentCanNavAway implements O
 
 	createForm()
 	{
-		this.form = new FormGroup({
+		this.form = new UntypedFormGroup({
 			expirationDate: this.expirationDate,
 			completionDate: this.completionDate,
 			contingencyTypeDesc: this.contingencyTypeDesc
@@ -98,9 +98,9 @@ export class ContingencyDetailComponent extends ComponentCanNavAway implements O
 
 	setFormData()
 	{
-		this.expirationDate = new FormControl(this.ngbExpirationDate, [Validators.required]);
-		this.completionDate = new FormControl(this.ngbCompletionDate);
-		this.contingencyTypeDesc = new FormControl(this.contingency.contingencyTypeDesc || 'HouseNotSold', [Validators.required]);
+		this.expirationDate = new UntypedFormControl(this.ngbExpirationDate, [Validators.required]);
+		this.completionDate = new UntypedFormControl(this.ngbCompletionDate);
+		this.contingencyTypeDesc = new UntypedFormControl(this.contingency.contingencyTypeDesc || 'HouseNotSold', [Validators.required]);
 		this.createForm();
 	}
 

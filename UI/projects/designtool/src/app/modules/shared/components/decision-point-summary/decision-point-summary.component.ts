@@ -6,11 +6,10 @@ import * as _ from 'lodash';
 
 import {
 	UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete, DesignToolAttribute, PointStatus, DecisionPoint,
-	Group, SubGroup, Choice, ChoiceImageAssoc
+	Group, SubGroup, Choice, ChoiceImageAssoc, TreeService
 } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 
-import { TreeService } from '../../../core/services/tree.service';
 
 @Component({
 	selector: 'decision-point-summary',

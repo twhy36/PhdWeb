@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 
 import { finalize, combineLatest } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -74,7 +74,7 @@ export class PointSidePanelComponent implements OnInit
 	isLoadingPointRules = true;
 	isLoadingChoiceRules = true;
 
-	pointForm: FormGroup;
+	pointForm: UntypedFormGroup;
 
 	pickTypes: Array<IDPointPickType> = [];
 	dependentPointIds: Array<number> = [];
@@ -128,10 +128,10 @@ export class PointSidePanelComponent implements OnInit
 
 		let pointPickType: number = item.dto.pointPickTypeId == 0 ? null : item.dto.pointPickTypeId;
 
-		this.pointForm = new FormGroup({
-			'pointPickType': new FormControl({ value: pointPickType, disabled: this.isReadOnly }, [Validators.required]),
-			'quickQuoteCheck': new FormControl({ value: item.isQuickQuoteItem, disabled: this.isReadOnly }),
-			'structCheck': new FormControl({ value: item.isStructuralItem, disabled: this.isReadOnly })
+		this.pointForm = new UntypedFormGroup({
+			'pointPickType': new UntypedFormControl({ value: pointPickType, disabled: this.isReadOnly }, [Validators.required]),
+			'quickQuoteCheck': new UntypedFormControl({ value: item.isQuickQuoteItem, disabled: this.isReadOnly }),
+			'structCheck': new UntypedFormControl({ value: item.isStructuralItem, disabled: this.isReadOnly })
 		});
 	}
 

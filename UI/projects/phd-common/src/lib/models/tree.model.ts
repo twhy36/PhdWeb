@@ -43,8 +43,13 @@ export class TreeVersion
 	treeId: number;
 	planKey: string;
 	name: string;
-	publishStartDate?: Date;
 	groups: Array<Group>;
+	communityId: number;
+	description: string;
+	publishStartDate?: Date;
+	publishEndDate: Date;
+	lastModifiedDate: Date;
+	includedOptions: string[];
 }
 
 export class Group

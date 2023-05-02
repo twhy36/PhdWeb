@@ -470,9 +470,8 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		combineLatest([
 			this.liteService.hasLiteMonotonyConflict(),
-			this.opportunityService.getOpportunitySalesAssociateId(this.opportunityId),
 			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
-		]).subscribe(([mc, salesAssociateId, areColorsValid]) =>
+		]).subscribe(([mc, areColorsValid]) =>
 		{
 			if (mc.monotonyConflict)
 			{
@@ -485,7 +484,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					this.summaryHeader.lot.lotStatusDescription,
 					this.summaryHeader.lot.id,
 					this.salesAgreementId,
-					salesAssociateId
+					this.opportunityId
 				);
 			}
 			else
@@ -495,7 +494,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					this.summaryHeader.lot.lotStatusDescription,
 					this.summaryHeader.lot.id,
 					this.salesAgreementId,
-					salesAssociateId
+					this.opportunityId
 				);
 			}
 		});

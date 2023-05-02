@@ -275,7 +275,7 @@ export class OrganizationService
 		const planGroups = _.groupBy(plans, 'org.edhFinancialCommunityId');
 		let requests = Object.keys(planGroups).map(communityID =>
 		{
-			var financialPlanIntegrationKey = planGroups[communityID].map(x => `'${x.integrationKey}'`).join(',');
+			var financialPlanIntegrationKey = planGroups[communityID].map(x => `'${(x as PhdEntityDto.IPlanDto).integrationKey}'`).join(',');
 
 			const entity = `financialCommunities`;
 			const expand = `planCommunities($filter=financialPlanIntegrationKey in (${financialPlanIntegrationKey}) and productType ne 'MultiUnit Shell' and isActive eq true;$select=id, financialPlanIntegrationKey, planSalesName; $orderby=planSalesName)`

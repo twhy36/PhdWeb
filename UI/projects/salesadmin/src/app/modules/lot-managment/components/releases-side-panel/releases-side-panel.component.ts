@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 
 import { HomeSite } from '../../../shared/models/homesite.model';
 import { IHomeSiteReleaseDto, IHomeSiteReleaseSidePanelItem } from '../../../shared/models/homesite-releases.model';
@@ -31,7 +31,7 @@ export class ReleasesSidePanelComponent implements OnInit
 
 	isOpen: boolean = true;
 
-	releaseForm: FormGroup;
+	releaseForm: UntypedFormGroup;
 
 	items: Array<MultiSelectHomeSiteItem> = [];
 
@@ -105,12 +105,12 @@ export class ReleasesSidePanelComponent implements OnInit
 			description = release.description;
 		}
 
-		this.releaseForm = new FormGroup({
-			'dateValue': new FormControl(dateValue, [Validators.required]),
-			'description': new FormControl(description, [Validators.maxLength(this.descMaxLength)]),
-			'releaseRank': new FormControl(releaseRank),
-			'pendingSelection': new FormControl(),
-			'selectedLots': new FormControl(this.selectedItems.length > 0 ? '1' : '', [Validators.required])
+		this.releaseForm = new UntypedFormGroup({
+			'dateValue': new UntypedFormControl(dateValue, [Validators.required]),
+			'description': new UntypedFormControl(description, [Validators.maxLength(this.descMaxLength)]),
+			'releaseRank': new UntypedFormControl(releaseRank),
+			'pendingSelection': new UntypedFormControl(),
+			'selectedLots': new UntypedFormControl(this.selectedItems.length > 0 ? '1' : '', [Validators.required])
 		});
 	}
 
