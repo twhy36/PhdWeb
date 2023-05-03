@@ -31,6 +31,7 @@
 				[class.phd-tree-view-presale]="isPresale">
 				<ul class="phd-group-list">
 					<ng-container *ngFor="let group of groups">
+						<span class="phd-show-on-print">&nbsp;</span>
 						<div class="phd-group" role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups.length > 0">
 							<div class="phd-label">
 								<h2>{{group.label}}</h2>
