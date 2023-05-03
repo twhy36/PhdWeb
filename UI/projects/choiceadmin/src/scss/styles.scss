@@ -434,6 +434,10 @@ $toggle-content-after: 'Must Have';
 	font-size: 1.25em;
 }
 
+ngb-modal-backdrop {
+	z-index: 1050 !important;
+}
+
 .phd-btn-save, .phd-btn-left {
 	margin-right: 15px;
 }
