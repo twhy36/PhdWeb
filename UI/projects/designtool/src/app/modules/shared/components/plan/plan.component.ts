@@ -17,7 +17,6 @@ import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
-import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as JobActions from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
@@ -154,7 +153,8 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				return plans
 					.filter(p => {
 						return (financialCommunity === 0 || p.communityId === financialCommunity) 
-							&& p.lotAssociations.length > 0;
+							&& p.lotAssociations.length > 0
+							&& p.isActive;
 					})
 					.sort(function (a, b)
 					{

@@ -116,7 +116,7 @@ export class PlanService
 		const expand = `financialCommunity($select=id,salesCommunityId),lotPlanAssocs($select=id,lotId,isActive,planId;$filter=isActive eq true),webSitePlanCommunityAssocs($expand=webSitePlan($select=webSitePlanIntegrationKey))`;
 		let filter = `financialCommunity/salesCommunityId eq ${salesCommunityId} and productType ne 'MultiUnit Shell'`;
 
-		const select = `id, financialPlanIntegrationKey, financialCommunityId, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet, productType, foundation, garageConfiguration, masterBedLocation, productConfiguration, planSalesDescription`;
+		const select = `id, financialPlanIntegrationKey, financialCommunityId, planSalesName, bedrooms, fullBaths, halfBaths, squareFeet, productType, foundation, garageConfiguration, masterBedLocation, productConfiguration, planSalesDescription, isActive`;
 		const orderBy = `planSalesName`;
 
 		const endPoint = environment.apiUrl + `${entity}?${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderby=${orderBy}`;
@@ -258,7 +258,8 @@ export class PlanService
 			productType: data['productType'],
 			salesDescription: data['planSalesDescription'],
 			integrationKey: data['financialPlanIntegrationKey'],
-			communityId: data['financialCommunityId']
+			communityId: data['financialCommunityId'],
+			isActive: data['isActive']
 		} as Plan;
 	}
 }
