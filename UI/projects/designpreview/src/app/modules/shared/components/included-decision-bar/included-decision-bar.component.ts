@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
+import * as fromRoot from '../../../ngrx-store/reducers';
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, SubGroup } from 'phd-common';
 
 @Component({
@@ -23,7 +25,19 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 	currentPointId: number;
 	currentSubGroupId: number;
 
-	constructor() { super(); }
+	constructor(private store: Store<fromRoot.State>) { super(); }
+
+	ngOnInit() 
+	{
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.nav)
+		).subscribe((nav) =>
+		{
+			this.currentPointId = nav.includedPoint;
+			this.currentSubGroupId = nav.includedSubGroup;
+		});
+	}
 
 	onDecisionPointClick(point: DecisionPoint)
 	{
