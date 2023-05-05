@@ -86,3 +86,7 @@
 :host ::ng-deep .p-datatable table {
 	width: 100%; // need width 100% else the tables overflow and scroll vs trying to fit everything on the screen
 }
+
+:host ::ng-deep .p-datatable-wrapper {
+	overflow: initial !important;
+}
