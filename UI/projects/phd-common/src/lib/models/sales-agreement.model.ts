@@ -311,12 +311,14 @@ export class JobSalesAgreementAssoc
 {
 	jobId: number;
 	isActive: boolean;
+	salesAgreement: SalesAgreement;
 
 	constructor(dto?: JobSalesAgreementAssoc)
 	{
 		if (dto)
 		{
 			Object.assign(this, dto);
+			this.salesAgreement = dto.salesAgreement;
 		}
 	}
 }
