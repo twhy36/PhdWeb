@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { BehaviorSubject, Observable, throwError as _throw } from 'rxjs';
+import { BehaviorSubject, Observable, throwError as _throw, from } from 'rxjs';
 import { EMPTY } from 'rxjs';
-import { combineLatest, map, catchError, flatMap, switchMap, finalize } from 'rxjs/operators';
+import { combineLatest, map, catchError, flatMap, switchMap, finalize, mergeMap, toArray } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
 
@@ -19,7 +19,7 @@ import { TreeOption, ITreeOption } from '../../shared/models/option.model';
 import { IDivCatalogPointDto } from '../../shared/models/point.model';
 import { IDivCatalogChoiceDto, IChoiceImageAssoc } from '../../shared/models/choice.model';
 
-import { withSpinner } from 'phd-common';
+import { BatchResponse, withSpinner } from 'phd-common';
 import { RuleType } from '../../shared/models/rule.model';
 import { DivCatWizPlan, DivCatWizChoice } from '../../divisional/services/div-catalog-wizard.service';
 import { IPlanOptionResult, IPlanOptionCommunityResult } from '../../shared/models/plan.model';
@@ -381,12 +381,12 @@ export class TreeService
 
 	getTreeWithChoices(planOptionCommunity: IPlanOptionCommunityResult[], selectedChoices: DivAttributeWizChoice[]): Observable<Array<IPlanOptionResult>>
 	{
-		const batchGuid = odataUtils.getNewGuid();
-
 		const optionGroups = _.groupBy(planOptionCommunity, 'financialCommunityId');
-		let requests = Object.keys(optionGroups).map(financialCommunityId =>
+		const financialCommunityIds = Object.keys(optionGroups);
+		
+		const buildRequestUrl = (financialCommunityId: number) =>
 		{
-			var financialPlanIntegrationKey = optionGroups[financialCommunityId].map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
+			const financialPlanIntegrationKey = optionGroups[financialCommunityId].map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
 
 			const entity = `dTreeVersions`;
 			const filter = `dTree/plan/org/edhFinancialCommunityId eq ${financialCommunityId} and dTree/plan/integrationKey in (${financialPlanIntegrationKey}) and (publishStartDate eq null or publishStartDate le now())`;
@@ -396,16 +396,49 @@ export class TreeService
 			const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}orderby=${encodeURIComponent(orderBy)}&${this._ds}count=true`;
 			const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
-			return odataUtils.createBatchGet(endpoint);
-		});
+			return endpoint;
+		}
 
-		let headers = odataUtils.createBatchHeaders(batchGuid);
-		let batch = odataUtils.createBatchBody(batchGuid, requests);
+		const batchSize = 1;
+		const chunk = 100;
+		const splitArrayresult = financialCommunityIds.reduce((resultArray, item, index) =>
+		{
+			const chunkIndex = Math.floor(index / chunk);
 
-		return withSpinner(this._http).post(`${settings.apiUrl}$batch`, batch, { headers: headers }).pipe(
-			map((response: any) =>
+			if (!resultArray[chunkIndex])
 			{
-				let bodies = response.responses.map(r => r.body);
+				resultArray[chunkIndex] = [];
+			}
+
+			resultArray[chunkIndex].push(item);
+
+			return resultArray;
+		}, []);
+		
+		return from(splitArrayresult).pipe(
+			mergeMap(item =>
+			{
+				const batchBundles: string[] = [];
+
+				for (var x = 0; x < item.length; x = x + batchSize)
+				{
+					const optionList = item.slice(x, x + batchSize);
+
+					batchBundles.push(buildRequestUrl(optionList));
+				}
+
+				const requests = batchBundles.map(req => odataUtils.createBatchGet(req));
+
+				const guid = odataUtils.getNewGuid();
+				const headers = odataUtils.createBatchHeaders(guid);
+				const batch = odataUtils.createBatchBody(guid, requests);
+
+				return withSpinner(this._http).post(`${settings.apiUrl}$batch`, batch, { headers: headers });
+			}),
+			toArray<BatchResponse<any[]>>(),
+			map(responses =>
+			{
+				let bodies = _.flatMap(responses, (response) => response.responses.filter(r => r.body?.value?.length > 0).map(r => r.body));
 
 				return _.flatten(bodies.map(body =>
 				{
