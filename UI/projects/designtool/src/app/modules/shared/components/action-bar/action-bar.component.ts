@@ -98,7 +98,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isOutForESign: boolean;
 	canApprove: boolean;
 	salesAgreementId: number;
-	allowedToCancelSpec: boolean = true;
+	allowedToCancelSpec: boolean;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -162,17 +162,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.savingAgreement = agreementState.savingSalesAgreement;
 			this.salesAgreementId = agreementState.id;
-		});
-
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.job)
-		).subscribe(jobState =>
-		{
-			if (jobState.jobTypeName == 'Spec')
-			{
-				this.allowedToCancelSpec = jobState?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== "Void" && x.salesAgreement?.status !== "Cancel" && x.salesAgreement?.id !== 0) === -1;
-			}
+			this.allowedToCancelSpec = !this.salesAgreementId || ['Void', 'Cancel'].indexOf(agreementState.status) !== -1;
 		});
 
 		this.store.pipe(
