@@ -162,7 +162,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.savingAgreement = agreementState.savingSalesAgreement;
 			this.salesAgreementId = agreementState.id;
-			this.allowedToCancelSpec = !this.salesAgreementId || ['Void', 'Cancel'].indexOf(agreementState.status) !== -1;
+			this.allowedToCancelSpec = ['Void', 'Cancel'].indexOf(agreementState.status) !== -1;
 		});
 
 		this.store.pipe(
@@ -445,7 +445,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		if (isSpec && !this.allowedToCancelSpec)
+		if (isSpec && (this.salesAgreementId !== 0 || !this.allowedToCancelSpec))
 		{
 			const modalTitle = 'Cancel Spec';
 			const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec. You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';			
