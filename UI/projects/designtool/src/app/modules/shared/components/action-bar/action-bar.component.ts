@@ -98,7 +98,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isOutForESign: boolean;
 	canApprove: boolean;
 	salesAgreementId: number;
-	allowedToCancelSpec: boolean;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -162,7 +161,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.savingAgreement = agreementState.savingSalesAgreement;
 			this.salesAgreementId = agreementState.id;
-			this.allowedToCancelSpec = ['Void', 'Cancel'].indexOf(agreementState.status) !== -1;
 		});
 
 		this.store.pipe(
@@ -445,43 +443,34 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		if (isSpec && (this.salesAgreementId !== 0 || !this.allowedToCancelSpec))
-		{
-			const modalTitle = 'Cancel Spec';
-			const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec. You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';			
-			this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);			
-		}
+		const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+			: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
+		const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
+		const confirmDefaultOption = 'Continue';
+		const primaryButton = { hide: false, text: 'Yes' };
+		const secondaryButton = { hide: false, text: 'No' };
 
-		if (this.allowedToCancelSpec)
+		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
 		{
-			const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
-				: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
-			const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
-			const confirmDefaultOption = 'Continue';
-			const primaryButton = { hide: false, text: 'Yes' };
-			const secondaryButton = { hide: false, text: 'No' };
+			const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
 
-			if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
+			if (currentChangeOrderGroup)
 			{
-				const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
+				currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
 
-				if (currentChangeOrderGroup)
+				this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders =>
 				{
-					currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
-
-					this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders => {
-						this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
-						this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
-
-						this.router.navigateByUrl('/change-orders');
-					});
-				}
-				else
-				{
+					this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
 					this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
 
 					this.router.navigateByUrl('/change-orders');
-				}
+				});
+			}
+			else
+			{
+				this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+
+				this.router.navigateByUrl('/change-orders');
 			}
 		}
 	}
