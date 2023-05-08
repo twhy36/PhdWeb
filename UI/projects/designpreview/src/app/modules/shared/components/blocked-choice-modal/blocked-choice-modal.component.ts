@@ -119,6 +119,37 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 				d.mustHaves = d.rules.filter(r => r.ruleType === 1);
 				d.anyMultipleMustHaves = d.mustHaves.some(mh => (mh.choices && mh.choices.length > 1) || (mh.points && mh.points.length > 1));
 				d.mustNotHaves = d.rules.filter(r => r.ruleType === 2);
+
+				//if multiple MustHaves, check and remove if any item favorited
+				if (d.anyMultipleMustHaves)
+				{
+					d.mustHaves.forEach((mh) =>
+					{
+						if (mh.points && mh.points.length > 1)
+						{
+							mh.points?.forEach((pointid, pointIndex) =>
+							{
+								const isPointSelected = this.points.find(p => p.id === pointid)?.choices.find(c => c.quantity > 0) !== undefined;
+								if (isPointSelected)
+								{
+									mh.points.splice(pointIndex, 1);
+								}
+							});
+						}
+
+						if (mh.choices && mh.choices.length > 1)
+						{
+							mh.choices?.forEach((choiceid, choiceIndex) =>
+							{
+								if (this.choices.find(c => c.id === choiceid)?.quantity > 0)
+								{
+									mh.choices.splice(choiceIndex, 1);
+								}
+							});
+						}
+					});
+
+				}
 			});
 		});
 	}
@@ -160,10 +191,10 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 		if (!this.hiddenChoices.some(choice => choice.id === this.choice.id))
 		{
 			const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
-	
+
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, pointId, null));
 			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, subGroup.subGroupCatalogId], { queryParamsHandling: 'merge' })
-	
+
 			//Scroll to selected blocked point if same blocked point selected and change event not triggered
 			if (this.point.id && this.point.id === pointId)
 			{
