@@ -358,20 +358,9 @@ export const isComplete = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	needsPlanChange,
 	hasSpecPlanId,
-	fromLot.selectLot,
-	(scenario, elevation, colorScheme, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lots) =>
+	(scenario, elevation, colorScheme, monotonyConflict, sag, needsPlanChange, hasSpecPlanId) =>
 	{
 		const hasLot = !!sag.id || (scenario.scenario ? !!scenario.scenario.lotId : false);
-
-		// #389805 Make sure this lot isn't already sold
-		let hasAvailableLot = true;
-		if (hasLot && scenario?.scenario?.lotId)
-		{	
-			let lot: Lot = lots?.lots?.find(l => l.id === scenario.scenario.lotId);
-
-			hasAvailableLot = lot && lot.lotStatusDescription === 'Available';
-		}
-
 		const hasPlan = !!sag.id || (scenario.scenario ? !!scenario.scenario.planId : false) || hasSpecPlanId;
 
 		const hasColorScheme = (colorScheme && colorScheme.choices.some(x => isChoiceComplete(x, false)))
@@ -382,7 +371,7 @@ export const isComplete = createSelector(
 		const hasSelectedElevation = (elevation && elevation.choices.some(x => isChoiceComplete(x, false)))
 			|| !elevation;
 
-		return hasLot && hasAvailableLot && hasPlan && hasSelectedElevation && hasColorScheme && !monotonyConflict.monotonyConflict && !needsPlanChange;
+		return hasLot && hasPlan && hasSelectedElevation && hasColorScheme && !monotonyConflict.monotonyConflict && !needsPlanChange;
 	}
 )
 
@@ -1146,8 +1135,7 @@ export const isLiteComplete = createSelector(
 	fromLite.selectedElevation,
 	fromLite.selectedColorScheme,
 	legacyColorScheme,
-	fromLot.selectLot,
-	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme, legacyColorScheme, lots) =>
+	(scenario, monotonyConflict, sag, needsPlanChange, hasSpecPlanId, lite, selectedElevation, selectedColorScheme, legacyColorScheme) =>
 	{
 		let isLiteComplete = false;
 
@@ -1156,18 +1144,8 @@ export const isLiteComplete = createSelector(
 			const hasLot = !!sag.id || (scenario.scenario ? !!scenario.scenario.lotId : false);
 			const hasPlan = !!sag.id || (scenario.scenario ? !!scenario.scenario.planId : false) || hasSpecPlanId;
 
-			// #389805 Make sure this lot isn't already sold
-			let hasAvailableLot = true;
-			if (hasLot && scenario?.scenario?.lotId)
-			{	
-				let lot: Lot = lots?.lots?.find(l => l.id === scenario.scenario.lotId);
-
-				hasAvailableLot = lot && lot.lotStatusDescription === 'Available';
-			}
-
 			isLiteComplete = hasLot
 				&& hasPlan
-				&& hasAvailableLot
 				&& !!selectedElevation
 				&& (!!selectedColorScheme || legacyColorScheme?.isSelected)
 				&& !monotonyConflict.monotonyConflict
