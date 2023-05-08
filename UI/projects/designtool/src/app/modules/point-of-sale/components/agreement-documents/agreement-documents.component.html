@@ -29,7 +29,7 @@
 
 		<div class="d-flex flex-row" *ngIf="salesOptions">
 			<div class="flex-column form-check my-1">
-				<div class="checkbox" *ngFor="let template of contractTemplates">
+				<div class="checkbox" *ngFor="let template of contractTemplates; trackBy:trackByContractTemplates"> 
 					<label class="phd-clickable">
 						<input type="checkbox" value="template.templateId" [checked]="template.isSelected" (change)="changeSelected(template.templateId)" [disabled]="!canEdit" />
 						{{template.displayName}}
