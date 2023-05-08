@@ -27,6 +27,7 @@ export class OrganizationService
 	private _finCommObs: ConnectableObservable<Array<FinancialCommunity>>;
 	private _lastMktId: number;
 	public salesMarkets: Observable<Array<FinancialMarket>>;
+	public financialCommunities: Observable<Array<FinancialCommunity>>;
 	private _internalOrgs$: ConnectableObservable<Array<Org>>;
 	private _ds: string = encodeURIComponent('$');
 
@@ -196,6 +197,16 @@ export class OrganizationService
 		);
 	}
 
+	getFinancialCommunitiesBySalesCommunityId(salesCommunityId: number): Observable<Array<FinancialCommunity>>
+	{
+		return this._finCommObs.pipe(
+			map(comms =>
+			{
+				return comms.filter(comm => comm.salesCommunityId === salesCommunityId) as Array<FinancialCommunity>;
+			})
+		);
+	}
+
 	getFinancialCommunities(marketId: number): Observable<Array<FinancialCommunity>>
 	{
 		if (!this._lastMktId || this._lastMktId !== marketId)
@@ -203,7 +214,7 @@ export class OrganizationService
 			let url = settings.apiUrl;
 
 			const filter = `marketId eq ${marketId}`;
-			const select = 'id, marketId, name, number, salesCommunityId, financialBrandId, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled, isColorSchemePlanRuleEnabled, isDesignPreviewEnabled';
+			const select = 'id, marketId, name, number, salesCommunityId, financialBrandId, salesStatusDescription, isPhasedPricingEnabled, isElevationMonotonyRuleEnabled, isColorSchemeMonotonyRuleEnabled, isColorSchemePlanRuleEnabled, isDesignPreviewEnabled, isOnlineSalesEnabled';
 			const expand = 'market($select=id,number)';
 			const orderBy = 'name';
 			const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderby=${encodeURIComponent(orderBy)}`;
@@ -226,6 +237,7 @@ export class OrganizationService
 							isElevationMonotonyRuleEnabled: data.isElevationMonotonyRuleEnabled,
 							isColorSchemeMonotonyRuleEnabled: data.isColorSchemeMonotonyRuleEnabled,
 							isColorSchemePlanRuleEnabled: data.isColorSchemePlanRuleEnabled,
+							isOnlineSalesEnabled: data.isOnlineSalesEnabled,
 							isDesignPreviewEnabled: data.isDesignPreviewEnabled,
 							salesCommunityId: data.salesCommunityId,
 							financialBrandId: data.financialBrandId
@@ -329,6 +341,7 @@ export class OrganizationService
 				isElevationMonotonyRuleEnabled: financialCommunity.isElevationMonotonyRuleEnabled,
 				isColorSchemeMonotonyRuleEnabled: financialCommunity.isColorSchemeMonotonyRuleEnabled,
 				isDesignPreviewEnabled: financialCommunity.isDesignPreviewEnabled,
+				isOnlineSalesEnabled: financialCommunity.isOnlineSalesEnabled,
 				salesCommunityId: financialCommunity.salesCommunityId
 			};
 			return this._http.patch(endpoint, payload).pipe(

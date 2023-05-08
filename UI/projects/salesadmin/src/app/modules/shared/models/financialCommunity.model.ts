@@ -15,6 +15,7 @@ export interface FinancialCommunity
 	salesCommunityId: number;
 	financialBrandId: number;
 	isColorSchemePlanRuleEnabled: boolean;
+	isOnlineSalesEnabled: boolean;
 }
 
 export class FinancialCommunityInfo

@@ -26,6 +26,8 @@ import { TreeService } from '../../../core/services/tree.service';
 })
 export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	//Financial communites within the current sales community.
+	salesCommunityFinancialCommunities: Array<FinancialCommunity> = null;
 	financialCommunity: FinancialCommunity = null;
 	formFinancialCommunity: FinancialCommunity;
 	financialCommunityInfo: FinancialCommunityInfo;
@@ -71,7 +73,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 	get isCommunityLinkEnabled(): boolean
 	{
-		return this.salesCommunity?.isOnlineSalesCommunityEnabled;
+		return this.financialCommunity?.isOnlineSalesEnabled;
 	}
 
 	get isPreviewEnabled(): boolean
@@ -147,6 +149,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					{
 						// If we have an Org and salesCommunity we get FinancialCommunityInfo, WebsiteCommunity, SalesCommunity and FinancialBrand
 						return combineLatest([
+							this._orgService.getFinancialCommunitiesBySalesCommunityId(comm?.salesCommunityId),
 							this._orgService.getFinancialCommunityInfo(this.orgId),
 							this._orgService.getWebsiteCommunity(comm?.salesCommunityId),
 							this._orgService.getSalesCommunity(comm?.salesCommunityId),
@@ -155,10 +158,12 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 					}
 				}
 
-				return combineLatest([of(null), of(null), of(null), of(null)]);
+				return combineLatest([of(null), of(null), of(null), of(null), of(null)]);
 			}),
-		).subscribe(([finCommInfo, websiteCommunity, salesCommunity, financialBrand]) =>
+		).subscribe(([salesCommunityFinancialCommunities, finCommInfo, websiteCommunity, salesCommunity, financialBrand]) =>
 		{
+			this.salesCommunityFinancialCommunities = salesCommunityFinancialCommunities;
+
 			this.financialCommunityInfo = finCommInfo;
 
 			this.financialBrand = financialBrand;
@@ -210,7 +215,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.ecoeRequired = false;
 			this.earnestMoneyRequired = false;
 			this.commmunityLinkEnabledDirty = !this.commmunityLinkEnabledDirty;
-			this.salesCommunity.isOnlineSalesCommunityEnabled = !this.salesCommunity.isOnlineSalesCommunityEnabled;
+			this.financialCommunity.isOnlineSalesEnabled = !this.financialCommunity.isOnlineSalesEnabled;
+
+			this.salesCommunity.isOnlineSalesCommunityEnabled = this.financialCommunity.isOnlineSalesEnabled || this.salesCommunityFinancialCommunities.some(x => x.isOnlineSalesEnabled);
 		}
 		else if (this.communitySettingsForm.get('earnestMoney').value)
 		{
@@ -281,6 +288,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 
 			combineLatest([
 				this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId),
+				this._orgService.saveFinancialCommunity(this.financialCommunity),
 				this._orgService.saveSalesCommunity(this.salesCommunity)
 			]).subscribe(() =>
 			{
