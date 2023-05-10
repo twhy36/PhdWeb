@@ -102,7 +102,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 		const choice = this.choice;
 		const choiceOptions = choice.options;
 
-		if (choice && choice.enabled)
+		if (choice)
 		{
 			description = choiceOptions && choiceOptions.length > 0 ? choiceOptions[0].description : choice.description;
 		}
