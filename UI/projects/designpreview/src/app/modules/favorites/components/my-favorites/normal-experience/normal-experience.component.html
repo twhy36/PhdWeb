@@ -16,7 +16,7 @@
 					<div class="phd-subgroup-name">{{subGroup?.label}}</div>
 				</ng-container>
 			</div>
-			<div class="phd-decisions"><span>DECISIONS:</span></div>
+			<h2 class="phd-decisions"><span>DECISIONS:</span></h2>
 			<div class="phd-point-bar">
 				<ng-container *ngIf="!noVisibleGroups">
 					<decision-bar [points]="points" [currentPointId]="currentPointId" (selectDecisionPoint)="selectDecisionPointHandler($event)"></decision-bar>
