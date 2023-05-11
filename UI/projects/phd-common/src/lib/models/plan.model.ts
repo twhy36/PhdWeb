@@ -24,6 +24,7 @@ export class Plan
 	marketingPlanId: number[];
 	baseHouseElevationImageUrl: string;
 	lotAssociations: number[];
+	isActive: boolean;
 }
 
 export class JobPlan

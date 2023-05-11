@@ -390,7 +390,8 @@ export class ViewContractsSidePanelComponent implements OnInit
 					isColorSchemeMonotonyRuleEnabled: currentTag[0].isColorSchemeMonotonyRuleEnabled,
 					isElevationMonotonyRuleEnabled: currentTag[0].isElevationMonotonyRuleEnabled,
 					isColorSchemePlanRuleEnabled: currentTag[0].isColorSchemePlanRuleEnabled,
-					isDesignPreviewEnabled: currentTag[0].isDesignPreviewEnabled
+					isDesignPreviewEnabled: currentTag[0].isDesignPreviewEnabled,
+					isOnlineSalesEnabled: currentTag[0].isOnlineSalesEnabled
 				});
 			}
 		}

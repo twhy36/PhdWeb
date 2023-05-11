@@ -31,21 +31,16 @@ export class QuantityInputComponent
 
 	enforceMinMax(value)
 	{
-		// add 1 second delay before processing QTY input		
-		clearTimeout(this.timeout);
-		this.timeout = setTimeout(() =>
+		if (this.currentQty !== value)
 		{
-			if (this.currentQty !== value)
-			{
-				//reset currentQty when input is out of range, otherwise set to input value
-				this.currentQty = (Number(value) && value >= this.min && value <= this.max) || value === 0 ? value : this.currentQty;
+			//reset currentQty when input is out of range, otherwise set to input value
+			this.currentQty = (Number(value) && value >= this.min && value <= this.max) || value === 0 ? value : this.currentQty;
 
-				//set valid input, only alert user when input exceed max allowed
-				this.quantityChange.emit(value > this.max ? null : this.currentQty);
+			//set valid input, only alert user when input exceed max allowed
+			this.quantityChange.emit(value > this.max ? null : this.currentQty);
 
-				this.element.nativeElement.value = this.currentQty;
-				this.cd.detectChanges();
-			}
-		}, 1000);
+			this.element.nativeElement.value = this.currentQty;
+			this.cd.detectChanges();
+		}
 	}
 }

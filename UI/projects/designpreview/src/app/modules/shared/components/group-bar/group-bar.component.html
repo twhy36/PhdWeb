@@ -8,71 +8,67 @@
 				<div class="phd-community-name">{{communityName}} : </div>
 				<div class="phd-plan-name">{{planName}}</div>
 			</div>
-
-			<!-- Group menu -->
-			<div class="phd-primary-menu">
+			<div class="phd-group-menu">
 				<h2 class="phd-visually-hidden">
 					Secondary Navigation
 				</h2>
-				<ul>
-				<ng-container *ngFor="let group of groups">
-					<button mat-button [matMenuTriggerFor]="group_menu"
-							class="phd-group-menu-item"
-							[class.phd-group-menu-selected]="isGroupSelected(group.id)"
-							[attr.aria-current]="isGroupSelected(group.id)?'true':'false'"
-							[attr.aria-haspopup]="null"
-							[attr.aria-label]="group.label"
-							aria-expanded="false">
-						<i class="fa fa-check phd-group-completed" *ngIf="completedStatuses.includes(group.status)"></i>
-						<span [class.phd-group-uncompleted]="!completedStatuses.includes(group.status)">{{group.label}}</span>
-					</button>
-					<mat-menu #group_menu="matMenu" [class]="'phd-sub-menu'" [attr.role]="null">
-						<button mat-menu-item [role]="null"
-								*ngFor="let subGroup of group.subGroups"
-								[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
-								[attr.aria-current]="subGroup.id === selectedSubGroupId?'true':'false'"
-								[attr.aria-label]="subGroup.label"
-								(click)="selectSubgroup(subGroup.id)">
-							<i class="fa fa-check phd-sub-group-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
-							<span [class.phd-group-uncompleted]="!completedStatuses.includes(subGroup.status)">{{subGroup.label}}</span>
-						</button>
-					</mat-menu>
-				</ng-container>
+				<!-- Standard Group Menu -->
+				<ul class="phd-primary-menu">
+					<div class="phd-group-menu-item" *ngFor="let group of groups">
+						<auto-open-menu>
+							<div trigger>
+								<button mat-button
+									class="phd-group-menu-item"
+									[class.phd-group-menu-selected]="isGroupSelected(group.id)"
+									[attr.aria-current]="isGroupSelected(group.id)?'true':'false'"
+									[attr.aria-haspopup]="null"
+									[attr.aria-label]="group.label"
+									aria-expanded="false">
+									<i class="fa fa-check phd-group-completed" *ngIf="completedStatuses.includes(group.status)"></i>
+									<span [class.phd-group-uncompleted]="!completedStatuses.includes(group.status)">{{group.label}}</span>
+								</button>
+							</div>
+							<div content>
+								<ng-container *ngFor="let subGroup of group.subGroups">
+									<button mat-menu-item (click)="selectSubgroup(subGroup.id)">
+										<i class="fa fa-check phd-sub-group-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
+										<span [class.phd-group-uncompleted]="!completedStatuses.includes(subGroup.status)">{{subGroup.label}}</span>
+									</button>
+								</ng-container>
+							</div>
+						</auto-open-menu>
+					</div>
 				</ul>
-			</div>
-
-			<!-- Group menu in mobile view -->
-			<div class="phd-hamburger-menu">
-				<h2 class="phd-visually-hidden">
-					Navigation
-				</h2>
-				<button mat-button [attr.aria-haspopup]="null" [matMenuTriggerFor]="main_menu" class="phd-menu-bars" #hamburgerMenuTrigger="matMenuTrigger">
-					<i class="fa fa-bars fa-2x"></i>
-				</button>
-				<mat-menu #main_menu="matMenu" [class]="'phd-pop-menu'">
-					<ng-container *ngFor="let group of groups">
-						<button mat-menu-item [matMenuTriggerFor]="sub_menu"
-								[class.phd-sub-menu-selected]="isGroupSelected(group.id)"
-								[attr.aria-current]="isGroupSelected(group.id)?'true':'false'"
-								[attr.aria-haspopup]="null"
-								[attr.aria-label]="group.label"
-								[role]="null">
-							<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(group.status)"></i>
-							<span [ngClass]="!completedStatuses.includes(group.status) ? 'phd-group-uncompleted' : ''">{{group.label}}</span>
-						</button>
-						<mat-menu #sub_menu="matMenu" [class]="'phd-pop-menu'">
-							<button mat-menu-item [role]="null"
-									*ngFor="let subGroup of group.subGroups"
-									[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
-									[attr.aria-current]="subGroup.id === selectedSubGroupId?'true':'false'"
-									[attr.aria-label]="subGroup.label"
-									(click)="selectSubgroup(subGroup.id)">
-								<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
-								<span [ngClass]="!completedStatuses.includes(subGroup.status) ? 'phd-group-uncompleted' : ''">{{subGroup.label}}</span>
+				<!-- Mobile Group Menu -->
+				<ul class="phd-hamburger-menu">
+					<button mat-button [attr.aria-haspopup]="null" [matMenuTriggerFor]="main_menu" class="phd-menu-bars" #hamburgerMenuTrigger="matMenuTrigger">
+						<i class="fa fa-bars fa-2x"></i>
+					</button>
+					<mat-menu #main_menu="matMenu" class="phd-pop-menu">
+						<ng-container *ngFor="let group of groups">
+							<button mat-menu-item [matMenuTriggerFor]="sub_menu"
+									[class.phd-sub-menu-selected]="isGroupSelected(group.id)"
+									[attr.aria-current]="isGroupSelected(group.id)?'true':'false'"
+									[attr.aria-haspopup]="null"
+									[attr.aria-label]="group.label"
+									[role]="null">
+								<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(group.status)"></i>
+								<span [ngClass]="!completedStatuses.includes(group.status) ? 'phd-group-uncompleted' : ''">{{group.label}}</span>
 							</button>
-						</mat-menu>
-					</ng-container>
-				</mat-menu>
+							<mat-menu #sub_menu="matMenu" class="phd-pop-menu">
+								<button mat-menu-item [role]="null"
+										*ngFor="let subGroup of group.subGroups"
+										[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
+										[attr.aria-current]="subGroup.id === selectedSubGroupId?'true':'false'"
+										[attr.aria-label]="subGroup.label"
+										(click)="selectSubgroup(subGroup.id)">
+									<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
+									<span [ngClass]="!completedStatuses.includes(subGroup.status) ? 'phd-group-uncompleted' : ''">{{subGroup.label}}</span>
+								</button>
+							</mat-menu>
+						</ng-container>
+					</mat-menu>
+				</ul>
 			</div>
 
 			<div class="phd-tree-filter">

@@ -579,3 +579,7 @@ ngb-modal-backdrop {
 	display:flex;
 	justify-content:flex-end;
 }
+
+ngb-modal-backdrop {
+	z-index: 1050 !important;
+}

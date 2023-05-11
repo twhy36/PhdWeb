@@ -30,9 +30,9 @@
 </div>
 
 <ng-template #maxQuantityModal let-c="close" let-d="dismiss">
-	<div aria-label="Max Quantity Modal">
+	<div aria-label="Max Quantity Modal" role="dialog" aria-modal="true" aria-labelledby="quantity-modal-header">
 		<div class="modal-header">
-			<span class="modal-title"></span>
+			<span class="modal-title" id="quantity-modal-header"></span>
 			<button type="button" class="close" aria-label="Close" (click)="closeClicked()">
 				<span aria-hidden="true">&times;</span>
 			</button>

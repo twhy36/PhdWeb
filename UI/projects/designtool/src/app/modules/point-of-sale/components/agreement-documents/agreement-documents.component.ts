@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, TrackByFunction } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -90,6 +90,11 @@ export class AgreementDocumentsComponent extends UnsubscribeOnDestroy implements
 		{
 			this.store.dispatch(new ContractActions.AddRemoveSelectedTemplate(this.terminationAgreementTemplate.templateId, false, ESignTypeEnum.TerminationAgreement));
 		}
+	}
+
+	trackByContractTemplates: TrackByFunction<AgreementTemplate> = function (_index, contract) 
+	{
+		return contract.templateId?.toString() + contract.isSelected;
 	}
 }
 

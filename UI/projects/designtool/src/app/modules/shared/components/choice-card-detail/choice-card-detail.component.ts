@@ -112,7 +112,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		const quantity = choice.quantity;
 		const choiceOptions = choice.options;
 
-		if (choice.enabled)
+		if (choice)
 		{
 			let desc = choice.description ? [choice.description] : [];
 

@@ -12,13 +12,12 @@
 							  (onFinancialCommunityChange)="onFinancialCommunityChange($event)"
 							  [showLabels]="true"></sales-community-selector>
 
-	<div class="btn-group btn-group-toggle phd-button-group w-100" ngbRadioGroup name="radioBasic" [(ngModel)]="selectedSpecOrHomes">
-
-		<label class="btn-primary">
-			<input type="radio" value="spec"> Spec
+	<div class="btn-group btn-group-toggle phd-button-group w-100" name="radioBasic">
+		<label class="btn btn-primary" [ngClass]="{ 'active': selectedSpecOrHomes === 'spec' }">
+			<input type="radio" value="spec" [(ngModel)]="selectedSpecOrHomes"> Spec
 		</label>
-		<label class="btn-primary">
-			<input type="radio" value="model"> Model
+		<label class="btn btn-primary" [ngClass]="{ 'active': selectedSpecOrHomes === 'model' }">
+			<input type="radio" value="model" [(ngModel)]="selectedSpecOrHomes"> Model
 		</label>
 	</div>
 </div>

@@ -284,25 +284,19 @@ export class TreeService
 
 	getChoiceCatalogIds(choices: Array<JobChoice | ChangeOrderChoice | MyFavoritesChoice>, skipSpinner?: boolean): Observable<Array<JobChoice | ChangeOrderChoice>>
 	{
-		return this.identityService.token.pipe(
-			switchMap((token: string) =>
-			{
-				const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
+		const choiceIds: Array<number> = choices.map(x => isChangeOrderChoice(x) ? x.decisionPointChoiceID : x.dpChoiceId);
 
-				if (choiceIds.length > 0)
-				{
-					const filter = `dpChoiceID in (${choiceIds})`;
-					const select = 'dpChoiceID,divChoiceCatalogID';
-					const url = `${this.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		if (choiceIds.length === 0)
+		{
+			return of([]);
+		}
 
-					return (skipSpinner ? this.http : withSpinner(this.http)).get<any>(url);
-				}
-				else
-				{
-					return of(null);
-				}
-			}),
-			map((response: any) =>
+		const filter = `dpChoiceID in (${choiceIds})`;
+		const select = 'dpChoiceID,divChoiceCatalogID';
+		const url = `${this.apiUrl}dPChoices?${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+
+		return (skipSpinner ? this.http : withSpinner(this.http)).get<ODataResponse<any[]>>(url).pipe(
+			map((response) =>
 			{
 				const newChoices = [...choices];
 				const changedChoices = [];
@@ -536,13 +530,13 @@ export class TreeService
 				{
 					const bodies = response.responses.map(r => r.body);
 
-					return bodies.map(body =>
+					return _.flatten(bodies.map(body =>
 					{
 						// pick draft(publishStartDate is null) or latest publishStartDate(last element)
 						const value = body.value.length > 0 ? body.value[0] : null;
 
 						return value ? value as PlanOptionCommunityImageAssoc : null;
-					}).filter(res => res);
+					}).filter(res => res));
 				})
 			);
 		}

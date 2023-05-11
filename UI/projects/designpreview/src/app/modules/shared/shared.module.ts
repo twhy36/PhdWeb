@@ -35,6 +35,7 @@ import { InfoTooltipComponent } from './components/info-tooltip/info-tooltip.com
 import { FooterBarComponent } from './components/footer-bar/footer-bar.component';
 import { ChoiceIdToNamePipe } from './pipes/choiceIdToName.pipe';
 import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
+import { AutoOpenMenuComponent } from './components/auto-open-menu/auto-open-menu.component';
 
 @NgModule({
 	exports: [
@@ -56,7 +57,8 @@ import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
 		IncludedDecisionBarComponent,
 		FooterBarComponent,
 		ChoiceIdToNamePipe,
-		PointIdToNamePipe
+		PointIdToNamePipe,
+		AutoOpenMenuComponent
 	],
 	declarations: [
 		ActionBarComponent,
@@ -82,7 +84,8 @@ import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
 		InfoTooltipComponent,
 		FooterBarComponent,
 		ChoiceIdToNamePipe,
-		PointIdToNamePipe
+		PointIdToNamePipe,
+		AutoOpenMenuComponent
 	],
 	imports: [
 		BrowserModule,

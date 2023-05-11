@@ -365,7 +365,8 @@ export const isComplete = createSelector(
 
 		// #389805 Make sure this lot isn't already sold
 		let hasAvailableLot = true;
-		if (hasLot && scenario?.scenario?.lotId)
+		const inScenario = scenario.buildMode === 'buyer' && sag.id === 0;
+		if (hasLot && scenario?.scenario?.lotId && inScenario)
 		{	
 			let lot: Lot = lots?.lots?.find(l => l.id === scenario.scenario.lotId);
 
@@ -1158,7 +1159,8 @@ export const isLiteComplete = createSelector(
 
 			// #389805 Make sure this lot isn't already sold
 			let hasAvailableLot = true;
-			if (hasLot && scenario?.scenario?.lotId)
+			const inScenario = scenario.buildMode === 'buyer' && sag.id === 0;
+			if (hasLot && scenario?.scenario?.lotId && inScenario)
 			{	
 				let lot: Lot = lots?.lots?.find(l => l.id === scenario.scenario.lotId);
 

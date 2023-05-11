@@ -52,6 +52,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	myFavoritesPointsDeclined: MyFavoritesPointDeclined[];
 	welcomeModal: ModalRef;
 	showWelcomeModal: boolean = true;
+	viewCreated: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private modalService: ModalService,
@@ -184,11 +185,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	{
 		if (pointId)
 		{
-			setTimeout(() =>
-			{
-				const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-				this.scrollPointIntoView(pointId, pointId === firstPointId);
-			}, interval || 500);
+			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+			this.scrollPointIntoView(pointId, pointId === firstPointId);
 		}
 		if (this.currentPointId !== pointId)
 		{
@@ -274,8 +272,9 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			{
 				setTimeout(() =>
 				{
-					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-				}, 250);
+					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
+					this.viewCreated = true;
+				}, 200);
 			}
 			else
 			{
@@ -286,17 +285,21 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 					const top = pointCardElement.style.top;
 					pointCardElement.style.position = 'relative';
 					pointCardElement.style.top = '-10px';
-					pointCardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+					this.viewCreated = true;
 					pointCardElement.style.top = top;
 					pointCardElement.style.position = pos;
-				}, 250);
+				}, 200);
 			}
 		}
 
 		const decisionBarElement = document.getElementById('included-decision-bar-' + pointId?.toString());
 		if (decisionBarElement)
 		{
-			decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			setTimeout(() => 
+			{
+				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+			}, 1000);
 		}
 	}
 
@@ -309,8 +312,9 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			{
 				setTimeout(() =>
 				{
-					subGroupElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-				}, 250);
+					subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
+					this.viewCreated = true;
+				}, 200);
 			}
 			else
 			{
@@ -320,18 +324,22 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 					const pos = subGroupElement.style.position;
 					const top = subGroupElement.style.top;
 					subGroupElement.style.position = 'relative';
-					subGroupElement.style.top = '0px';
-					subGroupElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					subGroupElement.style.top = '-10px';
+					subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+					this.viewCreated = true;
 					subGroupElement.style.top = top;
 					subGroupElement.style.position = pos;
-				}, 250);
+				}, 200);
 			}
 		}
 
 		const decisionBarSgElement = document.getElementById('included-decision-bar-sg-' + subGroupId?.toString());
 		if (decisionBarSgElement)
 		{
-			decisionBarSgElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			setTimeout(() => 
+			{
+				decisionBarSgElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+			}, 1000);
 		}
 	}
 

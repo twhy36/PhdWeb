@@ -85,4 +85,17 @@
 
 :host ::ng-deep .p-datatable table {
 	width: 100%; // need width 100% else the tables overflow and scroll vs trying to fit everything on the screen
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+
+:host ::ng-deep .p-datatable-wrapper {
+	overflow: initial !important;
+}
+
+:host ::ng-deep .p-datatable-resizable-table { 
+	.p-datatable-thead > tr > th, .p-datatable-tbody > tr > td {
+    	overflow: hidden;
+    	white-space: normal !important;
+	}
 }
