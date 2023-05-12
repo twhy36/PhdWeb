@@ -458,3 +458,11 @@ $toggle-content-after: 'Must Have';
 }
 
 /*Tag Input (from Nice Admin Theme) - END*/
+
+ngb-modal-backdrop {
+	z-index: 1050 !important;
+}
+
+::ng-deep .modal-backdrop {
+	z-index: 1050 !important;
+}

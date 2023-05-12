@@ -579,3 +579,7 @@ $toggle-content-after: 'Must Have';
 ngb-modal-backdrop {
 	z-index: 1050 !important;
 }
+
+::ng-deep .modal-backdrop {
+	z-index: 1050 !important;
+}
