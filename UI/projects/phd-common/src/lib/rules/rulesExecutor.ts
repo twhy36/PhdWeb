@@ -808,8 +808,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			if (optionRules.some(or => or.replaceOptions.some(replaceOption =>
 			{
 				const origOptionRule = rules.optionRules.find(or2 => or2.optionId === replaceOption);
-				const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
-				return pointChoices.some(pc => pc === origChoice);
+				if (origOptionRule)
+				{
+					const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+					return pointChoices.some(pc => pc === origChoice);
+				}
+
+				return false;
 			})))
 			{
 				choice.disabledByBadSetup = true;
@@ -853,7 +858,15 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 			choice.disabledByReplaceRules = _.flatten(unsatisfiedReplaceRules.map(rr => rr.replaceOptions))
 				.map(rr => rules.optionRules.find(or => or.optionId === rr))
-				.map(or => getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave && !find(ch.id).quantity).map(ch => ch.id)))
+				.map(or =>
+				{
+					if (or)
+					{
+						return getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave && !find(ch.id).quantity).map(ch => ch.id));
+					}
+
+					return null;
+				})
 				.filter(ch => !!ch);
 
 			if (!choice.lockedInChoice && (choice.disabledByReplaceRules?.length || choice.disabledByBadSetup))
