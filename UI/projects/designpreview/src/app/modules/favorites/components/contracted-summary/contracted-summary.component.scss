@@ -4,6 +4,7 @@
 	padding-bottom: 70px;
 	margin-top: 10px;
 	width: 100%;
+	height: calc(100vh);
 
 	h1 {
 		font-size: 28px;
@@ -11,10 +12,10 @@
 		margin: 0;
 		font-weight: bold;
 	}
+}
 
-	.phd-footer-bar {
-		margin-top: 130px;
-	}
+.phd-footer-bar {
+	margin-top: -150px;
 }
 
 .phd-tree-view {
