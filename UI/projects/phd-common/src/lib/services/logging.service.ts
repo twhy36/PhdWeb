@@ -17,15 +17,15 @@ export class LoggingService
 		});
 	}
 
-	logEvent(message: string)
+	logEvent(message: string, props: Record<string, unknown> = {})
 	{
-		this.appInsights.trackEvent({ name: message });
+		this.appInsights.trackEvent({ name: message, properties: props });
 	}
 
 	logPageView(name?: string, uri?: string, properties?: any, measurements?: any, duration?: number)
 	{
 		if (!!duration)
-		{
+		{ 
 			this.appInsights.trackPageViewPerformance({ name, uri, properties: { ...properties, ...measurements }, duration: '' + duration });
 		}
 		else 

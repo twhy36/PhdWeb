@@ -1,10 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { select, Store } from '@ngrx/store';
 
-import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService } from 'phd-common';
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService, LoggingService } from 'phd-common';
 import { withLatestFrom } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
@@ -16,20 +16,27 @@ import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 import * as fromRoot from './modules/ngrx-store/reducers';
 import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
+import * as fromScenario from './modules/ngrx-store/scenario/reducer';
 import { BuildMode } from './modules/shared/models/build-mode.model';
+import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
 })
-export class AppComponent extends UnsubscribeOnDestroy implements OnInit 
+export class AppComponent extends UnsubscribeOnDestroy implements OnInit, OnDestroy
 {
 	title = 'Design Preview';
 	environment = environment;
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
 	browserModal: ModalRef;
+	treeVersionId: number = 0;
+	private startTime: number;
+	pageLoadExecuted: boolean = false;
+	currentRoute = '';
+	processedLog = '';
 
 	get branch(): string 
 	{
@@ -50,9 +57,22 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private brandService: BrandService,
 		private adobeService: AdobeService,
 		private navService: NavigationService, // This needs to be initialized here to properly trace browser history
+		private loggingService: LoggingService,
+		private router: Router,
+		private route: ActivatedRoute,
 		@Inject(DOCUMENT) private doc: Document) 
 	{
 		super();
+
+		this.router.events.subscribe((event: RouterEvent) =>
+		{
+			if (event instanceof NavigationEnd)
+			{
+				this.pageLoadExecuted = false;
+				this.currentRoute = event.url.toLowerCase();
+				//console.log(event.url.toLowerCase()); 
+			}
+		});
 
 		// Start idle watch for user inactivities if an external user is logged in
 		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO') 
@@ -75,10 +95,55 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else 
 			{
-				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
+				window.addEventListener("unload", (event) => {
+					//log the duration here
+					this.logVisit('OnUnload');
+				  });
 			}
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.selectScenario),
+			withLatestFrom(this.store.pipe(select(state => state.salesAgreement.id)))
+		).subscribe(([scenario, sgid]) => 
+		{
+			const stateTreeId = scenario?.tree?.treeVersion.id;	
+			const stateProcessed = scenario.buildMode + ':' + sgid;
+			const isMatchingMode = (this.currentRoute.includes('/home') && scenario.buildMode==BuildMode.Buyer)
+				||
+				(this.currentRoute.includes('/presale') && scenario.buildMode==BuildMode.Presale)
+
+			if(stateTreeId && isMatchingMode && stateProcessed != this.processedLog)	
+			{
+				this.treeVersionId = scenario?.tree?.treeVersion.id;
+				console.log('state=' + stateProcessed + ':this=' + this.processedLog +'in ' + scenario.buildMode + ':' + sgid + ':tid:' + this.treeVersionId + ':marketname:' + scenario.salesCommunity.market.name);				
+				this.processedLog = scenario.buildMode + ':' + sgid;
+
+				const usageInfo = {
+					SalesAgreementId: sgid,
+					CommunityName: scenario.salesCommunity?.name,
+					CommunityId: scenario.salesCommunity?.id,
+					MarketName: scenario.salesCommunity?.market?.name,
+					MarketId: scenario.salesCommunity?.market?.id,
+					AuthenticationType: sessionStorage.getItem('authProvider'),
+					RequestUrl: this.currentRoute,
+					BuildMode: this.buildMode,
+					TreeVersionId: this.treeVersionId
+					
+					};
+				this.loggingService.logEvent('UsageInfo', usageInfo);
+				this.pageLoadExecuted = true;
+			}
+
+			this.startTime = window.performance.now();
+
+		});
 	}
+
+	ngOnDestroy() {
+		this.logVisit('OnDestroy');
+	  }
 
 	ngOnInit()
 	{
@@ -157,6 +222,20 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		this.idle.stop();
 		this.logoutModal.dismiss();
 		this.identityService.logout();
+
+		//log duration
+		this.logVisit('logout');
+	}
+
+	logVisit(location: string)
+	{
+		const duration = window.performance.now() - this.startTime;
+		const userVisit = {
+			Duration: duration,
+			Location: location,
+			SessionStart:this.startTime
+			};
+		this.loggingService.logEvent('UserVisit', userVisit);
 	}
 
 	setAdobeAnalytics() 
