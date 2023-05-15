@@ -1,4 +1,4 @@
-<div class="choice-container" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
+<li class="choice-container" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="icon" (click)="$event.stopPropagation()">
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 			<button class="phd-clickable">
@@ -23,7 +23,7 @@
 			</div>
 		</ng-container>
 	</ng-container>
-</div>
+</li>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal

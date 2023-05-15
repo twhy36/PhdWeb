@@ -1,5 +1,6 @@
-<div class="phd-attribute-list" [style.padding-top]="isBlocked && isLocationAttribute ? '15px': '0px'">
+<ul class="phd-attribute-list" [style.padding-top]="isBlocked && isLocationAttribute ? '15px': '0px'">
 	<ng-container *ngFor="let attribute of attributes">
+	<li role="group" aria-label="attribute">
 		<button class="phd-attribute-item">
 			<cl-image public-id="{{getImageSrc(attribute)}}" title="{{attribute.name}}" type="fetch"
 				crop="fill" height="80" width="80" (click)="clickAttributeClick(attribute)" (onError)="onLoadImageError($event)" 
@@ -21,5 +22,6 @@
 				</ng-container>	
 			</button>		
 		</button>
+	</li>
 	</ng-container>
-</div>
+</ul>

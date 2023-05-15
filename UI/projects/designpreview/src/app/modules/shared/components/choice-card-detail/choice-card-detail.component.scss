@@ -1,6 +1,12 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
+ul {
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
 .phd-choice-card-detail {
 	display: flex;
 	overflow: auto;

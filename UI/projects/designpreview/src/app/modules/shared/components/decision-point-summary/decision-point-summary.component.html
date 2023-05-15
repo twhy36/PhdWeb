@@ -1,4 +1,4 @@
-<div class="phd-point phd-point-on-print" role="group" attr.aria-label="{{decisionPoint.label}}">
+<li class="phd-point phd-point-on-print" role="group" attr.aria-label="{{decisionPoint.label}}">
 	<div class="phd-point-details d-flex justify-content-start align-items-start">
 		<div [ngClass]="{'phd-point-label': !isPresale, 'phd-point-label-presale': isPresale}">{{decisionPoint.label}}</div>
 
@@ -78,7 +78,7 @@
 			</ul>
 		</div>
 	</div>
-</div>
+</li>
 
 <ng-template #infoContent>
 	<div>

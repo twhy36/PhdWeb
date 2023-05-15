@@ -37,7 +37,7 @@
 					<ng-container *ngIf="displayDecisionPoint(point)">
 						<h2 class="phd-point-label" [attr.id]="'point-card-' + point.id">{{point?.label}}</h2>
 						<h3 class="phd-point-title">{{getSubTitle(point)}}</h3>
-						<div class="d-flex flex-wrap phd-choice-cards">
+						<ul class="d-flex flex-wrap phd-choice-cards">
 							<ng-container *ngFor="let choice of point.choices">
 								<choice-card *ngIf="!choice.isHiddenFromBuyerView"
 										[currentChoice]="getChoiceExt(choice, point)"
@@ -59,7 +59,7 @@
 										[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 										(declineDecisionPoint)="declineDecisionPointHandler($event)">
 							</choice-decline-card>
-						</div>
+						</ul>
 					</ng-container>
 				</ng-container>
 			</div>

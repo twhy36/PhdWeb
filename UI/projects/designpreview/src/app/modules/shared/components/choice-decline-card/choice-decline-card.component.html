@@ -1,4 +1,4 @@
-<div class="phd-choice-decline-card" [@flipOver]>
+<li class="phd-choice-decline-card" [@flipOver]  role="group" aria-label="No Selections">
 	<div class="phd-header">
 		<div class="phd-decline-choice-image">
 			<img class="phd-logo-image" [src]="imageSrc" alt="">
@@ -50,7 +50,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</li>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal

@@ -96,7 +96,7 @@
 			</h2>
 
 			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
-				<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
+				<ul *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
 					<ng-container *ngFor="let group of locationGroups">
 						<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
 							<attribute-location [currentChoice]="choice"
@@ -114,9 +114,9 @@
 							</attribute-location>
 						</div>
 					</ng-container>
-				</div>
+				</ul>
 
-				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
+				<ul *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
 					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
 						<attribute-group [attributeGroup]="attributeGroup"
 										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
@@ -127,7 +127,7 @@
 										(toggleAttribute)="toggleAttribute($event)">
 						</attribute-group>
 					</div>
-				</div>
+				</ul>
 			</div>
 		</div>
 		<div class="phd-descriptive-text">{{ disclaimerText }}</div>

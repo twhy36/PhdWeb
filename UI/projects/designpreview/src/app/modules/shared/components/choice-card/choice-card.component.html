@@ -1,4 +1,4 @@
-<div class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
+<li class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="phd-header">
 		<div class="phd-choice-image"*ngIf="imageUrl">
 			<cl-image public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270" alt=""
@@ -62,8 +62,7 @@
 			</div>
 		</div>
 	</div>
-
-</div>
+</li>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal
