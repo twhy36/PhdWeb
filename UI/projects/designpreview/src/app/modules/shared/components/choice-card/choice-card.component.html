@@ -27,13 +27,13 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<button class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
+					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<button class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
+					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is Blocked'}}"></i>
 					</button>
 				</ng-container>
@@ -49,13 +49,13 @@
 					<i class="fa fa-check phd-icon-selected"></i>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<button class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
+					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<button class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
+					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is blocked'}}"></i>
 					</button>
 				</ng-container>
