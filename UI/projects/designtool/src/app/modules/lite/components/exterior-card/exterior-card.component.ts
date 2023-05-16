@@ -4,7 +4,7 @@ import { ReplaySubject } from 'rxjs';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption, CutOffOverride } from 'phd-common';
 import { LitePlanOption, Color, LitePlanOptionUI } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -29,7 +29,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	@Input() scenarioOptions: ScenarioOption[];
 	@Input() isSelected: boolean;
 
-	@Output() toggled: EventEmitter<{option: LitePlanOption, color: Color}> = new EventEmitter();
+	@Output() toggled: EventEmitter<{ option: LitePlanOption, color: Color }> = new EventEmitter();
 
 	canConfigure: boolean;
 	canEditAgreementOrSpec: boolean;
@@ -135,7 +135,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		if (!this.canEditAgreementOrSpec)
 		{
-			return this.isSelected ? 'selected': this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
+			return this.isSelected ? 'selected' : this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
 		}
 
 		return this.isSelected ? 'Unselect' : 'CHOOSE';
@@ -179,7 +179,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 			}
 			else
 			{
-				body = `This will override the Cut-off`;
+				body = CutOffOverride.Message;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
@@ -206,6 +206,6 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		this.override$.next((!!overrideReason));
 		this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideReason, !this.color));
-		this.toggled.emit({option: this.option, color: this.color});
+		this.toggled.emit({ option: this.option, color: this.color });
 	}
 }

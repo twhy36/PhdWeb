@@ -4,7 +4,7 @@ import { combineLatest } from 'rxjs';
 import { delay, take } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent, CutOffOverride } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
@@ -60,10 +60,10 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		)
-		.subscribe(canEditAgreementOrSpec =>
-		{
-			this.canEditAgreementOrSpec = canEditAgreementOrSpec;
-		});
+			.subscribe(canEditAgreementOrSpec =>
+			{
+				this.canEditAgreementOrSpec = canEditAgreementOrSpec;
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -454,7 +454,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const confirm = this.modalService.open(ModalOverrideSaveComponent);
 		confirm.componentInstance.title = 'Warning';
-		confirm.componentInstance.body = `This will override the Cut-off`;
+		confirm.componentInstance.body = CutOffOverride.Message;
 		confirm.componentInstance.defaultOption = 'Cancel';
 
 		return confirm.result.then((result) =>
@@ -493,12 +493,12 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	trackByOptionSubCategory: TrackByFunction<IOptionSubCategory> = function(_index, optionSubCategory)
+	trackByOptionSubCategory: TrackByFunction<IOptionSubCategory> = function (_index, optionSubCategory)
 	{
 		return optionSubCategory.id;
 	}
 
-	trackByPlanOptions: TrackByFunction<LitePlanOptionUI> = function(_index, planOption)
+	trackByPlanOptions: TrackByFunction<LitePlanOptionUI> = function (_index, planOption)
 	{
 		return planOption.optionSubCategoryId.toString() + planOption.isSelected;
 	}

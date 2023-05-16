@@ -5,7 +5,7 @@ import { ReplaySubject } from 'rxjs';
 import 
 {
 	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc,
-	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation
+	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, CutOffOverride
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -549,7 +549,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			}
 			else
 			{
-				body += `Cut-off`;
+				body = CutOffOverride.Message;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });

@@ -14,7 +14,7 @@ import
 	PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
 	SDChoice, ScenarioOption,
 	PriceBreakdownType,
-    ModalRef
+	ModalRef, CutOffOverride
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -427,7 +427,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (this.disableHanding)
 			{
-				const body = 'This will override the Cut-off';
+				const body = CutOffOverride.Message;
 				const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });
 
 				confirm.componentInstance.title = 'Warning';

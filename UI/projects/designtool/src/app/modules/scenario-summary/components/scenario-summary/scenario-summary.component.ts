@@ -14,7 +14,7 @@ import
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType, ConfirmModalComponent, ModalRef
+	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType, ConfirmModalComponent, ModalRef, CutOffOverride
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -161,7 +161,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario)
-		).subscribe(scenario =>	this.fullGroups = scenario.tree ? scenario.tree.treeVersion.groups : null);
+		).subscribe(scenario => this.fullGroups = scenario.tree ? scenario.tree.treeVersion.groups : null);
 
 		this.pointStatusFilter$ = this.store.pipe(
 			select(state => state.summary.pointStatusFilter)
@@ -796,7 +796,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 			if (this.disableHanding)
 			{
-				const body = 'This will override the Cut-off';
+				const body = CutOffOverride.Message;
 				const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });
 
 				confirm.componentInstance.title = 'Warning';
