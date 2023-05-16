@@ -95,10 +95,11 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			}
 			else 
 			{
-				window.addEventListener("unload", (event) => {
+				window.addEventListener("unload", (event) =>
+				{
 					//log the duration here
 					this.logVisit('OnUnload');
-				  });
+				});
 			}
 		});
 
@@ -108,16 +109,16 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			withLatestFrom(this.store.pipe(select(state => state.salesAgreement.id)))
 		).subscribe(([scenario, sgid]) => 
 		{
-			const stateTreeId = scenario?.tree?.treeVersion.id;	
+			const stateTreeId = scenario?.tree?.treeVersion.id;
 			const stateProcessed = scenario.buildMode + ':' + sgid;
-			const isMatchingMode = (this.currentRoute.includes('/home') && scenario.buildMode==BuildMode.Buyer)
+			const isMatchingMode = (this.currentRoute.includes('/home') && scenario.buildMode == BuildMode.Buyer)
 				||
-				(this.currentRoute.includes('/presale') && scenario.buildMode==BuildMode.Presale)
+				(this.currentRoute.includes('/presale') && scenario.buildMode == BuildMode.Presale)
 
-			if(stateTreeId && isMatchingMode && stateProcessed != this.processedLog)	
+			if (stateTreeId && isMatchingMode && stateProcessed != this.processedLog)	
 			{
 				this.treeVersionId = scenario?.tree?.treeVersion.id;
-				console.log('state=' + stateProcessed + ':this=' + this.processedLog +'in ' + scenario.buildMode + ':' + sgid + ':tid:' + this.treeVersionId + ':marketname:' + scenario.salesCommunity.market.name);				
+				console.log('state=' + stateProcessed + ':this=' + this.processedLog + 'in ' + scenario.buildMode + ':' + sgid + ':tid:' + this.treeVersionId + ':marketname:' + scenario.salesCommunity.market.name);
 				this.processedLog = scenario.buildMode + ':' + sgid;
 
 				const usageInfo = {
@@ -130,8 +131,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					RequestUrl: this.currentRoute,
 					BuildMode: this.buildMode,
 					TreeVersionId: this.treeVersionId
-					
-					};
+
+				};
 				this.loggingService.logEvent('UsageInfo', usageInfo);
 				this.pageLoadExecuted = true;
 			}
@@ -141,9 +142,10 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 		});
 	}
 
-	ngOnDestroy() {
+	ngOnDestroy()
+	{
 		this.logVisit('OnDestroy');
-	  }
+	}
 
 	ngOnInit()
 	{
@@ -229,12 +231,16 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 	logVisit(location: string)
 	{
+		if (this.buildMode !== BuildMode.Buyer && this.buildMode !== BuildMode.Presale)
+		{
+			return;
+		}
 		const duration = window.performance.now() - this.startTime;
 		const userVisit = {
 			Duration: duration,
 			Location: location,
-			SessionStart:this.startTime
-			};
+			SessionStart: this.startTime
+		};
 		this.loggingService.logEvent('UserVisit', userVisit);
 	}
 
