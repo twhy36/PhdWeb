@@ -8,7 +8,7 @@ import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
 	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, 
-	IPendingJobSummary
+	IPendingJobSummary, JobSalesAgreementAssoc
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -29,7 +29,7 @@ export class JobService
 		const expandJobChoices = `jobChoices($select=id,dpChoiceId,dpChoiceQuantity,dpChoiceCalculatedPrice,choiceLabel;$expand=jobChoiceAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku),jobChoiceLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobChoiceLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),jobChoiceJobPlanOptionAssocs($select=id,jobChoiceId,jobPlanOptionId,choiceEnabledOption))`;
 		const expandJobOptions = `jobPlanOptions($select=id,planOptionId,listPrice,optionSalesName,optionDescription,optionQty,jobOptionTypeName;$expand=jobPlanOptionAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,sku),jobPlanOptionLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),planOptionCommunity($select=id;$expand=optionCommunity($select=id;$expand=option($select=financialOptionIntegrationKey))))`;
 
-		let expand = `jobSalesAgreementAssocs($expand=salesAgreement($select=id,status);$select=jobId;$filter=isActive eq true),lot($expand=lotPhysicalLotTypeAssocs($select=lotId;$expand=physicalLotType),fieldManagerLotAssocs($select=lotId;$expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($select=lotId;$expand=contact($select=firstname,lastname)),salesPhase($select=id,salesPhaseName),lotHandingAssocs($select=lotId;$expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county),planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
+		let expand = `jobSalesAgreementAssocs($select=jobId;$filter=isActive eq true),lot($expand=lotPhysicalLotTypeAssocs($select=lotId;$expand=physicalLotType),fieldManagerLotAssocs($select=lotId;$expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($select=lotId;$expand=contact($select=firstname,lastname)),salesPhase($select=id,salesPhaseName),lotHandingAssocs($select=lotId;$expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county),planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
 		let filter = `id eq ${jobId}`;
 		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName,createdBy`;
 
@@ -47,6 +47,25 @@ export class JobService
 				console.error(error);
 
 				return _throw(error);
+			})
+		);
+	}
+
+	checkIfJobHasSalesAgreementAssocs(jobId: number): Observable<boolean>
+	{
+		const filter = `id eq ${jobId}`;
+		let expand = `jobSalesAgreementAssocs($expand=salesAgreement($select=id,status);$select=jobId;$filter=isActive eq true)`;
+		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
+
+		return withSpinner(this._http).get<any>(url).pipe(
+			map(response =>
+			{
+				const jobSalesAgreementAssoc = response['value'] as Array<JobSalesAgreementAssoc>;
+
+				if (jobSalesAgreementAssoc?.length > 0)
+				{
+					return jobSalesAgreementAssoc?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
+				}
 			})
 		);
 	}

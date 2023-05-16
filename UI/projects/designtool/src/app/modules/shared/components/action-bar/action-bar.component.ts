@@ -32,6 +32,7 @@ import * as JobActions from '../../../ngrx-store/job/actions';
 // PHD Lite
 import { LiteService } from './../../../core/services/lite.service';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
+import { JobService } from '../../../core/services/job.service';
 
 @Component({
 	selector: 'action-bar',
@@ -53,7 +54,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() inChangeOrder: boolean = false;
 	@Input() skipSaving: boolean = false;
 	@Input() scrollListener: any = window;
-	@Input() canChange: boolean;
+	@Input() canChange: boolean; 
 
 	@ContentChild('leftCellTemplate') leftCellTemplate: TemplateRef<any>;
 	@ContentChild('centerCellTemplate') centerCellTemplate: TemplateRef<any>;
@@ -130,6 +131,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		private store: Store<fromRoot.State>,
 		private _navService: NavigationService,
 		private modalService: ModalService,
+		private _jobService: JobService,
 		private _changeOrderService: ChangeOrderService,
 		private liteService: LiteService
 	) { super(); }
@@ -221,7 +223,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.salesStatusDescription = cog.salesStatusDescription;
 				this.isEditingEnvelopeDraft = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Created);
 				this.isOutForESign = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Sent);
-			}
+			}			
 		});
 
 		this.store.pipe(
@@ -443,47 +445,51 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		const allowedToCancelSpec = isSpec && this.job?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
+		
+		this._jobService.checkIfJobHasSalesAgreementAssocs(this.job?.id).subscribe(async allowedToCancelSpec =>
+		{			
 
-		if (isSpec && !allowedToCancelSpec)
-		{
-			const modalTitle = 'Cancel Spec';
-			const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec.<br/> You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';			
-			this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);			
-		}
-
-		if (allowedToCancelSpec)
-		{
-			const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
-				: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
-			const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
-			const confirmDefaultOption = 'Continue';
-			const primaryButton = { hide: false, text: 'Yes' };
-			const secondaryButton = { hide: false, text: 'No' };
-
-			if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
+			if (isSpec && !allowedToCancelSpec)
 			{
-				const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
+				const modalTitle = 'Cancel Spec';
+				const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec.<br/> You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';
+				this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);
+			}
 
-				if (currentChangeOrderGroup)
+			if (allowedToCancelSpec)
+			{
+				const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+					: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
+				const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
+				const confirmDefaultOption = 'Continue';
+				const primaryButton = { hide: false, text: 'Yes' };
+				const secondaryButton = { hide: false, text: 'No' };
+
+				if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
 				{
-					currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
+					const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
 
-					this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders => {
-						this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
-						this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+					if (currentChangeOrderGroup)
+					{
+						currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
 
-						this.router.navigateByUrl('/change-orders');
-					});
-				}
-				else
-				{
-					this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+						this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders =>
+						{
+								this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
+								this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
 
-					this.router.navigateByUrl('/change-orders');
+								this.router.navigateByUrl('/change-orders');
+							});
+						}
+					else
+					{
+							this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+
+							this.router.navigateByUrl('/change-orders');
+					}
 				}
 			}
-		}
+		});		
 	}
 
 	private async showConfirmModal(body: string, title: string, defaultButton: string, primaryButton: any = null, secondaryButton: any = null): Promise<boolean>
