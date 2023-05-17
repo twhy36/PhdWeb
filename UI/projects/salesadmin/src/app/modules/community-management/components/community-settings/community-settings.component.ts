@@ -10,7 +10,7 @@ import { finalize, map, switchMap } from 'rxjs/operators';
 import { FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
 import * as _ from 'lodash';
 import { combineLatest, forkJoin, of } from 'rxjs';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { SalesCommunity } from '../../../shared/models/salesCommunity.model';
@@ -33,7 +33,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 	financialCommunityInfo: FinancialCommunityInfo;
 	selectedCommunity: FinancialCommunityViewModel = null;
 	salesCommunity: SalesCommunity = null;
-	communitySettingsForm: UntypedFormGroup;
+	communitySettingsForm: FormGroup;
 	currentMarket: FinancialMarket;
 	orgId: number;
 	canEdit = false;
@@ -256,9 +256,9 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 		const ecoeMonths = this.financialCommunityInfo ? this.financialCommunityInfo.defaultECOEMonths : null;
 		const earnestMoney = this.financialCommunityInfo ? this.financialCommunityInfo.earnestMoneyAmount : null;
 
-		this.communitySettingsForm = new UntypedFormGroup({
-			'ecoeMonths': new UntypedFormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
-			'earnestMoney': new UntypedFormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern('^[0-9]*$')])
+		this.communitySettingsForm = new FormGroup({
+			'ecoeMonths': new FormControl(ecoeMonths, [Validators.required, Validators.min(1), Validators.max(15)]),
+			'earnestMoney': new FormControl(earnestMoney, [Validators.required, Validators.min(0), Validators.max(99999), Validators.pattern('^[0-9]*$')])
 		}, []);
 	}
 

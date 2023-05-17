@@ -1,7 +1,7 @@
 import { ReplaySubject, Observable, of } from 'rxjs';
 import { map, distinctUntilChanged, combineLatest, switchMap } from 'rxjs/operators';
 
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
@@ -23,7 +23,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     params$ = new ReplaySubject<{ jobId: number }>(1);
     job: Job;
     jobId: number;
-    pulteInfoForm: UntypedFormGroup;
+    pulteInfoForm: FormGroup;
 	pulteInfo = new SpecInformation();
 	qmiSalesProgram = new SalesProgram();
     loadingJob = false;
@@ -155,23 +155,23 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
     createForm()
     {
-        this.pulteInfoForm = new UntypedFormGroup({
-            'tagLines': new UntypedFormControl(this.pulteInfo.webSiteDescription),
-			'displayOnPulte': new UntypedFormControl(this.pulteInfo.isPublishOnWebSite),
-			'discountAmount': new UntypedFormControl(this.pulteInfo.discountAmount, [Validators.min(0), Validators.max(this?.qmiSalesProgram?.maximumAmount)]),
-            'discountExpirationDate': new UntypedFormControl(this.pulteInfo.discountExpirationDate),
-            'hotHome': new UntypedFormControl(this.pulteInfo.isHotHomeActive),
-            'keySellingPoint1': new UntypedFormControl(this.pulteInfo.hotHomeBullet1),
-            'keySellingPoint2': new UntypedFormControl(this.pulteInfo.hotHomeBullet2),
-            'keySellingPoint3': new UntypedFormControl(this.pulteInfo.hotHomeBullet3),
-            'keySellingPoint4': new UntypedFormControl(this.pulteInfo.hotHomeBullet4),
-            'keySellingPoint5': new UntypedFormControl(this.pulteInfo.hotHomeBullet5),
-            'keySellingPoint6': new UntypedFormControl(this.pulteInfo.hotHomeBullet6),
-            'fullBaths': new UntypedFormControl(this.pulteInfo.numberFullBathOverride, [Validators.min(0), Validators.max(255)]),
-            'halfBaths': new UntypedFormControl(this.pulteInfo.numberHalfBathOverride, [Validators.min(0), Validators.max(255)]),
-            'bedrooms': new UntypedFormControl(this.pulteInfo.numberBedOverride, [Validators.min(0), Validators.max(255)]),
-            'squareFeet': new UntypedFormControl(this.pulteInfo.squareFeetOverride, [Validators.min(0), Validators.max(32000)]),
-            'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
+        this.pulteInfoForm = new FormGroup({
+            'tagLines': new FormControl(this.pulteInfo.webSiteDescription),
+			'displayOnPulte': new FormControl(this.pulteInfo.isPublishOnWebSite),
+			'discountAmount': new FormControl(this.pulteInfo.discountAmount, [Validators.min(0), Validators.max(this?.qmiSalesProgram?.maximumAmount)]),
+            'discountExpirationDate': new FormControl(this.pulteInfo.discountExpirationDate),
+            'hotHome': new FormControl(this.pulteInfo.isHotHomeActive),
+            'keySellingPoint1': new FormControl(this.pulteInfo.hotHomeBullet1),
+            'keySellingPoint2': new FormControl(this.pulteInfo.hotHomeBullet2),
+            'keySellingPoint3': new FormControl(this.pulteInfo.hotHomeBullet3),
+            'keySellingPoint4': new FormControl(this.pulteInfo.hotHomeBullet4),
+            'keySellingPoint5': new FormControl(this.pulteInfo.hotHomeBullet5),
+            'keySellingPoint6': new FormControl(this.pulteInfo.hotHomeBullet6),
+            'fullBaths': new FormControl(this.pulteInfo.numberFullBathOverride, [Validators.min(0), Validators.max(255)]),
+            'halfBaths': new FormControl(this.pulteInfo.numberHalfBathOverride, [Validators.min(0), Validators.max(255)]),
+            'bedrooms': new FormControl(this.pulteInfo.numberBedOverride, [Validators.min(0), Validators.max(255)]),
+            'squareFeet': new FormControl(this.pulteInfo.squareFeetOverride, [Validators.min(0), Validators.max(32000)]),
+            'numberOfGarages': new FormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
 		});
 
 		this.pulteInfoForm.get('discountExpirationDate').disable();

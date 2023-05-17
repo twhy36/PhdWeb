@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 
 import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel, ITag } from '../../../shared/models/plan-assignment.model';
 import { SidePanelComponent } from 'phd-common';
@@ -32,7 +32,7 @@ export class PlanAssignmentSidePanelComponent implements OnInit
 
     isOpen: boolean = true;
 
-    planAssignmentForm: UntypedFormGroup;
+    planAssignmentForm: FormGroup;
 
 	get isDirty(): boolean {
 		return this.planAssignmentForm.dirty;
@@ -121,9 +121,9 @@ export class PlanAssignmentSidePanelComponent implements OnInit
 
     createForm()
     {
-        this.planAssignmentForm = new UntypedFormGroup({
-            'pendingSelection': new UntypedFormControl(),
-            'selectedLots': new UntypedFormControl(this.selectedItems.length > 0 ? '1' : '')
+        this.planAssignmentForm = new FormGroup({
+            'pendingSelection': new FormControl(),
+            'selectedLots': new FormControl(this.selectedItems.length > 0 ? '1' : '')
         });
     }
 

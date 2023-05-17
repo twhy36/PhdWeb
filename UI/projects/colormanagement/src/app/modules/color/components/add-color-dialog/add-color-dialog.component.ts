@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
-import { UntypedFormGroup, UntypedFormBuilder, Validators, UntypedFormArray } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import * as _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService, IColor, IColorDto } from 'phd-common';
 import { OptionService } from '../../../core/services/option.service';
@@ -22,19 +22,19 @@ export class AddColorDialogComponent implements OnInit, OnChanges {
 	categories: IOptionCategory[];
 	currentCategory: IOptionCategory;
 	currentSubCategory: IOptionSubCategory;
-	addColorForm: UntypedFormGroup;
+	addColorForm: FormGroup;
 	colorIsMissing: boolean;
 	categoryIsMissing: boolean;
 	subCategoryIsMissing: boolean;
 
 	get colors() {
-		return this.addColorForm.controls['colors'] as UntypedFormArray;
+		return this.addColorForm.controls['colors'] as FormArray;
 	}
 
 	constructor(
 		private _optionService: OptionService,
 		private _modalService: ModalService,
-		private _fb: UntypedFormBuilder,
+		private _fb: FormBuilder,
 		private _colorService: ColorService
   	) { }
 

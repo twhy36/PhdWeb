@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmModalComponent, Elevations, ModalService, IColor } from 'phd-common';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../../core/services/color.service';
 import
 	{
@@ -19,7 +19,7 @@ import { PlanOptionService } from '../../../core/services/plan-option.service';
 export class AddColorItemDialogComponent implements OnInit
 {
 	get requiredFieldMessage() { return 'This is a required field'; }
-	addColorItemForm: UntypedFormGroup;
+	addColorItemForm: FormGroup;
 	isDuplicateName = false;
 	nameErrorMessage = '';
 	noPlansSelected = false;
@@ -41,7 +41,7 @@ export class AddColorItemDialogComponent implements OnInit
 
 	constructor(
 		private _modalService: ModalService,
-		private _fb: UntypedFormBuilder,
+		private _fb: FormBuilder,
 		private _colorService: ColorService,
 		private _planService: PlanOptionService
 	) { }

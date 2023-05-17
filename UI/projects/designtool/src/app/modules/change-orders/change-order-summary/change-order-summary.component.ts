@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Renderer2, ElementRef } from '@angular/co
 import { ActivatedRoute, Router } from "@angular/router";
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
-import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { ToastrService } from 'ngx-toastr';
 
@@ -45,8 +45,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	activeChangeOrders: Array<any> = [];
 	pastChangeOrders: Array<any> = [];
 	jobChangeOrders: Array<ChangeOrderGroup> = [];
-	updateChangeOrderForm: UntypedFormGroup;
-	rejectedChangeOrderForm: UntypedFormGroup;
+	updateChangeOrderForm: FormGroup;
+	rejectedChangeOrderForm: FormGroup;
 	currentChangeOrderId: number;
 	isDownloadingEnvelope: boolean = false;
 	isModalOpen: boolean = false;
@@ -969,11 +969,11 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			salesStatusDescription = "Rejected";
 		}
 
-		this.updateChangeOrderForm = new UntypedFormGroup({
-			'changeOrderId': new UntypedFormControl(changeOrderId),
-			'salesStatusReason': new UntypedFormControl(salesStatusReason, [Validators.required, this.whiteSpaceValidator()]),
-			'salesStatusDescription': new UntypedFormControl(salesStatusDescription),
-			'isResubmittedChangeOrder': new UntypedFormControl(changeOrder.isResubmittedChangeOrder)
+		this.updateChangeOrderForm = new FormGroup({
+			'changeOrderId': new FormControl(changeOrderId),
+			'salesStatusReason': new FormControl(salesStatusReason, [Validators.required, this.whiteSpaceValidator()]),
+			'salesStatusDescription': new FormControl(salesStatusDescription),
+			'isResubmittedChangeOrder': new FormControl(changeOrder.isResubmittedChangeOrder)
 		});
 	}
 

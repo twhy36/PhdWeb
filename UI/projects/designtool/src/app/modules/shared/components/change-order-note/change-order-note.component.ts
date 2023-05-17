@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
@@ -17,7 +17,7 @@ export class ChangeOrderNoteComponent extends UnsubscribeOnDestroy implements On
 	@Output() saveNote = new EventEmitter<void>();
 	@Output() cancelNote = new EventEmitter<void>();
 
-	noteForm: UntypedFormGroup;
+	noteForm: FormGroup;
 
 	get saveDisabled(): boolean
 	{
@@ -44,9 +44,9 @@ export class ChangeOrderNoteComponent extends UnsubscribeOnDestroy implements On
 					note = changeOrder.currentChangeOrder.note ? changeOrder.currentChangeOrder.note.noteContent : '';
 				}
 
-				this.noteForm = new UntypedFormGroup({
-					'description': new UntypedFormControl(desc),
-					'note': new UntypedFormControl(note)
+				this.noteForm = new FormGroup({
+					'description': new FormControl(desc),
+					'note': new FormControl(note)
 				});
 			}
 		});

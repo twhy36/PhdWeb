@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, UntypedFormArray } from '@angular/forms';
+import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable, EMPTY as empty, throwError as _throw } from 'rxjs';
@@ -30,7 +30,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Output() onSaveLocationGroup = new EventEmitter<LocationGroupMarket>();
 
-	locationForm: UntypedFormGroup;
+	locationForm: FormGroup;
 
 	isSaving: boolean = false;
 	isAdd: boolean = false;
@@ -74,17 +74,17 @@ export class LocationGroupsSidePanelComponent implements OnInit
 			this.isEdit = true;
 		}
 
-		this.locationForm = new UntypedFormGroup({
-			'locationGroupName': new UntypedFormControl(this.locationGroup.locationGroupName, { validators: [this.duplicateName()], updateOn: 'blur' }),
-			'searchTag': new UntypedFormControl('', this.duplicateTag()),
-			'tags': new UntypedFormArray([]),
-			'locationGroupDescription': new UntypedFormControl(this.locationGroup.locationGroupDescription),
-			'groupLabel': new UntypedFormControl(this.locationGroup.groupLabel, { updateOn: 'blur' })
+		this.locationForm = new FormGroup({
+			'locationGroupName': new FormControl(this.locationGroup.locationGroupName, { validators: [this.duplicateName()], updateOn: 'blur' }),
+			'searchTag': new FormControl('', this.duplicateTag()),
+			'tags': new FormArray([]),
+			'locationGroupDescription': new FormControl(this.locationGroup.locationGroupDescription),
+			'groupLabel': new FormControl(this.locationGroup.groupLabel, { updateOn: 'blur' })
 		});
 
-		const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
-		this.locationGroup.tags.forEach(t => tagsArray.push(new UntypedFormControl(t)));
+		this.locationGroup.tags.forEach(t => tagsArray.push(new FormControl(t)));
 	}
 
 	onCloseSidePanel(status: boolean)
@@ -111,7 +111,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	{
 		this.isSaving = true;
 
-		const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
 		this.locationGroup.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.locationGroup.locationGroupName = this.locationForm.get('locationGroupName').value;
@@ -196,7 +196,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 		this.handleSaveSuccess();
 		this.locationForm.reset();
 
-		const tags = <UntypedFormArray>this.locationForm.controls['tags'];
+		const tags = <FormArray>this.locationForm.controls['tags'];
 
 		// reset doesn't apply to FormArrays so removing the tags manually.
 		for (let x = tags.length - 1; x >= 0; x--)
@@ -217,8 +217,8 @@ export class LocationGroupsSidePanelComponent implements OnInit
 
 			if (!existingTag)
 			{
-				const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
-				const tagControl = new UntypedFormControl(tag);
+				const tagsArray = this.locationForm.get('tags') as FormArray;
+				const tagControl = new FormControl(tag);
 
 				tagsArray.push(tagControl);
 
@@ -236,7 +236,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 
 	onRemoveTag(index: number)
 	{
-		const tagsArray = this.locationForm.get('tags') as UntypedFormArray;
+		const tagsArray = this.locationForm.get('tags') as FormArray;
 
 		tagsArray.removeAt(index);
 
@@ -248,7 +248,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	 * and marks the FormArray for tags dirty or pristine 
 	 * @param tagsArray
 	 */
-	private detectChangesInTags(tagsArray: UntypedFormArray)
+	private detectChangesInTags(tagsArray: FormArray)
 	{
 		const tags = tagsArray.controls.map(c => c.value as string);
 
@@ -269,7 +269,7 @@ export class LocationGroupsSidePanelComponent implements OnInit
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			const tagsArray = this.locationForm?.get('tags') as UntypedFormArray;
+			const tagsArray = this.locationForm?.get('tags') as FormArray;
 			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
 
 			return existingTag ? { duplicateTag: true } : null;

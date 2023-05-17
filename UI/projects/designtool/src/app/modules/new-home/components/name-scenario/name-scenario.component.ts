@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
@@ -31,7 +31,7 @@ import { NewHomeService } from '../../services/new-home.service';
 })
 export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	scenarioForm: UntypedFormGroup;
+	scenarioForm: FormGroup;
 
 	scenario: Scenario;
 	nameCheckComplete = true;
@@ -106,8 +106,8 @@ export class NameScenarioComponent extends UnsubscribeOnDestroy implements OnIni
 
 	createForm()
 	{
-		this.scenarioForm = new UntypedFormGroup({
-			'scenarioName': new UntypedFormControl(this.scenarioNameInput,
+		this.scenarioForm = new FormGroup({
+			'scenarioName': new FormControl(this.scenarioNameInput,
 				[Validators.maxLength(100), Validators.required])
 		});
 	}

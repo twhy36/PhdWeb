@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, AbstractControl, ValidatorFn, UntypedFormArray } from '@angular/forms';
+import { FormGroup, FormControl, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable, EMPTY as empty, throwError as _throw } from 'rxjs';
@@ -30,7 +30,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	@Output() onSidePanelClose = new EventEmitter<boolean>();
 	@Output() onSaveAttributeGroup = new EventEmitter<AttributeGroupMarket>();
 
-	attributeForm: UntypedFormGroup;
+	attributeForm: FormGroup;
 	attributeGroup: AttributeGroupMarket;
 	isSaving: boolean = false;
 	isAdd: boolean = false;
@@ -76,17 +76,17 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 				tagsString: this.selectedAttributeGroup.tagsString
 			} : new AttributeGroupMarket();
 
-		this.attributeForm = new UntypedFormGroup({
-			'groupName': new UntypedFormControl(this.attributeGroup.groupName, { validators: [this.duplicateName()], updateOn: 'blur' }),
-			'searchTag': new UntypedFormControl('', this.duplicateTag()),
-			'tags': new UntypedFormArray([]),
-			'description': new UntypedFormControl(this.attributeGroup.description),
-			'groupLabel': new UntypedFormControl(this.attributeGroup.groupLabel, { updateOn: 'blur' })
+		this.attributeForm = new FormGroup({
+			'groupName': new FormControl(this.attributeGroup.groupName, { validators: [this.duplicateName()], updateOn: 'blur' }),
+			'searchTag': new FormControl('', this.duplicateTag()),
+			'tags': new FormArray([]),
+			'description': new FormControl(this.attributeGroup.description),
+			'groupLabel': new FormControl(this.attributeGroup.groupLabel, { updateOn: 'blur' })
 		});
 
-		const tagsArray = this.attributeForm.get("tags") as UntypedFormArray;
+		const tagsArray = this.attributeForm.get("tags") as FormArray;
 
-		this.attributeGroup.tags.forEach(t => tagsArray.push(new UntypedFormControl(t)));
+		this.attributeGroup.tags.forEach(t => tagsArray.push(new FormControl(t)));
 	}
 
 	onCloseSidePanel(status: boolean)
@@ -108,7 +108,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	{
 		this.isSaving = true;
 
-		const tagsArray = this.attributeForm.get("tags") as UntypedFormArray;
+		const tagsArray = this.attributeForm.get("tags") as FormArray;
 
 		this.attributeGroup.marketId = +this.route.parent.snapshot.paramMap.get('marketId');
 		this.attributeGroup.groupName = this.attributeForm.get('groupName').value;
@@ -176,7 +176,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 		this.attributeForm.reset();
 		this.attributeGroup = new AttributeGroupMarket();
 
-		let tags = <UntypedFormArray>this.attributeForm.controls['tags'];
+		let tags = <FormArray>this.attributeForm.controls['tags'];
 
 		for (let i = tags.length - 1; i >= 0; i--)
 		{
@@ -194,8 +194,8 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 
 			if (!existingTag)
 			{
-				const tagsArray = this.attributeForm.get("tags") as UntypedFormArray;
-				const tagControl = new UntypedFormControl(tag);
+				const tagsArray = this.attributeForm.get("tags") as FormArray;
+				const tagControl = new FormControl(tag);
 
 				tagsArray.push(tagControl);
 
@@ -213,7 +213,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 
 	onRemoveTag(index: number)
 	{
-		const tagsArray = this.attributeForm.get("tags") as UntypedFormArray;
+		const tagsArray = this.attributeForm.get("tags") as FormArray;
 
 		tagsArray.removeAt(index);
 
@@ -225,7 +225,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	 * and marks the FormArray for tags dirty or pristine 
 	 * @param tagsArray
 	 */
-	private detectChangesInTags(tagsArray: UntypedFormArray)
+	private detectChangesInTags(tagsArray: FormArray)
 	{
 		const tags = tagsArray.controls.map(c => c.value as string);
 
@@ -246,7 +246,7 @@ export class AttributeGroupsSidePanelComponent implements OnInit
 	{
 		return (control: AbstractControl): { [key: string]: boolean } =>
 		{
-			const tagsArray = this.attributeForm?.get('tags') as UntypedFormArray;
+			const tagsArray = this.attributeForm?.get('tags') as FormArray;
 			const existingTag = tagsArray?.value.find(t => t?.toLowerCase() == control.value?.toLowerCase().trim());
 
 			return existingTag ? { duplicateTag: true } : null;

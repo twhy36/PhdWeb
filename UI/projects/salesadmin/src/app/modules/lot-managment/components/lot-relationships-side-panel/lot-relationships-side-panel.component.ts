@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
-import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { LotChoiceRuleAssoc, LotChoiceRuleAssocView, SidePanelComponent } from "phd-common";
 import { MessageService } from "primeng/api";
 import { PlanService } from "../../../core/services/plan.service";
@@ -27,7 +27,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	@Input() selectedCommunity: FinancialCommunityViewModel;
 	@Input() sidePanelOpen: boolean = false;
 
-	lotRelationshipsForm: UntypedFormGroup;
+	lotRelationshipsForm: FormGroup;
 	lotsForSelectedCommunity: Array<HomeSiteViewModel>;
 	plansForSelectedCommunity: Array<PlanViewModel>;
 	selectedChoiceCatalogs: Array<DivDChoice> = [];
@@ -90,9 +90,9 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			}
 		}
 
-		this.lotRelationshipsForm = new UntypedFormGroup({
-			'assignedLotIds': new UntypedFormControl({value: assignedLotIds, disabled: this.selected !== null}, Validators.required),
-			'assignedPlanIds': new UntypedFormControl(assignedPlansIds, Validators.required)
+		this.lotRelationshipsForm = new FormGroup({
+			'assignedLotIds': new FormControl({value: assignedLotIds, disabled: this.selected !== null}, Validators.required),
+			'assignedPlanIds': new FormControl(assignedPlansIds, Validators.required)
 		});
 	}
 

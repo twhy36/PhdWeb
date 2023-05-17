@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { DivDPoint, IDPointPickType, ConstructionStageTypes } from '../../../../shared/models/point.model';
 import { DivDSubGroup } from '../../../../shared/models/subgroup.model';
@@ -19,7 +19,7 @@ export class PointTypeComponent implements OnInit
 
 	@Output() onSaveCatalogItem = new EventEmitter<{ item: DivDPoint }>();
 
-	catalogForm: UntypedFormGroup;
+	catalogForm: FormGroup;
 
 	pickTypes: Array<IDPointPickType> = [];
 
@@ -66,20 +66,20 @@ export class PointTypeComponent implements OnInit
 			this.selectedCutOffType = stage != null ? 0 : 1;
 		}
 
-		this.catalogForm = new UntypedFormGroup({
-			'pointPickType': new UntypedFormControl(pointPickType, Validators.required),
-			'isQuickQuote': new UntypedFormControl(isQuickQuote),
-			'isStructural': new UntypedFormControl(isStructural),
-			'isHiddenFromBuyerView': new UntypedFormControl(isHiddenFromBuyerView),
-			'cutOffStage': new UntypedFormControl({ value: stage, disabled: this.selectedCutOffType !== 0 }),
-			'cutOffDays': new UntypedFormControl({ value: days, disabled: this.selectedCutOffType !== 1 }, [Validators.min(-9999), Validators.max(9999), this.numberValidator()]),
-			'cutOffType': new UntypedFormControl({ value: this.selectedCutOffType })
+		this.catalogForm = new FormGroup({
+			'pointPickType': new FormControl(pointPickType, Validators.required),
+			'isQuickQuote': new FormControl(isQuickQuote),
+			'isStructural': new FormControl(isStructural),
+			'isHiddenFromBuyerView': new FormControl(isHiddenFromBuyerView),
+			'cutOffStage': new FormControl({ value: stage, disabled: this.selectedCutOffType !== 0 }),
+			'cutOffDays': new FormControl({ value: days, disabled: this.selectedCutOffType !== 1 }, [Validators.min(-9999), Validators.max(9999), this.numberValidator()]),
+			'cutOffType': new FormControl({ value: this.selectedCutOffType })
 		});
 
 		if (item.isFlooring)
 		{
-			this.catalogForm.addControl('itemLabel', new UntypedFormControl(label, Validators.required, this.labelValidator.bind(this)));
-			this.catalogForm.addControl('itemDescription', new UntypedFormControl(description));
+			this.catalogForm.addControl('itemLabel', new FormControl(label, Validators.required, this.labelValidator.bind(this)));
+			this.catalogForm.addControl('itemDescription', new FormControl(description));
 		}
 	}
 

@@ -1,6 +1,6 @@
 import { DeleteTermsAndConditions, SetSalesChangeOrderTermsAndConditions } from './../../../ngrx-store/change-order/actions';
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
@@ -32,10 +32,10 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	@Output() onEdit = new EventEmitter<Note>();
 
 	default: Note;
-	form: UntypedFormGroup;
-	noteType: UntypedFormControl;
-	subCategory: UntypedFormControl;
-	noteContent: UntypedFormControl;
+	form: FormGroup;
+	noteType: FormControl;
+	subCategory: FormControl;
+	noteContent: FormControl;
 
 	disableForm: boolean = true;
 	deleting: boolean = false;
@@ -99,7 +99,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 
 	createForm()
 	{
-		this.form = new UntypedFormGroup({
+		this.form = new FormGroup({
 			subCategory: this.subCategory,
 			noteContent: this.noteContent
 		});
@@ -108,8 +108,8 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	setFormData()
 	{
 		// Setup form controls, only on component creation/init
-		this.subCategory = new UntypedFormControl({ value: this.note.noteSubCategoryId || null, disabled: (this.isTnC && this.inChangeOrder) }, [Validators.required]);
-		this.noteContent = new UntypedFormControl(this.note.noteContent || '', [Validators.required, Validators.maxLength(this.maxDescriptionLength)]);
+		this.subCategory = new FormControl({ value: this.note.noteSubCategoryId || null, disabled: (this.isTnC && this.inChangeOrder) }, [Validators.required]);
+		this.noteContent = new FormControl(this.note.noteContent || '', [Validators.required, Validators.maxLength(this.maxDescriptionLength)]);
 
 		this.setSelectedSubCategory(this.note.noteSubCategoryId);
 

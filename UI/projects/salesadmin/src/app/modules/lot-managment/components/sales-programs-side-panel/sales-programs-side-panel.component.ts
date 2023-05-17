@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { SalesProgramTypeEnum, SalesProgram } from '../../../shared/models/salesPrograms.model';
 import { ConfirmModalComponent, SidePanelComponent, SpecDiscountService } from 'phd-common';
@@ -29,7 +29,7 @@ export class SalesProgramsSidePanelComponent implements OnInit
 	@Input() financialCommunityInfo: FinancialCommunityInfo; // DELETEME when THO columns are migrated to EDH
 	@Input() selectedSalesProgram: SalesProgram;
 
-	releaseForm: UntypedFormGroup;
+	releaseForm: FormGroup;
 	agreementLocked: boolean;
 	isQMIIncentive: boolean = false;
 
@@ -109,22 +109,22 @@ export class SalesProgramsSidePanelComponent implements OnInit
 		this.endDate = this.selectedSalesProgram ? new Date(this.convertDate(this.selectedSalesProgram.endDate)) : this.endDate;
 
 		// assign form controls
-		this.releaseForm = new UntypedFormGroup({
-			'startDate': new UntypedFormControl(this.startDate, [Validators.required, Validators.maxLength(this.stringMaxLength)]),
-			'endDate': new UntypedFormControl(this.endDate, [Validators.required]),
-			'salesProgramType': new UntypedFormControl(salesProgramType, [Validators.required]),
-			'maximumAmount': new UntypedFormControl(maximumAmount, [Validators.required, Validators.max(this.maxDiscount), Validators.min(1)]),
-			'name': new UntypedFormControl(name, [Validators.required]),
-			'isPMCAffiliate': new UntypedFormControl(isPmcAffiliate)
+		this.releaseForm = new FormGroup({
+			'startDate': new FormControl(this.startDate, [Validators.required, Validators.maxLength(this.stringMaxLength)]),
+			'endDate': new FormControl(this.endDate, [Validators.required]),
+			'salesProgramType': new FormControl(salesProgramType, [Validators.required]),
+			'maximumAmount': new FormControl(maximumAmount, [Validators.required, Validators.max(this.maxDiscount), Validators.min(1)]),
+			'name': new FormControl(name, [Validators.required]),
+			'isPMCAffiliate': new FormControl(isPmcAffiliate)
 		});
 
 		// if this is an edit, assign additional form controls
 		if (this.selectedSalesProgram)
 		{
-			this.releaseForm.addControl('id', new UntypedFormControl(this.selectedSalesProgram.id));
-			this.releaseForm.addControl('createdBy', new UntypedFormControl(this.selectedSalesProgram.createdBy));
-			this.releaseForm.addControl('createdUtcDate', new UntypedFormControl(this.selectedSalesProgram.createdUtcDate));
-			this.releaseForm.addControl('isWebSaleable', new UntypedFormControl(this.selectedSalesProgram.isWebSaleable));
+			this.releaseForm.addControl('id', new FormControl(this.selectedSalesProgram.id));
+			this.releaseForm.addControl('createdBy', new FormControl(this.selectedSalesProgram.createdBy));
+			this.releaseForm.addControl('createdUtcDate', new FormControl(this.selectedSalesProgram.createdUtcDate));
+			this.releaseForm.addControl('isWebSaleable', new FormControl(this.selectedSalesProgram.isWebSaleable));
 		}
 
 		if (this.agreementLocked)

@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormArray, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators, FormArray, AbstractControl, ValidatorFn } from '@angular/forms';
 
 import { Store, select } from '@ngrx/store';
 import {  Subject } from 'rxjs';
@@ -31,7 +31,7 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 	@Output() close = new EventEmitter<void>();
 
 	isSaving: boolean = false;
-	consultantForm: UntypedFormGroup;
+	consultantForm: FormGroup;
 
 	consultantSearchResultsList: Contact[] = [];
 	searchText: string = '';
@@ -62,9 +62,9 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 		return this.contactsArray.controls.length < 4;
 	}
 
-	get contactsArray(): UntypedFormArray
+	get contactsArray(): FormArray
 	{
-		return this.consultantForm.get('contacts') as UntypedFormArray;
+		return this.consultantForm.get('contacts') as FormArray;
 	}
 
 	get showVolumeTotalMsg(): boolean
@@ -103,8 +103,8 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 
 	createForm()
 	{
-		this.consultantForm = new UntypedFormGroup({
-			'contacts': new UntypedFormArray([])
+		this.consultantForm = new FormGroup({
+			'contacts': new FormArray([])
 		}, this.percentTotalValidator());
 
 		if (this.consultants.length > 0)
@@ -122,12 +122,12 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 
 	createContact(contact: Contact, commission: number)
 	{
-		const conArray = this.consultantForm.get('contacts') as UntypedFormArray;
+		const conArray = this.consultantForm.get('contacts') as FormArray;
 		let newContact = contact ? new ContactSC(contact) : null;
 		
-		const fg = new UntypedFormGroup({
-			'contact': new UntypedFormControl(newContact, [Validators.required, this.contactValidator()]),
-			'commission': new UntypedFormControl(commission, [Validators.required, Validators.min(0), Validators.max(1), this.numberValidator()])
+		const fg = new FormGroup({
+			'contact': new FormControl(newContact, [Validators.required, this.contactValidator()]),
+			'commission': new FormControl(commission, [Validators.required, Validators.min(0), Validators.max(1), this.numberValidator()])
 		});
 
 		conArray.push(fg);
@@ -141,7 +141,7 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 
 			if (consultant)
 			{
-				let form = this.consultantForm.get('contacts') as UntypedFormArray;
+				let form = this.consultantForm.get('contacts') as FormArray;
 
 				// check the current array for any duplicates
 				let data = form.controls.some(x => x.value && x.value.contact && x.value.contact.id == consultant.id && x.value.contact != consultant);
@@ -174,7 +174,7 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 		return (form: AbstractControl): { [key: string]: any } =>
 		{
 			let sum = 0;
-			let formArray = form.get('contacts') as UntypedFormArray;
+			let formArray = form.get('contacts') as FormArray;
 
 			formArray.controls.forEach(x =>
 			{
@@ -196,7 +196,7 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 
 	removeConsultant(index: number)
 	{
-		const conArray = this.consultantForm.get('contacts') as UntypedFormArray;
+		const conArray = this.consultantForm.get('contacts') as FormArray;
 
 		conArray.removeAt(index);
 		conArray.markAsDirty();
@@ -210,7 +210,7 @@ export class SalesConsultantComponent extends UnsubscribeOnDestroy implements On
 
 	save()
 	{
-		const conArray = this.consultantForm.get('contacts') as UntypedFormArray;
+		const conArray = this.consultantForm.get('contacts') as FormArray;
 		let isPrimary = true;
 
 		const consultants = conArray.controls.map(c =>

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, Input, OnChanges, SimpleChanges, EventEmitter, Output } from '@angular/core';
-import { UntypedFormGroup, Validators, UntypedFormBuilder } from '@angular/forms';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { NgbCalendar, NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 
@@ -46,7 +46,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 	};
 
 	// Form data
-	salesInfoForm: UntypedFormGroup;
+	salesInfoForm: FormGroup;
 	ecoeDate: NgbDate;
 	minDate: NgbDate;
 	dateDisplay; // holds the display value of the ECOE date
@@ -55,7 +55,7 @@ export class SalesInfoMiscComponent extends ComponentCanNavAway implements OnIni
 
 	constructor(
 		private calendar: NgbCalendar,
-		private fb: UntypedFormBuilder,
+		private fb: FormBuilder,
 		private store: Store<fromRoot.State>
 	)
 	{

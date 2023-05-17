@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, TemplateRef, ViewChild } from '@angular/core';
-import { UntypedFormControl, Validators, UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
+import { FormControl, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import _ from 'lodash';
 import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
 import { from, Observable, throwError } from 'rxjs';
@@ -21,12 +21,12 @@ export class NameDialogComponent
 
 	@ViewChild('content') content: TemplateRef<any>;
 
-	nameControl = new UntypedFormControl('', {
+	nameControl = new FormControl('', {
 		validators: [Validators.required, Validators.maxLength(50)],
 		updateOn: 'change'
 	});
 
-	form: UntypedFormGroup = this.formBuilder.group({
+	form: FormGroup = this.formBuilder.group({
 		name: this.nameControl
 	});
 
@@ -53,7 +53,7 @@ export class NameDialogComponent
 
 	constructor(
 		private modalService: ModalService,
-		private formBuilder: UntypedFormBuilder,
+		private formBuilder: FormBuilder,
 		private optionPackageService: OptionPackageService
 	) { }
 

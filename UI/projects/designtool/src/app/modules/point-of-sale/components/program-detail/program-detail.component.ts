@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import * as _ from "lodash";
 
@@ -44,10 +44,10 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	selectedSalesProgram: SalesProgram;
 
 	// form elements
-	form: UntypedFormGroup;
-	programName: UntypedFormControl;
-	description: UntypedFormControl;
-	discountAmount: UntypedFormControl;
+	form: FormGroup;
+	programName: FormControl;
+	description: FormControl;
+	discountAmount: FormControl;
 	disableForm: boolean = true;
 
 	// Defines if editable or in display mode
@@ -93,14 +93,14 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 		let maxAmount = this.selectedSalesProgram ? (this.selectedSalesProgram.maximumAmount - totalAmount) + programAmount : null;
 
 		// Setup form controls, only on component creation/init
-		this.discountAmount = new UntypedFormControl(programAmount, [
+		this.discountAmount = new FormControl(programAmount, [
 			Validators.required,
 			Validators.max(maxAmount || null),
 			Validators.min(1)
 		]);
 
-		this.description = new UntypedFormControl(this.program && this.program.salesProgramDescription || null, [Validators.nullValidator]);
-		this.programName = new UntypedFormControl(this.selectedSalesProgram && this.selectedSalesProgram.name || null, [Validators.required]);
+		this.description = new FormControl(this.program && this.program.salesProgramDescription || null, [Validators.nullValidator]);
+		this.programName = new FormControl(this.selectedSalesProgram && this.selectedSalesProgram.name || null, [Validators.required]);
 
 		this.createForm();
 	}
@@ -129,7 +129,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 			this.selectedSalesProgram = salesProgram || new SalesProgram(this.program.salesProgram);
 		}
 
-		this.form = new UntypedFormGroup({
+		this.form = new FormGroup({
 			discountAmount: this.discountAmount,
 			description: this.description,
 			programName: this.programName

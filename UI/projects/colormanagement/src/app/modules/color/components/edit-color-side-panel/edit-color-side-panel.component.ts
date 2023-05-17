@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, Output, EventEmitter, Input} from '@angular/core';
 import {ConfirmModalComponent, ModalService, IColorDto } from 'phd-common';
-import { UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ColorService} from '../../../core/services/color.service';
 import {ColorAdminService} from '../../../core/services/color-admin.service';
 
@@ -13,7 +13,7 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 	isSaving: boolean;
 	sidePanelHeader: string = 'Edit Color';
 	sidePanelSubheader: string = '';
-	editColorForm: UntypedFormGroup;
+	editColorForm: FormGroup;
 	sidePanelIsOpen: boolean;
 
 	@Input() selectedColor: IColorDto;
@@ -25,7 +25,7 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 	constructor(
 		private _colorService: ColorService,
 		private _modalService: ModalService,
-		private _fb: UntypedFormBuilder,
+		private _fb: FormBuilder,
 		private _colorAdminService: ColorAdminService
 	) { }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, filter, combineLatest, take } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
@@ -23,7 +23,7 @@ export class SignAgreementComponent extends ModalContent implements OnInit
 	agreementNumber$: Observable<string>;
 
 	// Form data
-	signAgreementForm: UntypedFormGroup;
+	signAgreementForm: FormGroup;
 	signedDate: NgbDate;
 	minDate: NgbDateStruct;
 
@@ -77,8 +77,8 @@ export class SignAgreementComponent extends ModalContent implements OnInit
 
 	private createForm()
 	{
-		this.signAgreementForm = new UntypedFormGroup({
-			'signedDate': new UntypedFormControl(this.signedDate || null, [Validators.required])
+		this.signAgreementForm = new FormGroup({
+			'signedDate': new FormControl(this.signedDate || null, [Validators.required])
 		});
 	}
 
