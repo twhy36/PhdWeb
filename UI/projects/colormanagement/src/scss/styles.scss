@@ -131,11 +131,3 @@ main {
 .phd-disabled {
 	opacity: 0.5;
 }
-
-ngb-modal-backdrop {
-	z-index: 1050 !important;
-}
-
-::ng-deep .modal-backdrop {
-	z-index: 1050 !important;
-}
