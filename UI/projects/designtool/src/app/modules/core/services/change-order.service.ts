@@ -11,7 +11,7 @@ import
 	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
 	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
 	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, PriceBreakdown, IPendingJobSummary, TreeService
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, TreeService
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -2019,25 +2019,5 @@ export class ChangeOrderService
 				return val;
 			}
 		}, null);
-	}
-
-	mapPendingJobSummary(jobId: number, priceBreakdown: PriceBreakdown, tree: Tree) : IPendingJobSummary
-	{
-		const elevationChoice = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(dp => dp.dPointTypeId === 1)?.choices?.find(ch => ch.quantity > 0) : null;
-		const elevationOption = !!elevationChoice?.options?.length ? elevationChoice.options[0] : null;
-
-		return {
-            jobId: jobId,
-            planPrice: priceBreakdown.baseHouse,
-            elevationPlanOptionId: elevationOption?.id,
-            elevationPrice: elevationOption?.listPrice,
-            totalOptionsPrice: priceBreakdown.selections,
-            salesProgramAmount: priceBreakdown.salesProgram,
-            totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
-            totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
-            totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
-            totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
-            netHousePrice: priceBreakdown.totalPrice			
-		} as IPendingJobSummary;
 	}
 }
