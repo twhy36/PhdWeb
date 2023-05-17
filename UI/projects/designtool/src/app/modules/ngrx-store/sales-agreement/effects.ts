@@ -960,8 +960,7 @@ export class SalesAgreementEffects
 					store.scenario.buildMode, 
 					store.scenario.options.find(o => o.isBaseHouse), 
 					store.scenario.rules.optionRules,
-					pendingJobSummary,
-					false)
+					pendingJobSummary)
 				.pipe(
 					tap(sag => this.router.navigateByUrl('/change-orders')),
 					switchMap(job => {
