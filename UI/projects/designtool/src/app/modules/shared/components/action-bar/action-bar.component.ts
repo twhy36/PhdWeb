@@ -445,9 +445,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		
+
 		this._jobService.checkIfJobHasSalesAgreementAssocs(this.job?.id).subscribe(async allowedToCancelSpec =>
-		{			
+		{
 
 			if (isSpec && !allowedToCancelSpec)
 			{
