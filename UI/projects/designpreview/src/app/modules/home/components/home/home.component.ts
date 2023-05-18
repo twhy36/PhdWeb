@@ -200,26 +200,16 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.filteredTree),
-			withLatestFrom(this.store.select(state => state.favorite), this.store.select(state => state.nav)),
-		).subscribe(([tree, fav, nav]) =>
+			select(state => state.favorite)
+		).subscribe(fav =>
 		{
 			if (fav)
 			{
+				//nav to top subgroup choice
 				if (this.isLoadingMyFavorite && !fav.isLoading)
 				{
 					this.isLoadingMyFavorite = false;
-
-					const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
-					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
-					if (selectedSubGroup)
-					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' })
-					}
-					else
-					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParamsHandling: 'merge' })
-					}
+					this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParamsHandling: 'merge' })
 				}
 			}
 		});
