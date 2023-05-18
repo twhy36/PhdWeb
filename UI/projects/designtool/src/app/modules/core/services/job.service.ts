@@ -61,10 +61,17 @@ export class JobService
 		return withSpinner(this._http).get<any>(url).pipe(
 			map(response =>
 			{
-				const job = response['value'] as Job;
 
-				return job[0]?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
-				
+				const jobs = response['value'] as Array<Job>;
+
+				if (jobs?.length > 0)
+				{
+					return jobs[0]?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
+				}
+				else
+				{
+					return true;
+				}
 			})
 		);
 	}
