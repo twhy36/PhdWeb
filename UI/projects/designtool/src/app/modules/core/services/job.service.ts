@@ -49,23 +49,22 @@ export class JobService
 				return _throw(error);
 			})
 		);
-	}
+	}	
 
 	checkIfJobHasSalesAgreementAssocs(jobId: number): Observable<boolean>
 	{
 		const filter = `id eq ${jobId}`;
+		const select = `id`;
 		let expand = `jobSalesAgreementAssocs($expand=salesAgreement($select=id,status);$select=jobId;$filter=isActive eq true)`;
-		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}`;
+		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
 
 		return withSpinner(this._http).get<any>(url).pipe(
 			map(response =>
 			{
-				const jobSalesAgreementAssoc = response['value'] as Array<JobSalesAgreementAssoc>;
+				const job = response['value'] as Job;
 
-				if (jobSalesAgreementAssoc?.length > 0)
-				{
-					return jobSalesAgreementAssoc?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
-				}
+				return job[0]?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
+				
 			})
 		);
 	}
