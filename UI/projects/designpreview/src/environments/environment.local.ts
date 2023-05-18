@@ -37,7 +37,7 @@ export const environment: IEnvironment = {
 	},
 	authQueryParams: 'domain_hint=pulte.com',
 	appInsights: {
-		instrumentationKey: '9016d3bb-da60-4861-b107-59c6d74c13d5',
+		connectionString:'InstrumentationKey=9016d3bb-da60-4861-b107-59c6d74c13d5;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: false,
 		disableExceptionTracking: false,
 		disableAjaxTracking: true

@@ -31,7 +31,7 @@ export const environment: IEnvironment = {
 	},
 	authQueryParams: "domain_hint=pulte.com",
 	appInsights: {
-		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0',
+		connectionString:'InstrumentationKey=cf19cbb8-e39b-4e28-8199-3d06eaf051f0;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
