@@ -7,13 +7,13 @@ import { flatMap, map, switchMap, catchError } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import
-	{
-		defaultOnNotFound, newGuid, getNewGuid, createBatchPatchWithAuth, createBatchGet, createBatchBody, createBatchHeaders, parseBatchResults,
-		removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
-		SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
-		ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint, IPendingJobSummary
-	} from 'phd-common';
+{
+	defaultOnNotFound, newGuid, getNewGuid, createBatchPatchWithAuth, createBatchGet, createBatchBody, createBatchHeaders, parseBatchResults,
+	removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
+	SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
+	ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
+	Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint, IPendingJobSummary, DesignToolAttribute
+} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -21,7 +21,7 @@ import { environment } from '../../../../environments/environment';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../ngrx-store/reducers';
 
-import { getJobOptionType } from '../../shared/classes/tree.utils';
+import { getJobOptionType, removeAttributeReassignmentsFromChoice } from '../../shared/classes/tree.utils';
 
 @Injectable()
 export class SalesAgreementService
@@ -202,10 +202,10 @@ export class SalesAgreementService
 	}
 
 	createSalesAgreementForScenario(
-		scenario: Scenario, 
-		tree: Tree, 
-		baseHouseOption: PlanOption, 
-		salePrice: number, 
+		scenario: Scenario,
+		tree: Tree,
+		baseHouseOption: PlanOption,
+		salePrice: number,
 		optionRules: OptionRule[],
 		pendingJobSummary: IPendingJobSummary
 	): Observable<SalesAgreement>
@@ -232,6 +232,9 @@ export class SalesAgreementService
 				const isColorScheme = colorSchemeDP ? c.choice.treePointId === colorSchemeDP.id : false;
 				const isDPElevation = elevationDP ? c.choice.treePointId === elevationDP.id : false;
 
+				// remove selected attribute reassignments from the choice.  The attributes will be assigned to the parent choice option.
+				const selectedAttributes = removeAttributeReassignmentsFromChoice(c.choice, optionRules);
+
 				return {
 					dpChoiceId: c.choice.id,
 					divChoiceCatalogId: c.divChoiceCatalogId,
@@ -243,7 +246,7 @@ export class SalesAgreementService
 					groupLabel: c.groupLabel,
 					overrideNote: c.choice.overrideNote,
 					options: this.mapOptions(c.choice, elevationDP, isDPElevation, isColorScheme, tree, optionRules),
-					attributes: this.mapAttributes(c.choice),
+					attributes: this.mapAttributes(selectedAttributes),
 					locations: this.mapLocations(c.choice),
 					isElevation: isDPElevation,
 					isColorScheme: isColorScheme,
@@ -827,14 +830,14 @@ export class SalesAgreementService
 			optionsDto = choice.options.map(o =>
 			{
 				const selectedAttributes = choice.selectedAttributes.filter(att => !att.locationGroupId && o.attributeGroups.some(g => g === att.attributeGroupId))
-											.map(att =>
-											{
-												return {
-													attributeCommunityId: att.attributeId,
-													attributeGroupCommunityId: att.attributeGroupId,
-													action: 'Add'
-												};
-											});
+					.map(att =>
+					{
+						return {
+							attributeCommunityId: att.attributeId,
+							attributeGroupCommunityId: att.attributeGroupId,
+							action: 'Add'
+						};
+					});
 
 				const treeChoices = tree ? _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) : [];
 				const reassignedAttributes = this.mapReassignedAttributes(o, choice, treeChoices);
@@ -928,24 +931,21 @@ export class SalesAgreementService
 		return locationsDto;
 	}
 
-	private mapAttributes(choice: SelectedChoice | Choice): Array<any>
+	private mapAttributes(selectedAttributes: DesignToolAttribute[]): Array<any>
 	{
 		const attributesDto: Array<any> = [];
 
-		if (choice.selectedAttributes)
+		selectedAttributes?.forEach(a =>
 		{
-			choice.selectedAttributes.forEach(a =>
+			if (!a.locationGroupId)
 			{
-				if (!a.locationGroupId)
-				{
-					attributesDto.push({
-						attributeCommunityId: a.attributeId,
-						attributeGroupCommunityId: a.attributeGroupId,
-						action: 'Add'
-					});
-				}
-			});
-		}
+				attributesDto.push({
+					attributeCommunityId: a.attributeId,
+					attributeGroupCommunityId: a.attributeGroupId,
+					action: 'Add'
+				});
+			}
+		});
 
 		return attributesDto;
 	}
@@ -956,12 +956,14 @@ export class SalesAgreementService
 
 		if (fromChoice)
 		{
-			option.attributeGroups?.forEach(attributeGroup => {
+			option.attributeGroups?.forEach(attributeGroup =>
+			{
 				// Find the choice that an attribute is reassigned to
 				const choicesWithReassignments = treeChoices.find(c => c.mappedAttributeGroups?.find(mappedGroup => mappedGroup.attributeReassignmentFromChoiceId === fromChoice.id && mappedGroup.id === attributeGroup));
-				
+
 				// Find the selected attributes in the choice with reassignments
 				const selectedAttribute = choicesWithReassignments?.selectedAttributes?.find(sa => sa.attributeGroupId === attributeGroup);
+
 				if (selectedAttribute && !selectedAttribute.locationGroupId)
 				{
 					reassignedAttributesDto.push({
@@ -974,15 +976,15 @@ export class SalesAgreementService
 		}
 
 		return reassignedAttributesDto;
-	}	
+	}
 
 	createJIOForSpec(
-		tree: Tree, 
-		scenario: Scenario, 
-		communityId: number, 
-		buildMode: string, 
-		baseHouseOption: PlanOption, 
-		optionRules: OptionRule[], 
+		tree: Tree,
+		scenario: Scenario,
+		communityId: number,
+		buildMode: string,
+		baseHouseOption: PlanOption,
+		optionRules: OptionRule[],
 		pendingJobSummary: IPendingJobSummary,
 		skipSpinner: boolean = true
 	): Observable<Job>
@@ -1019,9 +1021,12 @@ export class SalesAgreementService
 				const isDPElevation = elevationDP ? c.choice.treePointId === elevationDP.id : false;
 				const options = this.mapOptions(c.choice, elevationDP, isDPElevation, isColorScheme, tree, optionRules);
 
+				// remove selected attribute reassignments from the choice.  The attributes will be assigned to the parent choice option.
+				const selectedAttributes = removeAttributeReassignmentsFromChoice(c.choice, optionRules);
+
 				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 				const hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
-				const isElevation = hasElevationOption || isDPElevation;				
+				const isElevation = hasElevationOption || isDPElevation;
 
 				return {
 					dpChoiceId: c.choice.id,
@@ -1032,7 +1037,7 @@ export class SalesAgreementService
 					subgroupLabel: c.subgroupLabel,
 					groupLabel: c.groupLabel,
 					options: options,
-					attributes: this.mapAttributes(c.choice),
+					attributes: this.mapAttributes(selectedAttributes),
 					locations: this.mapLocations(c.choice),
 					isElevation: isElevation,
 					isColorScheme: isColorScheme,

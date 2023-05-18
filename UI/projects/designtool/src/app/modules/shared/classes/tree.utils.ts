@@ -1,13 +1,13 @@
 import * as _ from 'lodash';
-import * as moment from "moment";
+import * as moment from 'moment';
 
 import
-	{
-		LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
-		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, ConstructionStageTypes, OptionRule, 
-		Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, MyFavoritesChoice, getMaxSortOrderChoice
-	} from 'phd-common';
+{
+	LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
+	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, ConstructionStageTypes, OptionRule,
+	Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, MyFavoritesChoice, getMaxSortOrderChoice
+} from 'phd-common';
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice
 {
@@ -243,10 +243,10 @@ function getSelectedAttributes(locationGroups: number[], attributeGroups: number
 }
 
 export function mergeAttributes(
-		attributes: Array<any>, 
-		missingAttributes: Array<DesignToolAttribute>, 
-		attributeGroups: Array<AttributeGroup>,
-		selectedAttributes: DesignToolAttribute[])
+	attributes: Array<any>,
+	missingAttributes: Array<DesignToolAttribute>,
+	attributeGroups: Array<AttributeGroup>,
+	selectedAttributes: DesignToolAttribute[])
 {
 	const lastGroup = attributeGroups.length ? _.maxBy(attributeGroups, 'sortOrder') : null;
 	let sortOrder = lastGroup ? lastGroup.sortOrder + 1 : 0;
@@ -287,14 +287,19 @@ export function mergeAttributes(
 
 	// Check if any selected attributes are missing in the attribute groups	
 	const allAttributes = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes)) || [];
-	selectedAttributes.forEach(attr => {
+
+	selectedAttributes.forEach(attr =>
+	{
 		const selectedAttributeGroup = attributeGroups.find(group => group.id === attr.attributeGroupId);
+
 		if (selectedAttributeGroup)
 		{
 			const selectedAttribute = selectedAttributeGroup.attributes?.find(attribute => attribute.id === attr.attributeId);
+
 			if (!selectedAttribute)
 			{
 				const missingSelectedAttribute = allAttributes.find(attribute => attribute.id === attr.attributeId);
+
 				if (missingSelectedAttribute)
 				{
 					// add the missing attribute
@@ -303,7 +308,7 @@ export function mergeAttributes(
 						selectedAttributeGroup.attributes = [];
 					}
 
-					selectedAttributeGroup.attributes.push(missingSelectedAttribute);						
+					selectedAttributeGroup.attributes.push(missingSelectedAttribute);
 				}
 			}
 		}
@@ -402,25 +407,29 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 			}
 		}
 	}
-	
+
 	return optionType;
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: { 
-		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
-	}
+	:
+		{
+			choice: (JobChoice | ChangeOrderChoice),
+			optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
+		}
 {
-	return { choice, 
+	return {
+		choice,
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
+
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
 						};
@@ -431,20 +440,40 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					}
 				})
 			: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
+
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
-						};	
+						};
 					}
 					else
 					{
 						return null;
 					}
 				})
-			};
+	};
+}
+
+/**
+ * Removes Attribute Reassignments from a Choice.  The reassigned attributes will be represented on the original choices option
+ * @param choice
+ * @param optionRules
+ * @returns
+ */
+export function removeAttributeReassignmentsFromChoice(choice: Choice, optionRules: OptionRule[]): DesignToolAttribute[]
+{
+	// get all of the option rules with attribute reassignments
+	let attributeReassignments = _.flatMap(optionRules, or => _.flatMap(or.choices, c => c.attributeReassignments));
+	// find reassignments that target the current choice
+	let reassignmentsForChoice = attributeReassignments.filter(ar => ar.choiceId === choice.id);
+	// if there are reassignments on this choice filter out those attributes.  They should live on the original choices option
+	let selectedAttributes = reassignmentsForChoice ? choice.selectedAttributes.filter(sa => !reassignmentsForChoice.find(ra => ra.attributeGroupId === sa.attributeGroupId)) : choice.selectedAttributes;
+
+	return selectedAttributes;
 }

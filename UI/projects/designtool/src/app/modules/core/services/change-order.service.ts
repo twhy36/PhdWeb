@@ -15,7 +15,7 @@ import
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
-import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType, getLockedInChoice } from '../../shared/classes/tree.utils';
+import { isJobChoice, isLocked, getDefaultOptionRule, getJobOptionType, getLockedInChoice, removeAttributeReassignmentsFromChoice } from '../../shared/classes/tree.utils';
 
 interface ChoiceExt { decisionPointLabel: string, subgroupLabel: string, groupLabel: string };
 
@@ -526,13 +526,15 @@ export class ChangeOrderService
 				const changedChoices = this.mapChangedChoice({ ...cur, ...labels }, origChoice, elevationDP, colorSchemeDP, jobPlanOptions, tree, optionRules);
 
 				choicesDto.push(...changedChoices);
-
 			}
 			else
 			{
 				isColorScheme = colorSchemeDP ? cur.treePointId === colorSchemeDP.id : false;
 				isDPElevation = elevationDP ? cur.treePointId === elevationDP.id : false;
 				options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules, cur);
+
+				// remove selected attribute reassignments from the choice.  The attributes will be assigned to the parent choice option.
+				const selectedAttributes = removeAttributeReassignmentsFromChoice(cur, optionRules);
 
 				// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 				hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
@@ -550,7 +552,7 @@ export class ChangeOrderService
 					groupLabel: labels.groupLabel,
 					overrideNote: cur.overrideNote,
 					options: options,
-					attributes: this.mapAttributes(cur, 'Add'),
+					attributes: this.mapAttributes(selectedAttributes, 'Add'),
 					locations: this.mapLocations(cur, 'Add'),
 					action: 'Add',
 					isElevation: isElevation,
@@ -661,7 +663,9 @@ export class ChangeOrderService
 
 		locations.push(...deletedLocations);
 
-		const currentAttributes = this.mapAttributes(curChoice);
+		// remove selected attribute reassignments from the choice.  The attributes will be assigned to the parent choice option.
+		const selectedAttributes = removeAttributeReassignmentsFromChoice(curChoice, optionRules);
+		const currentAttributes = this.mapAttributes(selectedAttributes);
 		const existingAttributes = this.mapJobChoiceAttributes(origChoice.jobChoiceAttributes, null);
 		const attributes = this.buildAttributeDifference(currentAttributes, existingAttributes);
 
@@ -909,34 +913,31 @@ export class ChangeOrderService
 		return locationsDto;
 	}
 
-	private mapAttributes(choice: Choice, action?: string): Array<any>
+	private mapAttributes(selectedAttributes: DesignToolAttribute[], action?: string): Array<any>
 	{
 		const attributesDto: Array<any> = [];
 
-		if (choice.selectedAttributes)
+		selectedAttributes?.forEach(a =>
 		{
-			choice.selectedAttributes.forEach(a =>
+			if (!a.locationGroupId)
 			{
-				if (!a.locationGroupId)
+				let attribute = {
+					attributeCommunityId: a.attributeId,
+					attributeGroupCommunityId: a.attributeGroupId,
+					attributeName: a.attributeName,
+					attributeGroupLabel: a.attributeGroupLabel,
+					sku: a.sku,
+					manufacturer: a.manufacturer
+				};
+
+				if (action)
 				{
-					let attribute = {
-						attributeCommunityId: a.attributeId,
-						attributeGroupCommunityId: a.attributeGroupId,
-						attributeName: a.attributeName,
-						attributeGroupLabel: a.attributeGroupLabel,
-						sku: a.sku,
-						manufacturer: a.manufacturer
-					};
-
-					if (action)
-					{
-						(attribute as any).action = action;
-					}
-
-					attributesDto.push(attribute);
+					(attribute as any).action = action;
 				}
-			});
-		}
+
+				attributesDto.push(attribute);
+			}
+		});
 
 		return attributesDto;
 	}
@@ -1586,6 +1587,9 @@ export class ChangeOrderService
 			isDPElevation = elevationDP ? cur.treePointId === elevationDP.id : false;
 			options = this.mapOptions(cur.options, cur.quantity, 'Add', elevationDP, isDPElevation, isColorScheme, tree, optionRules, cur);
 
+			// remove selected attribute reassignments from the choice.  The attributes will be assigned to the parent choice option.
+			const selectedAttributes = removeAttributeReassignmentsFromChoice(cur, optionRules);
+			
 			// look for any options marked as Elevation so the choice can be flagged and grouped with elevation CO.
 			hasElevationOption = options.length && options.findIndex(x => x.jobOptionTypeName === 'Elevation') > -1;
 			isElevation = hasElevationOption || isDPElevation;
@@ -1602,7 +1606,7 @@ export class ChangeOrderService
 				groupLabel: labels.groupLabel,
 				overrideNote: cur.overrideNote,
 				options: options,
-				attributes: this.mapAttributes(cur, 'Add'),
+				attributes: this.mapAttributes(selectedAttributes, 'Add'),
 				locations: this.mapLocations(cur, 'Add'),
 				action: 'Add',
 				isElevation: isElevation,
