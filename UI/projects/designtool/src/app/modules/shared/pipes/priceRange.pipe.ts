@@ -18,20 +18,25 @@ export class PriceRangePipe implements PipeTransform
 	{
 		return this.store.pipe(
 			select(fromScenario.selectScenario),
-			map(scenarioState => {
-				if (!!scenarioState.priceRanges) {
+			map(scenarioState =>
+			{
+				if (!!scenarioState.priceRanges)
+				{
 					let range = '$0';
 
 					const priceRange = scenarioState.priceRanges.find(x => x.choiceId === choiceId);
-					if (priceRange && (priceRange.min === priceRange.max)) {
+					if (priceRange && (priceRange.min === priceRange.max) && priceRange.min)
+					{
 						range = `\$${priceRange.min}`;
 					}
-					else if (priceRange && (priceRange.min !== priceRange.max)) {
+					else if (priceRange && (priceRange.min !== priceRange.max))
+					{
 						range = `\$${priceRange.min} - \$${priceRange.max}`;
 					}
 
 					return range;
-				} else {
+				} else
+				{
 					return null;
 				}
 			}),
