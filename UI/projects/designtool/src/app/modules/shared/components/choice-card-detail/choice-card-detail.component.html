@@ -49,7 +49,7 @@
 							Qty
 							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity"
 								[quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)"
-								[canEditAgreement]="canEditAgreement && (!isPastCutOff || overrideReason) && canConfigure && choice.enabled">
+								[canEditAgreement]="canEditAgreement && (!isPastCutOff || canOverride) && canConfigure && choice.enabled">
 							</quantity-input>
 							Max {{choice?.maxQuantity}}
 						</span>
