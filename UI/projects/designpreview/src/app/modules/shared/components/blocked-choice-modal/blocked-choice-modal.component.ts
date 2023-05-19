@@ -188,7 +188,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	private handleBlockedItemClick(pointId: number)
 	{
 		this.blockedItemClick.emit(pointId);
-		if (!this.hiddenChoices.some(choice => choice.id === this.choice.id))
+		if (!this.hiddenChoices.some(choice => choice?.id === this.choice?.id))
 		{
 			const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
 
