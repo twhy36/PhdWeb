@@ -65,7 +65,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get showEBill(): boolean
 	{
-		return this.router.url === '/point-of-sale/sales-info' && this.salesAgreementStatus !== 'Void';
+		return this.router.url.includes('/point-of-sale/sales-info') && this.salesAgreementStatus !== 'Void';
 	}
 
 	get eBillUrl(): string
@@ -143,7 +143,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	public agreementSelected(): boolean
 	{
-		const selected = this.router.url === '/point-of-sale/agreement';
+		const selected = this.router.url.includes('/point-of-sale/agreement');
 
 		if (!selected)
 		{
