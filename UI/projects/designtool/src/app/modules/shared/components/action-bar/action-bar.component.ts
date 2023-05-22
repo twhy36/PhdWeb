@@ -456,7 +456,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);
 			}
 
-			if (allowedToCancelSpec)
+			if (allowedToCancelSpec || !isSpec)
 			{
 				const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
 					: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
