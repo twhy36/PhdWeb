@@ -78,7 +78,7 @@ function checkLocationAttributeSelections(choice: Choice, locationGroups: number
 }
 
 //take token from querystring and reset session with new token value when resetToken is true
-export function setPresaleToken(queryToken: string = '', resetToken = false)
+export function setPresaleSession(queryToken: string = '', resetToken = false, presaleGuid = '')
 {
 	let token = sessionStorage.getItem('presale_token') || queryToken;
 
@@ -106,6 +106,7 @@ export function setPresaleToken(queryToken: string = '', resetToken = false)
 			const tokenParts = token.split('.');
 			const payload = new PresalePayload(JSON.parse(Buffer.from(tokenParts[1], 'base64').toString('ascii')));
 
+			setSessionItem('presale_guid', presaleGuid);
 			setSessionItem('presale_token', token);
 			setSessionItem('authProvider', 'presale');
 			setSessionItem('presale_issuer', payload.iss);
@@ -153,5 +154,5 @@ export function ScrollTop()
 	if (scrollPosition > 0)
 	{
 		window.scrollTo(0, 0);
-	}	
+	}
 }
