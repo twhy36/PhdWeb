@@ -3,6 +3,10 @@ import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewC
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
 
 import * as _ from 'lodash';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
 @Component({
 	selector: 'choice-decline-card',
@@ -31,6 +35,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
 
 	constructor(
+		private store: Store<fromRoot.State>,
 		public modalService: ModalService
 	) 
 	{
@@ -70,6 +75,9 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	openBlockedChoiceModal()
 	{
+		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
+
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 

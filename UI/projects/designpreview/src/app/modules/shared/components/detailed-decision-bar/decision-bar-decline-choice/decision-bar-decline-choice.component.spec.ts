@@ -2,14 +2,33 @@ import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 
 import { ModalService, PointStatus } from 'phd-common';
 
+import * as fromApp from '../../../../ngrx-store/app/reducer';
+import * as fromChangeOrder from '../../../../ngrx-store/change-order/reducer';
+import * as fromJob from '../../../../ngrx-store/job/reducer';
+import * as fromOrg from '../../../../ngrx-store/org/reducer';
+import * as fromPlan from '../../../../ngrx-store/plan/reducer';
+import * as fromSalesAgreement from '../../../../ngrx-store/sales-agreement/reducer';
+import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
+
 import { DecisionBarDeclineChoiceComponent } from './decision-bar-decline-choice.component';
 import { ActionBarComponent } from '../../action-bar/action-bar.component';
+import { provideMockStore } from '@ngrx/store/testing';
+import { instance, mock } from 'ts-mockito';
 
 describe('DecisionBarDeclineChoiceComponent', () =>
 {
 	let component: DecisionBarDeclineChoiceComponent;
 	let fixture: ComponentFixture<DecisionBarDeclineChoiceComponent>;
-	let modalService: ModalService;
+	const mockModalService = mock(ModalService);
+	const initialState = {
+		app: fromApp.initialState,
+		salesAgreement: fromSalesAgreement.initialState,
+		plan: fromPlan.initialState,
+		org: fromOrg.initialState,
+		job: fromJob.initialState,
+		changeOrder: fromChangeOrder.initialState,
+		scenario: fromScenario.initialState
+	};
 
 	beforeEach(fakeAsync(() => 
 	{
@@ -19,13 +38,10 @@ describe('DecisionBarDeclineChoiceComponent', () =>
 				ActionBarComponent
 			],
 			providers: [
-				{
-					provide: ModalService,
-					useValue: modalService
-				},
+				{ provide: ModalService, useFactor: () => instance(mockModalService) },
+				provideMockStore({ initialState })
 			]
-		})
-			.compileComponents();
+		}).compileComponents();
 	}));
 
 	beforeEach(() => 

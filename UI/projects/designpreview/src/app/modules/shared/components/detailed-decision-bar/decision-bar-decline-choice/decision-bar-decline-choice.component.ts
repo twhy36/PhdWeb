@@ -1,5 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
 import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
+import _ from 'lodash';
+
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../../ngrx-store/reducers';
+import * as NavActions from '../../../../ngrx-store/nav/actions';
 
 @Component({
 	selector: 'decision-bar-decline-choice',
@@ -22,7 +28,10 @@ export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: ModalRef;
 
-	constructor(public modalService: ModalService) { }
+	constructor(
+		private store: Store<fromRoot.State>,
+		public modalService: ModalService
+	) { }
 
 	ngOnInit() 
 	{
@@ -47,8 +56,11 @@ export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges
 		}
 	}
 
-	openBlockedChoiceModal() 
+	openBlockedChoiceModal()
 	{
+		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.point.id === p.id)) || null;
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.point.id, null));
+
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
 	}
 
