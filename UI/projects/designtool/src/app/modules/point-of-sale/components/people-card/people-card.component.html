@@ -96,7 +96,7 @@
 					<a class="btn m-0 p-0" (click)="addTrust()">Add Trust</a>
 				</div>
 			</ng-container>
-			<ng-container *ngIf="realtorNA">
+			<ng-container *ngIf="realtorNA && canEditAgreement">
 				<div>
 					<a class="btn m-0 p-0" (click)="addRealtor()">Add Realtor</a>
 				</div>
