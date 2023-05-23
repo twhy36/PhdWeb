@@ -21,7 +21,7 @@
 								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)"
 									type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" alt="" role="group"
 									attr.aria-label="{{'Slide ' + (currentIndex + 1) + ' of ' + choiceImages.length}}"
-									*ngIf="activeIndex?.current == currentIndex"></cl-image>
+									*ngIf="activeIndex?.current === currentIndex"></cl-image>
 							</ng-template>
 						</ngb-carousel>
 					</section>

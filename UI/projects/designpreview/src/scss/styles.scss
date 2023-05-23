@@ -1,37 +1,245 @@
-@use "sass:math" as math;
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use './typography';
+@use './colors';
+@use './themes/components/action-bar-theme' as action-bar;
+@use './themes/components/blocked-choice-modal-theme' as blocked-choice-modal;
+@use './themes/components/decision-point-summary-theme' as decision-point-summary;
+@use './themes/components/default-error-theme' as default-error;
+@use './themes/components/footer-bar-theme' as footer;
+@use './themes/components/group-bar-theme' as group-bar;
+@use './themes/components/header-bar-theme' as header-bar;
+@use './themes/components/home-theme' as home;
+@use './themes/components/nav-bar-theme' as nav-bar;
+@use './themes/components/summary-header-theme' as summary-header;
+@use './themes/components/toggle-theme' as toggle;
+@use './themes/components/welcome-modal-theme' as welcome-modal;
 
-@import '~bootstrap/dist/css/bootstrap.min.css';
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300itaâ€Œâ€‹lic,400italic,500,500italic,700,700italic,900italic,900);
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import "@angular/material/theming";
 @import '../../../phd-common/src/lib/scss/color-pallet.scss';
+@import './themes/american-west-theme.scss';
+@import './themes/centex-theme.scss';
+@import './themes/del-webb-theme.scss';
+@import './themes/divosta-themes.scss';
+@import './themes/john-wieland-theme.scss';
+@import './themes/pulte-theme.scss';
 
-:root {
-	--button-border-radius: 0.3rem;
-	--font: 'Roboto';
-	--home-text-color: $navy_blue;
-	--link-color: $pantone_blue;
-	--logo-margin-top: "0px";
-	--primary-button-color: $pantone_blue;
-	--primary-icon-color: $pantone_blue;
-	--primary-ribbon-background-color: $twilight-blue;
-	--secondary-icon-color: $midnight_blue;
-	--secondary-ribbon-background-color: $pantone_blue;
-	--selected-border-color: $pantone_blue;
-	--group-bar-collapse-width: '460px';
+@include mat-core();
+
+@mixin theme($theme) {
+	$color-config: mat.get-color-config($theme);
+	$typography-config: mat.get-typography-config($theme);
+	$primary-palette: map.get($color-config, 'primary');
+	$accent-palette: map.get($color-config, 'accent');
+
+	@include mat.menu-theme($theme);
+	@include mat.button-theme($theme);
+	@include mat.typography-hierarchy($typography-config);
+
+	@include action-bar.theme($theme);
+	@include blocked-choice-modal.theme($theme);
+	@include decision-point-summary.theme($theme);
+	@include default-error.theme($theme);
+	@include footer.theme($theme);
+	@include group-bar.theme($theme);
+	@include header-bar.theme($theme);
+	@include home.theme($theme);
+	@include nav-bar.theme($theme);
+	@include summary-header.theme($theme);
+	@include welcome-modal.theme($theme);
+
+	font-family: mat.font-family($typography-config);
+
+	.modal-content {
+		.modal-header {
+			background: mat.get-color-from-palette($primary-palette, 'A200');
+			color: mat.get-color-from-palette($primary-palette, 'A200-contrast');
+
+			button {
+				color: mat.get-color-from-palette($primary-palette, 'A200-contrast');
+			}
+		}
+
+		.modal-title {
+			font-size: mat.font-size($typography-config, 'headline-5');
+		}
+
+		.modal-button {
+			font-size: mat.font-size($typography-config, 'headline-5');
+		}
+	}
+
+	.btn-primary,
+	.btn-primary:not(:disabled):not(.disabled):active {
+		background: mat.get-color-from-palette($primary-palette, 400);
+		border-color: mat.get-color-from-palette($primary-palette, 400);
+	}
+
+	// This has to be outside the component because the mat menu is part of the overlay container
+	.fa-check {
+		color: mat.get-color-from-palette($primary-palette, 'A200') !important;
+		padding-right: 5px;
+	}
+
+	.phd-attribute-item-image-selected {
+		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
+	}
+
+	.phd-available-selections {
+		background-color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	.phd-choice-image-selected {
+		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
+	}
+
+	.phd-choice-link {
+		color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	.phd-icon-selected {
+		color: mat.get-color-from-palette($accent-palette, 'A700');
+	}
+
+	.phd-group-completed {
+		color: mat.get-color-from-palette($accent-palette, '500-contrast') !important;
+		-webkit-text-stroke: 1px mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	.phd-sub-group-completed {
+		color: mat.get-color-from-palette($accent-palette, 500);
+		-webkit-text-stroke: 1px mat.get-color-from-palette($primary-palette, '500-contrast');
+	}
+
+	.phd-mobile-completed {
+		color: mat.get-color-from-palette($accent-palette, 500);
+		-webkit-text-stroke: 1px mat.get-color-from-palette($primary-palette, '500-contrast');
+	}
+
+	.phd-group-uncompleted {
+		padding-left: 19px;
+	}
+
+	.phd-sub-menu-selected {
+		font-weight: bold !important;
+	}
+
+	.btn-toggle {
+		@include toggle.theme($theme);
+	
+		&.btn-sm {
+			@include toggle.theme($theme, $font-size: .55rem, $margin: .5rem);
+	
+			&.btn-auto-approval {
+				@include toggle.theme($theme, $font-size: .55rem, $margin: .5rem, $content-after: 'On', $content-before: 'Off')
+			}
+		}
+	}
+}
+
+.aw-theme {
+	@include theme($aw-theme);
+
+	.phd-nav-bar {
+		.phd-logo {
+			margin-top: 10px;
+			max-height: 50px;
+		}
+	}
+
+	.phd-collapsable-menu
+	{
+		width: 315px;
+	}
+}
+
+.ch-theme {
+	@include theme($ch-theme);
+
+	.phd-nav-bar {
+		.phd-logo {
+			margin-top: 8px;
+			max-height: 34px;
+		}
+	}
+
+	.phd-collapsable-menu
+	{
+		width: 315px;
+	}
+}
+
+.dv-theme {
+	@include theme($dv-theme);
+
+	.phd-nav-bar {
+		.phd-logo {
+			margin-top: 9px;
+			max-height: 40px;
+		}
+	}
+
+	.phd-collapsable-menu
+	{
+		width: 315px;
+	}
+}
+
+.dw-theme {
+	@include theme($dw-theme);
+
+	.phd-nav-bar {
+		.phd-logo {
+			margin-top: 8px;
+			max-height: 34px;
+		}
+	}
+
+	.phd-collapsable-menu
+	{
+		width: 315px;
+	}
+}
+
+.jw-theme {
+	@include theme($jw-theme);
+
+	.phd-nav-bar {
+		.phd-logo {
+			margin-top: 2px;
+			max-height: 45px;
+		}
+	}
+
+	.phd-collapsable-menu
+	{
+		width: 335px;
+	}
+}
+
+.ph-theme {
+	@include theme($ph-theme);
+
+	.phd-nav-bar {
+		.phd-logo {
+			margin-top: 5px;
+			max-height: 42px;
+		}
+	}
+
+	.phd-collapsable-menu
+	{
+		width: 315px;
+	}
 }
 
 html,
-body,
-app-root {
+body
+{
+	color: #4a4a4a;
 	margin: 0;
 	padding: 0;
 	height: 100%;
-}
-
-body {
-	font-family: var(--font), sans-serif;
-	background: white;
-	color: #4a4a4a;
 }
 
 a,
@@ -52,6 +260,8 @@ ngb-modal-backdrop {
 }
 
 .btn {
+	border-radius: 35px;
+
 	&:hover,
 	&:focus {
 		background-color: none !important;
@@ -67,8 +277,49 @@ ngb-modal-backdrop {
 	padding-left: 0;
 }
 
+.modal-body {
+	text-align: center;
+}
+
+.modal-button {
+	width: 25%;
+	text-align: center;
+}
+
+.modal-header {
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+
+	button:focus {
+		outline: none;
+	}
+}
+
+.modal-footer {
+	justify-content: center;
+}
+
+// cl-image styling
+.phd-attribute-item-image {
+	border: solid 1px #ccc;
+	cursor: pointer;
+
+	.phd-attribute-item-image-selected {
+		border: solid 4px;
+	}
+
+	.phd-image-is-inactive, &.disabled {
+		cursor: no-drop;
+		opacity: .65;
+	}
+}
+
 .phd-clickable:hover {
 	cursor: pointer;
+}
+
+.phd-blocked-choice-modal .modal-dialog {
+	max-width: 400px;
 }
 
 .phd-empty-checkbox {
@@ -79,6 +330,23 @@ ngb-modal-backdrop {
 	border: solid 1px;
 }
 
+.phd-image-carousel {
+	.phd-choice-image {
+		border: 2px solid #ccc;
+		cursor: pointer;
+	
+		.phd-choice-image-selected {
+			border: solid 4px;
+			// border: solid 4px #1e81b3;
+		}
+
+		img {
+			width: 50px;
+			height: 50px;
+		}
+	}
+}
+
 .phd-visually-hidden {
 	position: absolute;
 	left: -10000px;
@@ -87,145 +355,23 @@ ngb-modal-backdrop {
 	overflow: hidden;
 }
 
-// Toggle Sizes
-$toggle-default-size: 1.5rem;
-$toggle-default-size-width: 3.5rem;
-$toggle-default-label-width: 4rem;
-$toggle-default-font-size: .75rem;
-
-// Content
-$toggle-content-before: 'Must Not Have';
-$toggle-content-after: 'Must Have';
-
-// Mixin for Default Switch Styles
-// Variables: $size, $margin, $color, $bg, $active-bg, $font-size
-@mixin toggle-mixin($size-width: $toggle-default-size-width, $size: $toggle-default-size, $margin: $toggle-default-label-width, $font-size: $toggle-default-font-size, $content-before: $toggle-content-before, $content-after: $toggle-content-after ) {
-	margin: 0 $margin;
-	padding: 0;
-	position: relative;
-	border-color: var(--action-icon-color);
-	height: $size;
-	width: $size-width * 1.25;
-	border-radius: $size;
-
-	&:focus,
-	&.focus {
-
-		&,
-		&.active {
-			outline: none;
-		}
+// ngb carousel styling
+.carousel {
+	.visually-hidden {
+		display: none;
 	}
 
-	&:before,
-	&:after {
-		line-height: $size;
-		width: $margin;
-		text-align: center;
-		font-weight: 600;
-		font-size: $font-size;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		position: absolute;
-		bottom: 0;
-		transition: opacity .25s;
-	}
+	.carousel-control-next,
+	.carousel-control-prev {
+		background-color: transparent;
+		height: 50px;
+		width: 50px;
+		margin: auto;
 
-	&:before {
-		content: $content-before;
-		left: -$margin;
-	}
-
-	&:after {
-		content: $content-after;
-		right: -$margin;
-		opacity: .5;
-	}
-
-	>.handle {
-		position: absolute;
-		top: math.div($size * .18, 2);
-		left: math.div($size * .30, 2);
-		width: $size * .75;
-		height: $size * .75;
-		border-radius: $size * .75;
-		background: var(--primary-button-color);
-		transition: left .25s;
-	}
-
-	&.active {
-		transition: background-color .25s;
-
-		>.handle {
-			left: ($size-width * 1.25) - 1.5;
-			transition: left .25s;
+		.carousel-control-next-icon,
+		.carousel-control-prev-icon {
+			-webkit-filter: drop-shadow(0px 0px 2px black);
+			filter: drop-shadow(0px 0px 2px black);
 		}
-
-		&:before {
-			opacity: .5;
-		}
-
-		&:after {
-			opacity: 1;
-		}
-	}
-
-	&.btn-sm {
-
-		&:before,
-		&:after {
-			line-height: $size - .125rem;
-			letter-spacing: .75px;
-			left: $size-width * .1;
-			width: $size-width * 1;
-		}
-
-		&:before {
-			text-align: right;
-			color: var(--action-icon-color);
-		}
-
-		&:after {
-			text-align: left;
-			opacity: 0;
-			color: #fff;
-		}
-
-		&.active {
-			&:before {
-				opacity: 0;
-			}
-
-			&:after {
-				opacity: 1;
-			}
-		}
-	}
-
-	&.btn-secondary {
-
-		&:after,
-		&:before {
-			color: #fff;
-		}
-	}
-}
-
-.btn-toggle {
-
-	@include toggle-mixin;
-
-	&.btn-sm {
-		@include toggle-mixin($font-size: .55rem, $margin: .5rem);
-
-		&.btn-auto-approval {
-			@include toggle-mixin($font-size: .55rem, $margin: .5rem, $content-after: 'On', $content-before: 'Off')
-		}
-	}
-}
-
-@media print {
-	.phd-main-container {
-		padding-top: 0 !important;
 	}
 }

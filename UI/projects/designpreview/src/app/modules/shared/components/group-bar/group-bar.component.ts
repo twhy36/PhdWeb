@@ -7,7 +7,7 @@ import { UnsubscribeOnDestroy, Group, PointStatus } from 'phd-common';
 	selector: 'group-bar',
 	templateUrl: 'group-bar.component.html',
 	styleUrls: ['group-bar.component.scss']
-})
+	})
 export class GroupBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() communityName: string;

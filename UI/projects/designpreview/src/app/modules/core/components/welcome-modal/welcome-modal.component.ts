@@ -11,7 +11,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 	selector: 'welcome-modal',
 	templateUrl: './welcome-modal.component.html',
 	styleUrls: ['./welcome-modal.component.scss']
-})
+	})
 export class WelcomeModalComponent extends ModalContent implements OnInit 
 {
 	isPresale: boolean = false;

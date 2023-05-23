@@ -7,7 +7,7 @@ import { AttributeGroupExt } from '../../models/attribute-ext.model';
 	selector: 'attribute-group',
 	templateUrl: 'attribute-group.component.html',
 	styleUrls: ['attribute-group.component.scss']
-})
+	})
 export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() attributeGroup: AttributeGroupExt;

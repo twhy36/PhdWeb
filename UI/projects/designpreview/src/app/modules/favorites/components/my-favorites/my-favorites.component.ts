@@ -46,17 +46,19 @@ import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'my-favorites',
 	templateUrl: 'my-favorites.component.html',
 	styleUrls: ['my-favorites.component.scss']
-})
+	})
 export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(GroupBarComponent) private groupBar: GroupBarComponent;
 	@ViewChild(NormalExperienceComponent) private mainPanel: NormalExperienceComponent;
 
+	brandTheme: string;
 	communityName: string = '';
 	planName: string = '';
 	groups: Group[];
@@ -110,11 +112,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
+		private brandService: BrandService,
 		private modalService: ModalService,
 		private location: Location,
 		private navService: NavigationService)
 	{
 		super();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnInit()
@@ -152,7 +156,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				centered: true,
 				backdrop: 'static',
-				keyboard: false
+				keyboard: false,
+				windowClass: this.brandTheme,
 			};
 			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
 		}

@@ -11,7 +11,7 @@ import { AdobeService } from '../../../core/services/adobe.service';
 	selector: 'attribute-location',
 	templateUrl: 'attribute-location.component.html',
 	styleUrls: ['attribute-location.component.scss']
-})
+	})
 
 export class AttributeLocationComponent implements OnInit, OnChanges
 {

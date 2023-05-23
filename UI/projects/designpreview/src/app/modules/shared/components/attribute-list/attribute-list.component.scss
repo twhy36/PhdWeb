@@ -43,20 +43,6 @@ ul {
 	margin-left: -4px;
 }
 
-::ng-deep .phd-attribute-item-image {
-	border: solid 1px #ccc;
-	cursor: pointer;
-
-	.phd-attribute-item-image-selected {
-		border: solid 4px var(--selected-border-color);
-	}
-
-	.phd-image-is-inactive, &.disabled {
-		cursor: no-drop;
-		opacity: .65;
-	}
-}
-
 .phd-attribute-selector {
 	position: absolute;
 	margin: 58px 0px 0px 60px;
@@ -65,8 +51,4 @@ ul {
 	background: none;
 	border: none;
 	padding: 0;
-
-    .phd-icon-selected {   
-        color: var(--heart-icon-color);
-    }
 }

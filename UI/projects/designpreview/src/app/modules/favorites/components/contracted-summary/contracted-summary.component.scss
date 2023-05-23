@@ -72,8 +72,8 @@
 				background-color: $sub-group-bg;
 			}
 
-			::ng-deep decision-point-summary:not(:last-child) .phd-point {
-				border-bottom: 1px solid #d4d4d4;
+			.phd-decision-point-summary:not(:last-child) {
+				border-bottom: 1px solid $mid-gray;
 			}
 		}
 	}

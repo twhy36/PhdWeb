@@ -14,7 +14,7 @@ declare var AVFloorplan;
 	selector: 'floor-plan',
 	templateUrl: 'floor-plan.component.html',
 	styleUrls: ['floor-plan.component.scss']
-})
+	})
 export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, OnDestroy, OnChanges
 {
 	@ViewChild('av_floor_plan') img: ElementRef;

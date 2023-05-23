@@ -16,7 +16,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 	selector: 'nav-bar',
 	templateUrl: 'nav-bar.component.html',
 	styleUrls: ['nav-bar.component.scss']
-})
+	})
 
 export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 {

@@ -12,9 +12,9 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 	templateUrl: './detailed-decision-bar.component.html',
 	styleUrls: ['./detailed-decision-bar.component.scss'],
 	animations: [
-		slideOut
+	slideOut
 	]
-})
+	})
 export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];

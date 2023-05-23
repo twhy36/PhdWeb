@@ -11,7 +11,7 @@ import _ from 'lodash';
 	selector: 'decision-bar-choice',
 	templateUrl: './decision-bar-choice.component.html',
 	styleUrls: ['./decision-bar-choice.component.scss']
-})
+	})
 export class DecisionBarChoiceComponent 
 {
 	@Input() choice: ChoiceExt;

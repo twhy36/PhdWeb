@@ -2,8 +2,8 @@
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
 .phd-logo-image {
-	max-width:calc(25vw);
-	max-height:calc(25vh);
+	max-width: calc(25vw);
+	max-height: calc(25vh);
 	height: auto;
 	margin-top: auto;
 	margin-bottom: auto;
@@ -26,7 +26,6 @@
 
 .phd-start-reviewing {
 	font-size: 3.2vh;
-	color: var(--home-text-color);
 	margin-top: 30px;
 	margin-bottom: 30px;
 	text-align: center;
@@ -35,7 +34,6 @@
 .phd-start-reviewing-title h1 {
 	font-size: 3.2vh;	
 	font-weight: bold;
-	color: var(--home-text-color);
 	margin: 5px;
 	text-align: center;
 }
@@ -47,7 +45,6 @@
 
 .phd-start-reviewing-desc {
 	font-size: 2.4vh;
-	color: var(--home-text-color);
 	margin-top: 15px;
 	width: 40vw;
 	margin-bottom: 30px;
@@ -56,9 +53,7 @@
 }
 
 .phd-design-list-button {
-	background-color: var(--primary-button-color);
 	border-radius: 35px;
-	color: white;
 	padding: 6px 25px;
 	min-width: 14vw;
 	min-height: 5.5vh;
@@ -72,7 +67,7 @@
 }
 
 .phd-vl {
-	border: 1px solid #d4d4d4;
+	border: 1px solid $mid-gray;
 	height: 30vh;
 }
 
@@ -83,13 +78,11 @@
 
 .phd-community-name {
 	font-size: 23px;
-	color: var(--home-text-color);
 	margin-bottom: -5px;
 }
 
 .phd-plan-name {
 	font-size: 20px;
-	color: var(--home-text-color);
 }
 
 .phd-hidden-floorplan {

@@ -15,10 +15,10 @@ import { InfoDisclaimerComponent } from '../../../core/components/info-disclaime
 	selector: 'footer-bar',
 	templateUrl: 'footer-bar.component.html',
 	styleUrls: ['footer-bar.component.scss']
-})
+	})
 export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
-
+	brandTheme: string;
 	currentYear = new Date().getFullYear();
 	accessibilityImgSrc = 'assets/icon_accessibility.png';
 	equalHousingImgSrc = 'assets/icon_equalHousing.png';
@@ -39,6 +39,8 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 		//set terms and policy urls per brand per enviornments
 		const brandBaseUrl = this.brandService.getBrandHomeUrl();
 		const sitecorePartialUrl = '/sitecore/content/pulte/pulte-home-page';
+
+		this.brandTheme = this.brandService.getBrandTheme();
 		
 		switch (window.location.host)
 		{
@@ -77,6 +79,7 @@ export class FooterBarComponent extends UnsubscribeOnDestroy implements OnInit
 			centered: true,
 			backdrop: true,
 			keyboard: false,
+			windowClass: this.brandTheme,
 		};
 
 		this.disclaimerModal = this.modalService.open(InfoDisclaimerComponent, ngbModalOptions, true);

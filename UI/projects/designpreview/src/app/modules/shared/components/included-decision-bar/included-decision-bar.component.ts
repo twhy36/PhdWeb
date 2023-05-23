@@ -10,10 +10,10 @@ import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, 
 	templateUrl: './included-decision-bar.component.html',
 	styleUrls: ['./included-decision-bar.component.scss'],
 	animations: [
-		flipOver2,
-		slideOut
+	flipOver2,
+	slideOut
 	]
-})
+	})
 export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];

@@ -12,7 +12,7 @@ import {
 	withSpinner, AttributeGroup, LocationGroup, Location, Attribute, Choice, AttributeCommunityImageAssoc, 
 	AttributeCommunityDto, AttributeGroupDto, DPChoiceAttributeGroupCommunityAssocDto, LocationDto, 
 	LocationGroupCommunityDto, ODataResponse }
-from 'phd-common';
+	from 'phd-common';
 
 import { AttributeExt, AttributeGroupExt, ChoiceAttributeGroup } from '../../shared/models/attribute-ext.model';
 

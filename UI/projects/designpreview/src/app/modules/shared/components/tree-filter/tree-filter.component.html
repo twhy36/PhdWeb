@@ -1,11 +1,11 @@
 <div class="input-group">
 	<input type="text" aria-label="Search" label="Search" [(ngModel)]="keyword" class="form-control phd-search-input" placeholder="Search" maxlength="100">
-	<button class="phd-search-clear" (click)="clearFilter()">
+	<button *ngIf="keyword.length > 0" class="phd-search-clear" (click)="clearFilter()">
 		<span aria-hidden="true"><i class="fa fa-fw fa-times"></i></span>
 	</button>
 
 	<div (click)="keywordSearch()">
-		<button type="button" aria-label="Search" class="btn btn-secondary" [disabled]="!canSearch">
+		<button type="button" aria-label="Search" class="btn btn-secondary">
 			<span aria-hidden="true"><i class="fa fa-fw fa-search"></i></span>
 		</button>
 	</div>

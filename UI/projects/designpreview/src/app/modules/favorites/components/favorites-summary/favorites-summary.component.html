@@ -48,19 +48,21 @@
 										<h3>{{subGroup.label}}</h3>
 									</div>
 									<ng-container *ngFor="let dp of subGroup.points">
-										<decision-point-summary *ngIf="displayPoint(dp)"
-											[decisionPoint]="dp"
-											[subGroup]="subGroup"
-											[group]="group"
-											[salesChoices]="salesChoices"
-											[includeContractedOptions]="includeContractedOptions"
-											[buildMode]="buildMode"
-											[isDesignComplete]="isDesignComplete"
-											[isPresale]="isPresale"
-											[favoritesId]="favoritesId" 
-											(viewFavorites)="onViewFavorites($event)"
-											(removeFavorites)="onRemoveFavorites($event)">
-										</decision-point-summary>
+										<div class="phd-decision-point-summary" *ngIf="displayPoint(dp)">
+											<decision-point-summary
+												[decisionPoint]="dp"
+												[subGroup]="subGroup"
+												[group]="group"
+												[salesChoices]="salesChoices"
+												[includeContractedOptions]="includeContractedOptions"
+												[buildMode]="buildMode"
+												[isDesignComplete]="isDesignComplete"
+												[isPresale]="isPresale"
+												[favoritesId]="favoritesId" 
+												(viewFavorites)="onViewFavorites($event)"
+												(removeFavorites)="onRemoveFavorites($event)">
+											</decision-point-summary>
+										</div>
 									</ng-container>
 								</div>
 							</ul>

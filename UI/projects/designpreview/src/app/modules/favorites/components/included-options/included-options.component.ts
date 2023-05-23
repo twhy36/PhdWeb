@@ -23,15 +23,17 @@ import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'included-options',
 	templateUrl: './included-options.component.html',
 	styleUrls: ['./included-options.component.scss'],
 	animations: [flipOver]
-})
+	})
 export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	brandTheme: string;
 	communityName: string = '';
 	planName: string = '';
 	isPointPanelCollapsed: boolean = false;
@@ -55,8 +57,13 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	viewCreated: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
+		private brandService: BrandService,
 		private modalService: ModalService,
-		private router: Router) { super(); }
+		private router: Router)
+	{
+		super();
+		this.brandTheme = this.brandService.getBrandTheme();
+	}
 
 	ngOnInit()
 	{
@@ -131,7 +138,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			{
 				centered: true,
 				backdrop: 'static',
-				keyboard: false
+				keyboard: false,
+				windowClass: this.brandTheme,
 			};
 			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
 		}

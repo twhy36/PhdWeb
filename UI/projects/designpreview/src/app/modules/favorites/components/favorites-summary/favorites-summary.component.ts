@@ -29,6 +29,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -40,11 +41,12 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'favorites-summary',
 	templateUrl: './favorites-summary.component.html',
 	styleUrls: ['./favorites-summary.component.scss']
-})
+	})
 export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
 
+	brandTheme: string;
 	communityName: string = '';
 	planName: string = '';
 	groups: GroupExt[];
@@ -82,6 +84,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		private activatedRoute: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
+		private brandService: BrandService,
 		private modalService: ModalService,
 		private location: Location,
 		private adobeService: AdobeService,
@@ -89,6 +92,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	)
 	{
 		super();
+
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	get disclaimerText()
@@ -271,7 +276,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				centered: true,
 				backdrop: 'static',
-				keyboard: false
+				keyboard: false,
+				windowClass: this.brandTheme,
 			};
 			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
 		}
@@ -405,6 +411,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			centered: true,
 			backdrop: true,
 			keyboard: false,
+			windowClass: this.brandTheme,
 		};
 
 		this.confirmModal = this.modalService.open(ConfirmModalComponent, ngbModalOptions, true);
@@ -476,7 +483,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			centered: true,
 			backdrop: true,
-			beforeDismiss: () => false
+			beforeDismiss: () => false,
+			windowClass: this.brandTheme,
 		};
 
 

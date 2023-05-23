@@ -13,7 +13,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 	selector: 'action-bar',
 	templateUrl: 'action-bar.component.html',
 	styleUrls: ['action-bar.component.scss']
-})
+	})
 export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit 
 {
 	@Input() scrollListener = window;

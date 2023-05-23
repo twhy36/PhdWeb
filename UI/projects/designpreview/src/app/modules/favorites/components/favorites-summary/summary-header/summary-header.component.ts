@@ -12,7 +12,7 @@ import { BuildMode } from '../../../../shared/models/build-mode.model';
 	selector: 'summary-header',
 	templateUrl: './summary-header.component.html',
 	styleUrls: ['./summary-header.component.scss']
-})
+	})
 export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() summaryHeader: SummaryHeader;

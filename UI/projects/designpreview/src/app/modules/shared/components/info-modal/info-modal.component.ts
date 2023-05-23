@@ -6,7 +6,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 	selector: 'info-modal-component',
 	templateUrl: './info-modal.component.html',
 	styleUrls: ['./info-modal.component.scss']
-})
+	})
 
 export class InfoModalComponent
 {

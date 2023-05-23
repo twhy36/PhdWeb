@@ -17,6 +17,7 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { ChoiceCardComponent } from './choice-card.component';
 import { ActionBarComponent } from '../action-bar/action-bar.component';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 describe('ChoiceCardComponent', () => 
 {
@@ -25,6 +26,7 @@ describe('ChoiceCardComponent', () =>
 
 	const mockNgbModal = mock(NgbModal);
 	const mockAdobeService = mock(AdobeService);
+	const mockBrandService = mock(BrandService);
 	const mockModalService = mock(ModalService);
 	const initialState = {
 		app: fromApp.initialState,
@@ -47,6 +49,7 @@ describe('ChoiceCardComponent', () =>
 			providers: [
 				{ provide: NgbModal, useFactory: () => instance(mockNgbModal) },
 				{ provide: AdobeService, useFactory: () => instance(mockAdobeService) },
+				{ provide: BrandService, useFactory: () => instance(mockBrandService) },
 				{ provide: ModalService, useFactor: () => instance(mockModalService) },
 				provideMockStore({ initialState })
 			]

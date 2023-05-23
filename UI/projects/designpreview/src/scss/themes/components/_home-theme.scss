@@ -1,0 +1,56 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin color($theme) {
+	$color-config: mat.get-color-config($theme);
+
+	$primary-palette: map.get($color-config, 'primary');
+	$accent-palette: map.get($color-config, 'accent');
+
+	.phd-home {
+		.phd-design-list-button {
+			background-color: mat.get-color-from-palette($primary-palette, 400);
+			color: mat.get-color-from-palette($primary-palette, '400-contrast');
+		}
+
+		.phd-start-reviewing {
+			color: mat.get-color-from-palette($primary-palette, 'A700');
+		}
+	
+		.phd-start-reviewing-title {
+			color: mat.get-color-from-palette($primary-palette, 'A700');
+		}
+	
+		.phd-start-reviewing-desc {
+			color: mat.get-color-from-palette($primary-palette, 'A700');
+		}
+	
+		.phd-community-name {
+			color: mat.get-color-from-palette($primary-palette, 'A700');
+		}
+
+		.phd-plan-name {
+			color: mat.get-color-from-palette($primary-palette, 'A700');
+		}
+	}
+}
+
+@mixin typography($theme) {
+	$typography-config: mat.get-typography-config($theme);
+
+	.phd-home {
+		font-family: mat.font-family($typography-config);
+	}
+}
+
+@mixin theme($theme) {
+	$color-config: mat.get-color-config($theme);
+	@if $color-config != null {
+		@include color($theme);
+	}
+
+	$typography-config: mat.get-typography-config($theme);
+	@if $typography-config != null {
+		@include typography($theme);
+	}
+}

@@ -69,31 +69,31 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 
 @NgModule({
 	declarations: [
-		AppComponent
+	AppComponent
 	],
 	imports: [
-		BrowserModule,
-		CommonModule,
-		PhdCommonModule.forRoot(environment.apiUrl),
-		FormsModule,
-		CoreModule,
-		SharedModule,
-		HomeModule,
-		FavoritesModule,
-		RouterModule.forRoot(appRoutes),
-		StoreModule,
-		CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
-		ToastrModule.forRoot({ closeButton: true }),
-		NgIdleModule.forRoot()
+	BrowserModule,
+	CommonModule,
+	PhdCommonModule.forRoot(environment.apiUrl),
+	FormsModule,
+	CoreModule,
+	SharedModule,
+	HomeModule,
+	FavoritesModule,
+	RouterModule.forRoot(appRoutes),
+	StoreModule,
+	CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
+	ToastrModule.forRoot({ closeButton: true }),
+	NgIdleModule.forRoot()
 	],
 	providers: [
-		{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
-		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
-		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
-		{ provide: TELEMETRY_INIT, useValue: setClientApp('Design Preview') },
-		{ provide: HTTP_INTERCEPTORS, useClass: PresaleInterceptor, multi: true }
+	{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
+	{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
+	{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
+	{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+	{ provide: TELEMETRY_INIT, useValue: setClientApp('Design Preview') },
+	{ provide: HTTP_INTERCEPTORS, useClass: PresaleInterceptor, multi: true }
 	],
 	bootstrap: [AppComponent]
-})
+	})
 export class AppModule { }

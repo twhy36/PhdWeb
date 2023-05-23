@@ -5,7 +5,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 	selector: 'auto-open-menu',
 	templateUrl: 'auto-open-menu.component.html',
 	styleUrls: ['auto-open-menu.component.scss']
-})
+	})
 export class AutoOpenMenuComponent
 {
 	menuTimeout: NodeJS.Timeout;

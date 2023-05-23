@@ -13,15 +13,17 @@
 							<h3>{{subGroup.label}}</h3>
 						</div>
 						<ng-container *ngFor="let dp of subGroup.points">
-							<decision-point-summary *ngIf="displayPoint(dp)"
-													[decisionPoint]="dp"
-													[subGroup]="subGroup"
-													[group]="group"
-													[salesChoices]="salesChoices"
-													[buildMode]="buildMode"
-													[isDesignComplete]="isDesignComplete"
-													[contractedOptionsPage]="true">
-							</decision-point-summary>
+							<div *ngIf="displayPoint(dp)" class="phd-decision-point-summary">
+								<decision-point-summary 
+									[decisionPoint]="dp"
+									[subGroup]="subGroup"
+									[group]="group"
+									[salesChoices]="salesChoices"
+									[buildMode]="buildMode"
+									[isDesignComplete]="isDesignComplete"
+									[contractedOptionsPage]="true">
+								</decision-point-summary>
+							</div>
 						</ng-container>
 					</ul>								
 				</div>

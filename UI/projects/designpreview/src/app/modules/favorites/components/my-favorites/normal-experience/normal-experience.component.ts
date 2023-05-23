@@ -15,7 +15,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 	templateUrl: './normal-experience.component.html',
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
-})
+	})
 export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;

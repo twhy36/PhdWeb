@@ -1,8 +1,6 @@
 @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 .phd-point {
-	font-size: 14px;
-	line-height: 1.36;
 	margin: 0 10px;
 	transition: all .3s;
 	min-height: 60px;
@@ -26,9 +24,6 @@
 		select {
 			max-width: 130px;
 			width: 100%;
-			font-weight: normal;
-			line-height: normal;
-			font-size: 14px;
 			padding-right: 10px;
 		}
 
@@ -104,12 +99,7 @@
 
 						.phd-label {
 							font-weight: bold;
-							font-size: 10px;
 							margin-right: 10px;
-						}
-
-						.phd-content {
-							font-size: 10px;
 						}
 
 						.phd-location {
@@ -122,14 +112,11 @@
 					}
 
 					.phd-summary-additional-selections {
-						font-size: 10px;
 						cursor: pointer;
-						color: var(--link-color);
 						text-decoration: underline;
 					}
 
 					.phd-unlinked-additional-selections {
-						font-size: 10px;
 						text-decoration: none;
 						color: black;
 					}
@@ -141,13 +128,12 @@
 
 				.phd-divider {
 					margin: 0px 15px;
-					background: #d4d4d4;
+					background: $mid-gray;
 					width: 1.5px;
 				}
 
 				.actions {
 					flex-basis: 45%;
-					font-size: 14px;
 					font-weight: 500;
 				}
 
@@ -170,8 +156,7 @@
 		min-width: 60px;
 
 		a {
-			font-size: 14px;
-			color: $bluish;
+			color: #297fca;
 			cursor: pointer;
 			margin-right: 15px;
 		}
@@ -190,17 +175,6 @@
 			text-align: center;
 		}
 
-		.phd-view-button {
-			background: var(--primary-button-color);
-			color: white;
-		}
-
-		.phd-remove-button {
-			background: white;
-			border-width: 2px;
-			color: black;
-		}
-
 		button {
 			border-radius: 35px;
 			min-width: 75px;
@@ -212,16 +186,20 @@
 	}
 }
 
+.phd-remove-button {
+	background: white;
+	border-width: 2px;
+	color: black;
+}
+
 .phd-quantity {
 	width: 60px !important;
 	display: inline-block !important;
 	height: 25px;
-	font-size: 13px;
 }
 
 .dropdown-toggle {
 	width: 150px;
-	font-size: 13px;
 	text-align: left;
 	background-color: transparent;
 	border: 1px solid lightgrey;
@@ -229,7 +207,6 @@
 
 .dropdown-item {
 	text-transform: none;
-	font-size: 13px;
 	padding: .20rem 1.5rem;
 }
 

@@ -1,5 +1,5 @@
 <header>
-	<nav (window:resize)="onResize($event)" id="phd-group-bar">
+	<nav (window:resize)="onResize($event)" class="phd-group-bar">
 		<div class="d-flex align-items-flex-start phd-group-bar-content">
 			<div class="d-flex flex-column">
 				<h2 class="phd-visually-hidden">
@@ -32,7 +32,7 @@
 								<ng-container *ngFor="let subGroup of group.subGroups">
 									<button mat-menu-item (click)="selectSubgroup(subGroup.id)">
 										<i class="fa fa-check phd-sub-group-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
-										<span [class.phd-group-uncompleted]="!completedStatuses.includes(subGroup.status)">{{subGroup.label}}</span>
+										<span [class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId" [class.phd-group-uncompleted]="!completedStatuses.includes(subGroup.status)">{{subGroup.label}}</span>
 									</button>
 								</ng-container>
 							</div>
@@ -53,7 +53,7 @@
 									[attr.aria-label]="group.label"
 									[role]="null">
 								<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(group.status)"></i>
-								<span [ngClass]="!completedStatuses.includes(group.status) ? 'phd-group-uncompleted' : ''">{{group.label}}</span>
+								<span [class.phd-sub-menu-selected]="isGroupSelected(group.id)" [ngClass]="!completedStatuses.includes(group.status) ? 'phd-group-uncompleted' : ''">{{group.label}}</span>
 							</button>
 							<mat-menu #sub_menu="matMenu" class="phd-pop-menu">
 								<button mat-menu-item [role]="null"
@@ -63,7 +63,7 @@
 										[attr.aria-label]="subGroup.label"
 										(click)="selectSubgroup(subGroup.id)">
 									<i class="fa fa-check phd-mobile-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
-									<span [ngClass]="!completedStatuses.includes(subGroup.status) ? 'phd-group-uncompleted' : ''">{{subGroup.label}}</span>
+									<span [class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId" [ngClass]="!completedStatuses.includes(subGroup.status) ? 'phd-group-uncompleted' : ''">{{subGroup.label}}</span>
 								</button>
 							</mat-menu>
 						</ng-container>

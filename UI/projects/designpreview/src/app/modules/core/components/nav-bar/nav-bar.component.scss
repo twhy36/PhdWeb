@@ -1,37 +1,30 @@
-@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
-@import "../../../../../../../designpreview/src/scss/sizes.scss";
+@use '../../../../../scss/breakpoints';
 
-#phd-nav-bar {
-	background: var(--primary-ribbon-background-color);
-	border-bottom: var(--home-page-floorplan-border);
+.phd-nav-bar {
 	height: 70px;
 	text-transform: uppercase;
 	white-space: nowrap;
 
-	.phd-nav-bar-header {
+    .phd-nav-bar-title {
+        max-height: 55px;
+    }
+
+	.phd-nav-bar-image {
 		display: inline-block;
 		height: 50px;
 		padding: 0;
 
 		.phd-logo {
-			margin-top: var(--logo-margin-top);
 			max-width: 250px;
-			max-height: var(--logo-max-height);
 		}
 	}
 
-	.phd-nav-bar-title {
-		color: var(--nav-bar-text-color);
+	.phd-nav-bar-text {
 		width: max-content;
 		margin: 9px 0 0 30px;
 
 		.phd-nav-bar-label {
-			font-size: 14px;
 			height: 16px;
-		}
-
-		.phd-nav-bar-config {
-			font-size: 20px;
 		}
 	}
 
@@ -48,24 +41,12 @@
 	}
 
 	.phd-page-separator {
-		border-right: 1px solid var(--nav-bar-text-color);
+        border-right: 1px solid;
   		margin: 0 10px !important;
-	}
-
-	a {
-		font-size: 16px;
-		color: var(--nav-bar-text-color);
-	}
-
-	.phd-active-link-full {
-		font-size: 18px;
-		font-weight: bold;
-		cursor: default;
 	}
 
 	.phd-menu-bars {
 		display: inline;
-		color: var(--nav-bar-text-color);
 		background: none;
 		border: none;
 		margin: 0;
@@ -82,16 +63,10 @@
 	.phd-links-list {
 		margin-top: 19px;
 	}
-
-	.phd-active-link-collapsed {
-		background: $twilight-blue;
-	}
 }
 
 
 .phd-collapsable-menu {
-	background: var(--primary-ribbon-background-color);
-	width: var(--hamburger-menu-width);
 	position: fixed;
 	top: 70px;
 	right: -20px;
@@ -107,7 +82,6 @@
 
 	a {
 		font-size: 20px;
-		color: var(--nav-bar-text-color);
 		display: block;
 		text-transform: uppercase;
 		text-decoration: none;
@@ -127,7 +101,7 @@
 	display: none !important;
 }
 
-@media(max-width: $top-menu-collapse) {
+@media(max-width: breakpoints.$top-menu-collapse) {
 	.phd-menu-options {
 		display: none !important;
 	}
@@ -136,7 +110,7 @@
 	}
 }
 
-@media(max-width: $top-menu-collapse-jw) {
+@media(max-width: breakpoints.$top-menu-collapse-jw) {
 	.phd-menu-options-jw {
 		display: none !important;
 	}

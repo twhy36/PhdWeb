@@ -1,4 +1,4 @@
-<header [ngClass]="isPresale ? 'summary-header-presale' : 'summary-header'" [class.is-sticky]="isSticky">
+<header [ngClass]="isPresale ? 'phd-summary-header-presale' : ''" class="phd-summary-header" [class.is-sticky]="isSticky">
 	<ng-container *ngIf="isPresale">
 		<div class="phd-presale-elevation phd-hide-in-print">
 			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:112px;border:'black'" alt="">

@@ -12,10 +12,10 @@ import { BuildMode } from '../../models/build-mode.model';
 	templateUrl: './decision-point-summary.component.html',
 	styleUrls: ['./decision-point-summary.component.scss'],
 	animations: [
-		flipOver2
+	flipOver2
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush
-})
+	})
 export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() decisionPoint: DecisionPoint;

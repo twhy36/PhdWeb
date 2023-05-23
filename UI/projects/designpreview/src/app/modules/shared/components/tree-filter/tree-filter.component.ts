@@ -11,7 +11,7 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 	selector: 'tree-filter',
 	templateUrl: './tree-filter.component.html',
 	styleUrls: ['./tree-filter.component.scss']
-})
+	})
 export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Output() setTreeFilter = new EventEmitter();
@@ -38,7 +38,7 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 
 	keywordSearch()
 	{
-		if (this.canSearch && (!this.treeFilter || this.treeFilter.keyword !== this.keyword))
+		if ((!this.treeFilter || this.treeFilter.keyword !== this.keyword))
 		{
 			const search = { filterType: this.filterType, keyword: this.keyword };
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(search));
@@ -57,10 +57,5 @@ export class TreeFilterComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(clearFilter));
 			this.setTreeFilter.emit();
 		}
-	}
-
-	get canSearch(): boolean
-	{
-		return this.keyword.trim().length >= 3;
 	}
 }

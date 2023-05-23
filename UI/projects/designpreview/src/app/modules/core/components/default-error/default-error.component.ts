@@ -14,7 +14,7 @@ import { DesignPreviewError } from '../../../shared/models/error.model';
 	selector: 'default-error',
 	templateUrl: './default-error.component.html',
 	styleUrls: ['./default-error.component.scss']
-})
+	})
 export class DefaultErrorComponent extends UnsubscribeOnDestroy implements OnInit
 {
 

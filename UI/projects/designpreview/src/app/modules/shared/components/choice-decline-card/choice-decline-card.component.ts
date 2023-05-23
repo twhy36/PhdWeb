@@ -13,9 +13,9 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 	templateUrl: './choice-decline-card.component.html',
 	styleUrls: ['./choice-decline-card.component.scss'],
 	animations: [
-		flipOver3
+	flipOver3
 	]
-})
+	})
 export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentPoint: DecisionPoint;

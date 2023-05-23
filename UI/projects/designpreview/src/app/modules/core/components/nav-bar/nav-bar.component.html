@@ -1,16 +1,16 @@
 <header>
-	<nav (window:resize)="onResize($event)" id="phd-nav-bar" class="navbar fixed-top navbar-expand-md">
+	<nav (window:resize)="onResize($event)" class="phd-nav-bar navbar fixed-top navbar-expand-md">
 		<div class="d-flex container-fluid">
-			<div class="d-flex flex-row align-items-flex-start justify-content-space-between">			
+			<div class="phd-nav-bar-title d-flex flex-row align-items-flex-start justify-content-space-between">			
 				<h1 class="phd-visually-hidden">
 					Header
 				</h1>
-				<a href="" class="phd-nav-bar-header phd-clickable">
+				<a href="" class="phd-nav-bar-image phd-clickable">
 					<img id="homeLogo" class="phd-logo" [src]="getImageSrc()" alt="Pulte Homes" (click)="$event.preventDefault(); onHomePage()" alt="">
 				</a>
-				<div class="d-flex flex-column phd-nav-bar-title" [ngClass]="getBrandedTitle()">
-					<span class="phd-nav-bar-label">Design Preview</span>
-					<span class="phd-nav-bar-config">{{welcomeText}}</span>
+				<div class="d-flex flex-column phd-nav-bar-text" [ngClass]="getBrandedTitle()">
+					<span class="phd-nav-bar-label mat-body">Design Preview</span>
+					<span class="mat-headline-5">{{welcomeText}}</span>
 				</div>
 			</div>
 

@@ -11,7 +11,7 @@ import * as NavActions from '../../../../ngrx-store/nav/actions';
 	selector: 'decision-bar-decline-choice',
 	templateUrl: './decision-bar-decline-choice.component.html',
 	styleUrls: ['./decision-bar-decline-choice.component.scss']
-})
+	})
 export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges 
 {
 	@Input() point: DecisionPoint;

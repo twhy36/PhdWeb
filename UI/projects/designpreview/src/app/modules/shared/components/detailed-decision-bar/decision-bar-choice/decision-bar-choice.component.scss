@@ -8,9 +8,8 @@
 	margin-top: 5px;
 	width: 100%;
 
-	.choice-label {
+	.phd-choice-label {
 		max-width: 150px;
-		color: var(--link-color);
 		text-decoration: underline;
 	}
 
@@ -32,10 +31,6 @@
 	width: 25px;
 	font-size: 18px;
 	margin-top: -4px;
-
-	.phd-icon-selected {
-		color: var(--heart-icon-color);
-	}
 }
 
 .phd-clickable {

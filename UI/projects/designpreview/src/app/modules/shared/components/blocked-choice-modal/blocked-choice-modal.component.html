@@ -22,7 +22,7 @@
 
 			<span *ngFor="let c of choice.disabledByReplaceRules; let i = index;">
 				<span *ngIf="i > 0"> and </span>
-				<a class="phd-clickable phd-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c.label | choiceIdToName | async}}</a>
+				<a class="phd-clickable phd-blocked-choice-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c.label | choiceIdToName | async}}</a>
 			</span>
 		</li>
 
@@ -37,7 +37,7 @@
 
 			<span *ngFor="let c of choice.disabledByRelocatedMapping; let i = index;">
 				<span *ngIf="i > 0"> and </span>
-				<a class="phd-clickable phd-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c.label | choiceIdToName | async}}</a>
+				<a class="phd-clickable phd-blocked-choice-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c.label | choiceIdToName | async}}</a>
 			</span>
 		</li>
 
@@ -70,7 +70,7 @@
 						<span *ngIf="mustHave?.choices?.length > 0">Select </span>
 						<span *ngFor="let c of mustHave.choices; let ci = index">
 							<span *ngIf="ci > 0"> and<br>Select </span>
-							<a class="phd-clickable phd-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
+							<a class="phd-clickable phd-blocked-choice-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
 						</span>
 					</span>
 				</ng-container>
@@ -85,12 +85,12 @@
 
 						<span *ngFor="let p of mustNotHave.points; let pi = index">
 							<span *ngIf="pi > 0"> and </span>
-							<a class="phd-clickable phd-link phd-point" (click)="handleDisabledPointClick(p)">{{p | pointIdToName | async}}</a>
+							<a class="phd-clickable phd-blocked-choice-link phd-point" (click)="handleDisabledPointClick(p)">{{p | pointIdToName | async}}</a>
 						</span>
 
 						<span *ngFor="let c of mustNotHave.choices; let ci = index">
 							<span *ngIf="ci > 0"> and </span>
-							<a class="phd-clickable phd-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
+							<a class="phd-clickable phd-blocked-choice-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
 						</span>
 					</span>
 

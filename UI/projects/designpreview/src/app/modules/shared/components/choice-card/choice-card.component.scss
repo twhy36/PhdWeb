@@ -1,4 +1,4 @@
-@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
+ @import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/animations.scss";
 
 .phd-choice-card {
@@ -72,14 +72,6 @@
 			.fa-heart-o {
 				background: white;
 			}
-		}
-
-		.phd-presale-padding {
-			padding: 15px 10px 0 15px;
-		}
-
-		.phd-icon-selected {
-			color: var(--heart-icon-color);
 		}
 	}
 

@@ -15,7 +15,7 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 	selector: 'blocked-choice-modal',
 	templateUrl: './blocked-choice-modal.component.html',
 	styleUrls: ['./blocked-choice-modal.component.scss']
-})
+	})
 export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() choice: ChoiceExt;

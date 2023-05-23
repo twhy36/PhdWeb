@@ -7,15 +7,16 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as NavActions from '../../../ngrx-store/nav/actions';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'choice-card',
 	templateUrl: './choice-card.component.html',
 	styleUrls: ['./choice-card.component.scss'],
 	animations: [
-		flipOver3
+	flipOver3
 	]
-})
+	})
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
@@ -32,6 +33,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	@ViewChild('blockedChoiceModal') blockedChoiceModal;
 	@ViewChild('hiddenChoicePriceModal') hiddenChoicePriceModal;
 
+	brandTheme: string;
 	choice: ChoiceExt;
 	choiceMsg: object[] = [];
 	imageUrl: string = '';
@@ -40,10 +42,12 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 
 	constructor(
 		private store: Store<fromRoot.State>,
+		private brandService: BrandService,
 		public modalService: ModalService
 	)
 	{
 		super();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -91,7 +95,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
 		}
 
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandTheme}` }, true);
 	}
 
 	onCloseClicked()

@@ -8,10 +8,10 @@ import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint } from 'phd-co
 	templateUrl: './decision-bar.component.html',
 	styleUrls: ['./decision-bar.component.scss'],
 	animations: [
-		flipOver2,
-		slideOut
+	flipOver2,
+	slideOut
 	]
-})
+	})
 export class DecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];

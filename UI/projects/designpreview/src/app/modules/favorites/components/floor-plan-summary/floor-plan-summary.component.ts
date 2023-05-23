@@ -18,7 +18,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 	selector: 'floor-plan-summary',
 	templateUrl: './floor-plan-summary.component.html',
 	styleUrls: ['./floor-plan-summary.component.scss']
-})
+	})
 
 export class FloorPlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit 
 {

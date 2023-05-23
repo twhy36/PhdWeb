@@ -15,14 +15,16 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'manage-favorites',
 	templateUrl: 'manage-favorites.component.html',
 	styleUrls: ['manage-favorites.component.scss']
-})
+	})
 export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	brandTheme: string;
 	favoriteForm: UntypedFormGroup;
 	favoriteNameInput: string = '';
 	favoriteList: MyFavorite[];
@@ -33,11 +35,13 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		private store: Store<fromRoot.State>,
 		private router: Router,
 		private toastr: ToastrService,
+		private brandService: BrandService,
 		private modalService: NgbModal,
 		private favoriteService: FavoriteService,
 		private adobeService: AdobeService)
 	{
 		super();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnInit() 
@@ -124,7 +128,8 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		const ngbModalOptions: NgbModalOptions = {
 			centered: true,
 			backdrop: 'static',
-			keyboard: false
+			keyboard: false,
+			windowClass: this.brandTheme,
 		};
 
 		const msgBody = 'This will permanently delete your list.';

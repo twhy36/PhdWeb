@@ -1,12 +1,7 @@
-@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
-@import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
-
 .phd-footer {
 	display: flex;
 	height: 80px;
-	background: var(--info-ribbon-background-color);
 	font-size: 15px;
-	color: var(--info-bar-text-color);
 	padding: 5px 20px;
 	align-items: center;
 	justify-content: flex-end;
@@ -35,5 +30,4 @@
     border: none;
     margin: 0;
     padding: 0;
-	color: var(--info-bar-text-color);
 }

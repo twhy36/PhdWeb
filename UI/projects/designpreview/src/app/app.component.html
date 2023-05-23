@@ -1,9 +1,11 @@
-<nav-bar></nav-bar>
+<div [ngClass]="brandTheme" class="mat-typography">
+	<nav-bar></nav-bar>
 
-<div class="phd-main-container" clickDirective>
-	<router-outlet></router-outlet>
+	<div class="phd-main-container" clickDirective>
+		<router-outlet></router-outlet>
+	</div>
+
+	<common-spinner></common-spinner>
+
+	<build-version class="phd-build-version" *ngIf="!environment.production" [branch]="branch" [version]="version"></build-version>
 </div>
-
-<common-spinner></common-spinner>
-
-<build-version class="phd-build-version" *ngIf="!environment.production" [branch]="branch" [version]="version"></build-version>

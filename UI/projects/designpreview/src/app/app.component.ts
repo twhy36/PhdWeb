@@ -1,3 +1,4 @@
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { Component, Inject, OnInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
@@ -22,11 +23,12 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
-})
+	})
 export class AppComponent extends UnsubscribeOnDestroy implements OnInit 
 {
 	title = 'Design Preview';
 	environment = environment;
+	brandTheme: string; 
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
 	browserModal: ModalRef;
@@ -43,6 +45,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 	//navService is needed here to initalize the routing history, please do not remove
 	constructor(
+		public overlayContainer: OverlayContainer,
 		private idle: Idle,
 		private store: Store<fromRoot.State>,
 		private modalService: ModalService,
@@ -60,7 +63,10 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			this.watchIdle();
 		}
 
-		this.brandService.applyBrandStyles();
+		this.brandTheme = this.brandService.getBrandTheme();
+
+		// Need to add brand class to the overlayContainer for mat menu to be correctly stylized
+		this.overlayContainer.getContainerElement().classList.add(this.brandTheme);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -117,7 +123,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				centered: true,
 				backdrop: 'static',
-				keyboard: false
+				keyboard: false,
+				windowClass: this.brandTheme,
 			};
 
 			this.logoutModal = this.modalService.open(IdleLogoutComponent, ngbModalOptions, true);
@@ -196,7 +203,8 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			centered: true,
 			backdrop: true,
-			beforeDismiss: () => false
+			beforeDismiss: () => false,
+			windowClass: this.brandTheme,
 		};
 
 		this.browserModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
