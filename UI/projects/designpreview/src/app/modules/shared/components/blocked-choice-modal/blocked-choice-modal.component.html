@@ -62,14 +62,14 @@
 
 						<span *ngIf="mustHave?.points?.length > 0">Make a </span>
 						<span *ngFor="let p of mustHave.points; let pi = index">
-							<span *ngIf="pi > 0"> and </span>
+							<span *ngIf="pi > 0"> and<br>Make a </span>
 							<a class="phd-clickable phd-link phd-point" (click)="handleDisabledPointClick(p)">{{p | pointIdToName | async}}</a>
 							<span> selection{{d.mustHaves.length > 1 ? 's' : ''}} </span>
 						</span>
 
 						<span *ngIf="mustHave?.choices?.length > 0">Select </span>
 						<span *ngFor="let c of mustHave.choices; let ci = index">
-							<span *ngIf="ci > 0"> and </span>
+							<span *ngIf="ci > 0"> and<br>Select </span>
 							<a class="phd-clickable phd-link phd-choice" [ngClass]="checkHiddenFromBuyerView(c) ? 'phd-hidden-choice' : ''" (click)="handleDisabledChoiceClick(c)">{{c | choiceIdToName | async}}</a>
 						</span>
 					</span>
