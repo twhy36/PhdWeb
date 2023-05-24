@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable ,  ReplaySubject,  throwError as _throw } from 'rxjs';
+import { Observable, ReplaySubject, throwError as _throw } from 'rxjs';
 import { combineLatest, catchError, map } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/utils/odata.util';
@@ -37,7 +37,7 @@ export class HomeSiteService
 	{
 		let url = settings.apiUrl;
 
-		const expand = `jobs($select=id,jobTypeName),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs($expand=handing($select=id,name)), lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
+		const expand = `jobs($select=id,jobTypeName,createdBy),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs($expand=handing($select=id,name)), lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
 		let filter = ``;
 
 		if (keywords)
@@ -47,7 +47,8 @@ export class HomeSiteService
 
 			const keywordArray = keywords.toLowerCase().split(' ');
 
-			keywordArray.map(keyword => {
+			keywordArray.map(keyword =>
+			{
 				filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
 			});
 
@@ -132,7 +133,7 @@ export class HomeSiteService
 				let retVal = response.value.map(data =>
 				{
 					let lotDto = this.mapLotDto(data, viewAdjacencies, lotTypes);
-					
+
 					return lotDto;
 				});
 
@@ -400,7 +401,7 @@ export class HomeSiteService
 		);
 	}
 
-	getViewAdjacencies() : Observable<Array<HomeSiteDtos.ILabel>>
+	getViewAdjacencies(): Observable<Array<HomeSiteDtos.ILabel>>
 	{
 		let url = settings.apiUrl + 'viewAdjacencies';
 
@@ -408,17 +409,17 @@ export class HomeSiteService
 			map((response: any) =>
 			{
 				return response.value.map(data =>
-					{
-						return {
-							id: data.id,
-							label: data.description,
-							value: data.id as string
-						} as HomeSiteDtos.ILabel;
-					});
-			}), catchError(this.handleError));		
+				{
+					return {
+						id: data.id,
+						label: data.description,
+						value: data.id as string
+					} as HomeSiteDtos.ILabel;
+				});
+			}), catchError(this.handleError));
 	}
 
-	getPhysicalLotTypes() : Observable<Array<HomeSiteDtos.ILabel>>
+	getPhysicalLotTypes(): Observable<Array<HomeSiteDtos.ILabel>>
 	{
 		let url = settings.apiUrl + 'physicalLotTypes';
 
@@ -426,14 +427,14 @@ export class HomeSiteService
 			map((response: any) =>
 			{
 				return response.value.map(data =>
-					{
-						return {
-							id: data.id,
-							label: data.description,
-							value: data.id as string
-						} as HomeSiteDtos.ILabel;
-					});
-			}), catchError(this.handleError));		
+				{
+					return {
+						id: data.id,
+						label: data.description,
+						value: data.id as string
+					} as HomeSiteDtos.ILabel;
+				});
+			}), catchError(this.handleError));
 	}
 
 	private handleError(error: Response)
@@ -446,18 +447,19 @@ export class HomeSiteService
 
 	loadCommunityLots(commId: number)
 	{
-			let url = settings.apiUrl;
-			let filter = `financialCommunity/id eq ${commId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
-			const select = `id, lotBlock`;
-			const orderBy = 'lotBlock';
+		let url = settings.apiUrl;
+		let filter = `financialCommunity/id eq ${commId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
+		const select = `id, lotBlock`;
+		const orderBy = 'lotBlock';
 
-			const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderBy=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderBy=${encodeURIComponent(orderBy)}`;
 
-			url += `lots?${qryStr}`;
+		url += `lots?${qryStr}`;
 
-			return this._http.get(url).subscribe( (response: any) => {
-					this._communityLots.next(response.value);
-				}), catchError(this.handleError);
-		
+		return this._http.get(url).subscribe((response: any) =>
+		{
+			this._communityLots.next(response.value);
+		}), catchError(this.handleError);
+
 	}
 }

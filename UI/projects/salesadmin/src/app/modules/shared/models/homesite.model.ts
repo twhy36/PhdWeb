@@ -51,10 +51,12 @@ export class HomeSite
 	{
 		if (this.dto.lotType && this.dto.lotType.value
 			&& this.dto.view && this.dto.view.value && this.dto.lotHandings && this.dto.lotHandings.length > 0
-			&& this.dto.foundationType && this.dto.foundationType.length > 0 && this.phdLotWarranty !== undefined) {
+			&& this.dto.foundationType && this.dto.foundationType.length > 0 && this.phdLotWarranty !== undefined)
+		{
 			return true;
 		}
-		else {
+		else
+		{
 			return false;
 		}
 	}
@@ -70,6 +72,7 @@ export class Job
 {
 	jobId: number;
 	jobTypeName: string;
+	createdBy: string;
 }
 
 export type HomeSiteStatus = "Sold" | "Available" | "Unavailable" | "Closed" | "Pending Release" | "Pending Sale" | "Spec" | "Model" | "Spec Unavailable";

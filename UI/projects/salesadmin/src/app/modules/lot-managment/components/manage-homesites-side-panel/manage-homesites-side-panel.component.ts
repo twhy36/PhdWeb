@@ -30,13 +30,14 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() communityWebsiteKey: string;
 	@Input() isColorSchemePlanRuleEnabled: boolean;
 	@Input() communitySubmaps?: string[];
-	@Input() filteredLots: Array<HomeSiteDtos.ILotDto> = []
+	@Input() filteredLots: Array<HomeSiteDtos.ILotDto> = [];
+	@Input() canChangeBuildType: boolean = true;
 
 	@Output() onSaveHomesiteAndMonotonyRules = new EventEmitter<{ homesite: HomeSiteDtos.IHomeSiteEventDto, rule: MonotonyRuleDtos.IMonotonyRuleEventDto }>();
 
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
-	
+
 	@ViewChild(AvSitePlanComponent)
 	private alphaVisionMap!: AvSitePlanComponent;
 
@@ -68,7 +69,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	showMapsNavigation: boolean = false;
 
-	currentSubmap: string ='Master Map';
+	currentSubmap: string = 'Master Map';
 
 	selectedLotSubmap: string = '';
 
@@ -99,7 +100,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return !this.lotInaccessible && !this.monotonyForm.pristine && this.monotonyForm.valid && !this.saving;
 	}
 
-		
+
 	get handings(): Array<HomeSiteDtos.Handing>
 	{
 		return [HomeSiteDtos.Handing.Left, HomeSiteDtos.Handing.Right, HomeSiteDtos.Handing.NA];
@@ -209,7 +210,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		//add controls for Left, Right, and NA Handing
 		this.handings.forEach(hand =>
 		{
-			this.homesiteForm.addControl('handing-' + hand, new UntypedFormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));			
+			this.homesiteForm.addControl('handing-' + hand, new UntypedFormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));
 		});
 
 		this.homesiteForm.setValidators(this.checkRequired(this.homesiteForm.controls['handing-1'], this.homesiteForm.controls['handing-2'], this.homesiteForm.controls['handing-3']));
@@ -386,7 +387,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	removeHandings()
 	{
 		//if NA is turned on, remove all selected handings
-		if(this.homesiteForm.controls['handing-3'])
+		if (this.homesiteForm.controls['handing-3'])
 		{
 			this.homesiteForm.controls['handing-' + 1].setValue(false);
 			this.homesiteForm.controls['handing-' + 2].setValue(false);
@@ -493,7 +494,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	/**
 	 * Handles the click event on the Save button.
-	 */ 
+	 */
 	onSave()
 	{
 		let homesiteDto: HomeSiteDtos.IHomeSiteEventDto;
@@ -528,7 +529,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		const lotBuildTypeUpdated = this.homesiteForm.controls['changeModelToSpec'].dirty;
 		this.selectedHomesite.dto.lotBuildTypeDescription = lotBuildTypeUpdated ? this.homesiteForm.controls['changeModelToSpec'].value : this.selectedHomesite.lotBuildTypeDescription;
 
-		return { homesiteDto: this.selectedHomesite.dto, lotBuildTypeUpdated: lotBuildTypeUpdated} as HomeSiteDtos.IHomeSiteEventDto;
+		return { homesiteDto: this.selectedHomesite.dto, lotBuildTypeUpdated: lotBuildTypeUpdated } as HomeSiteDtos.IHomeSiteEventDto;
 	}
 
 	controlHasErrors(control: AbstractControl)
@@ -557,13 +558,13 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			this.showMapsNavigation = true;
 		}
 	}
-	
+
 	getCurrentMap(currentMap: string)
 	{
 		this.currentSubmap = (currentMap === '') ? 'Master Map' : currentMap;
 		this.changeSubmap();
 	}
-	
+
 	getSelectedLotSubmap(selectedLotSubmap: string)
 	{
 		this.selectedLotSubmap = selectedLotSubmap;

@@ -6,7 +6,7 @@ import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService, SelectItem } from 'primeng/api';
 
-import { PhdTableComponent, ConfirmModalComponent } from 'phd-common';
+import { PhdTableComponent, ConfirmModalComponent, FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
@@ -67,6 +67,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
 	isColorSchemePlanRuleEnabled: boolean;
+	featureSwitchOrgAssocs: IFeatureSwitchOrgAssoc[] = [];
+	canChangeBuildType: boolean;
 
 	constructor(
 		private _orgService: OrganizationService,
@@ -75,7 +77,8 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		private _modalService: NgbModal,
 		private _msgService: MessageService,
 		private _route: ActivatedRoute,
-		private _settingsService: SettingsService) { super(); }
+		private _settingsService: SettingsService,
+		private _featureSwitchService: FeatureSwitchService) { super(); }
 
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean
@@ -105,7 +108,16 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 					return of([]);
 				}
 			}),
-			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive))
+			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive)),
+			switchMap(activeComms =>
+			{
+				return forkJoin(of(activeComms), this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', activeComms.map(c => c.id)));
+			}),
+			map(([activeComms, featureSwitchOrgAssocs]) =>
+			{
+				this.featureSwitchOrgAssocs = featureSwitchOrgAssocs;
+				return activeComms;
+			})
 		);
 
 		this._orgService.currentCommunity$.pipe(
@@ -120,6 +132,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			else if (!this.selectedCommunity || comm.id !== this.selectedCommunity.id)
 			{
 				this.selectedCommunity = comm;
+				this.selectedCommunity.isPhdLiteEnabled = this.getIsPhdLiteEnabled(comm.id);
 				this._homeSiteService.loadCommunityLots(comm.id);
 				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
 				this.isColorSchemePlanRuleEnabled = comm.dto.isColorSchemePlanRuleEnabled;
@@ -483,6 +496,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			this.monotonyRules = data;
 			this.sidePanelOpen = false;
 			this.selectedHomesite = lot;
+			this.canChangeBuildType = this.getCanChangeBuildType();
 			this.sidePanelOpen = true;
 		});
 	}
@@ -630,11 +644,34 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
 				});
 	}
+
+	getIsPhdLiteEnabled(financialCommunityId: number)
+	{
+		return !!this.featureSwitchOrgAssocs
+			.find(r => financialCommunityId === r.org.edhFinancialCommunityId
+				&& r.state === true
+			);
+	}
+
+	// #398751
+	// Do not display the "Change Lot Build Type' drop down for:
+	// - any model that was created in PHD or PHD Lite
+	// - any model that was created in Home Selections and the community is a PHD Lite community
+	//
+	// Display the "Change Lot Build Type' drop down for:
+	// - any model that was created in Home Selections and the community is not a PHD Lite community
+	getCanChangeBuildType()
+	{
+		return (this.selectedHomesite.lotBuildTypeDescription === 'Model' || (this.selectedHomesite.dto.job && this.selectedHomesite.dto.job.jobTypeName === 'Model'))
+			&& (this.selectedHomesite.dto.job && (this.selectedHomesite.dto.job.createdBy.toUpperCase().startsWith('PHCORP') || this.selectedHomesite.dto.job.createdBy.toUpperCase().startsWith('PHBSSYNC')))
+			&& !this.selectedCommunity.isPhdLiteEnabled;
+	}
 }
 
 class FinancialCommunityViewModel
 {
 	lotsInited: boolean = false;
+	isPhdLiteEnabled: boolean = false;
 
 	readonly dto: FinancialCommunity;
 
