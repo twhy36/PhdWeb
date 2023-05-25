@@ -31,7 +31,7 @@ export class PlanOptionService
 		const select = `id, planId, optionCommunity, maxOrderQty, listPrice, isActive, planCommunity`;
 		const entity = `planOptionCommunities`;
 
-		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+		const qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}&useCache=false`;
 
 		const url = `${this.settings.apiUrl}${entity}?${qryStr}`;
 
