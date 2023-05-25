@@ -56,7 +56,7 @@ export class PeopleCardComponent implements OnInit, OnChanges
 		if (person && !person.firstChange)
 		{
 			this.checkForMissingRequiredFields();
-		}		
+		}
 	}
 
 	checkForMissingRequiredFields()
@@ -116,7 +116,7 @@ export class PeopleCardComponent implements OnInit, OnChanges
 			}
 		}
 	}
-	
+
 
 	addTrust()
 	{
@@ -171,5 +171,12 @@ export class PeopleCardComponent implements OnInit, OnChanges
 	{
 		return this.canSell && (this.salesAgreementStatus === 'Pending' || this.salesAgreementStatus === 'OutforSignature'
 			|| this.salesAgreementStatus === 'Signed' || this.salesAgreementStatus === 'Approved');
+	}
+
+	canEditCard()
+	{
+		return (this.personType === 'Trust' && !this.trustNA && this.canEditAgreement)
+			|| (this.personType === 'Realtor' && !this.realtorNA)
+			|| (this.personType === 'Buyer' && !(this.coBuyerNA && !this.person) && this.canEditBuyer());
 	}
 }
