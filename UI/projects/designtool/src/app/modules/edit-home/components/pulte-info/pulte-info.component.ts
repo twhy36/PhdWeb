@@ -52,7 +52,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get canEdit(): boolean
 	{
-		return this.canConfigure || this.canCreateSpecOrModel;
+		return !!this.canConfigure || !!this.canCreateSpecOrModel;
 	}
 
     constructor(
