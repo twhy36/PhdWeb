@@ -4,7 +4,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
 
-import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService } from 'phd-common';
+import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService, ScenarioOptionColor } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -129,7 +129,7 @@ export class LiteEffects
 							|| this.liteService.checkLiteScenario(action.scenario.scenarioChoices, store.scenario.scenario?.scenarioOptions)
 						);
 
-					if (isPhdLite && !optionsLoaded)
+					if (isPhdLite && !optionsLoaded && !store.lite.isLiteQMIToggled)
 					{
 						const financialCommunityId = action instanceof ScenarioLoaded
 							? action.scenario?.financialCommunityId
@@ -242,7 +242,9 @@ export class LiteEffects
 								}
 
 								// Merge the missing color items and colors to the lite options
-								this.liteService.mergeMissingColors(data.job.jobPlanOptions, data.options, allMissingColorItems, allMissingColors);
+								this.liteService.mergeMissingColors(data.job.jobPlanOptions, data.options, allMissingColorItems, allMissingColors, data.job.financialCommunityId);
+
+								this.liteService.mergeJobOptionColors(data.job, data.scenarioOptions);
 
 								return { ...data, needsOverride, canOverride, optionsPastCutoff, jobOptions };
 							})
@@ -469,7 +471,7 @@ export class LiteEffects
 											map(([allMissingColorItems, allMissingColors]) =>
 											{	
 												// Merge the missing color items and colors to the lite options
-												this.liteService.mergeMissingColors(action.job.jobPlanOptions, options, allMissingColorItems, allMissingColors);
+												this.liteService.mergeMissingColors(action.job.jobPlanOptions, options, allMissingColorItems, allMissingColors, action.job.financialCommunityId);
 
 												const scenarioOptions = this.liteService.getSelectedOptions(options, action.job, action.changeOrder);
 
@@ -506,12 +508,22 @@ export class LiteEffects
 			switchMap(([action, store]) =>
 			{
 				const scenarioId = store.scenario.scenario?.scenarioId;
-
-				return scenarioId
+				const saveScenarioOptions = scenarioId
 					? this.liteService.saveScenarioOptions(scenarioId, action.scenarioOptions, action.optionColors)
 					: of([]);
+
+				return saveScenarioOptions.pipe(
+					map(options =>
+					{
+						return { options, store };
+					})
+				);				
 			}),
-			map(options => new ScenarioOptionsSaved(options))
+			switchMap(data => {
+				const scenarioOptions = _.cloneDeep(data.store.lite.scenarioOptions);
+				this.liteService.mergeJobOptionColors(data.store.job, scenarioOptions);
+				return of(new ScenarioOptionsSaved(scenarioOptions));				
+			})
 		);
 	});
 
@@ -531,7 +543,7 @@ export class LiteEffects
 				return saveScenarioOptionColors$.pipe(
 					map(scenarioOptions =>
 					{
-						return { scenarioOptions, isPendingJio };
+						return { scenarioOptions, isPendingJio, store };
 					})
 				);
 			}),
@@ -543,7 +555,9 @@ export class LiteEffects
 				}
 				else if (result.scenarioOptions)
 				{
-					return of(new ScenarioOptionsSaved(result.scenarioOptions));
+					const scenarioOptions = _.cloneDeep(result.scenarioOptions);
+					this.liteService.mergeJobOptionColors(result.store.job, scenarioOptions);
+					return of(new ScenarioOptionsSaved(scenarioOptions));
 				}
 
 				return NEVER;
@@ -821,12 +835,13 @@ export class LiteEffects
 					{
 						return { ...opt, planOptionQuantity: 0 };
 					});
+				const changedColors = this.liteService.getChangedOptionColors(store.lite.scenarioOptions, selectedOptions);
 
 				let actions: any[] = [];
 
-				if (selectedOptions?.length)
+				if (selectedOptions?.length || changedColors.length)
 				{
-					actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions]));
+					actions.push(new SelectOptions([...selectedOptions, ...deselectedOptions], changedColors));
 				}
 
 				if (changeOrderId > 0)
@@ -1059,9 +1074,16 @@ export class LiteEffects
 				const optionDetails = store.lite.options.filter(x => optionsToAdd.some(o => o.edhPlanOptionId === x.id)) || [];
 				const jobOptionsWithColors = store.job.jobPlanOptions.filter(jpo => jpo.jobPlanOptionAttributes?.length > 0);
 
-				let scenarioOptions: ScenarioOption[] = _.cloneDeep(action.optionsToDelete);
 				//setting quantity to zero lets server-side method know that this option needs to be deleted
-				scenarioOptions.forEach(o => o.planOptionQuantity = 0);
+				let scenarioOptions: ScenarioOption[] = action.optionsToDelete.map(o => {
+					return {
+						scenarioOptionId: o.scenarioOptionId,
+						scenarioId: o.scenarioId,
+						edhPlanOptionId: o.edhPlanOptionId,
+						planOptionQuantity: 0,
+						scenarioOptionColors: []
+					}
+				});
 
 				jobOptionsWithColors.forEach(jobOption =>
 				{
@@ -1070,19 +1092,19 @@ export class LiteEffects
 					{
 						jobOption.jobPlanOptionAttributes.forEach(attr =>
 						{
-							const colorItem = optionDetail.colorItems?.find(ci => ci.name === attr.attributeGroupLabel);
-							const colorId = colorItem?.color?.find(c => c.name === attr.attributeName && c.sku === attr.sku)?.colorId;
-							if (colorItem && colorId) 
+							const colorItem = optionDetail.colorItems?.find(ci => this.liteService.areSameColorItems(ci, attr.attributeGroupLabel));
+							const color = colorItem?.color?.find(c => this.liteService.areSameColors(c, attr.attributeName) && c.sku === attr.sku);
+							if (colorItem && color) 
 							{
 								const option = optionsToAdd.find(x => x.edhPlanOptionId === optionDetail.id)
-								if (option)
+								if (option && !!colorItem.colorItemId && !!color.colorId)
 								{
 									option.scenarioOptionColors.push({
 										scenarioOptionColorId: 0,
 										scenarioOptionId: 0,
 										colorItemId: colorItem.colorItemId,
-										colorId: colorId
-									});
+										colorId: color.colorId
+									} as ScenarioOptionColor);
 								}
 							}
 						});
@@ -1091,11 +1113,22 @@ export class LiteEffects
 
 				scenarioOptions = scenarioOptions.concat(optionsToAdd);
 
-				return scenarioId
+				const saveScenarioOptions = scenarioId
 					? this.liteService.saveScenarioOptions(scenarioId, scenarioOptions, [], action.deletePhdFullData)
 					: of([]);
+
+				return saveScenarioOptions.pipe(
+					map(options =>
+					{
+						return { options, store };
+					})
+				);
 			}),
-			map(options => new ScenarioOptionsSaved(options))
+			switchMap(data => {
+				const scenarioOptions = _.cloneDeep(data.store.lite.scenarioOptions);
+				this.liteService.mergeJobOptionColors(data.store.job, scenarioOptions);
+				return of(new ScenarioOptionsSaved(scenarioOptions));
+			})
 		);
 	});
 

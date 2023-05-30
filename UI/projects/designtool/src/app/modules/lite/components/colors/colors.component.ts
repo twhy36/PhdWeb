@@ -11,6 +11,7 @@ import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import { take } from 'rxjs/operators';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
+import { LiteService } from '../../../core/services/lite.service';
 
 @Component({
 	selector: 'colors',
@@ -23,7 +24,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 	scenarioId: number;
 	scenarioOptions: ScenarioOption[];
 	selectedOptions: LitePlanOptionUI[];
-	selectedColorIds: { [id: number]: number } = {};
+	selectedColorNames: { [name: string]: string } = {};
 	allOptions: LitePlanOptionUI[];
 	categories: IOptionCategory[] = [];
 	canConfigure: boolean;
@@ -33,7 +34,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 
 	constructor(
 		private store: Store<fromRoot.State>,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private liteService: LiteService
 	) { super(); }
 
 
@@ -153,7 +155,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 				select(state => state.nav.selectedItem))
 			.subscribe(selectedItem =>
 			{
-				this.selectedColorIds = {};
+				this.selectedColorNames = {};
 				this.selectedCategory = this.categories.find(x => x.id === selectedItem);
 
 				this.selectedOptions = this.allOptions
@@ -184,7 +186,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 								.filter(c => c.isActive)
 								.sort((c1, c2) => c1.name > c2.name ? 1 : -1)
 
-							if (ci.colorItemId in this.selectedColorIds === false)
+							if (ci.name in this.selectedColorNames === false)
 							{
 								this.setColorItem(po, ci);
 							}
@@ -216,15 +218,15 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (selectedScenarioOption?.scenarioOptionColors)
 		{
-			let selectedScenarioColor = selectedScenarioOption.scenarioOptionColors.find(x => x.colorItemId === colorItem.colorItemId);
+			const selectedScenarioColor = selectedScenarioOption.scenarioOptionColors.find(x => this.liteService.areSameColorItems(colorItem, x));
 
 			if (selectedScenarioColor)
 			{
-				this.selectedColorIds[colorItem.colorItemId] = selectedScenarioColor.colorId;
+				this.selectedColorNames[colorItem.name] = selectedScenarioColor.colorName;
 			}
 			else
 			{
-				this.selectedColorIds[colorItem.colorItemId] = null;
+				this.selectedColorNames[colorItem.name] = null;
 			}
 		}
 	}
@@ -251,10 +253,9 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 		let scenarioColors = previousSelectedOption.scenarioOptionColors
 			.map(x => x as ScenarioOptionColorDto);
 
-		const previousSelectedColor = scenarioColors.find(x => x.colorItemId === item.colorItemId);
 		let colorsToSave: ScenarioOptionColorDto[] = [];
-		const newColorWasSelected = this.selectedColorIds[item.colorItemId] !== null
 
+		const previousSelectedColor = scenarioColors.find(x => this.liteService.areSameColorItems(item, x));
 		if (previousSelectedColor)
 		{
 			colorsToSave.push({
@@ -263,19 +264,26 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 				colorItemId: previousSelectedColor.colorItemId,
 				colorId: previousSelectedColor.colorId,
 				isDeleted: true,
-				edhPlanOptionId: previousSelectedOption.edhPlanOptionId
+				edhPlanOptionId: previousSelectedOption.edhPlanOptionId,
+				colorItemName: previousSelectedColor.colorItemName,
+				colorName: previousSelectedColor.colorName
 			});
 		}
 
-		if (newColorWasSelected)
+		const newColorName = this.selectedColorNames[item.name];
+		if (newColorName)
 		{
+			const colorId = item.color?.find(cl => this.liteService.areSameColors(cl, newColorName))?.colorId || 0;
+
 			colorsToSave.push({
 				scenarioOptionColorId: 0,
 				scenarioOptionId: previousSelectedOption.scenarioOptionId,
 				colorItemId: item.colorItemId,
-				colorId: this.selectedColorIds[item.colorItemId],
+				colorId: colorId,
 				isDeleted: false,
-				edhPlanOptionId: previousSelectedOption.edhPlanOptionId
+				edhPlanOptionId: previousSelectedOption.edhPlanOptionId,
+				colorItemName: item.name,
+				colorName: newColorName,
 			});
 		}
 

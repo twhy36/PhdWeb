@@ -218,8 +218,8 @@ export function buildLiteOptionColors(option: LitePlanOption, scenarioOption: Sc
 	{
 		scenarioOption?.scenarioOptionColors?.forEach(scnOptColor =>
 		{
-			const colorItem = option.colorItems?.find(item => item.colorItemId === scnOptColor.colorItemId);
-			const color = colorItem?.color?.find(c => c.colorId === scnOptColor.colorId);
+			const colorItem = option.colorItems?.find(item => this.liteService.areSameColorItems(item, scnOptColor));
+			const color = colorItem?.color?.find(c => this.liteService.areSameColors(c, scnOptColor));
 
 			if (colorItem && color)
 			{

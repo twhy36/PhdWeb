@@ -12,14 +12,14 @@
 						<select
 							class="phd-color-select"
 							[disabled]="!canEditAgreementOrSpec || (option.isPastCutOff && !canOverride) || !canConfigure"
-							[(ngModel)]="selectedColorIds[item.colorItemId]"
+							[(ngModel)]="selectedColorNames[item.name]"
 							(change)="onColorWasChanged(option, item)"
 							(click)="onColorWasClicked($event, option)"
 						>
 							<option [ngValue]="null"></option>
 							<option
 								*ngFor="let itemColor of item.color;"
-								[ngValue]="itemColor.colorId"
+								[ngValue]="itemColor.name"
 							>
 								{{ itemColor | colorDisplay }}
 							</option>

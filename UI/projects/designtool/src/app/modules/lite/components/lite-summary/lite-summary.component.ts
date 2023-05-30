@@ -382,11 +382,14 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				const colorItem = option.colorItems?.find(item => item.colorItemId === scnOptColor.colorItemId);
 				const color = colorItem?.color?.find(c => c.colorId === scnOptColor.colorId);
 
-				if (colorItem && color)
+				const colorItemName : string = scnOptColor.colorItemId === 0 ? scnOptColor.colorItemName : colorItem?.name;
+				const colorName : string = scnOptColor.colorId === 0 ? scnOptColor.colorName : color?.name;
+
+				if (colorItemName && colorName)
 				{
 					optionColors.push({
-						colorItemName: colorItem.name,
-						colorName: color.sku ? color.name + "/" + color.sku : color.name
+						colorItemName: colorItemName,
+						colorName: color?.sku ? colorName + "/" + color.sku : colorName
 					});
 				}
 			});
@@ -637,7 +640,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 							hasPointToChoiceRules: false,
 							subGroupId: 0,
 							divPointCatalogId: 0,
-							pointPickTypeId: 0,
+							pointPickTypeId: null, 
 							pointPickTypeLabel: '',
 							sortOrder: 0,
 							isQuickQuoteItem: false,
@@ -723,7 +726,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					hasPointToChoiceRules: false,
 					subGroupId: 0,
 					divPointCatalogId: 0,
-					pointPickTypeId: 0,
+					pointPickTypeId: null,
 					pointPickTypeLabel: '',
 					sortOrder: 0,
 					isQuickQuoteItem: false,
@@ -769,7 +772,7 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					hasPointToChoiceRules: false,
 					subGroupId: 0,
 					divPointCatalogId: 0,
-					pointPickTypeId: 0,
+					pointPickTypeId: null,
 					pointPickTypeLabel: '',
 					sortOrder: 0,
 					isQuickQuoteItem: false,

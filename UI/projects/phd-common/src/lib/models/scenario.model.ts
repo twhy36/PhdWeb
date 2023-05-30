@@ -340,5 +340,7 @@ export interface ScenarioOptionColor
     scenarioOptionId: number;
     colorItemId: number;
     colorId: number;
+	colorItemName: string;
+    colorName: string;
 }
 // END PHD Lite

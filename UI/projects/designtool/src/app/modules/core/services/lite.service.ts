@@ -143,14 +143,31 @@ export class LiteService
 	{
 		const entity = `scenarioOptions`;
 		const filter = `scenarioId eq ${scenarioId}`;
-		const expand = `scenarioOptionColors`;
+		const expand = `scenarioOptionColors($expand=colorItem($select=name),color($select=name))`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}`;
 
 		return withSpinner(this._http).get<any>(endpoint).pipe(
 			map(results =>
 			{
-				return results['value'];
+				return results['value']?.map(option => {
+					return {
+						scenarioOptionId: option.scenarioOptionId,
+						scenarioId: option.scenarioId,
+						edhPlanOptionId: option.edhPlanOptionId,
+						planOptionQuantity: option.planOptionQuantity,
+						scenarioOptionColors: option.scenarioOptionColors?.map(color => {
+							return {
+								scenarioOptionColorId: color.scenarioOptionColorId,
+								scenarioOptionId: color.scenarioOptionId,
+								colorItemId: color.colorItemId,
+								colorId: color.colorId,
+								colorItemName: color.colorItem.name,
+								colorName: color.color.name
+							} as ScenarioOptionColor;
+						})
+					} as ScenarioOption;
+				});
 			}),
 			catchError(this.handleError)
 		);
@@ -255,7 +272,7 @@ export class LiteService
 							edhPlanOptionId: item.edhPlanOptionId,
 							isActive: item.isActive,
 							color: this.mapColors(item['colorItemColorAssoc'], item.colorItemId)
-						});
+						} as ColorItem);
 					});
 				})
 
@@ -281,7 +298,7 @@ export class LiteService
 					edhOptionSubcategoryId: assoc.color?.edhOptionSubcategoryId,
 					isActive: assoc.color?.isActive,
 					colorItemId: colorItemId
-				})
+				} as Color)
 			})
 		}
 
@@ -381,7 +398,7 @@ export class LiteService
 							edhPlanOptionId: item.edhPlanOptionId,
 							isActive: item.isActive,
 							color: []
-						});
+						} as ColorItem);
 					});
 				})
 
@@ -443,7 +460,7 @@ export class LiteService
 							edhOptionSubcategoryId: item.edhOptionSubcategoryId,
 							isActive: item.isActive,
 							colorItemId: 0
-						});
+						} as Color);
 					});
 				})
 
@@ -779,8 +796,8 @@ export class LiteService
 	{
 		return optionColors.reduce((colorList, optionColor) =>
 		{
-			const colorItem = option.colorItems?.find(item => item.colorItemId === optionColor.colorItemId);
-			const color = colorItem?.color?.find(c => c.colorId === optionColor.colorId);
+			const colorItem = option.colorItems?.find(item => this.areSameColorItems(item, optionColor));
+			const color = colorItem?.color?.find(c => this.areSameColors(c, optionColor));
 
 			if (colorItem && color)
 			{
@@ -943,8 +960,8 @@ export class LiteService
 				const attributeGroupLabel = att.attributeGroupLabel;
 				const attributeName = att.attributeName;
 
-				const colorItem = option.colorItems?.find(item => item.name === attributeGroupLabel);
-				const color = colorItem?.color?.find(c => c.name === attributeName && c.sku === att.sku);
+				const colorItem = option.colorItems?.find(item => this.areSameColorItems(item, attributeGroupLabel));
+				const color = colorItem?.color?.find(c => this.areSameColors(c, attributeName) && c.sku === att.sku);
 
 				if (colorItem && color)
 				{
@@ -952,7 +969,9 @@ export class LiteService
 						scenarioOptionColorId: 0,
 						scenarioOptionId: 0,
 						colorItemId: colorItem.colorItemId,
-						colorId: color.colorId
+						colorId: color.colorId,
+						colorItemName: attributeGroupLabel,
+						colorName: attributeName
 					});
 				}
 
@@ -1299,16 +1318,19 @@ export class LiteService
 		{
 			scenarioOptionColors.forEach(optColor =>
 			{
-				const colorItem = option.colorItems?.find(item => item.colorItemId === optColor.colorItemId);
-				const color = colorItem?.color.find(cl => cl.colorId === optColor.colorId);
+				const colorItem = option.colorItems?.find(item => this.areSameColorItems(item, optColor));
+				const color = colorItem?.color.find(cl => this.areSameColors(cl, optColor));
 
-				attributesDto.push({
-					attributeName: color?.name,
-					attributeGroupLabel: colorItem?.name,
-					sku: color?.sku,
-					manufacturer: null,
-					action: action
-				});
+				if (color && colorItem)
+				{
+					attributesDto.push({
+						attributeName: color.name,
+						attributeGroupLabel: colorItem.name,
+						sku: color.sku,
+						manufacturer: null,
+						action: action
+					});					
+				}
 			});
 		}
 
@@ -1637,11 +1659,21 @@ export class LiteService
 		return optionsDto;
 	}
 
-	mergeMissingColors(jobPlanOptions: JobPlanOption[], options: LitePlanOption[], missingColorItems: ColorItem[], missingColors: Color[])
+	mergeMissingColors(jobPlanOptions: JobPlanOption[], options: LitePlanOption[], missingColorItems: ColorItem[], missingColors: Color[], financialCommunityId: number)
 	{
 		const addColorToColorItem = function (colorItem: ColorItem, optionSubCategoryId: number, colorName: string)
 		{
-			const missingColor = missingColors.find(color => color.edhOptionSubcategoryId === optionSubCategoryId && color.name === colorName);
+			const missingColor = missingColors.find(color => color.edhOptionSubcategoryId === optionSubCategoryId && color.name === colorName)
+				||	{
+						// Add color in the job if it is found in the color table
+						colorId: 0,
+						name: colorName,
+						sku: null,
+						edhFinancialCommunityId: financialCommunityId,
+						edhOptionSubcategoryId: optionSubCategoryId,
+						isActive: true,
+						colorItemId: colorItem.colorItemId					
+					} as Color;
 
 			if (missingColor)
 			{
@@ -1669,7 +1701,15 @@ export class LiteService
 
 					if (!colorItem)
 					{
-						const missingColorItem = missingColorItems.find(item => item.edhPlanOptionId === option.id && item.name === jpoa.attributeGroupLabel);
+						const missingColorItem = missingColorItems.find(item => item.edhPlanOptionId === option.id && item.name === jpoa.attributeGroupLabel)
+							|| 	{
+									// Add color item in the job if it is found in the color item table
+									colorItemId: 0,
+									name: jpoa.attributeGroupLabel,
+									edhPlanOptionId: option.id,
+									isActive: true,
+									color: []
+								} as ColorItem;
 
 						if (missingColorItem)
 						{
@@ -1705,5 +1745,90 @@ export class LiteService
             totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
             netHousePrice: priceBreakdown.totalPrice			
 		} as IPendingJobSummary;
-	}		
+	}
+	
+    areSameColorItems(colorItem: ColorItem, optionColor: ScenarioOptionColor | string) : boolean
+    {
+        if (typeof optionColor === 'string')
+        {
+            return colorItem?.name?.toLowerCase() === optionColor?.toLowerCase();
+        }
+        
+        return colorItem?.colorItemId > 0 && optionColor?.colorItemId > 0
+            ? colorItem.colorItemId === optionColor.colorItemId
+            : colorItem.name?.toLowerCase() === optionColor.colorItemName?.toLowerCase();
+    }
+	
+    areSameColors(color: Color, optionColor: ScenarioOptionColor | string) : boolean
+    {
+        if (typeof optionColor === 'string')
+        {
+            return color?.name?.toLowerCase() === optionColor?.toLowerCase();
+        }
+
+        return color?.colorId > 0 && optionColor?.colorId > 0
+            ? color.colorId === optionColor.colorId
+            : color.name?.toLowerCase() === optionColor.colorName?.toLowerCase();
+    }
+
+	// Get color changes in options
+	getChangedOptionColors(currentOptions: ScenarioOption[], jobOptions: ScenarioOption[]): ScenarioOptionColorDto[]
+	{
+		let changedColors: ScenarioOptionColorDto[] = [];
+
+		currentOptions.map(current => {
+			const jobOption = jobOptions.find(option => current.edhPlanOptionId === option.edhPlanOptionId);
+			if (jobOption)
+			{
+				// Colors in current option but not in the job option
+				const deletedOptions = current.scenarioOptionColors?.filter(optionColor => !jobOption.scenarioOptionColors?.find(jobColor => optionColor.colorName?.toLowerCase() === jobColor.colorName?.toLowerCase()));
+				deletedOptions.map(option => {
+					changedColors.push({
+						...option,
+						edhPlanOptionId: current.edhPlanOptionId,
+						isDeleted: true
+					});
+				})
+
+				// Colors in the job option but not in current option
+				const addedOptions = jobOption.scenarioOptionColors?.filter(jobColor => !current.scenarioOptionColors?.find(optionColor => optionColor.colorName?.toLowerCase() === jobColor.colorName?.toLowerCase()));
+				addedOptions.map(option => {
+					changedColors.push({
+						...option,
+						edhPlanOptionId: current.edhPlanOptionId,
+						isDeleted: false
+					});
+				})
+			}
+		})
+
+		return changedColors;
+	}
+	
+	// Merge option colors in job that are not mapped in data migration
+	mergeJobOptionColors(job: Job, scenarioOptions: ScenarioOption[])
+	{
+		job.jobPlanOptions.filter(jpo => !!jpo.jobPlanOptionAttributes?.length).forEach(jpo => 
+		{
+			const scenarioOption = scenarioOptions.find(so => so.edhPlanOptionId === jpo.planOptionId);
+			if (scenarioOption?.scenarioOptionColors)
+			{
+				jpo.jobPlanOptionAttributes.forEach(jpoa => 
+				{
+					const optionColor = scenarioOption.scenarioOptionColors.find(soc => soc.colorItemName.toLowerCase() === jpoa.attributeGroupLabel.toLowerCase() && soc.colorName.toLowerCase() === jpoa.attributeName.toLowerCase());
+					if (!optionColor)
+					{
+						scenarioOption.scenarioOptionColors.push({
+							scenarioOptionColorId: 0,
+							scenarioOptionId: scenarioOption.scenarioOptionId,
+							colorItemId: 0,
+							colorId: 0,
+							colorItemName: jpoa.attributeGroupLabel,
+							colorName: jpoa.attributeName
+						} as ScenarioOptionColor);
+					}
+				});
+			}
+		});
+	}	
 }

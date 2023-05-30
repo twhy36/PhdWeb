@@ -17,6 +17,7 @@ export interface State
 	isSaving: boolean;
 	isScenarioLoaded: boolean;
 	isUnsaved: boolean;
+	isLiteQMIToggled: boolean;
 	options: LitePlanOption[];
 	scenarioOptions: ScenarioOption[];
 	categories: IOptionCategory[];
@@ -32,6 +33,7 @@ export const initialState: State =
 	isScenarioLoaded: false,
 	isSaving: false,
 	isUnsaved: false,
+	isLiteQMIToggled: false,
 	options: [],
 	scenarioOptions: [],
 	categories: [],
@@ -87,7 +89,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 						if (scenarioOption)
 						{
 							const optionColorIndex = scenarioOption.scenarioOptionColors
-								? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemId === color.colorItemId && c.colorId === color.colorId)
+								? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemName?.toLowerCase() === color.colorItemName?.toLowerCase() && c.colorName?.toLowerCase() === color.colorName?.toLowerCase())
 								: -1;
 
 							if (optionColorIndex >= 0 && color.isDeleted)
@@ -106,6 +108,8 @@ export function reducer(state: State = initialState, action: LiteActions): State
 									scenarioOptionId: color.scenarioOptionId,
 									colorItemId: color.colorItemId,
 									colorId: color.colorId,
+									colorItemName: color.colorItemName,
+									colorName: color.colorName
 								});
 							}
 						}
@@ -126,7 +130,7 @@ export function reducer(state: State = initialState, action: LiteActions): State
 					if (scenarioOption)
 					{
 						const optionColorIndex = scenarioOption.scenarioOptionColors
-							? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemId === color.colorItemId && c.colorId === color.colorId)
+							? scenarioOption.scenarioOptionColors.findIndex(c => c.colorItemName?.toLowerCase() === color.colorItemName?.toLowerCase() && c.colorName?.toLowerCase() === color.colorName?.toLowerCase())
 							: -1;
 
 						if (optionColorIndex >= 0 && color.isDeleted)
@@ -145,6 +149,8 @@ export function reducer(state: State = initialState, action: LiteActions): State
 								scenarioOptionId: color.scenarioOptionId,
 								colorItemId: color.colorItemId,
 								colorId: color.colorId,
+								colorItemName: color.colorItemName,
+								colorName: color.colorName
 							});
 						}
 					}
@@ -175,6 +181,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 
 		case LiteActionTypes.ResetLiteState:
 			return { ...initialState };
+
+		case LiteActionTypes.SetIsLiteQMIToggled:
+			return { ...state, isLiteQMIToggled: action.isLiteQMIToggled };
 
 		default:
 			return state;
@@ -322,8 +331,16 @@ export const areColorSelectionsValid = createSelector(
 
 		allColorItems.forEach(item =>
 		{
-			const foundColorItem = allScenarioOptions.find(i => i.colorItemId === item?.colorItemId);
-			const foundColor = item.color?.find(c => c.colorId === foundColorItem?.colorId);
+			const foundColorItem = allScenarioOptions.find(i => {
+				return i.colorItemId > 0 && item?.colorItemId > 0
+					? i.colorItemId === item.colorItemId
+					: i.colorItemName?.toLowerCase() === item?.name?.toLowerCase();
+			});
+			const foundColor = item.color?.find(c => {
+				return c.colorId > 0 && foundColorItem?.colorId > 0
+					? c.colorId === foundColorItem.colorId
+					: c.name?.toLowerCase() === foundColorItem?.colorName?.toLowerCase();				
+			});
 
 			if (!foundColor)
 			{
