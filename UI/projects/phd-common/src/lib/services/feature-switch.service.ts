@@ -7,7 +7,7 @@ import { IFeatureSwitch, IFeatureSwitchOrgAssoc } from '../models/feature-switch
 import { IOrg } from '../models/org.model';
 import { API_URL } from '../injection-tokens';
 
-type Feature = 'Or Mapping' | 'Phd Lite' | 'Option Packages' | 'Design Preview Presale';
+type Feature = 'Or Mapping' | 'Phd Lite' | 'Option Packages' | 'Design Preview Presale' | 'Design Preview Presale Pricing';
 
 @Injectable()
 export class FeatureSwitchService

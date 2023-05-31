@@ -38,6 +38,7 @@ export interface State
 	hiddenChoiceIds: number[];
 	hiddenPointIds: number[];
 	floorPlanImages: FloorPlanImage[];
+	presalePricingEnabled: boolean;
 }
 
 export const initialState: State = {
@@ -45,7 +46,7 @@ export const initialState: State = {
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: BuildMode.Buyer,
 	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null,
-	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: []
+	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: [], presalePricingEnabled: false,
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -416,6 +417,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		}
 
 		return { ...state, tree: newTree };
+	}
+
+	case ScenarioActionTypes.SetPresalePricingEnabled:
+	{
+		return { ...state, presalePricingEnabled: action.isEnabled };
 	}
 
 	default:
