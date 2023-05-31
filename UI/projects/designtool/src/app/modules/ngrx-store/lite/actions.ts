@@ -23,7 +23,8 @@ export enum LiteActionTypes {
     LoadLitePlan = 'Load Lite Plan',
     CancelPlanChangeOrderLite = 'Cancel Plan Change Order Lite',
     ToggleQuickMoveInSelections = 'Toggle Quick Move In Selections',
-    ResetLiteState = 'Reset Lite State'
+    ResetLiteState = 'Reset Lite State',
+    SetIsLiteQMIToggled = 'Set Is Lite QMI Toggled'
 }
 
 @Log(true)
@@ -160,6 +161,12 @@ export class ResetLiteState implements Action {
     constructor() { }
 }
 
+export class SetIsLiteQMIToggled implements Action {
+    readonly type = LiteActionTypes.SetIsLiteQMIToggled;
+
+    constructor(public isLiteQMIToggled: boolean) { }
+}
+
 export type LiteActions =
 	SetIsPhdLite |
 	SetIsPhdLiteByFinancialCommunity |
@@ -179,4 +186,5 @@ export type LiteActions =
 	CreateJIOForSpecLite |
 	LoadLiteSpecOrModel |
     ToggleQuickMoveInSelections |
-    ResetLiteState;
+    ResetLiteState |
+    SetIsLiteQMIToggled;

@@ -247,9 +247,12 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
-		this.store.select(fromLite.liteState)
-			.pipe(this.takeUntilDestroyed())
-		.subscribe(liteState =>
+		combineLatest([
+			this.store.pipe(select(fromLite.liteState)),
+			this.store.pipe(select(state => state.job.jobPlanOptions))
+		])
+		.pipe(this.takeUntilDestroyed())		
+		.subscribe(([liteState, jobPlanOptions]) =>
 		{
 			if (liteState.isPhdLite)
 			{
@@ -262,9 +265,18 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 							so.edhPlanOptionId === o.id && o.optionCategoryId !== elevationCategory.id));
 
 					this.colorMenuIsDisabled = selectedOptions.every(selectedOption => {
+						// Keep inactive color items and colors if they are in the job
+						const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === selectedOption.id);
+
 						const hasColors = selectedOption.colorItems?.some(colorItem =>
-							colorItem.isActive
-							&& colorItem.color?.some(color => color.isActive));
+						{
+							const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === colorItem.name);
+							return (colorItem.isActive || isJobColorItem)
+								&& colorItem.color?.some(color => {
+									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === colorItem.name);
+									return color.isActive || isJobColor;
+								});							
+						});
 
 						return !hasColors;
 					});

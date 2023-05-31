@@ -101,17 +101,29 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		combineLatest([
 			this.store.select(state => state.nav),
-			this.store.pipe(select(fromLite.selectedElevation))
+			this.store.pipe(select(fromLite.selectedElevation)),
+			this.store.select(state => state.job.jobPlanOptions)
 		])
 			.pipe(take(1))
-			.subscribe(([nav, selectedElevationOption]) =>
+			.subscribe(([nav, selectedElevationOption, jobPlanOptions]) =>
 			{
 				//filter out the selected options have valid active color items and have one or more related active colors
+				// Keep inactive color items and colors if they are in the job
 				const selectedOptions = this.allOptions
 					.filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
 						&& option.id !== selectedElevationOption?.id
 						&& option.colorItems.length > 0
-						&& option.colorItems.some(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive)));
+						&& option.colorItems.some(ci => {
+							const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === option.id);
+							const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === ci.name);
+							return (ci.isActive || isJobColorItem) 
+								&& ci.color.length > 0 
+								&& ci.color.some(c => {
+									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
+									return c.isActive || isJobColor;
+								});
+						})
+					);
 
 				if (selectedOptions.length > 0)
 				{
@@ -147,11 +159,12 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 			});
 
-		this.store
-			.pipe(
-				this.takeUntilDestroyed(),
-				select(state => state.nav.selectedItem))
-			.subscribe(selectedItem =>
+		combineLatest([
+			this.store.select(state => state.nav.selectedItem),
+			this.store.select(state => state.job.jobPlanOptions)
+		])
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([selectedItem, jobPlanOptions]) =>			
 			{
 				this.selectedColorIds = {};
 				this.selectedCategory = this.categories.find(x => x.id === selectedItem);
@@ -172,16 +185,31 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 
 					subcategory.planOptions.forEach(po =>
 					{
+						const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === po.id);
+
 						//only keep color items that are active and has one or more active colors associated with it
+						// Keep inactive color items if they are in the job
 						po.colorItems = po.colorItems
-							.filter(ci => ci.isActive && ci.color.length > 0 && ci.color.some(c => c.isActive))
+							.filter(ci => {
+								const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === ci.name);
+								return (ci.isActive || isJobColorItem) 
+									&& ci.color.length > 0 
+									&& ci.color.some(c => {
+										const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
+										return c.isActive || isJobColor;
+									});
+							})
 							.sort((ci1, ci2) => ci1.name > ci2.name ? 1 : -1);
 
 						//only keep colors that are active
+						// Keep inactive colors if they are in the job
 						po.colorItems.forEach(ci =>
 						{
 							ci.color = ci.color
-								.filter(c => c.isActive)
+								.filter(c => {
+									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
+									return c.isActive || isJobColor;
+								})
 								.sort((c1, c2) => c1.name > c2.name ? 1 : -1)
 
 							if (ci.colorItemId in this.selectedColorIds === false)
