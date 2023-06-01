@@ -39,10 +39,12 @@
 
 	<div class="phd-summary-header-row">
 		<div [ngClass]="isPhdLite ? 'phd-filter-lite' : 'phd-filter'">
-			<div (click)="toggleAllAttributes()" class="phd-attribute-toggle phd-clickable">
-				<span *ngIf="!showAllAttributes"><i class="fas fa-fw fa-chevron-circle-right"></i></span>
-				<span *ngIf="showAllAttributes"><i class="fas fa-fw fa-chevron-circle-down"></i></span>
-				Attributes
+			<div class="phd-image-toggle">
+				<label class="switch-small">
+					<input type="checkbox" (change)="toggleAllAttributes()">
+					<span class="slider-small round"></span>
+				</label>
+				<div class="phd-switch-text">Attributes</div>
 			</div>
 
 			<div class="phd-image-toggle" *ngIf="!isPhdLite">
