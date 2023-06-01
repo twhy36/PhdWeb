@@ -102,13 +102,14 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 		combineLatest([
 			this.store.select(state => state.nav),
 			this.store.pipe(select(fromLite.selectedElevation)),
-			this.store.select(state => state.job.jobPlanOptions)
+			this.store.select(state => state.job.jobPlanOptions),
+			this.store.select(state => state.lite.scenarioOptions)
 		])
 			.pipe(take(1))
-			.subscribe(([nav, selectedElevationOption, jobPlanOptions]) =>
+			.subscribe(([nav, selectedElevationOption, jobPlanOptions, scenarioOptions]) =>
 			{
 				//filter out the selected options have valid active color items and have one or more related active colors
-				// Keep inactive color items and colors if they are in the job
+				// Keep inactive color items and colors if they are in the job or in a saved scenario
 				const selectedOptions = this.allOptions
 					.filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
 						&& option.id !== selectedElevationOption?.id
@@ -116,11 +117,15 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 						&& option.colorItems.some(ci => {
 							const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === option.id);
 							const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === ci.name);
-							return (ci.isActive || isJobColorItem) 
+							const isScenarioColorItem = scenarioOptions.some(so => so.edhPlanOptionId === option.id && so.scenarioOptionColors.some(soc => soc.colorItemId === ci.colorItemId));
+
+							return (ci.isActive || isJobColorItem || isScenarioColorItem) 
 								&& ci.color.length > 0 
 								&& ci.color.some(c => {
 									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
-									return c.isActive || isJobColor;
+									const isScenarioColor = scenarioOptions.some(so => so.edhPlanOptionId === option.id && so.scenarioOptionColors.some(soc => soc.colorId === c.colorId));
+
+									return c.isActive || isJobColor || isScenarioColor;
 								});
 						})
 					);
@@ -161,10 +166,11 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		combineLatest([
 			this.store.select(state => state.nav.selectedItem),
-			this.store.select(state => state.job.jobPlanOptions)
+			this.store.select(state => state.job.jobPlanOptions),
+			this.store.select(state => state.lite.scenarioOptions)
 		])
 		.pipe(this.takeUntilDestroyed())
-		.subscribe(([selectedItem, jobPlanOptions]) =>			
+		.subscribe(([selectedItem, jobPlanOptions, scenarioOptions]) =>			
 			{
 				this.selectedColorIds = {};
 				this.selectedCategory = this.categories.find(x => x.id === selectedItem);
@@ -188,27 +194,32 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 						const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === po.id);
 
 						//only keep color items that are active and has one or more active colors associated with it
-						// Keep inactive color items if they are in the job
+						// Keep inactive color items if they are in the job or in a saved scenario
 						po.colorItems = po.colorItems
 							.filter(ci => {
 								const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === ci.name);
-								return (ci.isActive || isJobColorItem) 
+								const isScenarioColorItem = scenarioOptions.some(so => so.edhPlanOptionId === po.id && so.scenarioOptionColors.some(soc => soc.colorItemId === ci.colorItemId));
+
+								return (ci.isActive || isJobColorItem || isScenarioColorItem) 
 									&& ci.color.length > 0 
 									&& ci.color.some(c => {
 										const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
-										return c.isActive || isJobColor;
+										const isScenarioColor = scenarioOptions.some(so => so.edhPlanOptionId === po.id && so.scenarioOptionColors.some(soc => soc.colorId === c.colorId));
+
+										return c.isActive || isJobColor || isScenarioColor;
 									});
 							})
 							.sort((ci1, ci2) => ci1.name > ci2.name ? 1 : -1);
 
 						//only keep colors that are active
-						// Keep inactive colors if they are in the job
+						// Keep inactive colors if they are in the job or in a saved scenario 
 						po.colorItems.forEach(ci =>
 						{
 							ci.color = ci.color
 								.filter(c => {
 									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
-									return c.isActive || isJobColor;
+									const isScenarioColor = scenarioOptions.some(so => so.edhPlanOptionId === po.id && so.scenarioOptionColors.some(soc => soc.colorId === c.colorId));
+									return c.isActive || isJobColor || isScenarioColor;
 								})
 								.sort((c1, c2) => c1.name > c2.name ? 1 : -1)
 
