@@ -314,7 +314,9 @@ export class LiteService
 						missingColorItems.push(
 							{
 								planOptionId: option.id,
-								name: jpoa.attributeGroupLabel
+								name: jpoa.attributeGroupLabel,
+								optionSubCategoryId: option.optionSubCategoryId,
+								colorName: jpoa.attributeName
 							});
 					}
 
@@ -1730,6 +1732,12 @@ export class LiteService
 			return colors.some(cl => mc.optionSubCategoryId === cl.edhOptionSubcategoryId && mc.name === cl.name);
 		});
 
-		return hasUnMappedColorItems || hasUnMappedColors;
+		const hasUnMappedColorItemColorAssoc = !missingColorItemsAndColors.missingColorItems.some(mci => {
+			return colorItems.some(ci => mci.planOptionId === ci.edhPlanOptionId 
+										&& mci.name === ci.name 
+										&& colors.some(cl => mci.optionSubCategoryId === cl.edhOptionSubcategoryId && mci.name === cl.name));
+		});
+
+		return hasUnMappedColorItems || hasUnMappedColors || hasUnMappedColorItemColorAssoc;
 	}
 }
