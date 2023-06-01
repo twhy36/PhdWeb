@@ -1008,3 +1008,8 @@ export const floorPlanImages = createSelector(
 	selectScenario,
 	(state) => state.floorPlanImages
 );
+
+export const presalePricingEnabled = createSelector(
+	selectScenario,
+	(state) => state.presalePricingEnabled
+);

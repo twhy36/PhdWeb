@@ -34,6 +34,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as AppActions from '../../../ngrx-store/app/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -83,6 +84,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	isFloorplanFlipped: boolean;
 	isPreview: boolean;
 	isPresale: boolean;
+	isPresalePricingEnabled: boolean;
 	isDesignComplete: boolean;
 	isReadonly: boolean = false;
 	noVisibleGroups: boolean = false;
@@ -403,6 +405,14 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(sag =>
 		{
 			this.isFloorplanFlipped = sag.isFloorplanFlipped;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.presalePricingEnabled)
+		).subscribe(isPricingEnabled => 
+		{
+			this.isPresalePricingEnabled = isPricingEnabled;
 		});
 	}
 

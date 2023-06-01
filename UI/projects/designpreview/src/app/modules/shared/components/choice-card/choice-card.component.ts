@@ -24,7 +24,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
-	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = true;
 	@Input() isIncludedOptions: boolean = false;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();
@@ -62,7 +62,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 
 	getBodyHeight(): string
 	{
-		return this.isPresale ? '260px' : '285px';
+		return this.isPresalePricingEnabled ? '260px' : '285px';
 	}
 
 	/**

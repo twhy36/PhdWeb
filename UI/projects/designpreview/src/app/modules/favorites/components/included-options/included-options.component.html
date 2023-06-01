@@ -42,7 +42,7 @@
 														[currentPoint]="point"
 														[groups]="filteredTree.groups"
 														[tree]="tree"
-														[isPresale]="buildMode === 'presale'"
+														[isPresalePricingEnabled]="buildMode !== 'presale'"
 														[isIncludedOptions]="true"
 														(toggled)="choiceToggleHandler($event)"
 														(viewChoiceDetail)="viewChoiceDetail($event)">

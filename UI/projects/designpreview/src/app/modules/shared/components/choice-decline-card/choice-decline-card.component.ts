@@ -23,7 +23,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
-	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = false;
 
 	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 
@@ -53,7 +53,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	getBodyHeight(): string
 	{
-		return this.isPresale ? '260px' : '285px';
+		return this.isPresalePricingEnabled ? '260px' : '285px';
 	}
 
 	/**

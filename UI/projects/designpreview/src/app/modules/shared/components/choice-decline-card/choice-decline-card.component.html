@@ -6,7 +6,7 @@
 	</div>
 
 	<div class="phd-body">
-		<div *ngIf="!isPresale" class="phd-choice-decline-details">
+		<div [ngClass]="!isPresalePricingEnabled ? 'd-flex flex-row justify-content-between' : ''" class="phd-choice-decline-details">
 			<h1 class="phd-2-line-limit">
 				No Selections
 			</h1>
@@ -15,36 +15,14 @@
 					<strong></strong>
 				</div>
 				<ng-container *ngIf="currentPoint.enabled">
-					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-non-clickable" (click)="$event.stopPropagation();toggleDecline()">
+					<button class="phd-non-clickable" (click)="$event.stopPropagation();toggleDecline()">
 						<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!isDeclined" aria-pressed="false" class="fa fa-heart-o"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="!currentPoint.enabled">
-					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-clickable phd-favorite-selector" (click)="openBlockedChoiceModal()">
+					<button class="phd-clickable phd-favorite-selector" (click)="openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}"></i>
-					</button>
-				</ng-container>
-			</div>
-		</div>
-
-		<div *ngIf="isPresale" class="phd-choice-decline-details d-flex flex-row justify-content-between" [ngClass]="getBodyHeight()">
-			<h1 class="phd-2-line-limit">
-				No Selections
-			</h1>
-			<div class="phd-presale-icon d-flex flex-row justify-content-between">
-				<div>
-					<strong></strong>
-				</div>
-				<ng-container *ngIf="currentPoint.enabled">
-					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-non-clickable" (click)="$event.stopPropagation()">
-						<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart" (click)="toggleDecline()"></i></span>
-						<i *ngIf="!isDeclined && currentPoint.enabled" aria-pressed="false" class="fa fa-heart-o" (click)="toggleDecline()"></i>
-					</button>
-				</ng-container>
-				<ng-container *ngIf="!currentPoint.enabled">
-					<button [ngClass]="isPresale ? 'phd-presale-padding' : ''" class="phd-clickable phd-favorite-selector">
-						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 					</button>
 				</ng-container>
 			</div>
