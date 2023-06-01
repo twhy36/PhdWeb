@@ -175,6 +175,25 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 
 		this.pulteInfoForm.get('discountExpirationDate').disable();
+
+		if (!this.canEdit)
+		{
+			this.pulteInfoForm.get('tagLines').disable();
+			this.pulteInfoForm.get('displayOnPulte').disable();
+			this.pulteInfoForm.get('discountAmount').disable();
+			this.pulteInfoForm.get('hotHome').disable();
+			this.pulteInfoForm.get('keySellingPoint1').disable();
+			this.pulteInfoForm.get('keySellingPoint2').disable();
+			this.pulteInfoForm.get('keySellingPoint3').disable();
+			this.pulteInfoForm.get('keySellingPoint4').disable();
+			this.pulteInfoForm.get('keySellingPoint5').disable();
+			this.pulteInfoForm.get('keySellingPoint6').disable();
+			this.pulteInfoForm.get('fullBaths').disable();
+			this.pulteInfoForm.get('halfBaths').disable();
+			this.pulteInfoForm.get('bedrooms').disable();
+			this.pulteInfoForm.get('squareFeet').disable();
+			this.pulteInfoForm.get('numberOfGarages').disable();
+		}
     }
 
     savePulteInformation()
@@ -234,5 +253,5 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     allowNavigation(): boolean
     {
         return !this.pulteInfoForm.dirty;
-    }
+	}
 }
