@@ -23,7 +23,7 @@ import * as moment from 'moment';
 import { MonotonyRule, MonotonyRuleDtos } from '../../../shared/models/monotonyRule.model';
 import { Settings } from '../../../shared/models/settings.model';
 import { SettingsService } from '../../../core/services/settings.service';
-import { clone, intersection, orderBy, union, unionBy } from "lodash";
+import { clone, intersection, orderBy, union, unionBy } from 'lodash';
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 
 @Component({
@@ -95,6 +95,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			tap(mkt =>
 			{
 				this.onSidePanelClose(false);
+
 				this.lots = [];
 			}),
 			switchMap(mkt =>
@@ -116,6 +117,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			map(([activeComms, featureSwitchOrgAssocs]) =>
 			{
 				this.featureSwitchOrgAssocs = featureSwitchOrgAssocs;
+
 				return activeComms;
 			})
 		);
@@ -133,9 +135,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			{
 				this.selectedCommunity = comm;
 				this.selectedCommunity.isPhdLiteEnabled = this.getIsPhdLiteEnabled(comm.id);
+
 				this._homeSiteService.loadCommunityLots(comm.id);
 				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
+
 				this.isColorSchemePlanRuleEnabled = comm.dto.isColorSchemePlanRuleEnabled;
+
 				this.loadHomeSites();
 				this.setReleaseData();
 			}
@@ -162,11 +167,11 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		{
 			return;
 		}
+
 		this._orgService.getWebsiteCommunity(salesCommunityId).subscribe(data =>
 		{
 			this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
-		}
-		);
+		});
 	}
 
 	setReleaseData()
@@ -212,6 +217,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				// Initial load, sets page count to 1. No filters added yet.
 				this.currentPage = 1;
 				this.allDataLoaded = l.length < this.settings.infiniteScrollPageSize;
+
 				this.resetSearchBar();
 			});
 		}
@@ -224,6 +230,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	resetSearchBar()
 	{
 		this.keyword = '';
+
 		this.searchBar.clearFilter();
 	}
 
@@ -252,6 +259,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			{
 				this.filteredLots = unionBy(this.filteredLots, result);
 				this.allFilteredDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
+
 				this.filteredCurrentPage++;
 			}
 			else
@@ -260,12 +268,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				this.lots = unionBy(this.lots, result);
 				this.filteredLots = this.lots;
 				this.allDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
+
 				this.currentPage++;
 			}
 
 			this.lotCount = this.filteredLots.length;
 			this.isLoading = false;
-
 		});
 	}
 
@@ -278,7 +286,9 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	keywordSearch(event: any)
 	{
 		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
+
 		this.searchBar.keyword = this.keyword = event['keyword'].trim();
+
 		this.filterHomesites();
 
 		if (!this.isSearchingFromServer)
@@ -466,6 +476,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this.keyword = null;
 		this.allFilteredDataLoaded = false;
 		this.filteredCurrentPage = 0;
+
 		this.filterHomesites();
 	}
 
@@ -509,6 +520,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			keyboard: false
 		};
 		const confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+
 		confirm.componentInstance.title = 'Release Homesite';
 		confirm.componentInstance.body = 'Click Continue to release this lot.';
 		confirm.componentInstance.defaultOption = 'Continue';
@@ -526,25 +538,27 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 					homeSitesAssociated: [homesite.commLbid]
 				};
 				dto.financialCommunityId = this.selectedCommunity.id;
+
 				this._releaseService.saveRelease(dto).pipe(
 					finalize(() => { this.saving = false; })
-				)
-					.subscribe(newDto =>
-					{
-						this._releaseService.updateHomeSiteAndReleases(newDto);
-						this.selectedCommunity.lotsInited = false;
-						this.loadHomeSites();
-						this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
-					},
-						error =>
-						{
-							this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
-						});
+				).subscribe(newDto =>
+				{
+					this._releaseService.updateHomeSiteAndReleases(newDto);
+
+					this.selectedCommunity.lotsInited = false;
+
+					this.loadHomeSites();
+
+					this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
+				},
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+				});
 			}
 		}, (reason) =>
 		{
 		});
-
 	}
 
 	/**
@@ -570,6 +584,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			if (event.homesite)
 			{
 				this.selectedHomesite.dto = lotDto;
+
 				const pipe = new HandingsPipe();
 
 				Object.assign(this.filteredLots.find(l => l.dto.id === lotDto.id),
@@ -588,10 +603,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 			this.sidePanelOpen = false;
 		},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-			});
+		error =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+		});
 	}
 
 	formatAddress(address: HomeSiteDtos.IAddress)
@@ -623,26 +638,22 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	{
 		// Wait to change the value of the original until the patch completes
 		let lotDto = clone(lot.dto);
+
 		lotDto.isHiddenInTho = !lotDto.isHiddenInTho;
 
 		this._homeSiteService.saveHomesite(lot.commLbid, lotDto, false)
 			.subscribe(dto =>
 			{
 				lot.dto = dto;
-				if (dto.isHiddenInTho === true)
-				{
-					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Hidden in THO!` });
-				}
-				else
-				{
-					this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock} Available in THO!` });
-				}
 
+				const toggleResultText = !!dto.isHiddenInTho ? 'Hidden in THO!' : 'Available in THO!';
+
+				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock + ' ' + toggleResultText }` });
 			},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-				});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+			});
 	}
 
 	getIsPhdLiteEnabled(financialCommunityId: number)
@@ -685,7 +696,7 @@ class FinancialCommunityViewModel
 	get name() { return this.dto.name; }
 	get key() { return this.dto.key; }
 	get salesCommunityId() { return this.dto.salesCommunityId; }
-	get isActive() { return (this.dto.salesStatusDescription === "Active" || this.dto.salesStatusDescription === "New"); }
+	get isActive() { return (this.dto.salesStatusDescription === 'Active' || this.dto.salesStatusDescription === 'New'); }
 
 	static sorter(left: FinancialCommunityViewModel, right: FinancialCommunityViewModel): number
 	{
@@ -693,22 +704,27 @@ class FinancialCommunityViewModel
 	}
 }
 
-const HomeSiteDateFormat = "M/DD/YYYY";
+const HomeSiteDateFormat = 'M/DD/YYYY';
+
 class HomeSiteViewModel extends HomeSite
 {
 	community: FinancialCommunity;
 	release: IHomeSiteReleaseDto;
-	lotJobType: string;
 
 	get availabilityDate()
 	{
-		return this.release && this.release.releaseDate ? moment(this.release.releaseDate).utc().format(HomeSiteDateFormat) : "";
+		return this.release && this.release.releaseDate ? moment(this.release.releaseDate).utc().format(HomeSiteDateFormat) : '';
+	}
+
+	get lotJobType()
+	{
+		return (this.dto.lotBuildTypeDescription === 'Spec' && (this.dto.job && this.dto.job.jobTypeName === 'Model')) ? 'Model' : this.dto.lotBuildTypeDescription;
 	}
 
 	constructor(dto: HomeSiteDtos.ILotDto, community: FinancialCommunity, release: IHomeSiteReleaseDto)
 	{
 		super(dto);
-		this.lotJobType = (dto.lotBuildTypeDescription === 'Spec' && (dto.job && dto.job.jobTypeName === 'Model')) ? 'Model' : dto.lotBuildTypeDescription;
+
 		this.community = community;
 		this.release = release;
 	}

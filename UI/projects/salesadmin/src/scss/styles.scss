@@ -361,6 +361,10 @@ $toggle-content-after: 'Must Have';
 
 /* bootstrap override end */
 
+.phd-side-panel {
+	top: $nav-menu-height !important; //override phd-commons setting
+}
+
 .phd-side-panel-body {
 	display: flex;
 	flex-direction: column;
