@@ -193,8 +193,7 @@ export const canEditSpecInfo = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	(scenario, market, user, sag) =>
 		((scenario.buildMode === 'model' || scenario.buildMode === 'spec'))
-		&& ((sag && sag.id ? user.canSell : user.canConfigure)
-		&& !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+		&& (user.canSelectAddenda && !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 )
 
 export const canAddIncentive = createSelector(
