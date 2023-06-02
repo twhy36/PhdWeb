@@ -39,7 +39,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     minDate: Date = new Date();
     pulteInfoSet = false;
 	canSell$: Observable<boolean>;
-	canConfigure: boolean = false;
+	canEditSpecInfo: boolean = false;
 	canCreateSpecOrModel: boolean = false;
     priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
@@ -52,7 +52,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get canEdit(): boolean
 	{
-		return !!this.canConfigure || !!this.canCreateSpecOrModel;
+		return !!this.canEditSpecInfo || !!this.canCreateSpecOrModel;
 	}
 
     constructor(
@@ -66,9 +66,9 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
 
-		this.store.pipe(select(fromRoot.canConfigure)).subscribe(canConfigure =>
+		this.store.pipe(select(fromRoot.canEditSpecInfo)).subscribe(canEditSpecInfo =>
 		{
-			this.canConfigure = canConfigure;
+			this.canEditSpecInfo = canEditSpecInfo;
 		});
 
 		this.store.pipe(select(fromRoot.canCreateSpecOrModel)).subscribe(canCreateSpecOrModel =>
