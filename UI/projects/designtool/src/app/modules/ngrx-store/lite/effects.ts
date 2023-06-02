@@ -170,12 +170,17 @@ export class LiteEffects
 								const optionCommunityIds = _.uniq(options.map(o => o.optionCommunityId));
 
 								return combineLatest([
-									this.liteService.getColorItems(optionIds),
+									this.liteService.getColorItems(optionIds, false),
 									this.liteService.getOptionRelations(optionCommunityIds)
 								]).pipe(
 									map(([colorItems, optionRelations]) =>
 									{
-										colorItems.forEach(colorItem =>
+										colorItems
+										.filter(ci => {
+											const isScenarioColorItem = scenarioOptions.some(so => so.edhPlanOptionId === ci.edhPlanOptionId && so.scenarioOptionColors.some(soc => soc.colorItemId === ci.colorItemId));
+											return ci.isActive || isScenarioColorItem;
+										})
+										.forEach(colorItem =>
 										{
 											let option = options.find(option => option.id === colorItem.edhPlanOptionId);
 											if (option)
