@@ -258,18 +258,22 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						}
 						else
 						{
-							this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
-							this.selectedSubGroup$.next(sg);
-							this.selectedDecisionPoint$.next(dp);
-
-							//this is when they've actually navigated to a different decision point:
-							if (params.divDPointCatalogId !== this.selectedDivPointCatalogId)
+							// #374124 Prevent the sidebar from showing old nav items when navigating to the New Home component
+							if (!this.router.url.includes('new-home'))
 							{
-								this.selectedDivPointCatalogId = dp.divPointCatalogId;
+								this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
+								this.selectedSubGroup$.next(sg);
+								this.selectedDecisionPoint$.next(dp);
 
-								if (!dp.viewed)
+								//this is when they've actually navigated to a different decision point:
+								if (params.divDPointCatalogId !== this.selectedDivPointCatalogId)
 								{
-									this.store.dispatch(new ScenarioActions.SetPointViewed(dp.id));
+									this.selectedDivPointCatalogId = dp.divPointCatalogId;
+
+									if (!dp.viewed)
+									{
+										this.store.dispatch(new ScenarioActions.SetPointViewed(dp.id));
+									}
 								}
 							}
 						}
@@ -294,7 +298,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 				else if (filteredTree && !this.isPhdLite)
 				{
-					this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
+					this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId]);
 				}
 				else if (this.isPhdLite && !this.plan && !!plan)
 				{
