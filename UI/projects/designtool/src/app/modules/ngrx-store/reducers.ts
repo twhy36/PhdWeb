@@ -186,6 +186,17 @@ export const canCreateSpecOrModel = createSelector(
 	(market, user) => !!market && user.canCreateSpecOrModel && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canEditSpecInfo = createSelector(
+	fromScenario.selectScenario,
+	fromOrg.market,
+	fromUser.selectUser,
+	fromSalesAgreement.salesAgreementState,
+	(scenario, market, user, sag) => scenario.buildMode === 'preview'
+		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+		|| ((sag && sag.id ? user.canSell : user.canConfigure)
+		&& !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+)
+
 export const canAddIncentive = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
