@@ -176,7 +176,8 @@ export class LiteEffects
 									map(([colorItems, optionRelations]) =>
 									{
 										colorItems
-										.filter(ci => {
+										.filter(ci => 
+										{
 											const isScenarioColorItem = scenarioOptions.some(so => so.edhPlanOptionId === ci.edhPlanOptionId && so.scenarioOptionColors.some(soc => soc.colorItemId === ci.colorItemId));
 											return ci.isActive || isScenarioColorItem;
 										})
@@ -446,7 +447,18 @@ export class LiteEffects
 								]).pipe(
 									switchMap(([colorItems, optionRelations]) =>
 									{
-										colorItems.filter(ci => ci.isActive).forEach(colorItem =>
+										colorItems
+										.filter(ci => 
+										{
+											const jobPlanOptionAttributes = _.flatMap(store.job.jobPlanOptions, jpo => jpo.jobPlanOptionAttributes) || [];
+											const isJobColorItem = jobPlanOptionAttributes.some(jpoa => jpoa.attributeGroupLabel === ci.name);
+
+											const changeOrderPlanOptionAttributes = _.flatMap(store.changeOrder.currentChangeOrder?.jobChangeOrders, co => _.flatMap(co.jobChangeOrderPlanOptions, copo => copo.jobChangeOrderPlanOptionAttributes)) || [];
+											const isChangeOrderColorItem = changeOrderPlanOptionAttributes.some(copoa => copoa.attributeGroupLabel === ci.name);
+
+											return ci.isActive || isJobColorItem || isChangeOrderColorItem;
+										})
+										.forEach(colorItem =>
 										{
 											let option = options.find(option => option.id === colorItem.edhPlanOptionId);
 											if (option)

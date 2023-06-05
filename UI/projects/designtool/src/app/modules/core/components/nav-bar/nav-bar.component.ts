@@ -271,10 +271,14 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 						const hasColors = selectedOption.colorItems?.some(colorItem =>
 						{
 							const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === colorItem.name);
-							return (colorItem.isActive || isJobColorItem)
+							const isScenarioColorItem = liteState.scenarioOptions.some(so => so.edhPlanOptionId === selectedOption.id && so.scenarioOptionColors.some(soc => soc.colorItemId === colorItem.colorItemId));
+
+							return (colorItem.isActive || isJobColorItem || isScenarioColorItem)
 								&& colorItem.color?.some(color => {
 									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === colorItem.name);
-									return color.isActive || isJobColor;
+									const isScenarioColor = liteState.scenarioOptions.some(so => so.edhPlanOptionId === selectedOption.id && so.scenarioOptionColors.some(soc => soc.colorId === color.colorId));
+
+									return color.isActive || isJobColor || isScenarioColor;
 								});							
 						});
 
