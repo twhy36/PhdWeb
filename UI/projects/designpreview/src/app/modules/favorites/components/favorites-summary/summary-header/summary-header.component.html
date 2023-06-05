@@ -54,7 +54,7 @@
 				<span class="phd-breakdown-content">{{priceBreakdown?.homesite | currency:'USD':'symbol':'0.0-0'}}</span>
 			</li>
 			<li *ngIf="!isPreview" class="d-flex">
-				<span class="phd-breakdown-label">{{isDesignComplete ? 'Options Total:' : 'Contracted Options:'}}</span>
+				<span class="phd-breakdown-label">{{isDesignComplete ? 'Options Total:' : 'Pending & Contracted Options:'}}</span>
 				<span class="phd-breakdown-content">{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
 			</li>
 			<li *ngIf="priceBreakdown.salesProgram" class="d-flex">
@@ -101,7 +101,7 @@
 			<span class="phd-breakdown-content">{{priceBreakdown?.homesite | currency:'USD':'symbol':'0.0-0'}}</span>
 		</div>
 		<div *ngIf="!isPreview" class="d-flex phd-print-indent">
-			<span class="phd-breakdown-label">{{isDesignComplete ? 'Options Total:' : 'Contracted Options:'}}</span>
+			<span class="phd-breakdown-label">{{isDesignComplete ? 'Options Total:' : 'Pending & Contracted Options:'}}</span>
 			<span class="phd-breakdown-content">{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
 		</div>
 		<div *ngIf="priceBreakdown.salesProgram" class="d-flex phd-print-indent">

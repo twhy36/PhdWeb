@@ -51,7 +51,7 @@
 						#contractedRouterLink="routerLinkActive"
 						[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
 						queryParamsHandling="merge">
-						Contracted Options
+						Pending & Contracted Options
 					</a>
 					<a *ngIf="showIncludedOptionsLink"
 						id="includedOptionsLink"
@@ -95,7 +95,7 @@
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
 				#contractedRouterLink="routerLinkActive"
 				[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
-				queryParamsHandling="merge">Contracted Options</a></li>
+				queryParamsHandling="merge">Pending &<br>Contracted Options</a></li>
 			<li><a *ngIf="showIncludedOptionsLink"
 				[routerLink]="['/included']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
