@@ -321,7 +321,7 @@ export class DivisionalOptionService
 			})
 		};
 
-		return withSpinner(this._http).patch(url, { optionAttributeGroupAssocDto: data }).pipe(
+		return withSpinner(this._http).post(url, { optionAttributeGroupAssocDto: data }).pipe(
 			map(response =>
 			{
 				return response;
