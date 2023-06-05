@@ -1688,26 +1688,6 @@ export class LiteService
 		});
 	}
 
-	mapPendingJobSummaryLite(jobId: number, priceBreakdown: PriceBreakdown, selectedOptions: ScenarioOption[], options: LitePlanOption[]) : IPendingJobSummary
-	{
-		const elevationOption = options?.find(option => selectedOptions?.find(selectedOption => selectedOption.edhPlanOptionId === option.id)
-			&& (option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached));
-
-		return {
-            jobId: jobId,
-            planPrice: priceBreakdown.baseHouse,
-            elevationPlanOptionId: elevationOption?.id,
-            elevationPrice: elevationOption?.listPrice,
-            totalOptionsPrice: priceBreakdown.selections,
-            salesProgramAmount: priceBreakdown.salesProgram,
-            totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
-            totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
-            totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
-            totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
-            netHousePrice: priceBreakdown.totalPrice			
-		} as IPendingJobSummary;
-	}
-	
 	addJobColors(jobId: number)
 	{
 		const endpoint = environment.apiUrl + `AddJobColors(${jobId})`;
