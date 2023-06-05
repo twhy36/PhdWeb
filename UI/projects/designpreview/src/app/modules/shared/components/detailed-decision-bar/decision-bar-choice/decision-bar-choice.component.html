@@ -13,7 +13,7 @@
 		</ng-container>
 	</div>
 	<a href="" class="choice-label phd-clickable" (click)="$event.preventDefault(); clickViewChoiceDetail()">{{choice?.label}}</a>
-	<ng-container *ngIf="!isPresale">
+	<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
 		<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
 			<div class="choice-price">{{choice?.price | currency:'USD':'symbol':'0.0-0'}}</div>
 		</ng-container>

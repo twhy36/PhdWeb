@@ -30,11 +30,11 @@
 		</div>
 	</ul>
 
-	<ng-container *ngIf="!isPresale && !isContractedPage">
+	<ng-container *ngIf="(isPresalePricingEnabled || !isPresale) && !isContractedPage">
 		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
 			<div class="d-flex flex-column align-items-end align-content-center">
 				<span *ngIf="!isDesignComplete" class="phd-price-label">Estimated Favorites Total : </span>
-				<span class="phd-price-label">{{isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Purchase Price :' }}</span>
+				<span class="phd-price-label">{{ totalPriceLabel }} : </span>
 			</div>
 		</div>
 		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end justify-content-left">

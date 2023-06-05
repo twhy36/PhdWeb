@@ -26,6 +26,7 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean;
 	@Input() isPresale: boolean;
+	@Input() isPresalePricingEnabled: boolean;
 	@Input() isDesignComplete: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 

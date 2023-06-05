@@ -55,6 +55,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	welcomeModal: ModalRef;
 	showWelcomeModal: boolean = true;
 	viewCreated: boolean = false;
+	isPresalePricingEnabled: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private brandService: BrandService,
@@ -92,6 +93,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			this.treeVersionRules = _.cloneDeep(scenarioState.rules);
 			this.options = _.cloneDeep(scenarioState.options);
 			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
+			this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
 
 			if (!taca && scenarioState.buildMode == BuildMode.Presale)
 			{

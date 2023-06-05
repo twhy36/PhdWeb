@@ -20,6 +20,7 @@ export class DecisionBarChoiceComponent
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean;
+	@Input() isPresalePricingEnabled: boolean;
 
 	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();

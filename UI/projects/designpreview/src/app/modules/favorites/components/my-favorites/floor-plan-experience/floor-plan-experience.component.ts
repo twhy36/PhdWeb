@@ -33,6 +33,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	@Input() isReadonly: boolean;
 	@Input() isPreview: boolean = false;
 	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = false;
 	@Input() isDesignComplete: boolean = false;
 	@Input() noVisibleGroups: boolean = false;
 	@Input() noVisibleFP: boolean = false;
