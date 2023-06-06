@@ -54,7 +54,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	@Input() inChangeOrder: boolean = false;
 	@Input() skipSaving: boolean = false;
 	@Input() scrollListener: any = window;
-	@Input() canChange: boolean; 
+	@Input() canChange: boolean;
 
 	@ContentChild('leftCellTemplate') leftCellTemplate: TemplateRef<any>;
 	@ContentChild('centerCellTemplate') centerCellTemplate: TemplateRef<any>;
@@ -215,7 +215,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				cog = job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
 
-				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn') > -1;
+				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn' && x.salesStatusDescription !== 'Resolved') > -1;
 			}
 
 			if (cog)
@@ -223,7 +223,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.salesStatusDescription = cog.salesStatusDescription;
 				this.isEditingEnvelopeDraft = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Created);
 				this.isOutForESign = cog.eSignEnvelopes?.some(x => x.eSignStatusId === ESignStatusEnum.Sent);
-			}			
+			}
 		});
 
 		this.store.pipe(
@@ -475,21 +475,21 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 						this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders =>
 						{
-								this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
-								this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
-
-								this.router.navigateByUrl('/change-orders');
-							});
-						}
-					else
-					{
+							this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
 							this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
 
 							this.router.navigateByUrl('/change-orders');
+						});
+					}
+					else
+					{
+						this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+
+						this.router.navigateByUrl('/change-orders');
 					}
 				}
 			}
-		});		
+		});
 	}
 
 	private async showConfirmModal(body: string, title: string, defaultButton: string, primaryButton: any = null, secondaryButton: any = null): Promise<boolean>
