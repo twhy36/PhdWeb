@@ -6,7 +6,7 @@
 		</button>
 
 		<div ngbDropdownMenu>
-			<button class="dropdown-item" *ngFor="let searchFilter of searchFilters" (click)="filterType = searchFilter;">{{searchFilter}}</button>
+			<button class="dropdown-item" *ngFor="let searchFilter of searchFilters" (click)="onSearchFilterChanged(searchFilter);">{{searchFilter}}</button>
 		</div>
 	</div>
 

@@ -32,8 +32,7 @@ export class TreeFilterComponent implements OnInit
 	{
 		if (this.canSearch)
 		{
-			const search = { filterType: this.filterType, keyword: this.keyword };
-			this.store.dispatch(new ScenarioActions.SetTreeFilter(search));
+			this.setTreeFilter();
 		}
 	}
 
@@ -41,8 +40,20 @@ export class TreeFilterComponent implements OnInit
 	{
 		this.keyword = '';
 		this.filterType = 'All';
-		const clearFilter = { filterType: this.filterType, keyword: this.keyword };
-		this.store.dispatch(new ScenarioActions.SetTreeFilter(clearFilter));
+
+		this.setTreeFilter();
+	}
+
+	onSearchFilterChanged(searchFilter: string)
+	{
+		this.filterType = searchFilter;
+
+		this.setTreeFilter();
+	}
+
+	setTreeFilter()
+	{
+		this.store.dispatch(new ScenarioActions.SetTreeFilter({ filterType: this.filterType, keyword: this.keyword }));
 	}
 
 	get canSearch(): boolean
