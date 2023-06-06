@@ -66,16 +66,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
         this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
 
-		this.store.pipe(select(fromRoot.canEditSpecInfo)).subscribe(canEditSpecInfo =>
-		{
-			this.canEditSpecInfo = canEditSpecInfo;
-		});
-
-		this.store.pipe(select(fromRoot.canCreateSpecOrModel)).subscribe(canCreateSpecOrModel =>
-		{
-			this.canCreateSpecOrModel = canCreateSpecOrModel;
-		});;
-
         this.isChangingOrder$ = this.store.pipe(
             this.takeUntilDestroyed(),
             select(state => state.changeOrder),
@@ -99,19 +89,23 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job),
-			combineLatest(this.params$, this.store.pipe(select(state => state.job.specInformation))),
-			switchMap(([job, params, pulteInfo]) =>
+			combineLatest(this.store.pipe(select(fromRoot.canEditSpecInfo)), this.store.pipe(select(fromRoot.canCreateSpecOrModel)),
+				this.params$, this.store.pipe(select(state => state.job.specInformation))),
+			switchMap(([job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo]) =>
 			{
 				const getSalesPrograms = !!job?.financialCommunityId ? this.salesInfoService.getSalesPrograms(job.financialCommunityId) : of([]);
 				return getSalesPrograms.pipe(
 					map(programs =>
 					{
-						return { job, params, pulteInfo, programs };
+						return { job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo, programs };
 					})
 				);
 			})
-		).subscribe(({ job, params, pulteInfo, programs }) =>
+		).subscribe(({ job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo, programs }) =>
 		{
+			this.canEditSpecInfo = canEditSpecInfo;
+			this.canCreateSpecOrModel = canCreateSpecOrModel;
+
 			if (job.plan)
 			{
 				this.job = job;
@@ -155,7 +149,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
     createForm()
     {
-        this.pulteInfoForm = new FormGroup({
+		this.pulteInfoForm = new FormGroup({
             'tagLines': new FormControl(this.pulteInfo.webSiteDescription),
 			'displayOnPulte': new FormControl(this.pulteInfo.isPublishOnWebSite),
 			'discountAmount': new FormControl(this.pulteInfo.discountAmount, [Validators.min(0), Validators.max(this?.qmiSalesProgram?.maximumAmount)]),
