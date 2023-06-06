@@ -27,7 +27,7 @@
                 </div>
                 <div class="phd-items">
                     <input formControlName="tagLines" class="form-control" type="text" id="tagLines"
-                    maxlength="250" [value]="pulteInfo.webSiteDescription"/>
+                    maxlength="250" [value]="pulteInfo.webSiteDescription" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -36,7 +36,7 @@
                 </div>
                 <div class="phd-items">
                     <input formControlName="displayOnPulte" type="checkbox" class="phd-items-checkbox" [value]="pulteInfo.isPublishOnWebSite"
-                        id="displayOnPulte">
+                        id="displayOnPulte" [attr.disabled]="!canEdit">
                 </div>
             </div>
             <div class="phd-info">
@@ -45,7 +45,7 @@
                 </div>
                 <div class="phd-items">
                     <input formControlName="discountAmount" type="number" class="form-control" id="discountAmount"
-                        [value]="pulteInfo.discountAmount" min="0">
+                        [value]="pulteInfo.discountAmount" min="0" [attr.disabled]="!canEdit">
                 </div>
             </div>
             <div class="phd-info">
@@ -65,7 +65,7 @@
                     <label>Hot Home</label>
                 </div>
                 <div class="phd-items">
-                    <input formControlName="hotHome" type="checkbox" class="phd-items-checkbox" [value]="pulteInfo.isHotHomeActive" id="hotHome">
+                    <input formControlName="hotHome" type="checkbox" class="phd-items-checkbox" [value]="pulteInfo.isHotHomeActive" id="hotHome" [attr.disabled]="!canEdit">
                 </div>
             </div>
             <br>
@@ -75,7 +75,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint1" [value]="pulteInfo.hotHomeBullet1"
-                        formControlName="keySellingPoint1" maxlength="40"/>
+                        formControlName="keySellingPoint1" maxlength="40" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -84,7 +84,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint2" [value]="pulteInfo.hotHomeBullet2"
-                        formControlName="keySellingPoint2" maxlength="40"/>
+                        formControlName="keySellingPoint2" maxlength="40" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -93,7 +93,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint3" [value]="pulteInfo.hotHomeBullet3"
-                        formControlName="keySellingPoint3" maxlength="40"/>
+                        formControlName="keySellingPoint3" maxlength="40" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -102,7 +102,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint4" [value]="pulteInfo.hotHomeBullet4"
-                        formControlName="keySellingPoint4" maxlength="40"/>
+                        formControlName="keySellingPoint4" maxlength="40" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -111,7 +111,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint5" [value]="pulteInfo.hotHomeBullet5"
-                        formControlName="keySellingPoint5" maxlength="40"/>
+                        formControlName="keySellingPoint5" maxlength="40" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -120,7 +120,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint6" [value]="pulteInfo.hotHomeBullet6"
-                        formControlName="keySellingPoint6" maxlength="40"/>
+                        formControlName="keySellingPoint6" maxlength="40" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <br>
@@ -143,7 +143,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="fullBaths" [value]="pulteInfo.numberFullBathOverride"
-                        maxlength="25" min="0" formControlName="fullBaths"/>
+                        maxlength="25" min="0" formControlName="fullBaths" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -155,7 +155,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="halfBaths" [value]="pulteInfo.numberHalfBathOverride"
-                        maxlength="25" min="0" formControlName="halfBaths"/>
+                        maxlength="25" min="0" formControlName="halfBaths" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -167,7 +167,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="bedrooms" [value]="pulteInfo.numberBedOverride"
-                        maxlength="25" min="0" formControlName="bedrooms"/>
+                        maxlength="25" min="0" formControlName="bedrooms" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -179,7 +179,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="squareFeet" [value]="pulteInfo.squareFeetOverride"
-                        maxlength="25" min="0" formControlName="squareFeet"/>
+                        maxlength="25" min="0" formControlName="squareFeet" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <div class="phd-info">
@@ -191,7 +191,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="numberOfGarages" min="0"
-                        [value]="pulteInfo.numberGarageOverride" maxlength="25" formControlName="numberOfGarages"/>
+                        [value]="pulteInfo.numberGarageOverride" maxlength="25" formControlName="numberOfGarages" [attr.disabled]="!canEdit"/>
                 </div>
             </div>
             <br>
