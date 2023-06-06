@@ -250,7 +250,9 @@ export class PHDSearchComponent
 			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && (this.selectedBuildTypes.includes('Spec') || this.selectedBuildTypes.includes('Dirt')))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House') && (lot.buildType === 'Spec' || lot.buildType === 'Dirt'));
+
+				// jobTypeName if it is associated with a job check for spec or House else look for null or undefined
+				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House' || lot.jobTypeName == null) && (lot.buildType === 'Spec' || lot.buildType === 'Dirt'));
 			}
 
 			if (this.searchActiveOnly)
