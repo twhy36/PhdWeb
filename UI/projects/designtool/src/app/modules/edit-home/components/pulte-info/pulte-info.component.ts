@@ -2,7 +2,7 @@ import { ReplaySubject, Observable, of } from 'rxjs';
 import { map, distinctUntilChanged, combineLatest, switchMap } from 'rxjs/operators';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -58,6 +58,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     constructor(
         private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
+		private cd: ChangeDetectorRef,
 		private salesInfoService: SalesInfoService,
 		private specDiscountService: SpecDiscountService) { super(); }
 
@@ -170,47 +171,42 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.pulteInfoForm.get('discountExpirationDate').disable();
 
+		this.cd.detectChanges();
 		if (!this.canEdit)
 		{
-			setTimeout(() =>
-			{
-				this.pulteInfoForm.get('tagLines').disable();
-				this.pulteInfoForm.get('displayOnPulte').disable();
-				this.pulteInfoForm.get('discountAmount').disable();
-				this.pulteInfoForm.get('hotHome').disable();
-				this.pulteInfoForm.get('keySellingPoint1').disable();
-				this.pulteInfoForm.get('keySellingPoint2').disable();
-				this.pulteInfoForm.get('keySellingPoint3').disable();
-				this.pulteInfoForm.get('keySellingPoint4').disable();
-				this.pulteInfoForm.get('keySellingPoint5').disable();
-				this.pulteInfoForm.get('keySellingPoint6').disable();
-				this.pulteInfoForm.get('fullBaths').disable();
-				this.pulteInfoForm.get('halfBaths').disable();
-				this.pulteInfoForm.get('bedrooms').disable();
-				this.pulteInfoForm.get('squareFeet').disable();
-				this.pulteInfoForm.get('numberOfGarages').disable();
-			})
+			this.pulteInfoForm.get('tagLines').disable();
+			this.pulteInfoForm.get('displayOnPulte').disable();
+			this.pulteInfoForm.get('discountAmount').disable();
+			this.pulteInfoForm.get('hotHome').disable();
+			this.pulteInfoForm.get('keySellingPoint1').disable();
+			this.pulteInfoForm.get('keySellingPoint2').disable();
+			this.pulteInfoForm.get('keySellingPoint3').disable();
+			this.pulteInfoForm.get('keySellingPoint4').disable();
+			this.pulteInfoForm.get('keySellingPoint5').disable();
+			this.pulteInfoForm.get('keySellingPoint6').disable();
+			this.pulteInfoForm.get('fullBaths').disable();
+			this.pulteInfoForm.get('halfBaths').disable();
+			this.pulteInfoForm.get('bedrooms').disable();
+			this.pulteInfoForm.get('squareFeet').disable();
+			this.pulteInfoForm.get('numberOfGarages').disable();
 		}
 		else
 		{
-			setTimeout(() =>
-			{
-				this.pulteInfoForm.get('tagLines').enable();
-				this.pulteInfoForm.get('displayOnPulte').enable();
-				this.pulteInfoForm.get('discountAmount').enable();
-				this.pulteInfoForm.get('hotHome').enable();
-				this.pulteInfoForm.get('keySellingPoint1').enable();
-				this.pulteInfoForm.get('keySellingPoint2').enable();
-				this.pulteInfoForm.get('keySellingPoint3').enable();
-				this.pulteInfoForm.get('keySellingPoint4').enable();
-				this.pulteInfoForm.get('keySellingPoint5').enable();
-				this.pulteInfoForm.get('keySellingPoint6').enable();
-				this.pulteInfoForm.get('fullBaths').enable();
-				this.pulteInfoForm.get('halfBaths').enable();
-				this.pulteInfoForm.get('bedrooms').enable();
-				this.pulteInfoForm.get('squareFeet').enable();
-				this.pulteInfoForm.get('numberOfGarages').enable();
-			})
+			this.pulteInfoForm.get('tagLines').enable();
+			this.pulteInfoForm.get('displayOnPulte').enable();
+			this.pulteInfoForm.get('discountAmount').enable();
+			this.pulteInfoForm.get('hotHome').enable();
+			this.pulteInfoForm.get('keySellingPoint1').enable();
+			this.pulteInfoForm.get('keySellingPoint2').enable();
+			this.pulteInfoForm.get('keySellingPoint3').enable();
+			this.pulteInfoForm.get('keySellingPoint4').enable();
+			this.pulteInfoForm.get('keySellingPoint5').enable();
+			this.pulteInfoForm.get('keySellingPoint6').enable();
+			this.pulteInfoForm.get('fullBaths').enable();
+			this.pulteInfoForm.get('halfBaths').enable();
+			this.pulteInfoForm.get('bedrooms').enable();
+			this.pulteInfoForm.get('squareFeet').enable();
+			this.pulteInfoForm.get('numberOfGarages').enable();
 		}
     }
 
