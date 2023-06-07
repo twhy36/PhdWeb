@@ -1,4 +1,4 @@
-<li class="choice-container" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
+<li class="phd-choice-container" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="icon" (click)="$event.stopPropagation()">
 		<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 			<button class="phd-clickable">
@@ -12,7 +12,7 @@
 			</button>
 		</ng-container>
 	</div>
-	<a href="" class="choice-label phd-clickable" (click)="$event.preventDefault(); clickViewChoiceDetail()">{{choice?.label}}</a>
+	<a href="" class="phd-choice-label phd-clickable" (click)="$event.preventDefault(); clickViewChoiceDetail()">{{choice?.label}}</a>
 	<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
 		<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
 			<div class="choice-price">{{choice?.price | currency:'USD':'symbol':'0.0-0'}}</div>

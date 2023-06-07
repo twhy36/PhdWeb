@@ -12,8 +12,8 @@
 	}
 
 	.phd-view-button {
-		background: mat.get-color-from-palette($accent-palette, 500);
-		color: mat.get-color-from-palette($accent-palette, '500-contrast');
+		background: mat.get-color-from-palette($primary-palette, 400);
+		color: mat.get-color-from-palette($primary-palette, '400-contrast');
 	}
 }
 

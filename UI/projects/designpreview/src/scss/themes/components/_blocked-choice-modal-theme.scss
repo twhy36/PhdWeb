@@ -7,7 +7,7 @@
 	$primary-palette: map.get($color-config, 'primary');
 	$accent-palette: map.get($color-config, 'accent');
 
-	.phd-blocked-choice-link {
+	.phd-blocked-link {
 		color: mat.get-color-from-palette($primary-palette, 'A100');
 	}
 

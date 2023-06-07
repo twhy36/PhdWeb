@@ -17,10 +17,6 @@
 
 	.phd-message {
 		font-size: mat.font-size($typography-config, 'body-2') !important;
-
-		.phd-message-disclaimer {
-			font-size: mat.font-size($typography-config, 'caption');
-		}
 	}
 }
 

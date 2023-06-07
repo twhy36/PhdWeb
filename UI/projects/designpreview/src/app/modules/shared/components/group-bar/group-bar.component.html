@@ -30,7 +30,7 @@
 							</div>
 							<div content>
 								<ng-container *ngFor="let subGroup of group.subGroups">
-									<button mat-menu-item (click)="selectSubgroup(subGroup.id)">
+									<button mat-menu-item class="mat-body" (click)="selectSubgroup(subGroup.id)">
 										<i class="fa fa-check phd-sub-group-completed" *ngIf="completedStatuses.includes(subGroup.status)"></i>
 										<span [class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId" [class.phd-group-uncompleted]="!completedStatuses.includes(subGroup.status)">{{subGroup.label}}</span>
 									</button>
@@ -46,7 +46,9 @@
 					</button>
 					<mat-menu #main_menu="matMenu" class="phd-pop-menu">
 						<ng-container *ngFor="let group of groups">
-							<button mat-menu-item [matMenuTriggerFor]="sub_menu"
+							<button mat-menu-item
+									class="mat-body"
+									[matMenuTriggerFor]="sub_menu"
 									[class.phd-sub-menu-selected]="isGroupSelected(group.id)"
 									[attr.aria-current]="isGroupSelected(group.id)?'true':'false'"
 									[attr.aria-haspopup]="null"
@@ -56,7 +58,9 @@
 								<span [class.phd-sub-menu-selected]="isGroupSelected(group.id)" [ngClass]="!completedStatuses.includes(group.status) ? 'phd-group-uncompleted' : ''">{{group.label}}</span>
 							</button>
 							<mat-menu #sub_menu="matMenu" class="phd-pop-menu">
-								<button mat-menu-item [role]="null"
+								<button mat-menu-item
+										class="mat-body"
+										[role]="null"
 										*ngFor="let subGroup of group.subGroups"
 										[class.phd-sub-menu-selected]="subGroup.id === selectedSubGroupId"
 										[attr.aria-current]="subGroup.id === selectedSubGroupId?'true':'false'"

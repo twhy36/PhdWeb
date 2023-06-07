@@ -24,6 +24,7 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -73,7 +74,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		private toastr: ToastrService,
 		public modalService: ModalService,
 		private store: Store<fromRoot.State>,
-		private adobeService: AdobeService)
+		private adobeService: AdobeService,
+		private brandService: BrandService)
 	{
 		super();
 	}
@@ -636,7 +638,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	openBlockedChoiceModal()
 	{
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandService.getBrandTheme()}` }, true);
 	}
 
 	onCloseClicked()

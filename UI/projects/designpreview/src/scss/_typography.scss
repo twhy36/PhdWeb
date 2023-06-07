@@ -12,7 +12,7 @@ $aw-typography: mat.define-typography-config(
 	$subtitle-2: mat.define-typography-level(16px, 24px),
 	$body-1: mat.define-typography-level(15px, 18px, 400),
 	$body-2: mat.define-typography-level(14px, 21px, 400),
-	$caption: mat.define-typography-level(10px, 30px, 400),
+	$caption: mat.define-typography-level(10px, 15px, 400),
 	$button: mat.define-typography-level(20px, 30px, 400),
 );
 
@@ -28,7 +28,7 @@ $ch-typography: mat.define-typography-config(
 	$subtitle-2: mat.define-typography-level(16px, 24px),
 	$body-1: mat.define-typography-level(15px, 18px, 400),
 	$body-2: mat.define-typography-level(14px, 21px, 400),
-	$caption: mat.define-typography-level(10px, 30px, 400),
+	$caption: mat.define-typography-level(10px, 15px, 400),
 	$button: mat.define-typography-level(20px, 30px, 400),
 );
 
@@ -44,7 +44,7 @@ $dv-typography: mat.define-typography-config(
 	$subtitle-2: mat.define-typography-level(16px, 24px),
 	$body-1: mat.define-typography-level(15px, 18px, 400),
 	$body-2: mat.define-typography-level(14px, 21px, 400),
-	$caption: mat.define-typography-level(10px, 30px, 400),
+	$caption: mat.define-typography-level(10px, 15px, 400),
 	$button: mat.define-typography-level(20px, 30px, 400),
 );
 
@@ -60,7 +60,7 @@ $dw-typography: mat.define-typography-config(
 	$subtitle-2: mat.define-typography-level(16px, 24px),
 	$body-1: mat.define-typography-level(15px, 18px, 400),
 	$body-2: mat.define-typography-level(14px, 21px, 400),
-	$caption: mat.define-typography-level(10px, 30px, 400),
+	$caption: mat.define-typography-level(10px, 15px, 400),
 	$button: mat.define-typography-level(20px, 30px, 400),
 );
 
@@ -76,7 +76,7 @@ $jw-typography: mat.define-typography-config(
 	$subtitle-2: mat.define-typography-level(16px, 24px),
 	$body-1: mat.define-typography-level(15px, 18px, 400),
 	$body-2: mat.define-typography-level(14px, 21px, 400),
-	$caption: mat.define-typography-level(10px, 30px, 400),
+	$caption: mat.define-typography-level(10px, 15px, 400),
 	$button: mat.define-typography-level(20px, 30px, 400),
 );
 
@@ -92,6 +92,6 @@ $ph-typography: mat.define-typography-config(
 	$subtitle-2: mat.define-typography-level(16px, 24px),
 	$body-1: mat.define-typography-level(15px, 18px, 400),
 	$body-2: mat.define-typography-level(14px, 21px, 400),
-	$caption: mat.define-typography-level(10px, 30px, 400),
+	$caption: mat.define-typography-level(10px, 15px, 400),
 	$button: mat.define-typography-level(20px, 30px, 400),
 );

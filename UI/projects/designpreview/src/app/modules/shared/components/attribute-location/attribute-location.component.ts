@@ -6,6 +6,7 @@ import { Location, Attribute, AttributeGroup, LocationGroup, DesignToolAttribute
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeGroupExt } from '../../models/attribute-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'attribute-location',
@@ -36,10 +37,12 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	locationAttributGroups: AttributeGroupExt[];
 	attributeGroups: AttributeGroupExt[] = [];
 	maxQuantityModalRef: ModalRef;
+	brandTheme: string;
 
 	constructor(
 		private modalService: ModalService,
-		private adobeService: AdobeService
+		private adobeService: AdobeService,
+		private brandService: BrandService
 	) { }
 
 	get selectedLocationAttributes(): DesignToolAttribute[]
@@ -55,6 +58,8 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 		{
 			this.locationQuantityTotal = this.selectedLocationAttributes[0].locationQuantity;
 		}
+
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -192,7 +197,7 @@ export class AttributeLocationComponent implements OnInit, OnChanges
 	displayMaxQuantityModal()
 	{
 		const modalOptions = {
-			windowClass: 'phd-max-quantity-modal',
+			windowClass: `phd-max-quantity-modal ${this.brandTheme}`,
 			centered: true,
 			backdrop: true,
 			keyboard: false,

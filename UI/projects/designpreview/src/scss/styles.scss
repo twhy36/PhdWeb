@@ -73,6 +73,10 @@
 	.btn-primary:not(:disabled):not(.disabled):active {
 		background: mat.get-color-from-palette($primary-palette, 400);
 		border-color: mat.get-color-from-palette($primary-palette, 400);
+
+		.fa-check {
+			color: mat.get-color-from-palette($primary-palette, '400-contrast') !important;
+		}
 	}
 
 	// This has to be outside the component because the mat menu is part of the overlay container
@@ -85,16 +89,22 @@
 		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
 	}
 
+	.phd-attribute-group-toggle {
+		color: mat.get-color-from-palette($accent-palette, 'A200');
+	}
+
 	.phd-available-selections {
-		background-color: mat.get-color-from-palette($accent-palette, 500);
+		background-color: mat.get-color-from-palette($accent-palette, 600);
 	}
 
 	.phd-choice-image-selected {
 		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
 	}
 
-	.phd-choice-link {
-		color: mat.get-color-from-palette($accent-palette, 500);
+	.phd-choice-container {
+		.phd-choice-label {
+			color: mat.get-color-from-palette($accent-palette, 500);
+		}
 	}
 
 	.phd-icon-selected {
@@ -275,6 +285,10 @@ ngb-modal-backdrop {
 	height: 100%;
 	min-height: 100%;
 	padding-left: 0;
+}
+
+.carousel-indicators {
+	display: none;
 }
 
 .modal-body {
