@@ -14,58 +14,7 @@
 				</div>
 			</div>
 
-			<div class="col-6 d-flex ml-auto" [ngClass]="getBrandedMenuClass(false)" *ngIf="displayBrandedMenu">
-				<h1 class="phd-visually-hidden">
-					Navigation
-				</h1>
-				<ul class="phd-links-list">
-					<a *ngIf="showMyFavoritesLink"
-						id="myFavoritesLink"
-						class="phd-nav-page"
-						[class.phd-active-link-full]="isLaunchedInBuyerPreview"
-						[routerLink]="['/favorites/summary']"
-						[routerLinkActive]="['phd-active-link-full']"
-						#favoritesRouterLink="routerLinkActive"
-						[attr.aria-current]="favoritesRouterLink.isActive ? 'page': undefined" 
-						queryParamsHandling="merge"
-						(click)="toFavoritesPage ? onViewFavorites() : false">
-						My Favorites
-					</a>
-					<span class="phd-page-separator"></span>
-					<a *ngIf="showFloorplanLink"
-						id="floorplanLink"
-						class="phd-nav-page"
-						[routerLink]="['/floorplan']"
-						[routerLinkActive]="['phd-active-link-full']"
-						#floorplanRouterLink="routerLinkActive"
-						[attr.aria-current]="floorplanRouterLink.isActive ? 'page': undefined" 
-						queryParamsHandling="merge">
-						Floorplan
-					</a>
-					<span *ngIf=showContractedOptionsLink class="phd-page-separator"></span>
-					<a *ngIf="showContractedOptionsLink"
-						id="contractedOptionsLink"
-						class="phd-nav-page"
-						[routerLink]="['/contracted']" 
-						[routerLinkActive]="['phd-active-link-full']"
-						#contractedRouterLink="routerLinkActive"
-						[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
-						queryParamsHandling="merge">
-						Pending & Contracted Options
-					</a>
-					<a *ngIf="showIncludedOptionsLink"
-						id="includedOptionsLink"
-						class="phd-nav-page"
-						[routerLink]="['/included']"
-						[routerLinkActive]="['phd-active-link-full']"
-						#includedRouterLink="routerLinkActive"
-						[attr.aria-current]="includedRouterLink.isActive ? 'page': undefined" 
-						queryParamsHandling="merge">
-						Included Options
-					</a>
-				</ul>
-			</div>
-			<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass(true)" *ngIf="displayBrandedMenu" aria-controls="navMenu">
+			<button class="phd-menu-bars" [ngClass]="getBrandedMenuClass()" *ngIf="displayBrandedMenu" aria-controls="navMenu">
 				<i *ngIf="isMenuCollapsed" class="fa fa-bars fa-2x" aria-expanded="false" aria-label="Expand Menu" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 				<i *ngIf="!isMenuCollapsed" class="fa fa-times fa-2x" aria-expanded="true" aria-label="Collapse Menu" (click)="isMenuCollapsed = !isMenuCollapsed"></i>
 			</button>
@@ -77,31 +26,33 @@
 			Navigation
 		</h1>
 		<ul [class.phd-active-link-collapsed]="currentRoute?.startsWith('/favorites/summary')">
-			<li><a *ngIf="showMyFavoritesLink"
+			<li><a id="myFavoritesLink"
 				[routerLink]="['/favorites/summary']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
 				#favoriteRouterLink="routerLinkActive"
-				[attr.aria-current]="favoriteRouterLink.isActive ? 'page': undefined" 
+				[attr.aria-current]="favoriteRouterLink.isActive ? 'page': undefined"
 				[class.phd-collapsable-menu-link-full]="isLaunchedInBuyerPreview"
 				queryParamsHandling="merge">My Favorites</a></li>
 			<li><a *ngIf="showFloorplanLink"
+				id="floorplanLink"
 				[routerLink]="['/floorplan']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
 				#floorplanRouterLink="routerLinkActive"
 				[attr.aria-current]="floorplanRouterLink.isActive ? 'page': undefined" 
 				queryParamsHandling="merge">Floorplan</a></li>
-			<li><a *ngIf="showContractedOptionsLink"
-				[routerLink]="['/contracted']"
-				[routerLinkActive]="['phd-collapsable-menu-link-full']"
-				#contractedRouterLink="routerLinkActive"
-				[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
-				queryParamsHandling="merge">Pending &<br>Contracted Options</a></li>
-			<li><a *ngIf="showIncludedOptionsLink"
+			<li><a id="includedOptionsLink"
 				[routerLink]="['/included']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
 				#includedRouterLink="routerLinkActive"
 				[attr.aria-current]="includedRouterLink.isActive ? 'page': undefined" 
 				queryParamsHandling="merge">Included Options</a></li>
+			<li><a *ngIf="showContractedOptionsLink"
+				id="contractedOptionsLink"
+				[routerLink]="['/contracted']"
+				[routerLinkActive]="['phd-collapsable-menu-link-full']"
+				#contractedRouterLink="routerLinkActive"
+				[attr.aria-current]="contractedRouterLink.isActive ? 'page': undefined" 
+				queryParamsHandling="merge">Pending &<br>Contracted Options</a></li>
 		</ul>
 	</nav>
 </header>

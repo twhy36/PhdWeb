@@ -24,9 +24,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	displayBrandedMenu: boolean = true;
 	isMenuCollapsed: boolean = true;
 	showContractedOptionsLink: boolean = false;
-	showMyFavoritesLink: boolean = false;
 	showFloorplanLink: boolean = false;
-	showIncludedOptionsLink: boolean = false;
 	buildMode: BuildMode;
 	welcomeText: string = 'Welcome To Your Home';
 	sessionStorage: Storage = sessionStorage;
@@ -104,29 +102,23 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			case (BuildMode.Preview):
 				this.showContractedOptionsLink = false;
 				this.showFloorplanLink = true;
-				this.showIncludedOptionsLink = false;
-				this.showMyFavoritesLink = true;
 				break;
 			case (BuildMode.Presale):
 				this.showContractedOptionsLink = false;
 				this.showFloorplanLink = false;
-				this.showIncludedOptionsLink = true;
-				this.showMyFavoritesLink = true;
 				this.welcomeText = 'Welcome To Your Future Home';
 				break;
 			default:
 				this.showContractedOptionsLink = true;
 				this.showFloorplanLink = true;
-				this.showIncludedOptionsLink = false;
-				this.showMyFavoritesLink = true;
 				break;
 			}
 		});
 	}
 
-	getBrandedMenuClass(isCollapsedMenu: boolean)
+	getBrandedMenuClass()
 	{
-		let menuClass = isCollapsedMenu ? 'phd-hamburger-menu' : 'phd-menu-options';
+		let menuClass = 'phd-hamburger-menu';
 
 		if (this.brandService.getBrandName() === Brands.JohnWieland)
 		{
