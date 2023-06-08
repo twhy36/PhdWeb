@@ -23,6 +23,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
+	@Input() isPresale: boolean = false;
 	@Input() isPresalePricingEnabled: boolean = false;
 
 	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();

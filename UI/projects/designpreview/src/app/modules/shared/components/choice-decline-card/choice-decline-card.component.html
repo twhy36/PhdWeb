@@ -6,7 +6,7 @@
 	</div>
 
 	<div class="phd-body">
-		<div [ngClass]="!isPresalePricingEnabled ? 'd-flex flex-row justify-content-between' : ''" class="phd-choice-decline-details">
+		<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'd-flex flex-row justify-content-between' : ''" class="phd-choice-decline-details">
 			<h1 class="phd-2-line-limit">
 				No Selections
 			</h1>

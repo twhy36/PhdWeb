@@ -24,7 +24,8 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	@Input() groups: Group[];
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
-	@Input() isPresalePricingEnabled: boolean = true;
+	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = false;
 	@Input() isIncludedOptions: boolean = false;
 
 	@Output() toggled = new EventEmitter<ChoiceExt>();

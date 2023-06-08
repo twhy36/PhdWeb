@@ -9,12 +9,12 @@
 	</div>
 
 	<div class="phd-body">
-		<div [ngClass]="!isPresalePricingEnabled ? 'd-flex flex-row justify-content-between' : ''" class="phd-choice-details">
+		<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'd-flex flex-row justify-content-between' : ''" class="phd-choice-details">
 			<h1 class="phd-2-line-limit">
 				{{choice?.label}}
 			</h1>
-			<div [ngClass]="!isPresalePricingEnabled ? 'phd-presale-pricing' : ''" class="d-flex flex-row justify-content-between">
-				<ng-container *ngIf="isPresalePricingEnabled">
+			<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-pricing' : ''" class="d-flex flex-row justify-content-between">
+				<ng-container *ngIf="!isPresale || (isPresale && isPresalePricingEnabled)">
 					<span *ngIf="!choice.priceHiddenFromBuyerView" class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</span>
 					<span *ngIf="choice.priceHiddenFromBuyerView" class="phd-price-label" (click)="$event.stopPropagation()">
 						<span>Pricing Varies</span>
