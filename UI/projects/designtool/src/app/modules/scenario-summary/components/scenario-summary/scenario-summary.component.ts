@@ -354,7 +354,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			withLatestFrom(this.store.select(state => state.job), this.store.select(state => state.changeOrder)),
 			switchMap(([scenario, job, changeOrder]) =>
 			{
-				if (job.id === 0 && scenario.scenario)
+				if (job.id === 0 && !!scenario?.scenario?.scenarioId )
 				{
 					return this.scenarioService.getFloorPlanImages(scenario.scenario.scenarioId);
 				}
