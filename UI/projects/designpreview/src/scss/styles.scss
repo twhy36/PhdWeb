@@ -81,7 +81,7 @@
 
 	// This has to be outside the component because the mat menu is part of the overlay container
 	.fa-check {
-		color: mat.get-color-from-palette($primary-palette, 'A200') !important;
+		color: mat.get-color-from-palette($accent-palette, 500) !important;
 		padding-right: 5px;
 	}
 
@@ -104,6 +104,10 @@
 	.phd-choice-container {
 		.phd-choice-label {
 			color: mat.get-color-from-palette($accent-palette, 500);
+		}
+
+		.phd-point-link {
+			color: mat.get-color-from-palette($primary-palette, 'A100');
 		}
 	}
 

@@ -49,7 +49,7 @@
 	}
 }
 
-.phd-group-menu {
+.phd-primary-menu {
 	display: flex;
 	justify-content: center;
 	align-self: flex-start;
@@ -99,11 +99,6 @@
 }
 
 @media(max-width: $tablet-max-width) {
-	.phd-group-menu {
-		justify-content: flex-start !important;
-		margin-left: 30px;
-	}
-
 	.phd-primary-menu {
 		display: none;
 	}
