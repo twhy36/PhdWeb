@@ -1,29 +1,33 @@
 @import "../../../../../scss/animations.scss";
 @import "../../../../../scss/sizes.scss";
+
 div {
     line-height: 30px;
     padding-top: 75px;
 }
 
 h1 {
-    font-size: 30px;
-    font-weight: normal;
-    text-transform: capitalize;
-    &:empty {
-        height: 30px;
-        width: 60%;
-        @include shimmer();
-    }
+	font-size: 30px;
+	font-weight: normal;
+	text-transform: capitalize;
+	padding: 0 25px 25px 25px;
+
+	&:empty {
+		height: 30px;
+		width: 60%;
+		@include shimmer();
+	}
 }
 
 h2 {
-    font-size: 18px;
-    padding: 25px;
-    &:empty {
-        height: 30px;
-        width: 100%;
-        @include shimmer();
-    }
+	font-size: 18px;
+	padding: 0 25px 25px 25px;
+
+	&:empty {
+		height: 30px;
+		width: 100%;
+		@include shimmer();
+	}
 }
 
 @media(max-width: $tablet-max-width) {

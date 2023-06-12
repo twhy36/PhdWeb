@@ -95,9 +95,14 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		super();
 	}
 
+	get mainTitle(): string
+	{
+		return this.salesAgreement?.status === 'Pending' ? `Build It` : `Agreement Information`;
+	}
+
 	get subTitle(): string
 	{
-		return this.isChangingOrder ? '' : `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.`;
+		return this.salesAgreement?.status === 'Pending' ? `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.` : '';
 	}
 
 	public onToggleCollapse(event): void
@@ -436,6 +441,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	envelopeSent(sent: boolean)
 	{
 		this.setOutForSignature(false, !sent);
+
 		if (sent)
 		{
 			this.closeModal();			
@@ -488,7 +494,9 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	cancel()
 	{
 		this.isAddenda = false;
+
 		this.pdfViewer.dismiss();
+
 		this.showPDFViewerFooter = true;
 		this.showPricingLockText = true;
 	}
