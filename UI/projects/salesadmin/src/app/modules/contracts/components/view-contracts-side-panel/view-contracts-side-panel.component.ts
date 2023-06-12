@@ -172,7 +172,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			'assignedCommunityIds': new UntypedFormControl(assignedCommunityIds),
 			'parentTemplateId': new UntypedFormControl(parentTemplateId),
 			'templateId': new UntypedFormControl(templateId)
-		}, [this.requireCheckBoxesToBeCheckedValidator(), this.addendumTypeValidator()]);
+		}, [this.requireCheckBoxesToBeCheckedValidator(), this.addendumTypeValidator(), this.templateTypeValidator()]);
 	}
 
 	setMinimumExpirationDate(dateSet: Date = this.effectiveDate)
@@ -239,11 +239,11 @@ export class ViewContractsSidePanelComponent implements OnInit
 
 			this.onSave.emit(this.viewContractsForm.value as ContractTemplate);
 		},
-		error =>
-		{
-			this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-			this.saving = false;
-		});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+				this.saving = false;
+			});
 	}
 
 	onCloseSidePanel(status: boolean)
@@ -363,6 +363,17 @@ export class ViewContractsSidePanelComponent implements OnInit
 		}
 	}
 
+	templateTypeValidator(): ValidatorFn
+	{
+		return (formGroup: UntypedFormGroup): { [key: string]: any } =>
+		{
+			if (formGroup.controls['templateTypeId'].value === null)
+			{
+				return { requireTemplateSelect: true };
+			}
+		}
+	}
+
 	addHighlightedItems()
 	{
 		for (let communityId of this.viewContractsForm.controls['assignedCommunityIds'].value)
@@ -441,7 +452,7 @@ export class ViewContractsSidePanelComponent implements OnInit
 			this.communitiesForSelectedTemplate.push(tag);
 		}
 	}
-		
+
 	checkForDocument(templateId: number)
 	{
 		this._contractService.getTemplateUrl(templateId)
@@ -449,9 +460,9 @@ export class ViewContractsSidePanelComponent implements OnInit
 			{
 				this.documentAssociated = true;
 			},
-			error =>
-			{
-				this.documentAssociated = false;
-			});
+				error =>
+				{
+					this.documentAssociated = false;
+				});
 	}
 }
