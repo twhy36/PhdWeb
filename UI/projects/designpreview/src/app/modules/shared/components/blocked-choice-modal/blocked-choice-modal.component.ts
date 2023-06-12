@@ -66,7 +66,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 			select(fromFavorite.currentMyFavorite),
 		).subscribe((fav =>
 		{
-			this.myFavoriteId = fav.id;
+			this.myFavoriteId = fav?.id;
 		}));
 
 		this.hasRequiredChoice = this.point?.choices.find(c => c.isRequired)?.isRequired ?? false;

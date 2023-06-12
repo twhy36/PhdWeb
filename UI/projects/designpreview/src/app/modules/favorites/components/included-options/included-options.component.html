@@ -9,7 +9,7 @@
 	<div class="d-flex flex-row phd-point-panel">
 		<div id="includedDecisionBar" *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
 			<included-decision-bar
-				[tree]="filteredTree"
+				[tree]="includedTree"
 				[points]="points"
 				(selectDecisionPoint)="selectDecisionPoint($event)" 
 				(selectSubGroup)="selectSubGroup($event)">
@@ -24,7 +24,7 @@
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<ng-container *ngIf="!noVisibleGroups">
 			<div class="phd-point-container">
-				<ng-container *ngFor="let group of filteredTree.groups">
+				<ng-container *ngFor="let group of includedTree.groups">
 					<ng-container *ngFor="let subGroup of group.subGroups">
 						<ng-container *ngIf="defaultChoicePresent(subGroup)">
 							<h3 class="d-flex flex-row phd-group-subgroup-header" [attr.id]="'included-subgroup-' + subGroup.id">
@@ -40,7 +40,7 @@
 												<choice-card *ngIf="!choice.isHiddenFromBuyerView"
 														[currentChoice]="getChoiceExt(choice, point)"
 														[currentPoint]="point"
-														[groups]="filteredTree.groups"
+														[groups]="includedTree.groups"
 														[tree]="tree"
 														[isPresalePricingEnabled]="isPresalePricingEnabled"
 														[isIncludedOptions]="true"
