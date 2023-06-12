@@ -1,27 +1,32 @@
 <manage-homesites-side-panel-component *ngIf="sidePanelOpen"
-									   [saving]="saving"
-									   [sidePanelOpen]="sidePanelOpen"
-									   [monotonyRules]="monotonyRules"
-									   [selectedHomesite]="selectedHomesite"
-									   [communityWebsiteKey]="selectedCommunityWebsiteKey"
-									   [viewAdjacencies]="viewAdjacencies"
-									   [physicalLotTypes]="physicalLotTypes"
-									   [isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
-									   (onSidePanelClose)="onSidePanelClose($event)"
-									   (onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)"
-									   [filteredLots]="filteredLots"
-									   [canChangeBuildType]="canChangeBuildType">
+	[saving]="saving"
+	[sidePanelOpen]="sidePanelOpen"
+	[monotonyRules]="monotonyRules"
+	[selectedHomesite]="selectedHomesite"
+	[communityWebsiteKey]="selectedCommunityWebsiteKey"
+	[viewAdjacencies]="viewAdjacencies"
+	[physicalLotTypes]="physicalLotTypes"
+	[isColorSchemePlanRuleEnabled]="isColorSchemePlanRuleEnabled"
+	(onSidePanelClose)="onSidePanelClose($event)"
+	(onSaveHomesiteAndMonotonyRules)="saveHomesiteAndMonotonyRules($event)"
+	[filteredLots]="filteredLots"
+	[canChangeBuildType]="canChangeBuildType">
 </manage-homesites-side-panel-component>
 
-<div class="phd-page-container" [class.phd-side-panel-open]="sidePanelOpen">
+<div class="phd-page-container"
+	[class.phd-side-panel-open]="sidePanelOpen">
 	<page-header mainTitle="Manage Homesites">
 		<ng-template>
 			<div class="col">
-				<select class="form-control" [ngModel]="selectedCommunity ? selectedCommunity.dto : null" (ngModelChange)="onChangeCommunity($event)">
-					<option [ngValue]="null" disabled="disabled">
+				<select class="form-control"
+					[ngModel]="selectedCommunity ? selectedCommunity.dto : null"
+					(ngModelChange)="onChangeCommunity($event)">
+					<option [ngValue]="null"
+						disabled="disabled">
 						Community
 					</option>
-					<option *ngFor="let comm of (activeCommunities | async)" [ngValue]="comm.dto">
+					<option *ngFor="let comm of (activeCommunities | async)"
+						[ngValue]="comm.dto">
 						{{ comm.name }}
 					</option>
 				</select>
@@ -40,47 +45,72 @@
 				<div class="phd-flexbox">
 					<i class="fa fa-filter phd-filter-icon"></i>
 					<p-multiSelect class="flex-fill"
-								   defaultLabel="Status"
-								   [options]="lotStatus"
-								   [maxSelectedLabels]="2"
-								   filterMatchMode="multiple"
-								   [showHeader]="false"
-								   (onChange)="onStatusChange($event)">
+						defaultLabel="Status"
+						[options]="lotStatus"
+						[maxSelectedLabels]="2"
+						filterMatchMode="multiple"
+						[showHeader]="false"
+						(onChange)="onStatusChange($event)">
 					</p-multiSelect>
 				</div>
 
 				<div class="phd-flexbox">
 					<i class="fa fa-filter phd-filter-icon"></i>
 					<p-multiSelect class="flex-fill"
-								   defaultLabel="Handing"
-								   [options]="handingOptions"
-								   [maxSelectedLabels]="2"
-								   filterMatchMode="any"
-								   [showHeader]="false"
-								   (onChange)="onHandingChange($event)">
+						defaultLabel="Handing"
+						[options]="handingOptions"
+						[maxSelectedLabels]="2"
+						filterMatchMode="any"
+						[showHeader]="false"
+						(onChange)="onHandingChange($event)">
 					</p-multiSelect>
 				</div>
 
 				<div class="phd-flexbox">
-					<search-bar [selectedSearchFilter]="selectedSearchFilter" (onClearFilter)="clearFilter()" (onKeywordSearch)="keywordSearch($event)"></search-bar>
+					<search-bar [selectedSearchFilter]="selectedSearchFilter"
+						(onClearFilter)="clearFilter()"
+						(onKeywordSearch)="keywordSearch($event)"></search-bar>
 				</div>
 			</div>
 		</div>
 
-		<div class="phd-table-container mx-2" infiniteScroll [infiniteScrollThrottle]="settings.infiniteScrollThrottle" [infiniteScrollDisabled]="allDataLoaded" (scrolled)="onPanelScroll()" [scrollWindow]="false">
-			<phd-table #dt [value]="filteredLots" sortMode="single" sortField="lotBlock" showCaption="true" (onFilter)="onFilter($event)">
+		<div class="phd-table-container mx-2"
+			infiniteScroll
+			[infiniteScrollThrottle]="settings.infiniteScrollThrottle"
+			[infiniteScrollDisabled]="allDataLoaded"
+			(scrolled)="onPanelScroll()"
+			[scrollWindow]="false">
+			<phd-table #dt
+				[value]="filteredLots"
+				sortMode="single"
+				sortField="lotBlock"
+				showCaption="true"
+				(onFilter)="onFilter($event)">
 				<phd-column header="">
-					<ng-template #body let-lot>
+					<ng-template #body
+						let-lot>
 						<div class="phd-icon-container">
-							<i class="fa fa-pencil fa-fw" [ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'" (click)="editHomesite(lot);" phd-tooltip="Edit Homesite" *ngIf="canEdit"></i>
-							<i class="fa fa-share-square" (click)="releaseLot(lot)" (mouseenter)="showTooltip($event, 'Release Lot', dt)" (mouseleave)="hideTooltip(dt)" *ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
+							<i class="fa fa-pencil fa-fw"
+								[ngClass]="lot.hasRequiredInfo ? null : 'phd-lot-info-incomplete'"
+								(click)="editHomesite(lot);"
+								phd-tooltip="Edit Homesite"
+								*ngIf="canEdit"></i>
+							<i class="fa fa-share-square"
+								(click)="releaseLot(lot)"
+								(mouseenter)="showTooltip($event, 'Release Lot', dt)"
+								(mouseleave)="hideTooltip(dt)"
+								*ngIf="canEdit && lot.hasRequiredInfo && lot.lotStatusDescription == 'Unavailable'"></i>
 						</div>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Homesite" field="lotBlock"></phd-column>
-				<phd-column header="Address" field="address.streetAddress1">
-					<ng-template #body let-lot>
-						<div (mouseenter)="showTooltip($event, formatAddress(lot.address), dt)" (mouseleave)="hideTooltip(dt)">
+				<phd-column header="Homesite"
+					field="lotBlock"></phd-column>
+				<phd-column header="Address"
+					field="address.streetAddress1">
+					<ng-template #body
+						let-lot>
+						<div (mouseenter)="showTooltip($event, formatAddress(lot.address), dt)"
+							(mouseleave)="hideTooltip(dt)">
 							<div>
 								<span>{{ lot.address.streetAddress1 }}</span>
 							</div>
@@ -96,53 +126,77 @@
 					</ng-template>
 				</phd-column>
 				<phd-column header="BuildType">
-					<ng-template #body let-lot>
-						<span (mouseenter)="showTooltip($event, lot.lotJobType, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotJobType }}</span>
+					<ng-template #body
+						let-lot>
+						<span (mouseenter)="showTooltip($event, lot.lotJobType, dt)"
+							(mouseleave)="hideTooltip(dt)">{{ lot.lotJobType }}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Status" field="lotStatusDescription"></phd-column>
-				<phd-column header="Hide in THO" width="158px">
-					<ng-template #body let-lot>
+				<phd-column header="Status"
+					field="lotStatusDescription"></phd-column>
+				<phd-column header="Hide in THO"
+					width="158px">
+					<ng-template #body
+						let-lot>
 						<button *ngIf="getAvailable(lot)"
-								class="btn btn-sm btn-toggle btn-is-hidden-tho"
-								[disabled]="!canEdit ? 'disabled' : null"
-								[ngClass]="{'active': !lot.isHiddenInTho, 'btn-success': !lot.isHiddenInTho, 'btn-secondary': lot.isHiddenInTho }"
-								(click)="toggleIsHiddenTho(lot)">
+							class="btn btn-sm btn-toggle btn-is-hidden-tho"
+							[disabled]="!canEdit ? 'disabled' : null"
+							[ngClass]="{'active': !lot.isHiddenInTho, 'btn-success': !lot.isHiddenInTho, 'btn-secondary': lot.isHiddenInTho }"
+							(click)="toggleIsHiddenTho(lot)">
 							<div class="handle"></div>
 						</button>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Availability" field="availabilityDate"></phd-column>
-				<phd-column header="Premium" field="premium">
-					<ng-template #body let-lot>
+				<phd-column header="Availability"
+					field="availabilityDate"></phd-column>
+				<phd-column header="Premium"
+					field="premium">
+					<ng-template #body
+						let-lot>
 						<ng-container *ngIf="lot.premium | currency: 'USD':'symbol':'1.2'; let formattedValue">
-							<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)">{{ formattedValue }}</span>
+							<span (mouseenter)="showTooltip($event, formattedValue, dt)"
+								(mouseleave)="hideTooltip(dt)">{{ formattedValue }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Handing" field="handingDisplay"></phd-column>
-				<phd-column [hidden]="true" header="Handing" field="handingValues"></phd-column>
-				<phd-column header="Foundation" field="foundationType"></phd-column>
-				<phd-column header="Cost" field="cost">
-					<ng-template #body let-lot>
+				<phd-column header="Handing"
+					field="handingDisplay"></phd-column>
+				<phd-column [hidden]="true"
+					header="Handing"
+					field="handingValues"></phd-column>
+				<phd-column header="Foundation"
+					field="foundationType"></phd-column>
+				<phd-column header="Cost"
+					field="cost">
+					<ng-template #body
+						let-lot>
 						<ng-container *ngIf="lot.cost | currency: 'USD':'symbol':'1.2'; let formattedValue">
-							<span (mouseenter)="showTooltip($event, formattedValue, dt)" (mouseleave)="hideTooltip(dt)">{{ formattedValue }}</span>
+							<span (mouseenter)="showTooltip($event, formattedValue, dt)"
+								(mouseleave)="hideTooltip(dt)">{{ formattedValue }}</span>
 						</ng-container>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Phase">
-					<ng-template #body let-lot>
-						<span (mouseenter)="showTooltip($event, lot.phase, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.phase }}</span>
+					<ng-template #body
+						let-lot>
+						<span (mouseenter)="showTooltip($event, lot.phase, dt)"
+							(mouseleave)="hideTooltip(dt)">{{ lot.phase }}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="View Adjacency" field="view.label">
-					<ng-template #body let-lot>
-						<span (mouseenter)="showTooltip($event, lot.view && lot.view.label, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.view && lot.view.label }}</span>
+				<phd-column header="View Adjacency"
+					field="view.label">
+					<ng-template #body
+						let-lot>
+						<span (mouseenter)="showTooltip($event, lot.view && lot.view.label, dt)"
+							(mouseleave)="hideTooltip(dt)">{{ lot.view && lot.view.label }}</span>
 					</ng-template>
 				</phd-column>
-				<phd-column header="Warranty" field="lotType.label">
-					<ng-template #body let-lot>
-						<span (mouseenter)="showTooltip($event, lot.phdLotWarranty, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.phdLotWarranty }}</span>
+				<phd-column header="Warranty"
+					field="phdLotWarranty">
+					<ng-template #body
+						let-lot>
+						<span (mouseenter)="showTooltip($event, lot.phdLotWarranty, dt)"
+							(mouseleave)="hideTooltip(dt)">{{ lot.phdLotWarranty }}</span>
 					</ng-template>
 				</phd-column>
 			</phd-table>
