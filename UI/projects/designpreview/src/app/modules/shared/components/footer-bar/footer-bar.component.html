@@ -1,17 +1,21 @@
 <footer class="phd-footer">
-	Copyright &#169; 2021-{{currentYear}} PulteGroup, Inc.<div class="phd-spacer"></div>|<div class="phd-spacer">
-	</div>
+	Copyright &#169; 2021-{{currentYear}} PulteGroup, Inc.<div class="phd-spacer"></div>|<div class="phd-spacer"></div>
+
 	<ul class="phd-links-list">
-		<a class="phd-link" href="{{termsUrl}}" target="_blank">Terms of Use</a>
-		<a class="phd-link" href="{{policyUrl}}" target="_blank">Privacy Policy</a>
+		<a class="phd-link" href="{{termsUrl}}" rel="noopener noreferrer" target="_blank">Terms of Use</a>
+		<a class="phd-link" href="{{policyUrl}}" rel="noopener noreferrer" target="_blank">Privacy Policy</a>
+
 		<button class="phd-disclaimer">
 			<a class="phd-link" (click)="onDisclaimerClick()" target="_blank">Disclaimer</a>
 		</button>
 	</ul>
+
 	<img src="{{accessibilityImgSrc}}" alt="">
 	<div class="phd-spacer"></div>
 	<img src="{{equalHousingImgSrc}}" alt="">
+
 	<div class="phd-spacer"></div>
+
 	<a href="https://allyant.com" target="_blank">
 		<img src="assets/Logo_Allyant_small.png" alt="Reviewed by Allyant for accessibility">
 	</a>

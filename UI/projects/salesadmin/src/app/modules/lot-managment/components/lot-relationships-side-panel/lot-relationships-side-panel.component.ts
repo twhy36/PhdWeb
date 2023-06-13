@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
-import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
-import { LotChoiceRuleAssoc, LotChoiceRuleAssocView, SidePanelComponent } from "phd-common";
-import { MessageService } from "primeng/api";
-import { PlanService } from "../../../core/services/plan.service";
-import { DivisionalCatalog, DivDGroup, DivDSubGroup, DivDPoint, DivDChoice } from "../../../shared/models/divisionalCatalog.model";
-import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from "../../../shared/models/plan-assignment.model";
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { LotChoiceRuleAssoc, LotChoiceRuleAssocView, SidePanelComponent } from 'phd-common';
+import { MessageService } from 'primeng/api';
+import { PlanService } from '../../../core/services/plan.service';
+import { DivisionalCatalog, DivDGroup, DivDSubGroup, DivDPoint, DivDChoice } from '../../../shared/models/divisionalCatalog.model';
+import { FinancialCommunityViewModel, HomeSiteViewModel, PlanViewModel } from '../../../shared/models/plan-assignment.model';
 
 @Component({
 	selector: 'lot-relationships-side-panel',
@@ -34,7 +34,6 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	selectedLots: Array<HomeSiteViewModel> = [];
 	selectedPlans: Array<PlanViewModel> = [];
 
-	formControlLabels: string = 'assignedLotIds' || 'assignedPlanIds' || 'divChoiceCatalogId';
 	keyword: string = '';
 	searchFilters: Array<string> = ['All', 'Group', 'SubGroup', 'Decision Point', 'Choice'];
 	searchResultsCount: number = 0;
@@ -64,6 +63,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			// only show plans that have a direct map from edh to phd
 			this.plansForSelectedCommunity = this.selectedCommunity.plans.filter(p => this.edhToPhdPlanMap.get(p.id) !== null);
 		}
+
 		this.createForm();
 	}
 
@@ -76,16 +76,20 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 		{
 			this.selectedLots = this.lotsForSelectedCommunity.filter(l => l.dto.id === this.selected.edhLotId);
 			this.lotsForSelectedCommunity = this.lotsForSelectedCommunity.filter(l => l.dto.id !== this.selected.edhLotId);
+
 			assignedLotIds = [this.selected.edhLotId];
 
 			const edhPlanIds = this.selected.associatedLotChoiceRules.map(rule => this.getEdhPlanId(rule.planId));
+
 			this.selectedPlans = this.plansForSelectedCommunity.filter(p => edhPlanIds.includes(p.id));
 			this.plansForSelectedCommunity = this.plansForSelectedCommunity.filter(p => !edhPlanIds.includes(p.id));
 
 			const divChoiceCatalog = this.divChoiceCatalogs.find(c => c.divChoiceCatalogID === this.selected.divChoiceCatalogId);
+
 			if (divChoiceCatalog)
 			{
 				divChoiceCatalog.mustHave = this.selected.mustHave;
+
 				this.selectedChoiceCatalogs.push(divChoiceCatalog);
 			}
 		}
@@ -109,11 +113,13 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 				if (isLot && !this.doesLotRelationshipExist(id, 'homesite'))
 				{
 					this.selectedLots.push(this.lotsForSelectedCommunity.find(l => l.dto.id === id));
+
 					this.lotsForSelectedCommunity = this.lotsForSelectedCommunity.filter(l => l.dto.id !== id);
 				}
 				else if (isPlan)
 				{
 					this.selectedPlans.push(this.plansForSelectedCommunity.find(p => p.id === id));
+
 					this.plansForSelectedCommunity = this.plansForSelectedCommunity.filter(p => p.id !== id);
 				}
 			});
@@ -133,14 +139,17 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			}
 
 			const existingLotsOnRules = [];
+
 			this.lotsForSelectedCommunity.forEach(lot =>
 			{
 				if (this.doesLotRelationshipExist(lot.dto.id, 'homesite'))
 				{
 					existingLotsOnRules.push(lot);
 				}
+
 				this.selectedLots.push(lot);
-			})
+			});
+
 			this.lotsForSelectedCommunity = existingLotsOnRules;
 		}
 		else if (isPlan)
@@ -149,6 +158,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			{
 				this.lotRelationshipsForm.markAsDirty();
 			}
+
 			this.selectedPlans = this.selectedCommunity.plans.filter(p => this.edhToPhdPlanMap.get(p.id) !== null);
 			this.plansForSelectedCommunity = [];
 		}
@@ -176,15 +186,19 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 		if (item instanceof HomeSiteViewModel)
 		{
 			this.lotsForSelectedCommunity.push(this.selectedLots.find(l => l.dto.id === item.dto.id));
+
 			this.selectedLots = this.selectedLots.filter(l => l.dto.id !== item.dto.id);
 			this.lotsForSelectedCommunity = this.lotsForSelectedCommunity.sort((a, b) => a.dto.id - b.dto.id);
+
 			this.lotRelationshipsForm.markAsDirty();
 		}
 		else if (item instanceof PlanViewModel)
 		{
 			this.plansForSelectedCommunity.push(this.selectedPlans.find(p => p.id === item.id));
+
 			this.selectedPlans = this.selectedPlans.filter(p => p.id !== item.id);
 			this.plansForSelectedCommunity = this.plansForSelectedCommunity.sort((a, b) => a.id - b.id);
+
 			this.lotRelationshipsForm.markAsDirty();
 		}
 	}
@@ -192,6 +206,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	clearFilter()
 	{
 		this.showSearchResults = false;
+
 		this._resetAllMatchValues(false);
 	}
 
@@ -215,10 +230,10 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 
 	choiceClicked(choice: DivDChoice)
 	{
-		if (this.selectedChoiceCatalogs.length === 0
-			&& !this.doesLotRelationshipExist(choice.divChoiceCatalogID, 'choice'))
+		if (this.selectedChoiceCatalogs.length === 0 && !this.doesLotRelationshipExist(choice.divChoiceCatalogID, 'choice'))
 		{
 			choice.mustHave = false;
+
 			this.selectedChoiceCatalogs.push(choice);
 		}
 		else if (this.selectedChoiceCatalogs.length === 1 && this.selectedChoiceCatalogs.some(c => c.divChoiceCatalogID === choice.divChoiceCatalogID))
@@ -239,6 +254,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	save()
 	{
 		const lotRelationships: LotChoiceRuleAssoc[] = [];
+
 		this.selectedChoiceCatalogs.forEach(choice =>
 		{
 			this.selectedLots.forEach(lot =>
@@ -249,6 +265,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						rule.divChoiceCatalogId === choice.divChoiceCatalogID &&
 						rule.edhLotId === lot.dto.id &&
 						rule.planId === this.edhToPhdPlanMap.get(plan.id)) : null;
+
 					// Add existing association to lotRelationships list
 					if (assoc)
 					{
@@ -265,6 +282,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 							divChoiceCatalogId: choice.divChoiceCatalogID,
 							mustHave: choice.mustHave
 						} as LotChoiceRuleAssoc;
+
 						lotRelationships.push(newAssoc);
 					}
 				});
@@ -272,6 +290,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 		});
 
 		this.onSave.emit(lotRelationships);
+
 		this.saving = true;
 	}
 
@@ -294,6 +313,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 				return key;
 			}
 		}
+
 		return null;
 	}
 
@@ -320,16 +340,20 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 	private doesLotRelationshipExist(id: number, type: string)
 	{
 		let relationshipExists = false;
+
 		if (type === 'homesite')
 		{
 			this.selectedChoiceCatalogs.forEach(choice =>
 			{
 				const lotRelationship = this.existingLotRelationships.find(lr => lr.edhLotId === id && choice.divChoiceCatalogID === lr.divChoiceCatalogId);
+
 				if (lotRelationship)
 				{
 					relationshipExists = true;
+
 					const homesiteLotBlock = this.lotsForSelectedCommunity.find(l => l.dto.id === id)?.dto.lotBlock;
 					const homesiteErrorMessage = `Homesite: ${homesiteLotBlock} & Choice: ${choice.choiceLabel} relationship already exists. Please edit existing relationship.`;
+
 					this._msgService.add({ severity: 'error', summary: 'Lot Rule Association' , detail: homesiteErrorMessage });
 				}
 			});
@@ -339,15 +363,19 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 			this.selectedLots.forEach(lot =>
 			{
 				const lotRelationship = this.existingLotRelationships.find(lr => lr.edhLotId === lot.dto.id && lr.divChoiceCatalogId === id);
+
 				if (lotRelationship)
 				{
 					relationshipExists = true;
+
 					const choiceName = this.divChoiceCatalogs.find(c => c.divChoiceCatalogID === id)?.choiceLabel;
 					const choiceErrorMessage = `Choice: ${choiceName} & Homesite: ${lot.dto.lotBlock} relationship already exists. Please edit existing relationship.`;
+
 					this._msgService.add({ severity: 'error', summary: 'Lot Rule Association' , detail: choiceErrorMessage });
 				}
 			});
 		}
+
 		return relationshipExists;
 	}
 
@@ -373,9 +401,11 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						if ((isNotFiltered || isFilteredGroup) && this._isMatch(i.dGroupLabel, this.keyword))
 						{
 							count++;
+
 							i.matched = true;
 							// expand group to show everything in it
 							i.open = true;
+
 							// match found so show everything under this group by setting 2nd parm to true (inheritMatch)
 							count += this._mainSearch(i.subGroups as Array<DivDSubGroup>, true);
 						}
@@ -383,9 +413,11 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						{
 							// check for a match in subgroups
 							const c = this._mainSearch(i.subGroups as Array<DivDSubGroup>, false);
+
 							// match and expand group to show everything in it if match count > 0
 							i.matched = c > 0;
 							i.open = c > 0;
+
 							count += c;
 						}
 					}
@@ -404,9 +436,11 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						if (((isNotFiltered || isFilteredSubGroup) && this._isMatch(i.dSubGroupLabel, this.keyword)) || inheritMatch)
 						{
 							count++;
+
 							i.matched = true;
 							// expand subgroup to show everything in it
 							i.open = true;
+
 							// show everything under this subgroup by setting 2nd parm to true (inheritMatch)
 							count += this._mainSearch(i.points as Array<DivDPoint>, true);
 						}
@@ -414,9 +448,11 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						{
 							// check for a match in decision points
 							const c = this._mainSearch(i.points as Array<DivDPoint>, false);
+
 							// match and expand subgroup to show everything in it if match count > 0
 							i.matched = c > 0;
 							i.open = c > 0;
+
 							count += c;
 						}
 					}
@@ -435,9 +471,11 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						if (((isNotFiltered || isFilteredPoint) && this._isMatch(i.dPointLabel, this.keyword)) || inheritMatch)
 						{
 							count++;
+
 							i.matched = true;
 							// expand decision point to show everything in it
 							i.open = true;
+
 							// show everything under this decision point by setting 2nd parm to true (inheritMatch)
 							count += this._mainSearch(i.choices as Array<DivDChoice>, true);
 						}
@@ -445,9 +483,11 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 						{
 							// check for a match in choices
 							const c = this._mainSearch(i.choices as Array<DivDChoice>, false);
+
 							// match and expand decision point to show everything in it if match count > 0
 							i.matched = c > 0;
 							i.open = c > 0;
+
 							count += c;
 						}
 					}
@@ -464,6 +504,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 					if (((isNotFiltered || isFilteredChoice) && this._isMatch(i.choiceLabel, this.keyword)) || inheritMatch)
 					{
 						count++;
+
 						i.matched = true;
 					}
 					else
@@ -474,6 +515,7 @@ export class LotRelationshipsSidePanelComponent implements OnInit
 				}
 			});
 		}
+
 		return count;
 	}
 

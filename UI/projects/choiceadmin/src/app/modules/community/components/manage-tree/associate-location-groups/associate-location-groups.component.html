@@ -1,4 +1,4 @@
-<div class="phd-indicator" *ngIf="!isReadOnly || isReadOnly && hasGroupAssociated && !(isLoading | async)"><span class="text-danger">*</span> Location Groups only apply to unmapped choices.</div>
+<div class="phd-indicator" *ngIf="!isReadOnly || (hasGroupAssociated && !(isLoading | async))"><span class="text-danger">*</span> Location Groups only apply to unmapped choices.</div>
 
 <div *ngIf="isReadOnly && !hasGroupAssociated && !(isLoading | async)" class="alert alert-info">No location groups associated.</div>
 

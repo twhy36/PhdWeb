@@ -53,7 +53,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	selector: 'my-favorites',
 	templateUrl: 'my-favorites.component.html',
 	styleUrls: ['my-favorites.component.scss']
-	})
+})
 export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(GroupBarComponent) private groupBar: GroupBarComponent;
@@ -98,6 +98,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
 		const subGroupIndex = subGroups.findIndex(sg => sg.id === this.selectedSubgroupId);
+
 		if (subGroupIndex > -1)
 		{
 			const nextSubgroup = subGroupIndex === subGroups.length - 1
@@ -120,6 +121,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private navService: NavigationService)
 	{
 		super();
+
 		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
@@ -161,7 +163,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				keyboard: false,
 				windowClass: this.brandTheme,
 			};
-			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
+
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true);
 		}
 
 		this.store.pipe(
@@ -172,14 +175,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if (tree)
 			{
 				this.groups = tree.groups;
-				if (!this.groups.length)
-				{
-					this.noVisibleGroups = true;
-				}
-				else
-				{
-					this.noVisibleGroups = false;
-				}
+
+				this.noVisibleGroups = !this.groups.length;
 			}
 		});
 
@@ -254,6 +251,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
+
 						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
 					}
 					else
@@ -306,6 +304,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sgId) || _.flatMap(groups, g => g.subGroups)[0];
 
 			this.selectedPointId = nav && nav.selectedPoint;
+
 			if (!this.selectedPointId && subGroup && subGroup.points && subGroup.points.length)
 			{
 				this.selectedPointId = subGroup.points[0].id;
@@ -353,6 +352,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
 			this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
 			this.myFavoriteId = favorite && favorite.id;
+
 			this.updateSelectedChoice();
 		});
 
@@ -378,6 +378,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
 					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+
 					if (fpSubGroup)
 					{
 						this.marketingPlanId$.next(plan.marketingPlanId[0]);
@@ -449,6 +450,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		else
 		{
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+
 			this.router.navigate(['favorites', 'summary'], { queryParamsHandling: 'merge' });
 		}
 	}
@@ -467,6 +469,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.deselectDeclinedPoints(choice);
 		}
+
 		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
@@ -537,6 +540,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const firstPoint = newSubgroup?.points[0] || null;
 
 			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
+
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(sgId, firstPoint.id, null));
 		}
 		else
@@ -549,6 +553,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 			}
+
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
 		}
 
@@ -565,6 +570,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		let subGroupName = '';
 		let pointName = '';
+
 		if (this.previousUrl && this.previousUrl.length)
 		{
 			if (this.previousUrl.includes('favorites/summary'))
@@ -581,7 +587,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.selectedSubGroup)
 		{
 			subGroupName = this.selectedSubGroup.label;
+
 			const selectedPoint = this.selectedSubGroup.points.find(p => p.id === this.selectedPointId);
+
 			if (selectedPoint)
 			{
 				pointName = selectedPoint.label;

@@ -41,7 +41,7 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'favorites-summary',
 	templateUrl: './favorites-summary.component.html',
 	styleUrls: ['./favorites-summary.component.scss']
-	})
+})
 export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
@@ -153,10 +153,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.isPreview = scenario.buildMode === BuildMode.Preview;
 			this.isPresale = scenario.buildMode === BuildMode.Presale;
+
 			if (this.isPresale)
 			{
 				this.showFloorplan = true
 			}
+
 			this.isDesignComplete = sag?.isDesignComplete || false;
 			this.buildMode = scenario.buildMode;
 			this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
@@ -279,7 +281,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				keyboard: false,
 				windowClass: this.brandTheme,
 			};
-			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
+
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true);
 		}
 
 		// marketing plan Id for interactive floorplan
@@ -290,13 +293,16 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(([plan, scenario]) =>
 		{
 			this.noVisibleFP = false; // Default this value to false
+
 			if (plan && plan.marketingPlanId && plan.marketingPlanId.length)
 			{
 				if (scenario.tree && scenario.tree.treeVersion)
 				{
 					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
 					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+
 					this.IFPsubGroup = fpSubGroup;
+
 					if (fpSubGroup)
 					{
 						this.marketingPlanId.next(plan.marketingPlanId[0]);
@@ -340,6 +346,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			return false;
 		}
+
 		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
@@ -354,6 +361,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
 		const selectedSubGroup = subGroups.find(sg => sg.id === id);
+
 		if (selectedSubGroup)
 		{
 			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
@@ -375,6 +383,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.isSticky = false;
 			this.isInitScrollTop = false;
+
 			return;
 		}
 
@@ -400,6 +409,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (subGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(point.subGroupId, point.id));
+
 			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 	}
@@ -474,6 +484,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	checkForEmptyFavorites()
 	{
 		const favorites = _.flatMap(this.myFavorites, fav => fav.myFavoritesChoice);
+
 		this.isEmptyFavorites = favorites.length === 0;
 	}
 
@@ -487,16 +498,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			windowClass: this.brandTheme,
 		};
 
-
 		this.emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
 
 		this.emptyFavoritesModal.componentInstance.title = 'Oops. No options have been selected.';
-		this.emptyFavoritesModal.componentInstance.body = `
-			<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>
-		`;
+		this.emptyFavoritesModal.componentInstance.body = `<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>`;
 		this.emptyFavoritesModal.componentInstance.buttonText = 'Back';
 		this.emptyFavoritesModal.componentInstance.defaultOption = 'Back';
-
 
 		this.adobeService.setAlertEvent(this.emptyFavoritesModal.componentInstance.title + ' ' + this.emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
 
@@ -538,6 +545,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	toggleCollapsed()
 	{
 		this.showFloorplan = !this.showFloorplan;
+
 		this.cd.detectChanges();
 	}
 }

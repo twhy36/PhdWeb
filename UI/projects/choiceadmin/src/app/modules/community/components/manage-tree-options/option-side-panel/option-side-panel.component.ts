@@ -102,6 +102,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		}
 
 		this.optionRuleSelectedChoices = [];
+
 		this.resetImageSort();
 
 		this.currentTab = $event.activeId;
@@ -310,7 +311,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		this._treeService.hasAttributeReassignment(params.optionRuleChoice.id).subscribe(async hasAttributeReassignment =>
 		{
 			// if no reassignments proceed, else show prompt asking if they'd like to continue
-			if (!hasAttributeReassignment || (hasAttributeReassignment && await this.confirmAttributeReassignment(params.optionRuleChoice.label)))
+			if (!hasAttributeReassignment || await this.confirmAttributeReassignment(params.optionRuleChoice.label))
 			{
 				this.deleteOptionChoiceRule(params.optionRuleChoice, params.callback);
 			}

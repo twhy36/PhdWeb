@@ -44,7 +44,7 @@
 		<div *ngIf="isAdd">
 			<div class="pull-right">
 				<button class="btn btn-primary phd-btn-save" (click)="saveAndContinue();" [disabled]="saveDisabled">
-					<ng-container *ngIf="!isSaving || (isSaving && !isAddingAnother)">
+					<ng-container *ngIf="!isSaving || !isAddingAnother">
 						Add Another
 					</ng-container>
 					<i class="fa fa-spinner fa-spin fa-fw" *ngIf="isSaving && isAddingAnother"></i>

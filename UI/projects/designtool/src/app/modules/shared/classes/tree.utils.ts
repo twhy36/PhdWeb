@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import * as moment from "moment";
+import * as moment from 'moment';
 
 import
 	{
@@ -22,13 +22,6 @@ export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): 
 export function isChangeOrderChoice(choice: JobChoice | ChangeOrderChoice | MyFavoritesChoice): choice is ChangeOrderChoice
 {
 	return (<any>choice).action !== undefined;
-}
-
-function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]
-{
-	return isJobChoice(choice)
-		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)?.map(a => options.find(o => isJobPlanOption(o) && o.id === a.jobPlanOptionId))
-		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)?.map(a => options.find(o => !isJobPlanOption(o) && o.id === a.jobChangeOrderPlanOptionId));
 }
 
 function mapLocation(loc: JobChoiceLocation | ChangeOrderChoiceLocation): DesignToolAttribute
@@ -120,11 +113,6 @@ export function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | Ch
 	return (choice: JobChoice | ChangeOrderChoice) => isJobChoice(choice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
 
-function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption | ChangeOrderPlanOption) => boolean
-{
-	return (option: JobPlanOption | ChangeOrderPlanOption) => isJobPlanOption(option) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
-}
-
 export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
 {
 	return <OptionRule>{
@@ -137,27 +125,6 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 		],
 		ruleId: 0, replaceOptions: []
 	};
-}
-
-function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], options: Array<JobPlanOption | ChangeOrderPlanOption>, changeOrder?: ChangeOrderGroup)
-{
-	choices.filter(isLocked(changeOrder)).forEach(choice =>
-	{
-		let treeChoice = treeChoices.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
-
-		if (treeChoice)
-		{
-			treeChoice.lockedInChoice = getLockedInChoice(choice, options);
-			treeChoice.mappedAttributeGroups = (isJobChoice(choice)
-				? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
-				: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
-			).map(att => new MappedAttributeGroup({ id: att }));
-			treeChoice.mappedLocationGroups = (isJobChoice(choice)
-				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
-				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
-			).map(loc => new MappedLocationGroup({ id: loc }));
-		}
-	});
 }
 
 /**

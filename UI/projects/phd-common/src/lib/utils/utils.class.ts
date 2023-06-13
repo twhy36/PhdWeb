@@ -23,7 +23,7 @@ export function isChoiceAttributesComplete(choice: Choice): boolean
 	let isComplete = true;
 
 	// if mapped attributes or locations attached to the choice has locations and/or attributes but nothing is selected then the choice isn't complete.
-	if ((choice.mappedAttributeGroups && choice.mappedAttributeGroups.length > 0 || choice.mappedLocationGroups && choice.mappedLocationGroups.length > 0) && !choice.selectedAttributes.length)
+	if ((choice.mappedAttributeGroups?.length > 0 || choice.mappedLocationGroups?.length > 0) && !choice.selectedAttributes.length)
 	{
 		isComplete = false;
 	}

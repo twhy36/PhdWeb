@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import
 {
-	UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, ChoiceImageAssoc, Group,
+	UnsubscribeOnDestroy, DecisionPoint, SubGroup, JobChoice, Group,
 	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
 import { BrandService } from '../../../../core/services/brand.service';
@@ -15,7 +15,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 	selector: 'floor-plan-experience',
 	templateUrl: './floor-plan-experience.component.html',
 	styleUrls: ['./floor-plan-experience.component.scss']
-	})
+})
 export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;
@@ -65,11 +65,13 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		if (changes['currentSubgroup'])
 		{
 			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
+
 			if (this.choiceToggled)
 			{
 				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
 				const choices = _.flatMap(this.subGroup.points, pt => pt.choices);
+
 				newChoices.forEach(nc =>
 				{
 					const choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
@@ -78,8 +80,10 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 						choice.quantity = nc.quantity;
 					}
 				});
+
 				this.choiceToggled = false;
 			}
+
 			this.subGroup = changes['currentSubgroup'].currentValue;
 			this.points = this.subGroup ? this.subGroup.points : null;
 		}
@@ -113,6 +117,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	choiceToggleHandler(choice: ChoiceExt)
 	{
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
+
 		if (point && this.currentPointId != point.id)
 		{
 			this.currentPointId = point.id;
@@ -132,6 +137,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 		}
 
 		this.choiceToggled = true;
+
 		this.toggleChoice.emit(choice);
 	}
 
@@ -146,11 +152,14 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 	loadFloorPlan(fp) 
 	{
 		this.floorPlanLoaded = true;
+
 		// load floors
 		this.floors = fp.floors;
+
 		if (!this.selectedFloor) 
 		{
 			const floor1 = this.floors.find(floor => floor.name === 'Floor 1');
+
 			if (floor1) 
 			{
 				this.selectedFloor = floor1;
@@ -160,6 +169,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 				this.selectedFloor = this.floors[0];
 			}
 		}
+
 		//load options
 		this.fpOptions = fp.options;
 	}

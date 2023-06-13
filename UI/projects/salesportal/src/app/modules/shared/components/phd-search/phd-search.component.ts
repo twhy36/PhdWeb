@@ -332,12 +332,12 @@ export class PHDSearchComponent
 		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
+
 		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
-		{
-			
+		{			
 			let filteredLots = [];
 
-			if (filteredLots && results && results.length > 0)
+			if (results?.length > 0)
 			{
 				results.map(result =>
 				{
@@ -357,7 +357,7 @@ export class PHDSearchComponent
 				});
 			}
 			
-			this.searchResults = filteredLots ? filteredLots : results;			
+			this.searchResults = filteredLots.length > 0 ? filteredLots : results;			
 		});
 	}
 

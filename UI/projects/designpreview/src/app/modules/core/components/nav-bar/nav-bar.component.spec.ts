@@ -72,7 +72,7 @@ describe('NavBarComponent', () =>
 			]
 		}).compileComponents();
 
-		router = TestBed.inject(Router)
+		router = TestBed.inject(Router);
 		location = TestBed.inject(Location);
 		mockStore = TestBed.inject(MockStore);
 		fixture = TestBed.createComponent(NavBarComponent);

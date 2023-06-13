@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DecisionPoint, Group, ModalRef, ModalService, Tree } from 'phd-common';
 import { ChoiceExt } from '../../../models/choice-ext.model';
 import { Store } from '@ngrx/store';
@@ -54,6 +54,7 @@ export class DecisionBarChoiceComponent
 	openBlockedChoiceModal()
 	{
 		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.point.id === p.id)) || null;
+
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.point.id, null));
 
 		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandService.getBrandTheme()}` }, true);

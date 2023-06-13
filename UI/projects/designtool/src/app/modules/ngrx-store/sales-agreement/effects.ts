@@ -32,10 +32,11 @@ import { OpportunityContactAssocUpdated } from '../opportunity/actions';
 import * as fromRoot from '../reducers';
 import * as fromSalesAgreement from './reducer';
 
-import {
-	Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
-	SalesAgreementContingency, SalesAgreement, SpinnerService, SpecDiscountService, ISalesProgram
-} from 'phd-common';
+import
+	{
+		Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
+		SalesAgreementContingency, SalesAgreement, SpinnerService, SpecDiscountService
+	} from 'phd-common';
 
 import { tryCatch } from '../error.action';
 import { SalesAgreementCancelled, LoadSpec } from '../actions';
@@ -49,11 +50,12 @@ import { LiteService } from '../../core/services/lite.service';
 @Injectable()
 export class SalesAgreementEffects
 {
-	createSalesAgreement$: Observable<Action> = createEffect(() => {
+	createSalesAgreement$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreateSalesAgreementForScenario>(SalesAgreementActionTypes.CreateSalesAgreementForScenario),
 			withLatestFrom(
-				this.store, 
+				this.store,
 				this.store.pipe(select(fromRoot.priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme)),
 			),
@@ -79,7 +81,7 @@ export class SalesAgreementEffects
 				const createSalesAgreementForScenario = store.lite.isPhdLite
 					? this.liteService.createSalesAgreementForLiteScenario(
 						store.lite,
-						store.scenario.scenario.scenarioId, 
+						store.scenario.scenario.scenarioId,
 						salePrice,
 						priceBreakdown.baseHouse,
 						store.job.jobPlanOptions,
@@ -88,9 +90,9 @@ export class SalesAgreementEffects
 						pendingJobSummary
 					)
 					: this.salesAgreementService.createSalesAgreementForScenario(
-						store.scenario.scenario, 
-						store.scenario.tree, 
-						store.scenario.options.find(o => o.isBaseHouse), 
+						store.scenario.scenario,
+						store.scenario.tree,
+						store.scenario.options.find(o => o.isBaseHouse),
 						salePrice,
 						store.scenario.rules.optionRules,
 						pendingJobSummary
@@ -119,7 +121,8 @@ export class SalesAgreementEffects
 
 						return from(actions);
 					}),
-					catchError(error => {
+					catchError(error =>
+					{
 						if (error.error.Message === 'Lot Unavailable')
 						{
 							return of(new LotConflict());
@@ -138,7 +141,8 @@ export class SalesAgreementEffects
 		);
 	});
 
-	loadBuyers$: Observable<Action> = createEffect(() => {
+	loadBuyers$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadBuyers>(SalesAgreementActionTypes.LoadBuyers),
 			tryCatch(source => source.pipe(
@@ -148,7 +152,8 @@ export class SalesAgreementEffects
 		);
 	});
 
-	loadConsultants: Observable<Action> = createEffect(() => {
+	loadConsultants: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadConsultants>(SalesAgreementActionTypes.LoadConsultants),
 			tryCatch(source => source.pipe(
@@ -158,7 +163,8 @@ export class SalesAgreementEffects
 		);
 	});
 
-	loadRealtor$: Observable<Action> = createEffect(() => {
+	loadRealtor$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<LoadRealtor>(SalesAgreementActionTypes.LoadRealtor),
 			tryCatch(source => source.pipe(
@@ -168,7 +174,8 @@ export class SalesAgreementEffects
 		);
 	});
 
-	saveTrust$: Observable<Action> = createEffect(() => {
+	saveTrust$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetTrustName>(SalesAgreementActionTypes.SetTrustName),
 			withLatestFrom(this.store),
@@ -179,18 +186,21 @@ export class SalesAgreementEffects
 		);
 	});
 
-	updateSalesAgreement$: Observable<Action> = createEffect(() => {
+	updateSalesAgreement$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<UpdateSalesAgreement>(SalesAgreementActionTypes.UpdateSalesAgreement),
 			withLatestFrom(
-				this.store, 
+				this.store,
 				this.store.pipe(select(fromRoot.priceBreakdown))
 			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) => {
+				switchMap(([action, store, priceBreakdown]) =>
+				{
 					const sa = new SalesAgreement(action.salesAgreement);
 
-					if (sa.status == 'Pending' || sa.status == 'OutforSignature') {
+					if (sa.status == 'Pending' || sa.status == 'OutforSignature')
+					{
 						sa.salePrice = priceBreakdown.totalPrice;
 					}
 
@@ -209,35 +219,41 @@ export class SalesAgreementEffects
 		);
 	});
 
-	saveSalesAgreementInfoNA: Observable<Action> = createEffect(() => {
+	saveSalesAgreementInfoNA: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveSalesAgreementInfoNA>(SalesAgreementActionTypes.SaveSalesAgreementInfoNA),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const info: SalesAgreementInfo = new SalesAgreementInfo(action.salesAgreementInfo);
 
 					info.edhSalesAgreementId = store.salesAgreement.id;
 
 					return forkJoin(of(action), this.salesAgreementService.saveSalesAgreementInfo(info));
 				}),
-				switchMap(([action, info]) => {
+				switchMap(([action, info]) =>
+				{
 					return of(new SalesAgreementInfoNASaved(info, action.naType));
 				})
 			), SaveError, 'Error saving sales agreement info NA!!')
 		);
 	});
 
-	saveIsFloorplanFlippedAgreement$: Observable<Action> = createEffect(() => {
+	saveIsFloorplanFlippedAgreement$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetIsFloorplanFlippedAgreement>(SalesAgreementActionTypes.SetIsFloorplanFlippedAgreement),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const currentFlip: boolean = store.salesAgreement.isFloorplanFlipped;
 					const info: SalesAgreementInfo = { edhSalesAgreementId: store.salesAgreement.id, isFloorplanFlipped: action.isFlipped };
 
-					if (!!store.salesAgreement.id && store.salesAgreement.isFloorplanFlipped !== action.isFlipped) {
+					if (!!store.salesAgreement.id && store.salesAgreement.isFloorplanFlipped !== action.isFlipped)
+					{
 						return this.salesAgreementService.saveSalesAgreementInfo(info);
 					}
 
@@ -250,14 +266,17 @@ export class SalesAgreementEffects
 		);
 	});
 
-	setIsDesignComplete$: Observable<Action> = createEffect(() => {
+	setIsDesignComplete$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SetIsDesignComplete>(SalesAgreementActionTypes.SetIsDesignComplete),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const info: SalesAgreementInfo = { edhSalesAgreementId: store.salesAgreement.id, isDesignComplete: action.isDesignComplete };
-					if (!!store.salesAgreement.id) {
+					if (!!store.salesAgreement.id)
+					{
 						return this.salesAgreementService.saveSalesAgreementInfo(info);
 					}
 
@@ -271,20 +290,24 @@ export class SalesAgreementEffects
 	/*
 	 * Deletes Co-Buyer
 	 */
-	deleteCoBuyer: Observable<Action> = createEffect(() => {
+	deleteCoBuyer: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<DeleteCoBuyer>(SalesAgreementActionTypes.DeleteCoBuyer),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const salesAgreementId = store.salesAgreement.id;
 
 					return this.salesAgreementService.deleteBuyer(salesAgreementId, action.coBuyer.id).pipe(
-						map(id => {
+						map(id =>
+						{
 							return { deletedCoBuyerId: id, sortKey: action.coBuyer.sortKey }
 						}));
 				}),
-				switchMap(result => {
+				switchMap(result =>
+				{
 					return of(new CoBuyerDeleted(result.deletedCoBuyerId, result.sortKey));
 				})
 			), SaveError, "Error deleting co-buyers!!")
@@ -294,12 +317,14 @@ export class SalesAgreementEffects
 	/*
 	 * Re-Sorts Co-Buyers after deletion for Co-Buyers with a Sort Key > Deleted Co-Buyer Sort Key
 	 */
-	coBuyerDeleted: Observable<Action> = createEffect(() => {
+	coBuyerDeleted: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CoBuyerDeleted>(SalesAgreementActionTypes.CoBuyerDeleted),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const salesAgreementId = store.salesAgreement.id;
 					const coBuyersToReSort = _.cloneDeep(store.salesAgreement.buyers.filter(b => b.sortKey > action.deletedCoBuyerSortKey));
 
@@ -307,55 +332,66 @@ export class SalesAgreementEffects
 
 					return this.salesAgreementService.saveReSortedBuyers(salesAgreementId, coBuyersToReSort);
 				}),
-				switchMap(updatedBuyers => {
+				switchMap(updatedBuyers =>
+				{
 					return of(new CoBuyersReSorted(updatedBuyers));
 				})
 			), SaveError, "Error re-sorting co-buyers!!")
 		);
 	});
 
-	updatePrimaryBuyer: Observable<Action> = createEffect(() => {
+	updatePrimaryBuyer: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<UpdatePrimaryBuyer>(SalesAgreementActionTypes.UpdatePrimaryBuyer),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(of(store.salesAgreement.id), this.salesAgreementService.addUpdateSalesAgreementBuyer(store.salesAgreement.id, action.buyer));
 				}),
-				switchMap(([salesAgreementId, buyer]) => {
+				switchMap(([salesAgreementId, buyer]) =>
+				{
 					return this.salesAgreementService.getSalesAgreementBuyer(salesAgreementId, buyer.id);
 				}),
-				switchMap(buyer => {
+				switchMap(buyer =>
+				{
 					return of(new BuyerSaved(buyer));
 				})
 			), SaveError, "Error updating primary buyer!!")
 		);
 	});
 
-	updateCoBuyer: Observable<Action> = createEffect(() => {
+	updateCoBuyer: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<UpdateCoBuyer>(SalesAgreementActionTypes.UpdateCoBuyer),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(of(store.salesAgreement.id), this.salesAgreementService.addUpdateSalesAgreementBuyer(store.salesAgreement.id, action.coBuyer));
 				}),
-				switchMap(([salesAgreementId, buyer]) => {
+				switchMap(([salesAgreementId, buyer]) =>
+				{
 					return this.salesAgreementService.getSalesAgreementBuyer(salesAgreementId, buyer.id);
 				}),
-				switchMap(coBuyer => {
+				switchMap(coBuyer =>
+				{
 					return of(new BuyerSaved(coBuyer));
 				})
 			), SaveError, "Error updating co-buyer!!")
 		);
 	});
 
-	swapPrimaryBuyer: Observable<Action> = createEffect(() => {
+	swapPrimaryBuyer: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SwapPrimaryBuyer>(SalesAgreementActionTypes.SwapPrimaryBuyer),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					// note: saveSwapPrimaryBuyer sends a batch patch and it fails in EDH
 					//       because there can only be one primary buyer at a time so we
 					//       will make separate calls instead
@@ -366,7 +402,8 @@ export class SalesAgreementEffects
 
 					return this.salesAgreementService.patchSalesAgreementBuyer(store.salesAgreement.id, oldPrimaryBuyer)
 						.pipe(
-							concatMap(oldPrimaryBuyer => {
+							concatMap(oldPrimaryBuyer =>
+							{
 								return forkJoin(of(oldPrimaryBuyer), this.salesAgreementService.patchSalesAgreementBuyer(store.salesAgreement.id, newPrimaryBuyer));
 							})
 						);
@@ -377,12 +414,14 @@ export class SalesAgreementEffects
 		);
 	});
 
-	addCoBuyer: Observable<Action> = createEffect(() => {
+	addCoBuyer: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<AddCoBuyer>(SalesAgreementActionTypes.AddCoBuyer),
 			withLatestFrom(this.store, this.store.pipe(select(fromSalesAgreement.primaryBuyer)), this.store.pipe(select(fromSalesAgreement.coBuyers))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, primaryBuyer, coBuyers]) => {
+				switchMap(([action, store, primaryBuyer, coBuyers]) =>
+				{
 					const salesCommunityId = primaryBuyer.opportunityContactAssoc.opportunity.salesCommunityId;
 					const opportunityGuid = primaryBuyer.opportunityContactAssoc.opportunity.dynamicsOpportunityId;
 					const sortKey = coBuyers.length + 1;
@@ -395,7 +434,8 @@ export class SalesAgreementEffects
 
 					return forkJoin(of(store.salesAgreement.id), this.salesAgreementService.addUpdateSalesAgreementBuyer(store.salesAgreement.id, coBuyer));
 				}),
-				switchMap(([salesAgreementId, buyer]) => {
+				switchMap(([salesAgreementId, buyer]) =>
+				{
 					return this.salesAgreementService.getSalesAgreementBuyer(salesAgreementId, buyer.id);
 				}),
 				switchMap(buyer => of(new CoBuyerAdded(buyer)))
@@ -403,47 +443,57 @@ export class SalesAgreementEffects
 		);
 	});
 
-	addUpdateRealtor: Observable<Action> = createEffect(() => {
+	addUpdateRealtor: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<AddUpdateRealtor>(SalesAgreementActionTypes.AddUpdateRealtor),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return this.salesAgreementService.addUpdateSalesAgreementRealtor(store.salesAgreement.id, action.realtor);
 				}),
-				switchMap(realtor => {
+				switchMap(realtor =>
+				{
 					return this.salesAgreementService.getSalesAgreementRealtor(realtor.salesAgreementId).pipe(
 						catchError(error => this.store.pipe(take(1), select(state => state.salesAgreement.realtors[0])))
 					);
 				}),
-				switchMap(realtor => {
+				switchMap(realtor =>
+				{
 					return of<Action>(new RealtorSaved(realtor));
 				})
 			), SaveError, "Error updating realtor!!")
 		);
 	});
 
-	reSortCoBuyers: Observable<Action> = createEffect(() => {
+	reSortCoBuyers: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<ReSortCoBuyers>(SalesAgreementActionTypes.ReSortCoBuyers),
 			withLatestFrom(this.store, this.store.pipe(select(fromSalesAgreement.coBuyers))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, coBuyers]) => {
+				switchMap(([action, store, coBuyers]) =>
+				{
 					const salesAgreementId = store.salesAgreement.id;
-					const coBuyersToReSort = coBuyers.map<Buyer>(b => {
-						if (b.sortKey === action.sourceSortKey) {
+					const coBuyersToReSort = coBuyers.map<Buyer>(b =>
+					{
+						if (b.sortKey === action.sourceSortKey)
+						{
 							return { ...b, sortKey: action.targetSortKey };
 						}
 
 						if (action.sourceSortKey > action.targetSortKey &&
 							b.sortKey >= action.targetSortKey &&
-							b.sortKey < action.sourceSortKey) {
+							b.sortKey < action.sourceSortKey)
+						{
 							return { ...b, sortKey: ++b.sortKey };
 						}
 
 						if (action.sourceSortKey < action.targetSortKey &&
 							b.sortKey > action.sourceSortKey &&
-							b.sortKey <= action.targetSortKey) {
+							b.sortKey <= action.targetSortKey)
+						{
 							return { ...b, sortKey: --b.sortKey };
 						}
 
@@ -460,18 +510,21 @@ export class SalesAgreementEffects
 	/*
 	 * Saved Program
 	 */
-	saveProgram$: Observable<Action> = createEffect(() => {
+	saveProgram$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveProgram>(SalesAgreementActionTypes.SaveProgram),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const program: SalesAgreementProgram = action.program;
 					const salesProgName: string = action.salesProgramName
 
 					return forkJoin(of(store.salesAgreement), this.salesAgreementService.saveProgram(program), of(salesProgName));
 				}),
-				switchMap(([sa, program, salesProgName]) => {
+				switchMap(([sa, program, salesProgName]) =>
+				{
 					let newSA = { id: sa.id, salePrice: sa.salePrice, status: sa.status } as SalesAgreement;
 
 					return from([
@@ -486,17 +539,20 @@ export class SalesAgreementEffects
 	/*
 	 * Deletes Program
 	 */
-	deleteProgram$: Observable<Action> = createEffect(() => {
+	deleteProgram$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<DeleteProgram>(SalesAgreementActionTypes.DeleteProgram),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const salesAgreementId = store.salesAgreement.id;
 
 					return forkJoin(of(store.salesAgreement), this.salesAgreementService.deleteProgram(salesAgreementId, action.program.id));
 				}),
-				switchMap(([sa, result]) => {
+				switchMap(([sa, result]) =>
+				{
 					let newSA = { id: sa.id, salePrice: sa.salePrice, status: sa.status } as SalesAgreement;
 
 					return from([
@@ -511,7 +567,8 @@ export class SalesAgreementEffects
 	/*
 	 * Saved Deposit
 	 */
-	saveDeposit$: Observable<Action> = createEffect(() => {
+	saveDeposit$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveDeposit>(SalesAgreementActionTypes.SaveDeposit),
 			tryCatch(source => source.pipe(
@@ -526,12 +583,14 @@ export class SalesAgreementEffects
 	/*
 	 * Deletes Deposit
 	 */
-	deleteDeposit$: Observable<Action> = createEffect(() => {
+	deleteDeposit$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<DeleteDeposit>(SalesAgreementActionTypes.DeleteDeposit),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const salesAgreementId = store.salesAgreement.id;
 
 					return this.salesAgreementService.deleteDeposit(salesAgreementId, action.deposit.id);
@@ -544,7 +603,8 @@ export class SalesAgreementEffects
 	/*
 	 * Save Contingency
 	 */
-	saveContingency$: Observable<Action> = createEffect(() => {
+	saveContingency$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveContingency>(SalesAgreementActionTypes.SaveContingency),
 			tryCatch(source => source.pipe(
@@ -560,12 +620,14 @@ export class SalesAgreementEffects
 	/*
 	 * Deletes Contingency
 	 */
-	deleteContingency$: Observable<Action> = createEffect(() => {
+	deleteContingency$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<DeleteContingency>(SalesAgreementActionTypes.DeleteContingency),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					const salesAgreementId = store.salesAgreement.id;
 
 					return this.salesAgreementService.deleteContingency(salesAgreementId, action.contingency.id);
@@ -579,7 +641,8 @@ export class SalesAgreementEffects
 	 * Saved Note
 	 * TODO: Add support for other types of notes
 	 */
-	saveNote$: Observable<Action> = createEffect(() => {
+	saveNote$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveNote>(SalesAgreementActionTypes.SaveNote),
 			tryCatch(source => source.pipe(
@@ -594,12 +657,14 @@ export class SalesAgreementEffects
 	/*
 	 * Deletes Note
 	 */
-	deleteNote$: Observable<Action> = createEffect(() => {
+	deleteNote$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<DeleteNote>(SalesAgreementActionTypes.DeleteNote),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return this.salesAgreementService.deleteNote(action.noteId, store.salesAgreement.id);
 				}),
 				map(result => new NoteDeleted(result))
@@ -610,15 +675,18 @@ export class SalesAgreementEffects
 	/*
 	 * Void Sales Agreement
 	 */
-	voidSalesAgreement$: Observable<Action> = createEffect(() => {
+	voidSalesAgreement$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<VoidSalesAgreement>(SalesAgreementActionTypes.VoidSalesAgreement),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(of(store.job), this.salesAgreementService.voidSalesAgreement(store.salesAgreement.id || null, action.reasonKey));
 				}),
-				switchMap(([jobState, salesAgreement]) => {
+				switchMap(([jobState, salesAgreement]) =>
+				{
 					const job: Job = _.cloneDeep(jobState);
 
 					// look at the last changeOrderGroup (most recently created date) and update description
@@ -660,10 +728,11 @@ export class SalesAgreementEffects
 						.filter(t => ['Pending', 'OutforSignature', 'Signed', 'Rejected'].indexOf(t.salesStatusDescription) !== -1)
 						.concat(job.changeOrderGroups
 							.filter(t => t.salesStatusDescription === 'Approved' && t.constructionStatusDescription !== 'Approved')
-					);
+						);
 
 					// Update each active change order
-					activeChangeOrders.forEach(co => {
+					activeChangeOrders.forEach(co =>
+					{
 						co.salesStatusDescription = 'Withdrawn';
 						co.salesStatusUTCDate = salesAgreement.lastModifiedUtcDate;
 					});
@@ -672,7 +741,8 @@ export class SalesAgreementEffects
 					// we need to manually withdraw the active change order ourselves
 					return forkJoin(of(action), of(salesAgreement), of(job), this.changeOrderService.updateJobChangeOrder(activeChangeOrders), this.jobService.deleteTimeOfSaleOptionPricesForJob(job.id));
 				}),
-				switchMap(([action, salesAgreement, job, updatedChangeOrders, deletedOptionPrices]) => {
+				switchMap(([action, salesAgreement, job, updatedChangeOrders, deletedOptionPrices]) =>
+				{
 					return from([
 						new CommonActions.ChangeOrdersUpdated(updatedChangeOrders),
 						new ChangeOrderActions.CreateCancellationChangeOrder(),
@@ -689,26 +759,31 @@ export class SalesAgreementEffects
 	/*
 	 * Sales Agreement Out For Signature
 	 */
-	salesAgreementOutForSignature$: Observable<Action> = createEffect(() => {
+	salesAgreementOutForSignature$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SalesAgreementOutForSignature>(SalesAgreementActionTypes.SalesAgreementOutForSignature),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					let eSignEnvelope: Observable<ESignEnvelope>;
 
 					// create eSignEnvelope record to track docusign status
-					if (!action.isWetSign) {
+					if (!action.isWetSign)
+					{
 						const co = (store.job as Job).changeOrderGroups.find(co => co.salesStatusDescription === "Pending");
 
 						let draftESignEnvelope = co.eSignEnvelopes && co.eSignEnvelopes.find(e => e.eSignStatusId === ESignStatusEnum.Created);
 						const eSignStatus = action.isEdit ? ESignStatusEnum.Created : ESignStatusEnum.Sent;
 
-						if (draftESignEnvelope) {
+						if (draftESignEnvelope)
+						{
 							// if there's an existing draft esign envelope then set it to sent
 							eSignEnvelope = this.changeOrderService.updateESignEnvelope({ ...draftESignEnvelope, eSignStatusId: eSignStatus });
 						}
-						else {
+						else
+						{
 							const newEnvelope = {
 								edhChangeOrderGroupId: co.id,
 								envelopeGuid: store.contract.envelopeId,
@@ -719,13 +794,15 @@ export class SalesAgreementEffects
 							eSignEnvelope = this.changeOrderService.createESignEnvelope(newEnvelope);
 						}
 					}
-					else {
+					else
+					{
 						// envelope was printed so remove any draft envelopes
 						const co = (store.job as Job).changeOrderGroups.find(co => co.salesStatusDescription === "Pending");
 
 						let draftESignEnvelope = co.eSignEnvelopes && co.eSignEnvelopes.find(e => e.eSignStatusId === ESignStatusEnum.Created);
 
-						if (draftESignEnvelope) {
+						if (draftESignEnvelope)
+						{
 							draftESignEnvelope = new ESignEnvelope(draftESignEnvelope);
 
 							draftESignEnvelope.eSignStatusId = ESignStatusEnum.Printed;
@@ -737,16 +814,20 @@ export class SalesAgreementEffects
 					return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, 'OutforSignature').pipe(
 						combineLatest(
 							!eSignEnvelope ? of<ESignEnvelope>(null) : eSignEnvelope
-						), map(([salesAgreement, eSignEnvelope]) => {
+						), map(([salesAgreement, eSignEnvelope]) =>
+						{
 							return { salesAgreement, eSignEnvelope, job: store.job };
 						}));
 				}),
-				switchMap(data => {
+				switchMap(data =>
+				{
 					const job: Job = _.cloneDeep(data.job);
 					const statusUtcDate = data.salesAgreement.lastModifiedUtcDate;
 
-					job.changeOrderGroups.map(co => {
-						if (co.salesStatusDescription === "Pending") {
+					job.changeOrderGroups.map(co =>
+					{
+						if (co.salesStatusDescription === "Pending")
+						{
 							co.salesStatusDescription = "OutforSignature";
 							co.salesStatusUTCDate = statusUtcDate;
 							co.jobChangeOrderGroupSalesStatusHistories.push({
@@ -756,11 +837,14 @@ export class SalesAgreementEffects
 								salesStatusUtcDate: statusUtcDate
 							});
 
-							if (!!data.eSignEnvelope) {
-								if (!!co.eSignEnvelopes) {
+							if (!!data.eSignEnvelope)
+							{
+								if (!!co.eSignEnvelopes)
+								{
 									co.eSignEnvelopes = [...co.eSignEnvelopes.filter(e => e.eSignEnvelopeId !== data.eSignEnvelope.eSignEnvelopeId), data.eSignEnvelope];
 								}
-								else {
+								else
+								{
 									co.eSignEnvelopes = [data.eSignEnvelope];
 								}
 							}
@@ -781,7 +865,8 @@ export class SalesAgreementEffects
 	/*
 	 * Sales Agreement Pending
 	 */
-	salesAgreementPending$: Observable<Action> = createEffect(() => {
+	salesAgreementPending$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SalesAgreementPending>(SalesAgreementActionTypes.SalesAgreementPending),
 			withLatestFrom(this.store),
@@ -791,12 +876,12 @@ export class SalesAgreementEffects
 					const co = (store.job as Job).changeOrderGroups.find(co => co.salesStatusDescription === "OutforSignature");
 					const draftESignEnvelope = co.eSignEnvelopes?.find(e => e.eSignStatusId === ESignStatusEnum.Created);
 					const deleteESignEnvelope = draftESignEnvelope ? this.changeOrderService.deleteESignEnvelope(draftESignEnvelope.eSignEnvelopeId) : of([]);
-					
+
 					return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, 'Pending').pipe(
 						combineLatest(
 							deleteESignEnvelope,
 							this.contractService.deleteSnapshot(co.jobId, co.id)
-						), 
+						),
 						map(([salesAgreement, eSignEnvelope, snapShot]) =>
 						{
 							return { salesAgreement, job: store.job, eSignEnvelopeId: draftESignEnvelope?.eSignEnvelopeId };
@@ -842,15 +927,18 @@ export class SalesAgreementEffects
 	/*
 	 * Sign Sales Agreement
 	 */
-	signSalesAgreement$: Observable<Action> = createEffect(() => {
+	signSalesAgreement$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SignSalesAgreement>(SalesAgreementActionTypes.SignSalesAgreement),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(of(store.job), this.salesAgreementService.signSalesAgreement(store.salesAgreement.id || null, action.signedDate));
 				}),
-				switchMap(([jobState, salesAgreement]) => {
+				switchMap(([jobState, salesAgreement]) =>
+				{
 					const job: Job = _.cloneDeep(jobState);
 					const statusUtcDate = salesAgreement.lastModifiedUtcDate;
 
@@ -879,44 +967,57 @@ export class SalesAgreementEffects
 	/*
 	 * Approve Sales Agreement
 	 */
-	approveSalesAgreement$: Observable<Action> = createEffect(() => {
+	approveSalesAgreement$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<ApproveSalesAgreement>(SalesAgreementActionTypes.ApproveSalesAgreement),
 			withLatestFrom(this.store),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store]) => {
+				switchMap(([action, store]) =>
+				{
 					return forkJoin(of(action), of(store), this.changeOrderService.getChangeOrderTypeAutoApproval(store.job.financialCommunityId));
 				}),
-				switchMap(([action, store, communityAutoApprovals]) => {
+				switchMap(([action, store, communityAutoApprovals]) =>
+				{
 					const co = store.job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
 					let autoApproval = true;
 
-					if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'BuyerChangeOrder')) {
-						if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'ChoiceAttribute' || changeOrder.jobChangeOrderTypeDescription === 'Elevation')) {
-							if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'ChoiceAttribute')) {
-								if (!communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === 4).isAutoApproval) {
+					if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'BuyerChangeOrder'))
+					{
+						if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'ChoiceAttribute' || changeOrder.jobChangeOrderTypeDescription === 'Elevation'))
+						{
+							if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'ChoiceAttribute'))
+							{
+								if (!communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === 4).isAutoApproval)
+								{
 									autoApproval = false;
 								}
 							}
 
-							if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'Elevation') && autoApproval) {
-								if (!communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === 2).isAutoApproval) {
+							if (co.jobChangeOrders.some(changeOrder => changeOrder.jobChangeOrderTypeDescription === 'Elevation') && autoApproval)
+							{
+								if (!communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === 2).isAutoApproval)
+								{
 									autoApproval = false;
 								}
 							}
 						}
 					}
-					else {
+					else
+					{
 						autoApproval = communityAutoApprovals.find(aa => aa.edhChangeOrderTypeId === 0).isAutoApproval;
 					}
 
 					return forkJoin(of(store.job), of(autoApproval), this.salesAgreementService.approveSalesAgreement(store.salesAgreement.id || null, autoApproval));
 				}),
-				switchMap(([jobState, isAutoApproval, salesAgreement]) => {
-					if (isAutoApproval) {
+				switchMap(([jobState, isAutoApproval, salesAgreement]) =>
+				{
+					if (isAutoApproval)
+					{
 						return of<Action>(new CommonActions.LoadSalesAgreement(salesAgreement.id, false));
 					}
-					else {
+					else
+					{
 
 						const job: Job = _.cloneDeep(jobState);
 						const statusUtcDate = salesAgreement.lastModifiedUtcDate;
@@ -945,7 +1046,8 @@ export class SalesAgreementEffects
 		);
 	});
 
-	createJIOForSpec$: Observable<Action> = createEffect(() => {
+	createJIOForSpec$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<CreateJIOForSpec>(SalesAgreementActionTypes.CreateJIOForSpec),
 			withLatestFrom(this.store, this.store.pipe(select(fromRoot.priceBreakdown))),
@@ -954,42 +1056,46 @@ export class SalesAgreementEffects
 				const pendingJobSummary = this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 
 				return this.salesAgreementService.createJIOForSpec(
-					store.scenario.tree, 
-					store.scenario.scenario, 
-					store.scenario.tree.financialCommunityId, 
-					store.scenario.buildMode, 
-					store.scenario.options.find(o => o.isBaseHouse), 
+					store.scenario.tree,
+					store.scenario.scenario,
+					store.scenario.tree.financialCommunityId,
+					store.scenario.buildMode,
+					store.scenario.options.find(o => o.isBaseHouse),
 					store.scenario.rules.optionRules,
 					pendingJobSummary)
-				.pipe(
-					tap(sag => this.router.navigateByUrl('/change-orders')),
-					switchMap(job => {
-						let jobLoaded$ = this.actions$.pipe(
-							ofType<CommonActions.JobLoaded>(CommonActions.CommonActionTypes.JobLoaded),
-							take(1),
-							map(() => new CreateEnvelope(false))
-						);
+					.pipe(
+						tap(sag => this.router.navigateByUrl('/change-orders')),
+						switchMap(job =>
+						{
+							let jobLoaded$ = this.actions$.pipe(
+								ofType<CommonActions.JobLoaded>(CommonActions.CommonActionTypes.JobLoaded),
+								take(1),
+								map(() => new CreateEnvelope(false))
+							);
 
-						return <Observable<Action>>from([
-							new LoadSpec(job),
-							new JIOForSpecCreated()
-						]).pipe(
-							concat(jobLoaded$)
-						);
-					}),
-					catchError<Action, Observable<Action>>(error => {
-						if (error.error.Message === "Lot Unavailable") {
-							return of(new LotConflict());
-						}
+							return <Observable<Action>>from([
+								new LoadSpec(job),
+								new JIOForSpecCreated()
+							]).pipe(
+								concat(jobLoaded$)
+							);
+						}),
+						catchError<Action, Observable<Action>>(error =>
+						{
+							if (error.error.Message === "Lot Unavailable")
+							{
+								return of(new LotConflict());
+							}
 
-						return of(new SaveError(error))
-					})
-				)
+							return of(new SaveError(error))
+						})
+					)
 			})
 		);
 	});
 
-	saveSalesConsultants$: Observable<Action> = createEffect(() => {
+	saveSalesConsultants$: Observable<Action> = createEffect(() =>
+	{
 		return this.actions$.pipe(
 			ofType<SaveSalesConsultants>(SalesAgreementActionTypes.SaveSalesConsultants),
 			withLatestFrom(this.store),

@@ -86,7 +86,7 @@
 	<ng-template #footer>
 		<div class="phd-footer-row phd-footer-add-another" *ngIf="!isEdit">
 			<button class="btn btn-primary phd-btn-save" (click)="saveAndContinue();" [disabled]="saveDisabled">
-				<ng-container *ngIf="!isSaving || (isSaving && !isAdd)">
+				<ng-container *ngIf="!isSaving || !isAdd">
 					Add Another
 				</ng-container>
 

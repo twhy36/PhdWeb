@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router, RouterEvent, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
@@ -45,7 +45,8 @@ export class AdobeService extends UnsubscribeOnDestroy
 			{
 				this.disabled = this.route.snapshot.queryParams.disableAdobe === 'true';
 				this.pageLoadExecuted = false;
-				this.detectPageLoad(this.findPageLoadData(this.route.snapshot)); 
+
+				this.detectPageLoad(this.findPageLoadData(this.route.snapshot));
 			}
 		});
 
@@ -154,6 +155,7 @@ export class AdobeService extends UnsubscribeOnDestroy
 	setPageLoadEvent(adobeLoadInitialized: boolean, pageType: string, pageName: string, groupName: string, subGroupName: string)
 	{
 		window['appEventData'] = window['appEventData'] || [];
+
 		if (!this.disabled && !adobeLoadInitialized && (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.Presale))
 		{
 			combineLatest([
@@ -290,8 +292,8 @@ export class AdobeService extends UnsubscribeOnDestroy
 			else if (choice.attributes.length > 0 && choice.locations.length === 0 && !choice.attributes[0].removed)
 			{
 				const attribute = choice.attributes[0];
-				favoriteUpdateEvent.favorite = favoriteEvent.favorite;
 
+				favoriteUpdateEvent.favorite = favoriteEvent.favorite;
 				favoriteUpdateEvent.favorite.attribute = attribute.attributeGroupLabel + ' | ' + attribute.attributeName;
 				favoriteUpdateEvent.favorite.location = '';
 
@@ -309,7 +311,6 @@ export class AdobeService extends UnsubscribeOnDestroy
 				const nestedAttribute = location.attributes[0];
 
 				favoriteUpdateEvent.favorite = favoriteEvent.favorite;
-
 				favoriteUpdateEvent.favorite.attribute = nestedAttribute ? nestedAttribute.attributeGroupLabel + ' | ' + nestedAttribute.attributeName : '';
 				favoriteUpdateEvent.favorite.location = location.locationName;
 

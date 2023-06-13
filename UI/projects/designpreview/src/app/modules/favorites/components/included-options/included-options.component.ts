@@ -32,7 +32,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	templateUrl: './included-options.component.html',
 	styleUrls: ['./included-options.component.scss'],
 	animations: [flipOver]
-	})
+})
 export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	brandTheme: string;
@@ -68,6 +68,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		private router: Router)
 	{
 		super();
+
 		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
@@ -150,7 +151,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 				keyboard: false,
 				windowClass: this.brandTheme,
 			};
-			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
+
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true);
 		}
 
 		this.store.pipe(
@@ -204,6 +206,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		if (pointId)
 		{
 			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
+
 			this.scrollPointIntoView(pointId, pointId === firstPointId);
 		}
 		if (this.currentPointId !== pointId)
@@ -219,6 +222,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			setTimeout(() =>
 			{
 				const firstSubGroupId = this.subGroups && this.subGroups.length ? this.subGroups[0].id : 0;
+
 				this.scrollSubGroupIntoView(subGroupId, subGroupId === firstSubGroupId);
 			}, interval || 500);
 		}
@@ -232,11 +236,14 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	choiceToggleHandler(choice: ChoiceExt)
 	{
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
+
 		if (point && this.currentPointId != point.id)
 		{
 			this.currentPointId = point.id;
 		}
+
 		this.choiceToggled = true;
+
 		this.toggleChoice(choice);
 	}
 
@@ -254,9 +261,9 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		{
 			this.deselectDeclinedPoints(choice);
 		}
+
 		this.store.dispatch(new ScenarioActions.SelectChoices(false, ...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
-
 	}
 
 	deselectDeclinedPoints(choice: ChoiceExt)
@@ -300,6 +307,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
 		const pointCardElement = <HTMLElement>document?.getElementById(`included-point-${pointId?.toString()}`);
+
 		if (pointCardElement)
 		{
 			if (isFirstPoint)
@@ -317,10 +325,14 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 				{
 					const pos = pointCardElement.style.position;
 					const top = pointCardElement.style.top;
+
 					pointCardElement.style.position = 'relative';
 					pointCardElement.style.top = '-10px';
+
 					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+
 					this.viewCreated = true;
+
 					pointCardElement.style.top = top;
 					pointCardElement.style.position = pos;
 				}, 200);
@@ -328,6 +340,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		}
 
 		const decisionBarElement = document.getElementById('included-decision-bar-' + pointId?.toString());
+
 		if (decisionBarElement)
 		{
 			setTimeout(() => 
@@ -340,6 +353,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	scrollSubGroupIntoView(subGroupId: number, isFirstSubGroup: boolean)
 	{
 		const subGroupElement = <HTMLElement>document?.getElementById(`included-subgroup-${subGroupId?.toString()}`);
+
 		if (subGroupElement)
 		{
 			if (isFirstSubGroup)
@@ -347,6 +361,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 				setTimeout(() =>
 				{
 					subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
+
 					this.viewCreated = true;
 				}, 200);
 			}
@@ -357,10 +372,14 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 				{
 					const pos = subGroupElement.style.position;
 					const top = subGroupElement.style.top;
+
 					subGroupElement.style.position = 'relative';
 					subGroupElement.style.top = '-10px';
+
 					subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+
 					this.viewCreated = true;
+
 					subGroupElement.style.top = top;
 					subGroupElement.style.position = pos;
 				}, 200);
@@ -368,6 +387,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		}
 
 		const decisionBarSgElement = document.getElementById('included-decision-bar-sg-' + subGroupId?.toString());
+
 		if (decisionBarSgElement)
 		{
 			setTimeout(() => 
@@ -381,13 +401,16 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	{
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
 		const selectedSubGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId));
+
 		this.selectDecisionPoint(pointId);
+
 		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, selectedSubGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParamsHandling: 'merge' });
 	}
 
 	defaultChoicePresent(subGroup: SubGroup)
 	{
 		const choices = _.flatMap(subGroup.points, p => p.choices).filter(c => c.isDecisionDefault);
+
 		return choices.length > 0;
 	}
 
@@ -406,13 +429,15 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		{
 			const choices = _.flatMap(point.choices).filter(c => c.isDecisionDefault);
 			let displayChoice = false;
+
 			choices.forEach(c =>
 			{
 				if (!c.isHiddenFromBuyerView)
 				{
 					displayChoice = true;
 				}
-			})
+			});
+
 			return displayChoice;
 		}
 	}
@@ -424,11 +449,12 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	onViewDecisionPoint(point: DecisionPoint)
 	{
-		const sg = this.subGroups.find(sg => !!sg.points.find(p => p.divPointCatalogId === point.divPointCatalogId))
+		const sg = this.subGroups.find(sg => !!sg.points.find(p => p.divPointCatalogId === point.divPointCatalogId));
+
 		this.selectDecisionPoint(point.id);
 
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(sg.id, point.id));
-		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParamsHandling: 'merge' });
 
+		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParamsHandling: 'merge' });
 	}
 }

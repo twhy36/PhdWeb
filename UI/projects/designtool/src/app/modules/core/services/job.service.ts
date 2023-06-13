@@ -7,8 +7,8 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
-	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, 
-	IPendingJobSummary, JobSalesAgreementAssoc
+	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice,
+	IPendingJobSummary
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -49,7 +49,7 @@ export class JobService
 				return _throw(error);
 			})
 		);
-	}	
+	}
 
 	checkIfJobHasSalesAgreementAssocs(jobId: number): Observable<boolean>
 	{
@@ -622,5 +622,5 @@ export class JobService
 		return this._http.patch(url, pendingJobSummary).pipe(
 			map(resp => resp as IPendingJobSummary)
 		);
-	}	
+	}
 }
