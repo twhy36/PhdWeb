@@ -282,19 +282,6 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 
 	function* getOptionRuleSelections(optionRules: OptionRule[], disabledRules: OptionRule[], selections: choiceSelection[] = []): IterableIterator<choiceSelection[]>
 	{
-		if (optionRules.length === 0)
-		{
-			for(let returnSelections of getSelections(selections))
-			{
-				//if these selections don't enable any of our disabled option rules, go ahead and try it
-				if (!disabledRules.some(dr => dr.choices.every(c => returnSelections.some(s => s.choiceId === c.id && s.selected === c.mustHave))))
-				{
-					yield returnSelections;
-				}
-			}
-			return;
-		}
-
 		let rule = optionRules[0];
 		if (selections.some(s => rule.choices.some(c => c.id === s.choiceId && c.mustHave !== s.selected)))
 		{
@@ -329,10 +316,14 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 
 	function* combinations<T>(items: T[]): IterableIterator<T[]>
 	{
-		var len = Math.pow(2, items.length);
-		for (let i = 0; i < len; i++)
+		yield items;
+
+		if (items.length > 1)
 		{
-			yield items.filter((v, j) => i & Math.pow(2, j));
+			for(let i = 0; i < items.length; i++)
+			{
+				yield *combinations(items.slice(i, i+1));
+			}
 		}
 	}
 
@@ -346,9 +337,8 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		}
 		else if (choiceOptionRules.length === 1)
 		{
-			//just one rule, so yield two combinations - on and off
-			yield [{ optionRule: choiceOptionRules[0].rule, enabled: direction === 'desc'}];
-			yield [{ optionRule: choiceOptionRules[0].rule, enabled: direction === 'asc' }];
+			//just one rule, so just one combination
+			yield [{ optionRule: choiceOptionRules[0].rule, enabled: true }];
 			return;
 		}
 		else 
@@ -358,8 +348,15 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 			{
 				let opt = options.find(o => o.financialOptionIntegrationKey === rule.optionId);
 				return opt?.listPrice - _.sum(rule.replaceOptions.map(ro => {
-					let replaceOpt = options.find(o => o.financialOptionIntegrationKey === ro);
-					return replaceOpt?.listPrice || 0;
+					let replaceRule = rules.optionRules.find(or => or.optionId === ro);
+					if (replaceRule)
+					{
+						return getPrice(replaceRule);
+					}
+					else 
+					{
+						return 0;
+					}
 				}));
 			};
 
@@ -398,34 +395,13 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 				//try each way to satisfy option mappings and point/choice rules for the given option mappings
 				for (let selections of getOptionRuleSelections(
 					combination.filter(c => c.enabled).map(c => c.optionRule),
-					combination.filter(c => !c.enabled).map(c => c.optionRule),
-					[{choiceId: choice.id, selected: true}]))
+					combination.filter(c => !c.enabled).map(c => c.optionRule)))
 				{
 					// Remove duplicates from the list
 					selections = selections.filter((ch, idx, arr) =>
 					{
 						return arr.indexOf(arr.find(ch1 => ch1.choiceId === ch.choiceId)) === idx;
 					});
-
-					// detect pick type violations
-					if (selections.filter(c => c.selected).some(c1 => 
-					{
-						let point = findPoint(staticTree, pt => pt.choices.some(ch => ch.id === c1.choiceId));
-						if (point && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
-						{
-							return point.choices.some(c2 => 
-								c2.id !== c1.choiceId 
-								&& selections.some(s => s.choiceId === c2.id && s.selected)
-							);
-						}
-						else
-						{
-							return false;
-						}
-					}))
-					{
-						continue;
-					}
 
 					choices.forEach(c =>
 					{
