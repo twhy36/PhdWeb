@@ -312,7 +312,7 @@ export class AssociateAttributeGroupComponent implements OnInit
 			this._msgService.add({
 				id: 'toast-attributes-choice',
 				key: 'toast-attributes-choice',
-				severity: 'error',
+				severity: 'danger',
 				summary: 'Error',
 				detail: message
 			});
