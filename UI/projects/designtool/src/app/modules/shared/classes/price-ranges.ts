@@ -317,25 +317,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 				//if these selections don't enable any of our disabled option rules, go ahead and try it
 				if (!disabledRules.some(dr => dr.choices.every(c => returnSelections.some(s => s.choiceId === c.id && s.selected === c.mustHave))))
 				{
-					// detect pick type violations
-					if (!returnSelections.filter(c => c.selected).some(c1 => 
-					{
-						let point = findPoint(staticTree, pt => pt.choices.some(ch => ch.id === c1.choiceId));
-						if (point && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
-						{
-							return point.choices.some(c2 => 
-								c2.id !== c1.choiceId 
-								&& returnSelections.some(s => s.choiceId === c2.id && s.selected)
-							);
-						}
-						else
-						{
-							return false;
-						}
-					}))
-					{
-						yield returnSelections;
-					}
+					yield returnSelections;
 				}
 			}
 		}
@@ -424,6 +406,26 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 					{
 						return arr.indexOf(arr.find(ch1 => ch1.choiceId === ch.choiceId)) === idx;
 					});
+
+					// detect pick type violations
+					if (selections.filter(c => c.selected).some(c1 => 
+					{
+						let point = findPoint(staticTree, pt => pt.choices.some(ch => ch.id === c1.choiceId));
+						if (point && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
+						{
+							return point.choices.some(c2 => 
+								c2.id !== c1.choiceId 
+								&& selections.some(s => s.choiceId === c2.id && s.selected)
+							);
+						}
+						else
+						{
+							return false;
+						}
+					}))
+					{
+						continue;
+					}
 
 					choices.forEach(c =>
 					{
