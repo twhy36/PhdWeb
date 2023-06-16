@@ -3,7 +3,7 @@ import { UnsubscribeOnDestroy, ModalRef, ModalService, ConfirmModalComponent, El
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PlanOptionService } from '../../../core/services/plan-option.service';
-import { from, Observable, EMPTY } from 'rxjs';
+import { from, Observable, EMPTY, of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { SettingsService } from '../../../core/services/settings.service';
@@ -384,7 +384,7 @@ export class ColorItemsSearchHeaderComponent
 
 					}
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
-					if (this.planOptionDtosList.length + planOptionGridList.length <= expectedListLength) 
+					if (this.planOptionDtosList.length + planOptionGridList.length <= expectedListLength || !isAllOption && this.planOptionDtosList.length === 0) 
 					{
 						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
 					}
@@ -418,7 +418,12 @@ export class ColorItemsSearchHeaderComponent
 	getSalesagreementOrConfig(gridlist: IPlanOptionCommunityGridDto[])
 	{
 		gridlist.map(x => x.loadingDeleteIcon = true);
-		this._colorService.getSalesAgreementForGrid(gridlist, this.currentFinancialCommunityId).subscribe((result) =>
+
+		const getSalesAgreementForGrid = gridlist.length > 0
+			? this._colorService.getSalesAgreementForGrid(gridlist, this.currentFinancialCommunityId)
+			: of([]);
+
+		getSalesAgreementForGrid.subscribe((result) =>
 		{
 			result.map((item: IPlanOptionCommunityGridDto) =>
 			{
