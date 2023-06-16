@@ -1,5 +1,5 @@
 .modal-title {
-	font-size: 0.997rem;
+	font-size: 0.997rem !important;
 }
 
 .phd-close-icon {
@@ -10,6 +10,7 @@
 
 .phd-message {
 	.phd-message-introduction {
+		text-align: center;
 		margin-bottom: 0px;
 	}
 
@@ -21,4 +22,5 @@
 
 .phd-message-disclaimer {
 	font-size: 11px;
+	text-align: center;
 }

@@ -102,8 +102,8 @@
 	}
 
 	.phd-choice-container {
-		.phd-choice-label {
-			color: mat.get-color-from-palette($accent-palette, 500);
+		.phd-choice-link {
+			color: mat.get-color-from-palette($accent-palette, 'A100');
 		}
 
 		.phd-point-link {
@@ -121,7 +121,7 @@
 	}
 
 	.phd-sub-group-completed {
-		color: mat.get-color-from-palette($accent-palette, 500);
+		color: mat.get-color-from-palette($accent-palette, '500-contrast') !important;
 		-webkit-text-stroke: 1px mat.get-color-from-palette($primary-palette, '500-contrast');
 	}
 
@@ -293,10 +293,6 @@ ngb-modal-backdrop {
 
 .carousel-indicators {
 	display: none;
-}
-
-.modal-body {
-	text-align: center;
 }
 
 .modal-button {

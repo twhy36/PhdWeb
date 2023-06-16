@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as NavActions from '../../../ngrx-store/nav/actions';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'choice-decline-card',
@@ -34,13 +35,16 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: ModalRef;
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
+	brandTheme: string;
 
 	constructor(
 		private store: Store<fromRoot.State>,
+		private brandService: BrandService,
 		public modalService: ModalService
 	) 
 	{
 		super();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -79,7 +83,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
 		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
 
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandTheme}` }, true);
 	}
 
 	onCloseClicked()

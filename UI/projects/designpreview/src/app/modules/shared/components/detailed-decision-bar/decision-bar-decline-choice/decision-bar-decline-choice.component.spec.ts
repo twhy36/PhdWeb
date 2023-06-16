@@ -14,12 +14,14 @@ import { DecisionBarDeclineChoiceComponent } from './decision-bar-decline-choice
 import { ActionBarComponent } from '../../action-bar/action-bar.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { instance, mock } from 'ts-mockito';
+import { BrandService } from '../../../../core/services/brand.service';
 
 describe('DecisionBarDeclineChoiceComponent', () =>
 {
 	let component: DecisionBarDeclineChoiceComponent;
 	let fixture: ComponentFixture<DecisionBarDeclineChoiceComponent>;
 	const mockModalService = mock(ModalService);
+	const mockBrandService = mock(BrandService);
 	const initialState = {
 		app: fromApp.initialState,
 		salesAgreement: fromSalesAgreement.initialState,
@@ -39,6 +41,7 @@ describe('DecisionBarDeclineChoiceComponent', () =>
 			],
 			providers: [
 				{ provide: ModalService, useFactor: () => instance(mockModalService) },
+				{ provide: BrandService, useFactor:() => instance(mockBrandService) },
 				provideMockStore({ initialState })
 			]
 		}).compileComponents();

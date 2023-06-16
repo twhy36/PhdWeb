@@ -39,12 +39,6 @@
 			font-family: mat.font-family($typography-config);
 		}
 
-		.phd-group-menu-item {
-			i {
-				font-size: mat.font-size($typography-config, 'subtitle-1')
-			}
-		}
-
 		.phd-menu-bars {
 			i {
 				font-size: mat.font-size($typography-config, 'headline-4');
