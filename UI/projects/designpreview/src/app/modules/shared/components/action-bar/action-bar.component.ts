@@ -59,7 +59,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		if (this.isPresale && this.isPresalePricingEnabled)
 		{
-			return 'Total Price';
+			return 'Estimated Total Price';
 		}
 		return this.isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Purchase Price'
 	}
