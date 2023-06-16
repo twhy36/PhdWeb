@@ -436,6 +436,20 @@ export class LiteEffects
 											baseHouseOption.listPrice = phasePlanPrice.price;
 										}
 									}
+
+									// Update price for inactive options if they are in the spec job
+									if (!!store.job.id)
+									{
+										action.job.jobPlanOptions?.forEach(jobPlanOption =>
+										{
+											let option = options.find(option => option.id === jobPlanOption.planOptionId);
+
+											if (option && !option.isActive && option.listPrice !== jobPlanOption.listPrice)
+											{
+												option.listPrice = jobPlanOption.listPrice;
+											}
+										});
+									}
 								}
 
 								const optionIds = options.map(o => o.id);
