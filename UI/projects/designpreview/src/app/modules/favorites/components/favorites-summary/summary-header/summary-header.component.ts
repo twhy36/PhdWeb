@@ -28,6 +28,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	isSticky: boolean = false;
 	isPreview: boolean = false;
 	isPresale: boolean = false;
+	isPresalePricingEnabled: boolean = false;
 	headerTitle: string;
 	communityName: string;
 	planName: string;
@@ -86,6 +87,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 				break;
 			case (BuildMode.Presale):
 				this.isPresale = true;
+				this.isPresalePricingEnabled = state.presalePricingEnabled;
 				this.headerTitle = 'My Favorites';
 				break;
 			default:
@@ -194,6 +196,22 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	onWindowAfterPrint()
 	{
 		this.titleService.setTitle('Design Preview');
+	}
+
+	getTotalPriceLabel()
+	{
+		if (this.isDesignComplete)
+		{
+			return 'Total Purchase Price:';
+		}
+		else if (this.isPresale && this.isPresalePricingEnabled)
+		{
+			return 'Estimated Total Price:';
+		}
+		else
+		{
+			return 'Estimated Total Purchase Price:';
+		}
 	}
 }
 

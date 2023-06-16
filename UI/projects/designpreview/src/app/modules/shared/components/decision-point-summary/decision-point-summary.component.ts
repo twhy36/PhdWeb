@@ -28,6 +28,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() isPresale: boolean = false;
 	@Input() contractedOptionsPage: boolean = false;
 	@Input() favoritesId: number;
+	@Input() isPresalePricingEnabled: boolean = false;
 
 	@Output() viewFavorites = new EventEmitter<DecisionPoint>();
 	@Output() removeFavorites = new EventEmitter<Choice>();

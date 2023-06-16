@@ -1,12 +1,12 @@
 <li class="phd-point phd-point-on-print" role="group" attr.aria-label="{{decisionPoint.label}}">
 	<div class="phd-point-details d-flex justify-content-start align-items-start">
-		<div [ngClass]="{'phd-point-label': !isPresale, 'phd-point-label-presale': isPresale}">{{decisionPoint.label}}</div>
+		<div [ngClass]="{'phd-point-label': (!isPresale || isPresalePricingEnabled), 'phd-point-label-presale': (isPresale && !isPresalePricingEnabled)}">{{decisionPoint.label}}</div>
 
 		<div class="phd-choice">
 			<ul class="phd-choice-list">
 				<ng-container *ngFor="let choice of choicesCustom">
 					<li class="phd-choice-detail phd-choice-detail-presale-print" role="group" attr.aria-label="{{choice.label}}" *ngIf="choice.quantity > 0">
-						<div [ngClass]="{'phd-choice-header': !isPresale, 'phd-choice-header-presale phd-choice-header-presale-print': isPresale}">
+						<div [ngClass]="{'phd-choice-header': (!isPresale || isPresalePricingEnabled), 'phd-choice-header-presale phd-choice-header-presale-print': (isPresale && !isPresalePricingEnabled)}">
 							<button class="phd-choice-expand" attr.aria-controls="{{ 'choice-detail-' + choice.id }}">
 								<div (click)="toggleCollapsed(choice)" *ngIf="choice.hasMappedAttributes && isChoiceComplete(choice) && choice.selectedAttributes.length">
 									<span *ngIf="!choice.showAttributes" aria-expanded="false" attr.aria-label="{{'Expand ' + choice.label}}">
@@ -55,11 +55,11 @@
 							<span class="phd-quantity-label">Qty:</span>
 							<span class="phd-content">({{ choice.quantity }})</span>
 						</div>
-						<div class="actions" [ngClass]="{'phd-edit': !isPresale, 'phd-edit-presale': isPresale}">
-							<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
+						<div class="actions" [ngClass]="{'phd-edit': (!isPresale || isPresalePricingEnabled), 'phd-edit-presale': (isPresale && !isPresalePricingEnabled)}">
+							<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !(isPresale && !isPresalePricingEnabled)">
 								<span class="phd-price" *ngIf="selections?.length > 0">{{choice.price * choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
 							</ng-container>
-							<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
+							<ng-container *ngIf="choice.priceHiddenFromBuyerView && !(isPresale && !isPresalePricingEnabled)">
 								<span class="phd-pricing-varies">Pricing Varies
 									<info-tooltip-component class="phd-hide-from-print" [template]="infoContent"></info-tooltip-component>
 								</span>

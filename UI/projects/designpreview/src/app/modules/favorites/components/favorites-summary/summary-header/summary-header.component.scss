@@ -46,6 +46,28 @@
 		}
 	}
 
+	.phd-print-description-items-presale-pricing {
+		display: flex;
+
+		.fa-print {
+			margin-left: 12px;
+			font-size: 24px;
+		}
+
+		button {
+			background: transparent;
+			border: none;
+			padding: 0;
+			display: flex;
+			justify-content: start;
+		}
+
+		.phd-print-text {
+			font-size: 12px;
+			margin: 5px;
+		}
+	}
+
 	.phd-print-text {
 		margin: 5px;
 	}

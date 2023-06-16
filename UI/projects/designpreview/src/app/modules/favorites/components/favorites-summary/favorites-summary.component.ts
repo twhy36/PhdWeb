@@ -79,6 +79,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	isInitScrollTop: boolean = false;
 	welcomeModal: ModalRef;
 	showWelcomeModal: boolean = true;
+	isPresalePricingEnabled: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -138,6 +139,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 					return new Observable<never>();
 				}
+
+				this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
+				this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 
 				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
 			}),

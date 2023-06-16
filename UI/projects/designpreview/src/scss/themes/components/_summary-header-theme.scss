@@ -13,6 +13,14 @@
 			color: mat.get-color-from-palette($primary-palette, 'A400');
 		}
 	}
+
+	.phd-print-description-items-presale-pricing {
+		color: mat.get-color-from-palette($primary-palette, 'A400');
+
+		button {
+			color: mat.get-color-from-palette($primary-palette, 'A400');
+		}
+	}
 }
 
 @mixin typography($theme) {
