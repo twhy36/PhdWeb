@@ -27,6 +27,8 @@
 	.phd-point-details {
 		text-transform: capitalize;
 		flex-basis: 100%;
+		align-items: flex-start;
+		padding: 20px 0 5px 0;
 
 		.phd-point-label {
 			flex-basis: 20%;
@@ -61,12 +63,9 @@
 			display: flex;
 			flex-direction: column;
 			flex: 1;
-			margin-top: 5px;
 
 			.phd-choice-detail {
 				display: flex;
-				margin-bottom: 5px;
-				margin-right: 5px;
 
 				.phd-choice-header {
 					flex: 1;
