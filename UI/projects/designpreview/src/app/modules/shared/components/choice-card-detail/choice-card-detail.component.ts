@@ -161,7 +161,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				{
 					this.choice.quantity = updatedChoice.quantity;
 					this.choice.selectedAttributes = updatedChoice.selectedAttributes;
-					this.choice.myFavoritesChoice = favorite.myFavoritesChoice
+					this.choice.myFavoritesChoice = favorite?.myFavoritesChoice
 						? favorite.myFavoritesChoice.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId)
 						: null;
 				}

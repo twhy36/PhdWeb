@@ -165,9 +165,16 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			{
 				this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
 			}
-			this.myFavoritesChoices = favorite && favorite.myFavorites[0].myFavoritesChoice;
-			this.myFavoriteId = favorite && favorite.myFavorites[0].id || -1;
-			this.myFavoritesPointsDeclined = favorite && favorite.myFavorites[0].myFavoritesPointDeclined;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromFavorite.currentMyFavorite)
+		).subscribe(favorite =>
+		{
+			this.myFavoritesChoices = favorite?.myFavoritesChoice;
+			this.myFavoriteId = favorite?.id || -1;
+			this.myFavoritesPointsDeclined = favorite?.myFavoritesPointDeclined;
 		});
 
 		//subscribe to changes in subgroup selection
