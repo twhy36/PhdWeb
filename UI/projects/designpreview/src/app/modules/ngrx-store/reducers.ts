@@ -544,7 +544,7 @@ export const priceBreakdown = createSelector(
 			const changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
 			let salesPrice = salesAgreement.salePrice || 0;
 
-			if (salesPrice === 0 && scenario.buildMode === BuildMode.Preview)
+			if (salesPrice === 0 && (scenario.buildMode === BuildMode.Preview || scenario.buildMode === BuildMode.Presale))
 			{
 				salesPrice = breakdown.baseHouse;
 			}
