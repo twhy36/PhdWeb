@@ -10,34 +10,8 @@ stages:
         - qa
         - staging
         - production
-- stage: EmailTesters
-  dependsOn: Build
-  pool: pgazador1p
-  variables:
-  - group: 'PHD QA'
-  displayName: Email Testers
-  jobs:
-  - job: EmailTesters
-    steps:
-    - task: SendEmail@1
-      displayName: Email Testers
-      inputs:
-        To: '$(testers)'
-        From: 'azuredevops@donotreply.com'
-        Subject: 'New Release available for $(Build.DefinitionName)'
-        Body: |
-          Release is ready for $(Build.DefinitionName).
-          
-          Please view the following approval:
-        
-          https://dev.azure.com/pultevsts/HomeBuilder%20Apps/_build/results?buildId=$(Build.BuildId)&view=results
-        BodyAsHtml: false
-        AddAttachment: false
-        SmtpServer: 'smtp.pulte.com'
-        SmtpPort: '25'
-        UseSSL: false
 - stage: Qa
-  dependsOn: EmailTesters
+  dependsOn: Build
   pool: PGAZADOR1P
   variables:
   - group: 'PHD QA'
