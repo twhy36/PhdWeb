@@ -77,6 +77,7 @@ describe('NavBarComponent', () =>
 		mockStore = TestBed.inject(MockStore);
 		fixture = TestBed.createComponent(NavBarComponent);
 		component = fixture.componentInstance;
+		component.isDesignComplete = false;
 
 		router.initialNavigation();
 		router.navigateByUrl('/home');
@@ -106,6 +107,7 @@ describe('NavBarComponent', () =>
 		expect(component.isMenuCollapsed).toEqual(true);
 		expect(component.showContractedOptionsLink).toEqual(true);
 		expect(component.showFloorplanLink).toEqual(true);
+		expect(component.showIncludedOptionsLink).toEqual(true);
 		expect(component.welcomeText).toEqual('Welcome To Your Home');
 
 		// Goes to buyer home page
@@ -133,6 +135,7 @@ describe('NavBarComponent', () =>
 		expect(component.isMenuCollapsed).toEqual(true);
 		expect(component.showContractedOptionsLink).toEqual(false);
 		expect(component.showFloorplanLink).toEqual(true);
+		expect(component.showIncludedOptionsLink).toEqual(true);
 		expect(component.welcomeText).toEqual('Welcome To Your Home');
 	}));
 
@@ -152,6 +155,7 @@ describe('NavBarComponent', () =>
 		expect(component.isMenuCollapsed).toEqual(true);
 		expect(component.showContractedOptionsLink).toEqual(false);
 		expect(component.showFloorplanLink).toEqual(false);
+		expect(component.showIncludedOptionsLink).toEqual(true);
 		expect(component.welcomeText).toEqual('Welcome To Your Future Home');;
 	}));
 

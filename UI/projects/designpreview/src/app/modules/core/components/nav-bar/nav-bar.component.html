@@ -40,7 +40,8 @@
 				#floorplanRouterLink="routerLinkActive"
 				[attr.aria-current]="floorplanRouterLink.isActive ? 'page': undefined" 
 				queryParamsHandling="merge">Floorplan</a></li>
-			<li><a id="includedOptionsLink"
+			<li><a *ngIf="showIncludedOptionsLink"
+				id="includedOptionsLink"
 				[routerLink]="['/included']"
 				[routerLinkActive]="['phd-collapsable-menu-link-full']"
 				#includedRouterLink="routerLinkActive"

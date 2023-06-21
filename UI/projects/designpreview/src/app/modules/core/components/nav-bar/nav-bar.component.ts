@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
@@ -11,6 +11,7 @@ import * as ErrorActions from '../../../ngrx-store/error.action';
 
 import { Brands, BrandService } from '../../services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'nav-bar',
@@ -23,11 +24,14 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	currentRoute: string;
 	displayBrandedMenu: boolean = true;
 	isMenuCollapsed: boolean = true;
+	isDesignComplete: boolean = false;
 	showContractedOptionsLink: boolean = false;
 	showFloorplanLink: boolean = false;
+	showIncludedOptionsLink: boolean = true;
 	buildMode: BuildMode;
 	welcomeText: string = 'Welcome To Your Home';
 	sessionStorage: Storage = sessionStorage;
+	includedTree: TreeVersion;
 
 	@HostListener('window:resize', ['$event'])
 	onResize(event)
@@ -81,6 +85,18 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 				}
 				this.isMenuCollapsed = true;
 			}
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement),
+			withLatestFrom(this.store.pipe(select(fromRoot.includedTree))),
+		).subscribe(([salesAgreement, tree]) =>
+		{
+			this.isDesignComplete = salesAgreement.isDesignComplete;
+			this.includedTree = tree;
+			const includedDecisionPoints = this.includedTree?.groups.flatMap(g => g.subGroups).flatMap(sg => sg.points);
+			this.showIncludedOptionsLink = !this.isDesignComplete || (!this.isDesignComplete && !!includedDecisionPoints?.find(dp => !dp.isPastCutOff));
 		});
 
 		this.store.pipe(
@@ -159,4 +175,5 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		return 'phd-nav-bar-' + this.brandService.getBrandName();
 	}
+
 }
