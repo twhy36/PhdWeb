@@ -62,6 +62,8 @@
 </main>
 
 <action-bar primaryAction="Next: Additional Options"
+			[favoritesPrice]="priceBreakdown.favoritesPrice"
+			[price]="priceBreakdown.totalPrice"
 			[isPresale]="true"
 			[hideContractedToggle]="true"
 			(callToAction)="onNextClicked()">
