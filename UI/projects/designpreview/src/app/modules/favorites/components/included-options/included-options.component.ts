@@ -9,7 +9,7 @@ import
 {
 	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, 
 	MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, 
-	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType
+	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType, PriceBreakdown
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -61,6 +61,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	isPresalePricingEnabled: boolean = false;
 	salesChoices: JobChoice[];
 	unfilteredPoints: DecisionPoint[] = [];
+	priceBreakdown: PriceBreakdown;
 
 	constructor(private store: Store<fromRoot.State>,
 		private brandService: BrandService,
@@ -176,6 +177,11 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			this.myFavoriteId = favorite?.id || -1;
 			this.myFavoritesPointsDeclined = favorite?.myFavoritesPointDeclined;
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.priceBreakdown)
+		).subscribe(pb => this.priceBreakdown = pb);
 
 		//subscribe to changes in subgroup selection
 		this.store.pipe(
