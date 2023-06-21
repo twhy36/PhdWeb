@@ -9,7 +9,7 @@ import
 {
 	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, 
 	MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, 
-	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType, PriceBreakdown
+	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PriceBreakdown
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -44,12 +44,11 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	currentPointId: number;
 	currentSubGroupId: number;
 	choiceToggled: boolean = false;
-	includedTree: TreeVersion;
+	filteredTree: TreeVersion;
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
 	options: PlanOption[];
 	isReadonly: boolean = false;
-	isPresale: boolean = false;
 	buildMode: BuildMode;
 	noVisibleGroups: boolean = false;
 	myFavoriteId: number;
@@ -97,11 +96,9 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		]).subscribe(([scenarioState, taca]) =>
 		{
 			this.tree = scenarioState.tree;
-			this.unfilteredPoints = _.flatMap(scenarioState.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
 			this.treeVersionRules = _.cloneDeep(scenarioState.rules);
 			this.options = _.cloneDeep(scenarioState.options);
 			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
-			this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 			this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
 
 			if (!taca && scenarioState.buildMode == BuildMode.Presale)
@@ -112,16 +109,16 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.includedTree)
+			select(fromRoot.filteredTree)
 		).subscribe(tree =>
 		{
 			if (tree)
 			{
-				this.includedTree = tree;
-				this.noVisibleGroups = !this.includedTree.groups.length;
+				this.filteredTree = tree;
+				this.noVisibleGroups = !this.filteredTree.groups.length ? true : false;
 
-				this.subGroups = _.flatMap(this.includedTree.groups, g => g.subGroups) || [];
-				this.points = _.flatMap(this.includedTree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+				this.subGroups = _.flatMap(this.filteredTree.groups, g => g.subGroups) || [];
+				this.points = _.flatMap(this.filteredTree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
 			}
 		});
 
@@ -158,17 +155,16 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromFavorite.favoriteState)
+			select(fromFavorite.currentMyFavorite)
 		).subscribe(favorite =>
 		{
-			this.salesChoices = favorite && favorite.salesChoices;
 			if (!!!favorite)
 			{
 				this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
 			}
-			this.myFavoritesChoices = favorite && favorite.myFavorites[0].myFavoritesChoice;
-			this.myFavoriteId = favorite && favorite.myFavorites[0].id || -1;
-			this.myFavoritesPointsDeclined = favorite && favorite.myFavorites[0].myFavoritesPointDeclined;
+			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
+			this.myFavoriteId = favorite && favorite.id || -1;
+			this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
 		});
 
 		this.store.pipe(
@@ -180,7 +176,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.nav),
-			withLatestFrom(this.store.pipe(select(fromRoot.includedTree), map(tree => tree && tree.groups), filter(groups => !!groups))),
+			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree), map(tree => tree && tree.groups), filter(groups => !!groups))),
 			debounceTime(100)
 		).subscribe(([nav, groups]) =>
 		{
@@ -275,7 +271,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	deselectDeclinedPoints(choice: ChoiceExt)
 	{
 		// Check for favorites and deselect declined points in favorites
-		const points = _.flatMap(this.includedTree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
+		const points = _.flatMap(this.filteredTree.groups, g => _.flatMap(g.subGroups, sg => sg.points)) || [];
 		const pointDeclined = points.find(p => p.choices.some(c => c.divChoiceCatalogId === choice.divChoiceCatalogId));
 		const fdp = this.myFavoritesPointsDeclined?.find(p => p.divPointCatalogId === pointDeclined.divPointCatalogId);
 
@@ -287,23 +283,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 	getChoiceExt(choice: Choice, point: DecisionPoint): ChoiceExt
 	{
-		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
-		let choiceStatus = 'Available';
-		if (!this.isPresale) {
-			if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
-			{
-				choiceStatus = 'Contracted';
-			}
-			else
-			{
-				const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-				if (contractedChoices && contractedChoices.length &&
-					(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
-				{
-					choiceStatus = 'ViewOnly';
-				}
-			}
-		}
+		const choiceStatus = 'Available';
 
 		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
 

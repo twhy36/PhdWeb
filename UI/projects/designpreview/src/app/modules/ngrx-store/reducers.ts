@@ -103,10 +103,10 @@ export const filteredTree = createSelector(
 										{
 											switch (p.pointPickTypeId) 
 											{
-												case PickType.Pick1:
-													isIncluded = false;
-												case PickType.Pick0or1:
-													isIncluded = false;
+											case PickType.Pick1:
+												isIncluded = false;
+											case PickType.Pick0or1:
+												isIncluded = false;
 											}
 										}
 									}
@@ -264,136 +264,6 @@ export const contractedTree = createSelector(
 		}
 
 		return contractedTree ? new TreeVersion(contractedTree) : null;
-	}
-);
-
-export const includedTree = createSelector(
-	fromScenario.selectScenario,
-	fromFavorite.favoriteState,
-	fromSalesAgreement.salesAgreementState,
-	(scenario, favorite, sag) =>
-	{
-		const tree = _.cloneDeep(scenario?.tree);
-		const treeFilter = scenario?.treeFilter;
-		let includedTree: TreeVersion;
-
-		if (tree && tree.treeVersion)
-		{
-			const isPreview = scenario.buildMode === BuildMode.Preview;
-			const isPresale = scenario.buildMode === BuildMode.Presale;
-			const isDesignComplete = sag?.isDesignComplete || false;
-
-			const filter = (label: string) =>
-			{
-				return treeFilter ? label.toLowerCase().includes(treeFilter.keyword.toLowerCase()) : true;
-			};
-
-			const treeMatched = { subGroup: false, point: false };
-
-			includedTree = {
-				...tree.treeVersion, groups: tree.treeVersion.groups.map(g =>
-				{
-					const subGroups = g.subGroups.map(sg =>
-					{
-						treeMatched.subGroup = filter(sg.label);
-
-						let points = sg.points.map(p =>
-						{
-							treeMatched.point = treeMatched.subGroup || filter(p.label);
-							const contractedChoices = p.choices.filter(c => favorite?.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
-
-							const choices = p.choices.filter(c =>
-							{
-								const isValid = treeMatched.point || filter(c.label);
-
-								let isIncluded = true;
-								const isContractedChoice = contractedChoices?.includes(c);
-
-								if (p.isStructuralItem)
-								{
-									isIncluded = c.quantity > 0;
-								}
-								else
-								{
-									// If there are contracted design choices and the include contracted option flag is false,
-									// Pick1 or Pick0or1 - remove all choices
-									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
-									// if (!favorite.includeContractedOptions)
-									// {
-										if (contractedChoices?.length)
-										{
-											isIncluded = !isContractedChoice;
-										}
-
-										if (p.choices.find(ch => contractedChoices?.includes(ch)))
-										{
-											switch (p.pointPickTypeId) 
-											{
-												case PickType.Pick1:
-													isIncluded = false;
-												case PickType.Pick0or1:
-													isIncluded = false;
-											}
-										}
-									// }
-
-									// Apply cutoff to non-contracted choice whether or not it is favorited
-									if (!isContractedChoice && p.isPastCutOff)
-									{
-										isIncluded = false;
-									}
-								}
-
-								if (scenario.hiddenChoiceIds.indexOf(c.id) > -1)
-								{
-									isIncluded = false;
-								}
-
-								// Only display contracted choices when the design complete flag is turned on
-								if (isDesignComplete)
-								{
-									isIncluded = isContractedChoice;
-								}
-
-								return isValid && (isIncluded || isPreview || isPresale) && !c.isHiddenFromBuyerView;
-							});
-
-							return { ...p, choices: choices };
-						});
-
-						points = points.filter(dp =>
-						{
-							dp.price = dp.choices.reduce((acc, ch) => acc + (!ch.priceHiddenFromBuyerView ? ch.quantity * ch.price : 0), 0);
-
-							let isIncluded = true;
-
-							if (dp.choices.length === 0)
-							{
-								isIncluded = false;
-							}
-							else if (!isPreview && !isPresale && scenario.hiddenPointIds.indexOf(dp.id) > -1)
-							{
-								isIncluded = false;
-							}
-
-							return isIncluded && !dp.isHiddenFromBuyerView;
-						});
-
-						return { ...sg, points: points };
-					}).filter(sg =>
-					{
-						return !!sg.points.length;
-					});
-
-					return { ...g, subGroups: subGroups };
-				}).filter(g =>
-				{
-					return !!g.subGroups.length;
-				})
-			} as TreeVersion;
-		}
-
-		return includedTree ? new TreeVersion(includedTree) : null;
 	}
 );
 
