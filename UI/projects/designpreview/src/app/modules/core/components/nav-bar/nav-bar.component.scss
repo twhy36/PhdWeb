@@ -100,6 +100,12 @@
 	}
 }
 
+.phd-hamburger-menu {
+	display: none !important;
+}
+.phd-hamburger-menu-jw {
+	display: none !important;
+}
 
 @media(max-width: breakpoints.$top-menu-collapse) {
 	.phd-menu-options {

@@ -105,7 +105,9 @@ describe('NavBarComponent', () =>
 		expect(component.buildMode).toEqual('buyer');
 		expect(component.isMenuCollapsed).toEqual(true);
 		expect(component.showContractedOptionsLink).toEqual(true);
+		expect(component.showMyFavoritesLink).toEqual(true);
 		expect(component.showFloorplanLink).toEqual(true);
+		expect(component.showIncludedOptionsLink).toEqual(false);
 		expect(component.welcomeText).toEqual('Welcome To Your Home');
 
 		// Goes to buyer home page
@@ -132,7 +134,9 @@ describe('NavBarComponent', () =>
 		expect(component.buildMode).toEqual(BuildMode.Preview);
 		expect(component.isMenuCollapsed).toEqual(true);
 		expect(component.showContractedOptionsLink).toEqual(false);
+		expect(component.showMyFavoritesLink).toEqual(true);
 		expect(component.showFloorplanLink).toEqual(true);
+		expect(component.showIncludedOptionsLink).toEqual(false);
 		expect(component.welcomeText).toEqual('Welcome To Your Home');
 	}));
 
@@ -151,14 +155,14 @@ describe('NavBarComponent', () =>
 		expect(component.buildMode).toEqual(BuildMode.Presale);
 		expect(component.isMenuCollapsed).toEqual(true);
 		expect(component.showContractedOptionsLink).toEqual(false);
+		expect(component.showMyFavoritesLink).toEqual(true);
 		expect(component.showFloorplanLink).toEqual(false);
+		expect(component.showIncludedOptionsLink).toEqual(true);
 		expect(component.welcomeText).toEqual('Welcome To Your Future Home');;
 	}));
 
 	it('should navigate to favorites summary on myFavoritesLink clicked', fakeAsync(() =>
 	{
-		fixture.componentInstance.isMenuCollapsed = false;
-		advance();
 		const link = fixture.debugElement.nativeElement.querySelector('#myFavoritesLink');
 		link.click();
 		advance();
@@ -167,8 +171,6 @@ describe('NavBarComponent', () =>
 
 	it('should navigate to ifp page on floorplanLink clicked', fakeAsync(() =>
 	{
-		fixture.componentInstance.isMenuCollapsed = false;
-		advance();
 		const link = fixture.debugElement.nativeElement.querySelector('#floorplanLink');
 		link.click();
 		advance();
@@ -177,8 +179,6 @@ describe('NavBarComponent', () =>
 
 	it('should navigate to contracted options page on contractedOptionsLink clicked', fakeAsync(() =>
 	{
-		fixture.componentInstance.isMenuCollapsed = false;
-		advance();
 		const link = fixture.debugElement.nativeElement.querySelector('#contractedOptionsLink');
 		link.click();
 		advance();
@@ -187,7 +187,8 @@ describe('NavBarComponent', () =>
 
 	it('should navigate to included options page on includedOptions clicked', fakeAsync(() =>
 	{
-		fixture.componentInstance.isMenuCollapsed = false;
+		// Set showIncludedOptionsLink to true and find the link
+		fixture.componentInstance.showIncludedOptionsLink = true;
 		advance();
 
 		const link = fixture.debugElement.nativeElement.querySelector('#includedOptionsLink');
@@ -248,22 +249,28 @@ describe('NavBarComponent', () =>
 	it ('should return correct branded menu class', () => 
 	{
 		const initialCalls = brandService.getBrandName.calls.count();
+		expect(component.getBrandedMenuClass(false))
+			.withContext('menu not collapsed')
+			.toBe('phd-menu-options');
 
-		expect(component.getBrandedMenuClass())
+		expect(component.getBrandedMenuClass(true))
 			.withContext('menu not collapsed')
 			.toBe('phd-hamburger-menu');
 
 		// Tests for John Wieland Specifically
 		brandService.getBrandName.and.returnValue(Brands.JohnWieland);
 
+		expect(component.getBrandedMenuClass(false))
+			.withContext('menu not collapsed')
+			.toBe('phd-menu-options-jw');
 
-		expect(component.getBrandedMenuClass())
+		expect(component.getBrandedMenuClass(true))
 			.withContext('menu not collapsed')
 			.toBe('phd-hamburger-menu-jw');
 
 		expect(brandService.getBrandName.calls.count() - initialCalls)
 			.withContext('brandService.getBrandName was called once per call to #getBrandedMenuClass')
-			.toBe(2);
+			.toBe(4);
 	});
 
 	function advance(): void 
