@@ -81,7 +81,7 @@
 
 	// This has to be outside the component because the mat menu is part of the overlay container
 	.fa-check {
-		color: mat.get-color-from-palette($accent-palette, 500) !important;
+		color: mat.get-color-from-palette($accent-palette, 'A200') !important;
 		padding-right: 5px;
 	}
 
@@ -118,16 +118,6 @@
 	.phd-group-completed {
 		color: mat.get-color-from-palette($accent-palette, '500-contrast') !important;
 		-webkit-text-stroke: 1px mat.get-color-from-palette($accent-palette, 500);
-	}
-
-	.phd-sub-group-completed {
-		color: mat.get-color-from-palette($accent-palette, '500-contrast') !important;
-		-webkit-text-stroke: 1px mat.get-color-from-palette($primary-palette, '500-contrast');
-	}
-
-	.phd-mobile-completed {
-		color: mat.get-color-from-palette($accent-palette, 500);
-		-webkit-text-stroke: 1px mat.get-color-from-palette($primary-palette, '500-contrast');
 	}
 
 	.phd-group-uncompleted {
@@ -281,6 +271,11 @@ ngb-modal-backdrop {
 		background-color: none !important;
 		box-shadow: none !important;
 	}
+}
+
+.fa-check {
+	font-size: 14px;
+	-webkit-text-stroke: 1px white;
 }
 
 .app-root {
