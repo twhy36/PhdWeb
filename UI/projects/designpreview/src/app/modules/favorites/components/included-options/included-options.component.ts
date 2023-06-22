@@ -48,6 +48,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
 	options: PlanOption[];
+	isPresale: boolean = false;
 	isReadonly: boolean = false;
 	buildMode: BuildMode;
 	noVisibleGroups: boolean = false;
@@ -99,6 +100,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 			this.treeVersionRules = _.cloneDeep(scenarioState.rules);
 			this.options = _.cloneDeep(scenarioState.options);
 			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
+			this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 			this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
 
 			if (!taca && scenarioState.buildMode == BuildMode.Presale)
