@@ -11,7 +11,6 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
-import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
@@ -33,7 +32,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	salesAgreement: SalesAgreement;
 	isPreview: boolean;
 	isPresale: boolean;
-	isLoadingMyFavorite: boolean = false;
+	selectedFavoritesId: number;
 	hasFloorPlanImages: boolean = false;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
@@ -204,26 +203,14 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			if (fav)
 			{
 				//nav to top subgroup choice
-				if (this.isLoadingMyFavorite && !fav.isLoading)
-				{
-					this.isLoadingMyFavorite = false;
-					this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParamsHandling: 'merge' })
-				}
+				this.selectedFavoritesId = fav.selectedFavoritesId;
 			}
 		});
 	}
 
 	viewOptions()
 	{
-		this.isLoadingMyFavorite = true;
-		if (this.isPreview || this.isPresale)
-		{
-			this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
-		}
-		else
-		{
-			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
-		}
+		this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId], { queryParamsHandling: 'merge' })
 	}
 
 	getImageSrc()

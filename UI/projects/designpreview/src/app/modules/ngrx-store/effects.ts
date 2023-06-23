@@ -28,6 +28,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
+import { LoadMyFavorite } from './favorite/actions';
 
 @Injectable()
 export class CommonEffects
@@ -293,7 +294,8 @@ export class CommonEffects
 
 					return <Observable<Action>>from([
 						new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
-						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
+						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice),
+						new LoadMyFavorite()
 					]);
 				})
 			), LoadError, 'Error loading sales agreement!!', ErrorFrom.LoadSalesAgreement)

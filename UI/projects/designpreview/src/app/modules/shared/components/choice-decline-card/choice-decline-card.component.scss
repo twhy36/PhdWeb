@@ -84,6 +84,14 @@
 			background: none;
 			border: none;
 		}
+
+		.phd-presale-padding {
+			padding: 12px 8px 0 15px;
+		}
+
+		.phd-standard-padding {
+			padding: 5px 8px 0 15px;
+		}
 	}
 
 	.phd-2-line-limit {
@@ -95,7 +103,23 @@
 		margin: 0;
 	}
 
+	.phd-presale-pricing-block {
+		align-self: flex-end;
+	}
+
+	.phd-standard-pricing-block {
+		height: 35px;
+	}
+
 	.phd-presale-icon {
 		align-self: flex-end;
 	}
+}
+
+.phd-decline-card-standard-height {
+	height: 284px;
+}
+
+.phd-decline-card-presale-height {
+	height: 256px;
 }

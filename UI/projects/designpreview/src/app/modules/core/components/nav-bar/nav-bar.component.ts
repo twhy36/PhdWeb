@@ -8,6 +8,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as ErrorActions from '../../../ngrx-store/error.action';
+import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { Brands, BrandService } from '../../services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
@@ -175,5 +176,4 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		return 'phd-nav-bar-' + this.brandService.getBrandName();
 	}
-
 }

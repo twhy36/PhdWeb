@@ -1,4 +1,4 @@
-<li class="phd-choice-card" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
+<li class="phd-choice-card" [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-choice-card-presale-height' : 'phd-choice-card-standard-height'" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="phd-header">
 		<div class="phd-choice-image"*ngIf="imageUrl">
 			<cl-image public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270" alt=""
@@ -13,7 +13,7 @@
 			<h1 class="phd-2-line-limit">
 				{{choice?.label}}
 			</h1>
-			<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-pricing' : ''" class="d-flex flex-row justify-content-between">
+			<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-pricing-block' : 'phd-standard-pricing-block'" class="d-flex flex-row justify-content-between">
 				<ng-container *ngIf="!isPresale || (isPresale && isPresalePricingEnabled)">
 					<span *ngIf="!choice.priceHiddenFromBuyerView" class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</span>
 					<span *ngIf="choice.priceHiddenFromBuyerView" class="phd-price-label" (click)="$event.stopPropagation()">
@@ -22,16 +22,18 @@
 					</span>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
-					<i class="fa fa-check phd-icon-selected"></i>
+					<span class="phd-non-clickable">
+						<i class="fa fa-check phd-icon-selected"></i>
+					</span>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<button class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
+					<button [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-padding' : 'phd-standard-padding'" class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">
 						<span class="phd-icon-selected"><i *ngIf="choice.isFavorite" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!choice.isFavorite" aria-pressed="false" class="fa fa-heart-o"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<button class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
+					<button [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-padding' : 'phd-standard-padding'" class="phd-clickable" (click)="$event.stopPropagation();openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{choice.label + ' is Blocked'}}"></i>
 					</button>
 				</ng-container>

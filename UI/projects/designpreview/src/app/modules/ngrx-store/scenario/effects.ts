@@ -9,7 +9,7 @@ import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatus
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
 import * as _ from 'lodash';
-import { DeleteMyFavoritesPointDeclined } from '../favorite/actions';
+import { DeleteMyFavoritesPointDeclined, LoadDefaultFavorite } from '../favorite/actions';
 import { from } from 'rxjs';
 import { ErrorFrom, tryCatch } from '../error.action';
 import { OptionService } from '../../core/services/option.service';
@@ -104,6 +104,7 @@ export class ScenarioEffects
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(webPlanMapping),
+						new LoadDefaultFavorite()
 					]);
 				})
 			), LoadError, 'Error loading preview!!', ErrorFrom.LoadPreview)
@@ -177,6 +178,7 @@ export class ScenarioEffects
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(webPlanMapping),
 						new SetPresalePricingEnabled(isPresalePricingEnabled),
+						new LoadDefaultFavorite()
 					]);
 				})
 			), LoadError, 'Error loading presale!!', ErrorFrom.LoadPresale)

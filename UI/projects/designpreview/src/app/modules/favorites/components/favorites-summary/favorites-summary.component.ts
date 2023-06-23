@@ -166,15 +166,6 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.isDesignComplete = sag?.isDesignComplete || false;
 			this.buildMode = scenario.buildMode;
 			this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
-
-			if (this.isPreview || this.isPresale)
-			{
-				this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
-			}
-			else if (!fav.selectedFavoritesId)
-			{
-				this.store.dispatch(new FavoriteActions.LoadMyFavorite());
-			}
 		});
 
 		this.store.pipe(
