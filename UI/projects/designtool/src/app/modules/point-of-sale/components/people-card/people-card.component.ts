@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { Address, Buyer, Contact, Realtor } from 'phd-common';
+import { Address, Buyer, Contact, Realtor, Constants, SalesAgreementStatuses } from 'phd-common';
 
 type Person = 'Buyer' | 'Trust' | 'Realtor';
 
@@ -62,7 +62,7 @@ export class PeopleCardComponent implements OnInit, OnChanges
 	checkForMissingRequiredFields()
 	{
 		// only run for Primary Buyer for now.  
-		if (this.personType === 'Realtor' || (this.personType === 'Buyer' && this.person?.isPrimaryBuyer) && this.salesAgreementStatus === 'Pending')
+		if (this.personType === 'Realtor' || (this.personType === 'Buyer' && this.person?.isPrimaryBuyer) && this.salesAgreementStatus === SalesAgreementStatuses.Pending)
 		{
 			// get the contact info which is buried for buyer
 			const contact: Contact = this.personType === 'Buyer' ? this.personContact : this.realtor?.contact;
@@ -169,8 +169,8 @@ export class PeopleCardComponent implements OnInit, OnChanges
 
 	canEditBuyer()
 	{
-		return this.canSell && (this.salesAgreementStatus === 'Pending' || this.salesAgreementStatus === 'OutforSignature'
-			|| this.salesAgreementStatus === 'Signed' || this.salesAgreementStatus === 'Approved');
+		return this.canSell && (this.salesAgreementStatus === SalesAgreementStatuses.Pending || this.salesAgreementStatus === SalesAgreementStatuses.OutForSignature
+			|| this.salesAgreementStatus === SalesAgreementStatuses.Signed || this.salesAgreementStatus === SalesAgreementStatuses.Approved);
 	}
 
 	canEditCard()

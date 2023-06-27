@@ -5,10 +5,10 @@ import { Observable, of, from } from 'rxjs';
 import { switchMap, withLatestFrom, exhaustMap, map, take } from 'rxjs/operators';
 
 import
-	{
-		Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
-		formatPhoneNumber
-	} from 'phd-common';
+{
+	Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
+	formatPhoneNumber, Constants, SalesAgreementStatuses
+} from 'phd-common';
 
 import * as fromRoot from '../reducers';
 import * as fromLite from '../lite/reducer';
@@ -42,7 +42,7 @@ export class ContractEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
-					if (store.salesAgreement.status === 'Pending')
+					if (store.salesAgreement.status === SalesAgreementStatuses.Pending)
 					{
 						return of(new AddRemoveSelectedTemplate(0, false, ESignTypeEnum.SalesAgreement));
 					}
@@ -277,7 +277,7 @@ export class ContractEffects
 						const selectionsPrice = priceBreakdown.selections || 0;
 						const totalHousePrice = priceBreakdown.totalPrice || 0;
 						const nonStandardPrice = priceBreakdown.nonStandardSelections || 0;
-						const changeOrderGroupId = store.job.changeOrderGroups.length ? store.job.changeOrderGroups[ store.job.changeOrderGroups.length - 1 ].id : 0;
+						const changeOrderGroupId = store.job.changeOrderGroups.length ? store.job.changeOrderGroups[store.job.changeOrderGroups.length - 1].id : 0;
 						const buyerClosingCosts = (priceBreakdown.closingIncentive || 0) + (priceBreakdown.closingCostAdjustment || 0);
 
 						const jio = store.job.changeOrderGroups.find(a =>

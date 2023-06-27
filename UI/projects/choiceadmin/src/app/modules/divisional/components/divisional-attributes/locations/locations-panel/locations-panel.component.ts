@@ -19,7 +19,7 @@ import { Settings } from '../../../../../shared/models/settings.model';
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { LocationService } from '../../../../../core/services/location.service';
-import { IdentityService, Permission, PhdTableComponent } from 'phd-common';
+import { Constants, IdentityService, Permission, PhdTableComponent } from 'phd-common';
 import { StorageService } from '../../../../../core/services/storage.service';
 import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
@@ -266,10 +266,10 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 			{
 				this.filteredLocationsList = data;
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Location', detail: `An error has occured!` });
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Location', detail: `An error has occured!` });
+				});
 	}
 
 	onPanelScroll()
@@ -342,26 +342,25 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 		if (location.isActive)
 		{
 			let msgBody = `You are about to <span class="font-weight-bold text-danger">inactivate</span> the location<br><br> `;
-			msgBody += `<span class="font-weight-bold">${location.locationName}</span><br><br>`;
-			msgBody += `Do you wish to continue?`;
+			msgBody += `<span class="font-weight-bold">${location.locationName}</span><br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
 
 			let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = 'Continue';
+			confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					this.toggleLocation(location);
 				}
 			},
-			(reason) =>
-			{
+				(reason) =>
+				{
 
-			});
+				});
 		}
 		else
 		{
@@ -400,10 +399,10 @@ export class LocationsPanelComponent extends UnsubscribeOnDestroy implements OnI
 
 				this._msgService.add({ severity: 'success', summary: 'Location', detail: `Updated successfully!` });
 			},
-			(error) =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Location', detail: `An error has occured!` });
-			});
+				(error) =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Location', detail: `An error has occured!` });
+				});
 	}
 
 	onStatusChanged(event: any)

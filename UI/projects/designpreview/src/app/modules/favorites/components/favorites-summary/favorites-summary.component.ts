@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement,
-	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite
+	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite, Constants
 } from 'phd-common';
 
 import { Store, select } from '@ngrx/store';
@@ -423,14 +423,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.confirmModal.componentInstance.title = 'Are You Sure?';
 		this.confirmModal.componentInstance.body = 'This will delete this item from your list';
-		this.confirmModal.componentInstance.defaultOption = 'Continue';
+		this.confirmModal.componentInstance.defaultOption = Constants.CONTINUE;
 
 		this.adobeService.setAlertEvent(this.confirmModal.componentInstance.title + ' ' + this.confirmModal.componentInstance.body, 'Remove Favorite Alert');
 
 		this.confirmModal.result.then((result) =>
 		{
 
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 
 				const removedChoices = [];

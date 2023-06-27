@@ -17,7 +17,7 @@ import { IFinancialMarket } from '../../../shared/models/financial-market.model'
 import { IFinancialCommunity } from '../../../shared/models/financial-community.model';
 import { IPlan } from '../../../shared/models/plan.model';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
-import { IdentityService, Permission } from 'phd-common';
+import { Constants, IdentityService, Permission } from 'phd-common';
 import { of } from 'rxjs';
 
 @Component({
@@ -475,25 +475,25 @@ export class CopyTreeComponent implements OnInit
 				this.hasDraftMessage(treeVersionId);
 			}
 		},
-		error =>
-		{
-			this.createMessage({ severity: 'error', summary: 'Draft Check', detail: 'There was an error while trying to check for a draft.' });
+			error =>
+			{
+				this.createMessage({ severity: 'error', summary: 'Draft Check', detail: 'There was an error while trying to check for a draft.' });
 
-			this.reEnableForm();
-		});
+				this.reEnableForm();
+			});
 	}
 
 	hasDraftMessage(treeVersionId: number)
 	{
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = `The selected plan already has an active draft.<br /><br />Do you wish to override?`;
-		confirm.componentInstance.defaultOption = 'Continue';
+		confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				this.overrideVersion(treeVersionId);
 			}
@@ -551,10 +551,10 @@ export class CopyTreeComponent implements OnInit
 					this.createMessage({ severity: 'error', summary: 'Copy Tree', detail: 'There was an error while trying to copy the selected tree.' });
 				}
 			},
-			error =>
-			{
-				this.createMessage({ severity: 'error', summary: 'Copy Tree', detail: 'There was an error while trying to copy the selected tree.' });
-			});
+				error =>
+				{
+					this.createMessage({ severity: 'error', summary: 'Copy Tree', detail: 'There was an error while trying to copy the selected tree.' });
+				});
 	}
 
 	navToTree(id)
@@ -574,12 +574,12 @@ export class CopyTreeComponent implements OnInit
 				{
 					this.copyVersion();
 				},
-				error =>
-				{
-					this.createMessage({ severity: 'error', summary: 'Override Draft', detail: 'There was an issue trying to override the existing draft tree.' });
+					error =>
+					{
+						this.createMessage({ severity: 'error', summary: 'Override Draft', detail: 'There was an issue trying to override the existing draft tree.' });
 
-					this.reEnableForm();
-				});
+						this.reEnableForm();
+					});
 		}
 		else
 		{
@@ -613,10 +613,10 @@ export class CopyTreeComponent implements OnInit
 
 			window.URL.revokeObjectURL(xlsData);
 		},
-		error =>
-		{
-			this.createMessage({ severity: 'error', summary: 'Copy Plan Validation', detail: 'There was an issue trying to create the Copy Plan Validation document.' });
-		});
+			error =>
+			{
+				this.createMessage({ severity: 'error', summary: 'Copy Plan Validation', detail: 'There was an issue trying to create the Copy Plan Validation document.' });
+			});
 	}
 }
 

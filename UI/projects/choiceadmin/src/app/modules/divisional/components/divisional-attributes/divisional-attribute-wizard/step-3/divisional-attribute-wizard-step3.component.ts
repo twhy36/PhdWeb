@@ -6,6 +6,7 @@ import { IPlan, IPlanOptionResult } from '../../../../../shared/models/plan.mode
 import * as _ from 'lodash';
 import { switchMap } from 'rxjs/operators';
 import { OrganizationService } from '../../../../../core/services/organization.service';
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'divisional-attribute-wizard-step3',
@@ -161,7 +162,7 @@ export class DivisionalAttributeWizardStep3Component
 			{
 				let plan = new DivAttributeWizPlan(community, pc);
 
-				if (this.selectedMapping === 'Remove' || pc.hasChoices)
+				if (this.selectedMapping === Constants.REMOVE || pc.hasChoices)
 				{
 					this.selectedPlans.push(plan);
 				}
@@ -185,7 +186,7 @@ export class DivisionalAttributeWizardStep3Component
 				{
 					let plan = new DivAttributeWizPlan(c, p);
 
-					if (this.selectedMapping === 'Remove' || p.hasChoices)
+					if (this.selectedMapping === Constants.REMOVE || p.hasChoices)
 					{
 						this.selectedPlans.push(plan);
 					}

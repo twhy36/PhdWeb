@@ -3,7 +3,7 @@ import { Action } from '@ngrx/store';
 import
 {
 	DesignToolAttribute, SalesCommunity, ChangeOrderHanding, JobChoice, Job, LotExt, PlanOption,
-	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules, DecisionPointFilterType
+	TreeVersionRules, Scenario, DtoScenarioInfo, TreeFilter, Tree, OptionImage, Choice, Log, TimeOfSaleOptionPrice, LotChoiceRules, DecisionPointFilterType, Constants
 } from 'phd-common';
 
 import { ErrorAction } from '../error.action';

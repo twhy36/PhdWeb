@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ConfirmModalComponent, Elevations, ModalService, IColor } from 'phd-common';
+import { ConfirmModalComponent, Elevations, ModalService, IColor, Constants } from 'phd-common';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../../core/services/color.service';
 import
-	{
-		IOptionCommunity,
-		IPlanCommunity, IPlanOptionCommunity,
-		IPlanOptionCommunityDto
-	} from '../../../shared/models/community.model';
+{
+	IOptionCommunity,
+	IPlanCommunity, IPlanOptionCommunity,
+	IPlanOptionCommunityDto
+} from '../../../shared/models/community.model';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
 import { PlanOptionService } from '../../../core/services/plan-option.service';
 
@@ -108,7 +108,7 @@ export class AddColorItemDialogComponent implements OnInit
 		}
 
 		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
-		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Continue');
+		const closeWithoutSavingData = await this.showConfirmModal(msg, Constants.WARNING, Constants.CONTINUE);
 
 		if (closeWithoutSavingData)
 		{
@@ -125,7 +125,7 @@ export class AddColorItemDialogComponent implements OnInit
 		confirm.componentInstance.defaultOption = defaultButton;
 
 		const response = await confirm.result;
-		return response === 'Continue';
+		return response === Constants.CONTINUE;
 	}
 
 	saveButtonWasClicked()

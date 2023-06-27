@@ -6,7 +6,7 @@ import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService, SelectItem } from 'primeng/api';
 
-import { PhdTableComponent, ConfirmModalComponent, FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
+import { PhdTableComponent, ConfirmModalComponent, FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants } from 'phd-common';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
@@ -523,12 +523,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 		confirm.componentInstance.title = 'Release Homesite';
 		confirm.componentInstance.body = 'Click Continue to release this lot.';
-		confirm.componentInstance.defaultOption = 'Continue';
+		confirm.componentInstance.defaultOption = Constants.CONTINUE;
 		confirm.componentInstance.primaryButtonText = 'Release';
 
 		confirm.result.then((result) =>
 		{
-			if (result === 'Continue')
+			if (result === Constants.CONTINUE)
 			{
 				this.saving = true;
 				const dto: IHomeSiteReleaseDto = {
@@ -551,10 +551,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 					this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
 				},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
-				});
+					error =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+					});
 			}
 		}, (reason) =>
 		{
@@ -603,10 +603,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 			this.sidePanelOpen = false;
 		},
-		error =>
-		{
-			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-		});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+			});
 	}
 
 	formatAddress(address: HomeSiteDtos.IAddress)
@@ -648,12 +648,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				const toggleResultText = !!dto.isHiddenInTho ? 'Hidden in THO!' : 'Available in THO!';
 
-				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock + ' ' + toggleResultText }` });
+				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock + ' ' + toggleResultText}` });
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-			});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+				});
 	}
 
 	getIsPhdLiteEnabled(financialCommunityId: number)

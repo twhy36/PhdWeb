@@ -6,7 +6,7 @@ import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService } from 'primeng/api';
 
-import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
+import { ConfirmModalComponent, PhdTableComponent, Constants } from 'phd-common';
 
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
@@ -144,21 +144,21 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 		this._releaseService.saveRelease(dto).pipe(
 			finalize(() => { this.saving = false; })
 		)
-		.subscribe(newDto =>
-		{
-			//Updates any associated homesites
-			this._releaseService.updateHomeSiteAndReleases(newDto);
+			.subscribe(newDto =>
+			{
+				//Updates any associated homesites
+				this._releaseService.updateHomeSiteAndReleases(newDto);
 
-			this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
+				this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
 
-			this.onSidePanelClose(false);
-		},
-		error =>
-		{
-			this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+				this.onSidePanelClose(false);
+			},
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
 
-			console.log(error);
-		});
+					console.log(error);
+				});
 	}
 
 	editRelease(release?: HomeSiteRelease)
@@ -185,13 +185,13 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				this.deleteRelease(release, index);
 			}

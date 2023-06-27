@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { combineLatest, withLatestFrom } from 'rxjs/operators';
 
-import {
+import
+{
 	UnsubscribeOnDestroy, ChangeOrderHanding, Job, Lot, LotExt, Plan, TreeVersion, DecisionPoint,
-	ModalService
+	ModalService,
+	Constants
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -280,16 +282,16 @@ export class LotTransferComponent extends UnsubscribeOnDestroy implements OnInit
 		const body = this.canOverride ? 'This will override the Monotony Conflict' : 'There is a Monotony Conflict with the selected lot';
 		const confirm = this.modalService.open(component);
 
-		confirm.componentInstance.title = 'Warning';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = body;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
-		confirm.componentInstance.primaryButton = { hide: !this.canOverride, text: 'Save' };
-		confirm.componentInstance.secondaryButton = { hide: false, text: 'Cancel' };
+		confirm.componentInstance.primaryButton = { hide: !this.canOverride, text: Constants.SAVE };
+		confirm.componentInstance.secondaryButton = { hide: false, text: Constants.CANCEL };
 
 		return confirm.result.then((result) =>
 		{
-			if (result !== 'Close' && result !== 'Continue')
+			if (result !== Constants.CLOSE && result !== Constants.CONTINUE)
 			{
 				this.store.dispatch(new ChangeOrderActions.SetChangeOrderOverrideNote(result));
 

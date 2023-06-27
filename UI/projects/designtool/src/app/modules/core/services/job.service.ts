@@ -8,7 +8,7 @@ import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
 	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice,
-	IPendingJobSummary
+	IPendingJobSummary, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -66,7 +66,7 @@ export class JobService
 
 				if (jobs?.length > 0)
 				{
-					return jobs[0]?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
+					return jobs[0]?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== SalesAgreementStatuses.Void && x.salesAgreement?.status !== SalesAgreementStatuses.Cancel && x.salesAgreement?.id !== 0) === -1;
 				}
 				else
 				{

@@ -113,7 +113,7 @@ export class SearchService
 
 		// top level expands
 		let expands = `${expandData.jobs},${expandData.financialCommunity},${expandData.planAssociations},${expandData.physicalLotTypes},${expandData.scenarios}`;
-		
+
 		// putting it all together - DO NOT encode since it will be encoded during the batch process
 		const qryStr = `$expand=${expands}` +
 			`&$select=${selectData.lots}` +
@@ -182,7 +182,7 @@ export class SearchService
 			})
 		);
 	}
-	
+
 	searchActiveCOHomesites(financialCommunityId?: string, salesCommunityId?: string)
 	{
 		let selectData: SearchEntities = new SearchEntities();
@@ -195,7 +195,7 @@ export class SearchService
 		selectData.financialCommunity = 'id';
 		selectData.jobChangeOrderGroup = 'id,jobId,jobChangeOrderGroupDescription, constructionStatusDescription,salesStatusDescription';
 		selectData.salesCommunity = 'id';
-		
+
 		let expandData: SearchEntities = new SearchEntities();
 		expandData.lots = `lot($select=${selectData.lots})`;
 		expandData.salesCommunity = `salesCommunity($select=${selectData.salesCommunity})`;

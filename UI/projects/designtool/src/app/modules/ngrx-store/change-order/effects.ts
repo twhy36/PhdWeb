@@ -9,7 +9,7 @@ import { Action, Store, select } from '@ngrx/store';
 import
 {
 	ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeInput, ChangeTypeEnum, ChangeOrderGroup, ChangeOrderHanding,
-	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers, TreeService
+	Job, SalesStatusEnum, ModalService, mergeSalesChangeOrderBuyers, TreeService, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -95,7 +95,7 @@ export class ChangeOrderEffects
 		return this.actions$.pipe(
 			ofType<CreateJobChangeOrders>(ChangeOrderActionTypes.CreateJobChangeOrders),
 			withLatestFrom(
-				this.store, 
+				this.store,
 				this.store.pipe(select(priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),
@@ -133,7 +133,7 @@ export class ChangeOrderEffects
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
 						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };	
+					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 					const data = this.changeOrderService.mergePosData(
 						inputData,
@@ -207,7 +207,7 @@ export class ChangeOrderEffects
 					const pendingJobSummary = isPhdLite
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
 						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-					
+
 					data = { ...data, pendingJobSummary: pendingJobSummary };
 
 					return forkJoin(
@@ -423,7 +423,7 @@ export class ChangeOrderEffects
 							store.salesAgreement.id,
 							priceBreakdown.baseHouse,
 							store.scenario.rules.optionRules);
-					
+
 					const nonStandardOptions = store.job.jobNonStandardOptions.map(jnso =>
 					{
 						return {
@@ -442,7 +442,7 @@ export class ChangeOrderEffects
 						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
 						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
 					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
-						
+
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -644,7 +644,7 @@ export class ChangeOrderEffects
 						newInput.changeOrderPlanId = store.plan.selectedPlan;
 
 						if (store.job.lot && store.job.lot.lotBuildTypeDesc === 'Spec'
-							&& ['Pending', 'OutforSignature', 'Signed'].indexOf(store.salesAgreement.status) !== -1
+							&& (store.salesAgreement.status === SalesAgreementStatuses.Pending || store.salesAgreement.status === SalesAgreementStatuses.OutForSignature || store.salesAgreement.status === SalesAgreementStatuses.Signed)
 							&& (!store.opportunity.opportunityContactAssoc || !store.opportunity.opportunityContactAssoc.opportunity)
 							&& newInput.buyers && newInput.buyers.length)
 						{
@@ -764,14 +764,14 @@ export class ChangeOrderEffects
 		return this.actions$.pipe(
 			ofType<SavePendingJio>(ChangeOrderActionTypes.SavePendingJio),
 			withLatestFrom(
-				this.store, 
+				this.store,
 				this.store.pipe(select(priceBreakdown)),
 				this.store.pipe(select(fromRoot.legacyColorScheme))
 			),
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown, legacyColorScheme]) =>
 				{
-					const isSpecSalePending = store.job.lot && store.job.lot.lotBuildTypeDesc === 'Spec' && store.salesAgreement.status === 'Pending';
+					const isSpecSalePending = store.job.lot && store.job.lot.lotBuildTypeDesc === 'Spec' && store.salesAgreement.status === SalesAgreementStatuses.Pending;
 					const typeDescription = isSpecSalePending ? 'BuyerChangeOrder' : 'SalesJIO';
 					const jio = store.job.changeOrderGroups
 						? store.job.changeOrderGroups.find(x => x.jobChangeOrders && x.jobChangeOrders.some(co => co.jobChangeOrderTypeDescription === typeDescription))
@@ -811,7 +811,7 @@ export class ChangeOrderEffects
 						const pendingJobSummary = isPhdLite
 							? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
 							: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-						inputData = { ...inputData, pendingJobSummary: pendingJobSummary };			
+						inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 						if (isSpecSalePending)
 						{
@@ -971,22 +971,22 @@ export class ChangeOrderEffects
 						const changeOrderStatus = store.changeOrder.currentChangeOrder?.salesStatusDescription;
 						const draftESignEnvelope = store.changeOrder.currentChangeOrder?.eSignEnvelopes?.find(x => x.eSignStatusId === 1);
 						if (draftESignEnvelope &&
-							(salesAgreementStatus === 'OutforSignature' || salesAgreementStatus === 'Pending' ||
-								salesAgreementStatus === 'Approved' && changeOrderStatus === 'OutforSignature'))
+							(salesAgreementStatus === SalesAgreementStatuses.OutForSignature || salesAgreementStatus === SalesAgreementStatuses.Pending ||
+								salesAgreementStatus === SalesAgreementStatuses.Approved && changeOrderStatus === SalesAgreementStatuses.OutForSignature))
 						{
 							let expiredDate = new Date(draftESignEnvelope.createdUtcDate);
 							expiredDate.setDate(expiredDate.getDate() + 3);
 							const today = new Date();
 
-							if (today > expiredDate || salesAgreementStatus === 'Pending')
+							if (today > expiredDate || salesAgreementStatus === SalesAgreementStatuses.Pending)
 							{
 								let envelopeDto = { ...draftESignEnvelope, eSignStatusId: 4 };
 
-								const updateSag = salesAgreementStatus === 'OutforSignature'
-									? this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id, 'Pending')
+								const updateSag = salesAgreementStatus === SalesAgreementStatuses.OutForSignature
+									? this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id, SalesAgreementStatuses.Pending)
 									: of(store.salesAgreement);
 
-								const updateCog = salesAgreementStatus === 'Approved' && changeOrderStatus === 'OutforSignature'
+								const updateCog = salesAgreementStatus === SalesAgreementStatuses.Approved && changeOrderStatus === SalesAgreementStatuses.OutForSignature
 									? this.changeOrderService.updateJobChangeOrder([store.changeOrder.currentChangeOrder])
 									: of([store.changeOrder.currentChangeOrder]);
 
@@ -1052,11 +1052,11 @@ export class ChangeOrderEffects
 						actions.push(new CurrentChangeOrderPending(statusUtcDate, data.eSignEnvelope?.eSignEnvelopeId));
 						actions.push(new JobUpdated(job));
 
-						if (data.salesAgreementStatus === 'OutforSignature')
+						if (data.salesAgreementStatus === SalesAgreementStatuses.OutForSignature)
 						{
 							actions.push(new SalesAgreementSaved(data.salesAgreement));
 						}
-						else if (data.salesAgreementStatus === 'Approved')
+						else if (data.salesAgreementStatus === SalesAgreementStatuses.Approved)
 						{
 							actions.push(new ChangeOrderActions.SetChangingOrder(true, null, false));
 						}

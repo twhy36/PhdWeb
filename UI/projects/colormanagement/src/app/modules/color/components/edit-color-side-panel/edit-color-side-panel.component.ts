@@ -1,15 +1,16 @@
-import {Component, OnInit, OnDestroy, Output, EventEmitter, Input} from '@angular/core';
-import {ConfirmModalComponent, ModalService, IColorDto } from 'phd-common';
-import { UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
-import {ColorService} from '../../../core/services/color.service';
-import {ColorAdminService} from '../../../core/services/color-admin.service';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
+import { ConfirmModalComponent, ModalService, IColorDto, Constants } from 'phd-common';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ColorService } from '../../../core/services/color.service';
+import { ColorAdminService } from '../../../core/services/color-admin.service';
 
 @Component({
 	selector: 'edit-color-side-panel',
 	templateUrl: './edit-color-side-panel.component.html',
 	styleUrls: ['./edit-color-side-panel.component.scss']
 })
-export class EditColorSidePanelComponent implements OnInit, OnDestroy {
+export class EditColorSidePanelComponent implements OnInit, OnDestroy
+{
 	isSaving: boolean;
 	sidePanelHeader: string = 'Edit Color';
 	sidePanelSubheader: string = '';
@@ -29,7 +30,8 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		private _colorAdminService: ColorAdminService
 	) { }
 
-	ngOnInit(): void {
+	ngOnInit(): void
+	{
 		this.sidePanelIsOpen = true;
 		this._colorAdminService.emitEditingColor(true);
 
@@ -41,11 +43,13 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	ngOnDestroy(): void {
+	ngOnDestroy(): void
+	{
 		this._colorAdminService.emitEditingColor(false);
 	}
 
-	saveEdit() {
+	saveEdit()
+	{
 		if (this.editColorForm.invalid)
 		{
 			return;
@@ -63,19 +67,22 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 				isActive: this.selectedColor.isActive
 			} as IColorDto;
 
-			this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) => {
+			this._colorService.updateColor(colorToSave, this.communityId).subscribe((updatedColor) =>
+			{
 				const successful = updatedColor !== undefined && updatedColor !== null;
 
-				if (successful) {
+				if (successful)
+				{
 					this.sidePanelIsOpen = false;
 					this._colorAdminService.emitEditingColor(false);
 				}
 
 				this.colorWasEdited.emit(successful);
 			},
-			error => {
-				this.colorWasEdited.emit(false);
-			});			
+				error =>
+				{
+					this.colorWasEdited.emit(false);
+				});
 		}
 		else
 		{
@@ -87,7 +94,8 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	async onCloseSidePanel() {
+	async onCloseSidePanel()
+	{
 		if (this.editColorForm.dirty === false)
 		{
 			this.sidePanelIsOpen = false;
@@ -97,7 +105,7 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		}
 
 		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
-		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Continue');
+		const closeWithoutSavingData = await this.showConfirmModal(msg, Constants.WARNING, Constants.CONTINUE);
 
 		if (closeWithoutSavingData)
 		{
@@ -116,6 +124,6 @@ export class EditColorSidePanelComponent implements OnInit, OnDestroy {
 		confirm.componentInstance.defaultOption = defaultButton;
 
 		const response = await confirm.result;
-		return response === 'Continue';
+		return response === Constants.CONTINUE;
 	}
 }

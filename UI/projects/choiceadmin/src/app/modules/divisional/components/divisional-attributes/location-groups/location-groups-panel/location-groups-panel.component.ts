@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/cor
 import { ActivatedRoute } from '@angular/router';
 
 import { filter, map, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { of,  forkJoin } from 'rxjs';
+import { of, forkJoin } from 'rxjs';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -19,7 +19,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
-import { IdentityService, Permission, PhdTableComponent } from 'phd-common';
+import { Constants, IdentityService, Permission, PhdTableComponent } from 'phd-common';
 import { StorageService } from '../../../../../core/services/storage.service';
 import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
@@ -294,11 +294,11 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 			{
 				this.filteredLocationGroupsList = data;
 			},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Location Group', detail: `An error has occured!` });
-			}
-		);
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Location Group', detail: `An error has occured!` });
+				}
+			);
 	}
 
 	onPanelScroll()
@@ -361,18 +361,17 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 		if (group.isActive)
 		{
 			let msgBody = `You are about to <span class="font-weight-bold text-danger">inactivate</span> the location group<br><br> `;
-			msgBody += `<span class="font-weight-bold">${group.locationGroupName}</span><br><br>`;
-			msgBody += `Do you wish to continue?`;
+			msgBody += `<span class="font-weight-bold">${group.locationGroupName}</span><br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
 
 			let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = 'Continue';
+			confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					this.toggleLocationGroup(group);
 				}
@@ -418,12 +417,12 @@ export class LocationGroupsPanelComponent extends UnsubscribeOnDestroy implement
 
 				this._msgService.add({ severity: 'success', summary: 'Location Group', detail: `Updated successfully!` });
 			},
-			(error) =>
-			{
-				group.isActive = !group.isActive;
+				(error) =>
+				{
+					group.isActive = !group.isActive;
 
-				this._msgService.add({ severity: 'error', summary: 'Location Group', detail: `An error has occured!` });
-			});
+					this._msgService.add({ severity: 'error', summary: 'Location Group', detail: `An error has occured!` });
+				});
 	}
 
 	onStatusChanged(event: any)

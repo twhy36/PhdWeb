@@ -12,7 +12,7 @@ import { MessageService } from 'primeng/api';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmModalComponent, PhdTableComponent, SpecDiscountService } from 'phd-common';
+import { ConfirmModalComponent, Constants, PhdTableComponent, SpecDiscountService } from 'phd-common';
 import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
 
 import * as moment from 'moment';
@@ -243,7 +243,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				let currDate = new Date(moment.parseZone(moment()).toISOString()).toISOString().split('T')[0];
 				let prevDate = moment(new Date(currDate).toISOString()).subtract(1, 'days').toISOString().split('T')[0];
@@ -327,7 +327,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					// DELETEME when THO columns are migrated to EDH
 					this.financialCommunityInfo.thoBuyerClosingCostId = salesProgram.isWebSaleable ? null : salesProgram.id;
@@ -388,7 +388,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					// DELETEME when THO columnns are migrated to EDH
 					this.financialCommunityInfo.thoDiscountFlatAmountId = salesProgram.isWebSaleable ? null : salesProgram.id;
@@ -441,9 +441,9 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 		return confirm;
 	}

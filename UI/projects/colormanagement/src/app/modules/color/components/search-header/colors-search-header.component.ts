@@ -4,7 +4,7 @@ import { IOptionSubCategory } from '../../../shared/models/option.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { from, Observable, EMPTY } from 'rxjs';
-import { ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy, IColor, IColorDto } from 'phd-common';
+import { ConfirmModalComponent, ModalRef, ModalService, UnsubscribeOnDestroy, IColor, IColorDto, Constants } from 'phd-common';
 import { ColorService } from '../../../core/services/color.service';
 import { SettingsService } from '../../../core/services/settings.service';
 import { Settings } from '../../../shared/models/settings.model';
@@ -154,7 +154,7 @@ export class ColorsSearchHeaderComponent
 				{
 					colorDto.hasSalesConfig = color.hasSalesConfig;
 				}
-				
+
 			});
 		});
 
@@ -245,7 +245,7 @@ export class ColorsSearchHeaderComponent
 
 	private showToast(successful: boolean, mode: CrudMode)
 	{
-		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : 'Save';
+		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : Constants.SAVE;
 
 		const toast = {
 			severity: successful ? 'success' : 'error',
@@ -277,7 +277,7 @@ export class ColorsSearchHeaderComponent
 	{
 		const message = 'Are you sure you want to delete selected colors?';
 
-		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+		this.showConfirmModal(message, Constants.WARNING, Constants.CONTINUE).pipe(
 			switchMap(cancelDeletion =>
 			{
 				if (cancelDeletion)
@@ -309,7 +309,7 @@ export class ColorsSearchHeaderComponent
 		confirm.componentInstance.body = body;
 		confirm.componentInstance.defaultOption = defaultButton;
 
-		return from(confirm.result.then((result) => result !== 'Continue'));
+		return from(confirm.result.then((result) => result !== Constants.CONTINUE));
 	}
 
 	onColorsWasEdited(successful: boolean)
@@ -380,7 +380,7 @@ export class ColorsSearchHeaderComponent
 		let cancelled = false;
 		let toast: IToastInfo;
 
-		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+		this.showConfirmModal(message, Constants.WARNING, Constants.CONTINUE).pipe(
 			switchMap(cancel =>
 			{
 				if (cancel)

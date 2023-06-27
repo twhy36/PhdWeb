@@ -13,6 +13,7 @@ import { ConfirmModalComponent } from '../../../../../core/components/confirm-mo
 import { Option, IOptionMarketImageDto, OptionMarketImage } from '../../../../../shared/models/option.model';
 
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'divisional-options-side-panel',
@@ -199,10 +200,10 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 
 				this.displayMessage('success', 'Image Deleted!');
 			},
-			(error) =>
-			{
-				this.displayMessage('error', 'Error Deleting Image.');
-			});
+				(error) =>
+				{
+					this.displayMessage('error', 'Error Deleting Image.');
+				});
 	}
 
 	editImageSort()
@@ -248,10 +249,10 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 				{
 					this.displayMessage('success', 'Sort Saved!');
 				},
-				(error) =>
-				{
-					this.displayMessage('error', 'Error Saving Sort.');
-				});
+					(error) =>
+					{
+						this.displayMessage('error', 'Error Saving Sort.');
+					});
 		}
 		else
 		{
@@ -263,24 +264,23 @@ export class DivisionalOptionsSidePanelComponent implements OnInit
 	{
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		let msgBody = `You are about to <span class="font-weight-bold text-danger">delete</span> this image.<br><br> `;
-		msgBody += `Do you wish to continue?`;
+		let msgBody = `You are about to <span class="font-weight-bold text-danger">delete</span> this image.<br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Continue';
+		confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 		confirm.result.then((result) =>
 		{
-			if (result === 'Continue')
+			if (result === Constants.CONTINUE)
 			{
 				this.deleteImage(image);
 			}
 		},
-		(reason) =>
-		{
+			(reason) =>
+			{
 
-		});
+			});
 	}
 
 	displayMessage(severity: string, summary: string)

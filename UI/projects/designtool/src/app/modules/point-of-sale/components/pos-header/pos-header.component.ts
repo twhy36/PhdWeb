@@ -6,7 +6,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import { environment } from '../../../../../environments/environment';
 
-import { UnsubscribeOnDestroy, convertDateToUtcString } from 'phd-common';
+import { UnsubscribeOnDestroy, convertDateToUtcString, Constants, SalesAgreementStatuses } from 'phd-common';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -38,7 +38,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get showDate(): boolean
 	{
-		const statuses = ['Void', 'OutForSignature', 'Cancel', 'Signed', 'Approved', 'Closed'];
+		const statuses = [SalesAgreementStatuses.Void, 'OutForSignature', SalesAgreementStatuses.Cancel, SalesAgreementStatuses.Signed, SalesAgreementStatuses.Approved, SalesAgreementStatuses.Closed];
 
 		return !!statuses.some(s => s === this.salesAgreementStatus);
 	}
@@ -49,13 +49,13 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 		switch (this.salesAgreementStatus)
 		{
-			case 'Signed':
+			case SalesAgreementStatuses.Signed:
 				date = this.salesAgreementSignedDate;
 				break;
-			case 'Approved':
+			case SalesAgreementStatuses.Approved:
 				date = this.salesAgreementApprovedDate;
 				break;
-			case 'Closed':
+			case SalesAgreementStatuses.Closed:
 				date = this.salesAgreementClosedDate;
 				break;
 		}
@@ -65,7 +65,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get showEBill(): boolean
 	{
-		return this.router.url.includes('/point-of-sale/sales-info') && this.salesAgreementStatus !== 'Void';
+		return this.router.url.includes('/point-of-sale/sales-info') && this.salesAgreementStatus !== SalesAgreementStatuses.Void;
 	}
 
 	get eBillUrl(): string
@@ -93,7 +93,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement.status),
-			map(status => status === 'OutforSignature' ? 'OutForSignature' : status)
+			map(status => status === SalesAgreementStatuses.OutForSignature ? 'OutForSignature' : status)
 		).subscribe(status => this.salesAgreementStatus = status);
 
 		this.store.pipe(

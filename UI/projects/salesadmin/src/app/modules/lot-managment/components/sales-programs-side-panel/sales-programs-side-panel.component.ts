@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angu
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 
 import { SalesProgramTypeEnum, SalesProgram } from '../../../shared/models/salesPrograms.model';
-import { ConfirmModalComponent, SidePanelComponent, SpecDiscountService } from 'phd-common';
+import { ConfirmModalComponent, SidePanelComponent, SpecDiscountService, Constants } from 'phd-common';
 
 import * as moment from "moment";
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -167,13 +167,13 @@ export class SalesProgramsSidePanelComponent implements OnInit
 
 			let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					// DELETEME when THO columns are migrated to EDH
 					this.financialCommunityInfo.thoBuyerClosingCostId = null;

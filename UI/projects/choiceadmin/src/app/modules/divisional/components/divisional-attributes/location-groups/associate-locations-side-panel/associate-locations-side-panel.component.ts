@@ -14,6 +14,7 @@ import { SidePanelComponent } from '../../../../../shared/components/side-panel/
 import { LocationGroupMarket } from '../../../../../shared/models/location-group-market.model';
 import { Location } from '../../../../../shared/models/location.model';
 import { SearchBarComponent } from '../../../../../shared/components/search-bar/search-bar.component';
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'associate-locations-side-panel',
@@ -132,13 +133,13 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 
 			this.sidePanel.toggleSidePanel();
 		},
-		error =>
-		{
-			this.isSaving = false;
-			this.errors = [];
+			error =>
+			{
+				this.isSaving = false;
+				this.errors = [];
 
-			this.errors.push({ severity: 'error', detail: 'Failed to associate location(s).' });
-		});
+				this.errors.push({ severity: 'error', detail: 'Failed to associate location(s).' });
+			});
 	}
 
 	clearFilter()
@@ -151,18 +152,17 @@ export class AssociateLocationsSidePanelComponent extends UnsubscribeOnDestroy i
 	{
 		if (this.selectedLocations.length > 0)
 		{
-			let msgBody = `You are about to start a new search. If you continue you will lose your changes.<br><br> `;
-			msgBody += `Do you wish to continue?`;
+			let msgBody = `You are about to start a new search. ${Constants.LOSE_CHANGES}`;;
 
 			let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					this.startSearch(event['searchFilter'], event['keyword']);
 				}

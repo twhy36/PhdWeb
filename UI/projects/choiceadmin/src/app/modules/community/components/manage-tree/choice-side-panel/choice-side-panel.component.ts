@@ -23,7 +23,7 @@ import { AssociateLocationGroupComponent } from '../associate-location-groups/as
 import { SidePanelComponent } from '../../../../shared/components/side-panel/side-panel.component';
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 import { IFinancialMarket } from '../../../../shared/models/financial-market.model';
-import { Permission } from 'phd-common';
+import { Constants, Permission } from 'phd-common';
 import { cloneDeep } from 'lodash';
 
 @Component({
@@ -216,10 +216,10 @@ export class ChoiceSidePanelComponent implements OnInit
 
 					this.origChoiceImageList = cloneDeep(this.choiceImageList);
 				},
-				(error) =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
-				});
+					(error) =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
+					});
 		}
 		else
 		{
@@ -518,7 +518,8 @@ export class ChoiceSidePanelComponent implements OnInit
 					this.choice.hasChoiceRules = rules.length > 0;
 					this._loadingService.isSaving$.next(false);
 					callback(true);
-				}, (error) => {
+				}, (error) =>
+				{
 					this._loadingService.isSaving$.next(false);
 					callback(false);
 				});
@@ -680,10 +681,10 @@ export class ChoiceSidePanelComponent implements OnInit
 			// update the flag and count for the image indicator
 			this.setImageInfo();
 		},
-		(error) =>
-		{
-			this._msgService.add({ severity: 'error', summary: 'Error deleting image.' });
-		});
+			(error) =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error deleting image.' });
+			});
 	}
 
 	async onCloseClick()
@@ -842,9 +843,9 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	private confirmNavAway(): Promise<boolean>
 	{
-		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you want to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
+		const confirmMessage = Constants.LOSE_CHANGES;
+		const confirmTitle = Constants.WARNING;
+		const confirmDefaultOption = Constants.CANCEL;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -853,8 +854,8 @@ export class ChoiceSidePanelComponent implements OnInit
 	{
 		let labels = labelList.map(l => `${l}`).join('<br>');
 		const confirmMessage = `You are about to delete the Attribute Group Re-Assignment:<br><br>${labels}<br><br>Do you want to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
+		const confirmTitle = Constants.WARNING;
+		const confirmDefaultOption = Constants.CANCEL;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -869,7 +870,7 @@ export class ChoiceSidePanelComponent implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 

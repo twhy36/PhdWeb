@@ -6,7 +6,7 @@ import
 {
 	DesignToolAttribute, SalesCommunity, PlanOption, TreeVersionRules, Scenario, TreeFilter,
 	Tree, Choice, Group, SubGroup, DecisionPoint, selectChoice, applyRules, setGroupStatus,
-	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice, ChangeOrderHanding, DecisionPointFilterType
+	setPointStatus, setSubgroupStatus, checkReplacedOption, getChoiceToDeselect, TimeOfSaleOptionPrice, ChangeOrderHanding, DecisionPointFilterType, Constants
 } from 'phd-common';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 
@@ -44,7 +44,7 @@ export interface State
 export const initialState: State = {
 	tree: null, rules: null, scenario: null, options: null, lotPremium: 0, salesCommunity: null,
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
-	pointHasChanges: false, buildMode: 'buyer', selectedPointFilter: DecisionPointFilterType.FULL, enabledPointFilters: [],
+	pointHasChanges: false, buildMode: Constants.BUILD_MODE_BUYER, selectedPointFilter: DecisionPointFilterType.FULL, enabledPointFilters: [],
 	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null, priceRanges: null,
 	timeOfSaleOptionPrices: null,
 };
@@ -74,7 +74,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				...state, treeLoading: true, loadError: false
 			};
 		case ScenarioActionTypes.LoadPreview:
-			return { ...state, treeLoading: true, buildMode: 'preview', scenario: <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', scenarioInfo: null } };
+			return { ...state, treeLoading: true, buildMode: Constants.BUILD_MODE_PREVIEW, scenario: <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', scenarioInfo: null } };
 		case ScenarioActionTypes.LotConflict:
 			return { ...state, isGanked: true };
 		case ScenarioActionTypes.TreeLoaded:
@@ -100,7 +100,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (action.type === CommonActionTypes.JobLoaded && !state.scenario)
 			{
-				const jobType = action.job.jobTypeName === 'Model' ? 'model' : 'spec';
+				const jobType = action.job.jobTypeName === 'Model' ? Constants.BUILD_MODE_MODEL : Constants.BUILD_MODE_SPEC;
 
 				newState = { ...newState, buildMode: jobType, scenario: { opportunityId: null, scenarioName: jobType, scenarioChoices: [], treeVersionId: 0, planId: 0, lotId: 0, handing: null, viewedDecisionPoints: [], scenarioInfo: null, scenarioOptions: [] }, enabledPointFilters: [], selectedPointFilter: DecisionPointFilterType.FULL };
 			}
@@ -189,7 +189,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				let scenario = _.cloneDeep(newState.scenario || state.scenario);
 
-				if ((action.type === ScenarioActionTypes.TreeLoadedFromJob && newState.buildMode !== 'spec' && newState.buildMode !== 'model') || action.type === CommonActionTypes.SalesAgreementLoaded)
+				if ((action.type === ScenarioActionTypes.TreeLoadedFromJob && newState.buildMode !== Constants.BUILD_MODE_SPEC && newState.buildMode !== Constants.BUILD_MODE_MODEL) || action.type === CommonActionTypes.SalesAgreementLoaded)
 				{
 					scenario = <any>{ scenarioId: 0, scenarioName: '--PREVIEW--', lotId: action.job.lotId, scenarioInfo: null };
 				}
@@ -764,7 +764,7 @@ export const interactiveFloorplanSG = createSelector(
 
 export const isPreview = createSelector(
 	selectScenario,
-	(state) => state.buildMode === 'preview'
+	(state) => state.buildMode === Constants.BUILD_MODE_PREVIEW
 );
 
 export const hasMonotonyAdvisement = createSelector(

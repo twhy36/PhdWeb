@@ -62,7 +62,7 @@ export class SearchResult
 		this.isPhdLiteEnabled = !!featureSwitchOrgAssoc?.find(r =>
 			this.financialCommunityId === r.org.edhFinancialCommunityId
 			&& r.state === true
-		);		
+		);
 
 		// Get the sales agreements for each jobChangeOrderGroupSalesAgreementAssocs in each changeOrderGroup in each job
 		dto.jobs.map(job =>

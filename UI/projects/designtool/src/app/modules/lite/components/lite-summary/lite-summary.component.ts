@@ -14,7 +14,7 @@ import
 	PDFViewerComponent, SDGroup, SDSubGroup, SDPoint,
 	SDChoice, ScenarioOption,
 	PriceBreakdownType,
-	ModalRef, CutOffOverride
+	ModalRef, Constants
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -204,11 +204,11 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				this.salesAgreementId = salesAgreement.id;
 				this.primaryAction = 'Agreement Info';
 			}
-			else if (build === 'spec')
+			else if (build === Constants.BUILD_MODE_SPEC)
 			{
 				this.primaryAction = 'Create Spec';
 			}
-			else if (build === 'model')
+			else if (build === Constants.BUILD_MODE_MODEL)
 			{
 				this.primaryAction = 'Create Model';
 			}
@@ -232,12 +232,12 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 					? changeOrder.changeInput && (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION || changeOrder.changeInput.type === ChangeTypeEnum.PLAN)
 					: true;
 
-				if (buildMode === 'preview')
+				if (buildMode === Constants.BUILD_MODE_PREVIEW)
 				{
 					return false;
 				}
 
-				if (lot && lot.lotBuildTypeDesc !== 'Dirt' && buildMode === 'buyer' && salesAgreement.id === 0)
+				if (lot && lot.lotBuildTypeDesc !== 'Dirt' && buildMode === Constants.BUILD_MODE_BUYER && salesAgreement.id === 0)
 				{
 					return false;
 				}
@@ -427,16 +427,16 @@ export class LiteSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (this.disableHanding)
 			{
-				const body = CutOffOverride.Message;
+				const body = Constants.OVERRIDE_CUT_OFF;
 				const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });
 
-				confirm.componentInstance.title = 'Warning';
+				confirm.componentInstance.title = Constants.WARNING;
 				confirm.componentInstance.body = body;
-				confirm.componentInstance.defaultOption = 'Cancel';
+				confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 				return confirm.result.then((result) =>
 				{
-					if (result !== 'Close')
+					if (result !== Constants.CLOSE)
 					{
 						newHanding.overrideNote = result;
 

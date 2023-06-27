@@ -25,7 +25,7 @@ import * as fromJob from '../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum,
-	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -214,9 +214,9 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				if (!this.jobId)
 				{
 					const id = +params.get('id');
-					const isSpec = params.get('spec');
+					const isSpec = params.get(Constants.BUILD_MODE_SPEC);
 
-					if (!this.loaded && isSpec === 'spec')
+					if (!this.loaded && isSpec === Constants.BUILD_MODE_SPEC)
 					{
 						if (jobState.jobLoading && jobState.id === id)
 						{
@@ -289,7 +289,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					// changeOrders[changeOrders.length - 1].id  - First CO on the page - Sales JIO/Spec Customer JIO/Spec JIO
 
 					actionTypes = (o.id === changeOrders[changeOrders.length - 1].id) ? [] :
-						(this.buildMode === 'spec' || this.buildMode === 'model') ? this.actionTypesForPendingCOSpec : this.actionTypesForPending;
+						(this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL) ? this.actionTypesForPendingCOSpec : this.actionTypesForPending;
 				}
 				else if (o.salesStatusDescription === 'OutforSignature')
 				{
@@ -364,7 +364,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				return new Date(a.createdUtcDate).getTime() - new Date(b.createdUtcDate).getTime();
 			});
 
-			if (this.buildMode === 'spec' || this.buildMode === 'model')
+			if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
 			{
 				this.setGroupSequenceForSpec();
 			}
@@ -375,10 +375,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				? this.changeOrders[this.changeOrders.length - 1].changeOrderGroupSequence
 				: 0;
 
-			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === 'Approved' && t.constructionStatusDescription !== 'Approved'));
+			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === SalesAgreementStatuses.Approved && t.constructionStatusDescription !== 'Approved'));
 			this.activeChangeOrders.forEach(co => co.isActiveChangeOrder = true);
 
-			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === 'Approved' && t.constructionStatusDescription === 'Approved'));
+			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === SalesAgreementStatuses.Approved && t.constructionStatusDescription === 'Approved'));
 
 			if (this.activeChangeOrders.length > 1)
 			{
@@ -704,7 +704,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				break;
 			case this.ACTION_TYPES.APPROVE:
 				// Compare snapshots for spec approval
-				if (this.buildMode === 'spec' || this.buildMode === 'model')
+				if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
 				{
 					this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(currentSnapshot =>
 					{
@@ -1142,7 +1142,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 			});
 		}
-		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === 'Approved'))
+		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === SalesAgreementStatuses.Approved) || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === SalesAgreementStatuses.Approved))
 		{
 			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate, this.isPhdLite).subscribe(() =>
 			{

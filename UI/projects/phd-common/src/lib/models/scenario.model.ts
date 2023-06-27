@@ -78,7 +78,7 @@ export interface DtoScenarioChoiceLocation
 	scenarioChoiceLocationId: number;
 	scenarioChoiceId: number;
 	locationGroupCommunityId: number;
-	locationCommunityId: number;	
+	locationCommunityId: number;
 	quantity: number;
 	attributes: Array<DtoScenarioChoiceLocationAttribute>;
 	locationGroupName: string;
@@ -153,22 +153,24 @@ export class Scenario
 
 			// PHD Lite
 			this.scenarioOptions = scenarioDto['options'] && scenarioDto['options'].length
-				? scenarioDto['options'].map(option => {
+				? scenarioDto['options'].map(option =>
+				{
 					return {
 						scenarioOptionId: option['scenarioOptionId'],
 						scenarioId: option['scenarioId'],
 						edhPlanOptionId: option['edhPlanOptionId'],
 						planOptionQuantity: option['planOptionQuantity'],
 						scenarioOptionColors: option['colors'] && option['colors'].length
-							? option['colors'].map(color => {
+							? option['colors'].map(color =>
+							{
 								return {
 									scenarioOptionColorId: color['scenarioOptionColorId'],
 									scenarioOptionId: color['scenarioOptionId'],
 									colorItemId: color['colorItemId'],
-									colorId: color['colorId']									
+									colorId: color['colorId']
 								}
 							})
-							: []				
+							: []
 					};
 				})
 				: [];
@@ -222,7 +224,7 @@ function mapLocations(locationsDto: Array<DtoScenarioChoiceLocation>): Array<Des
 				attributeGroupLabel: null,
 				attributeId: null,
 				attributeName: null,
-				attributeImageUrl: null,				
+				attributeImageUrl: null,
 				sku: '',
 				manufacturer: ''
 			});
@@ -330,15 +332,15 @@ export interface ScenarioOption
 	scenarioOptionId: number;
 	scenarioId: number;
 	edhPlanOptionId: number;
-    planOptionQuantity: number;
-    scenarioOptionColors: ScenarioOptionColor[];
+	planOptionQuantity: number;
+	scenarioOptionColors: ScenarioOptionColor[];
 }
 
 export interface ScenarioOptionColor
 {
-    scenarioOptionColorId: number;
-    scenarioOptionId: number;
-    colorItemId: number;
-    colorId: number;
+	scenarioOptionColorId: number;
+	scenarioOptionId: number;
+	colorItemId: number;
+	colorId: number;
 }
 // END PHD Lite

@@ -2,7 +2,7 @@ import { ActionReducerMap, createSelector } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { PriceBreakdown, TreeVersion, PlanOption, PickType, getChoiceImage } from 'phd-common';
+import { PriceBreakdown, TreeVersion, PlanOption, PickType, getChoiceImage, Constants, SalesAgreementStatuses } from 'phd-common';
 
 import * as fromApp from './app/reducer';
 import * as fromScenario from './scenario/reducer';
@@ -320,21 +320,21 @@ export const includedTree = createSelector(
 									// Pick1ormore or Pick0ormore - remove the selected choice and leave other choices viewable
 									// if (!favorite.includeContractedOptions)
 									// {
-										if (contractedChoices?.length)
-										{
-											isIncluded = !isContractedChoice;
-										}
+									if (contractedChoices?.length)
+									{
+										isIncluded = !isContractedChoice;
+									}
 
-										if (p.choices.find(ch => contractedChoices?.includes(ch)))
+									if (p.choices.find(ch => contractedChoices?.includes(ch)))
+									{
+										switch (p.pointPickTypeId) 
 										{
-											switch (p.pointPickTypeId) 
-											{
-												case PickType.Pick1:
-													isIncluded = false;
-												case PickType.Pick0or1:
-													isIncluded = false;
-											}
+											case PickType.Pick1:
+												isIncluded = false;
+											case PickType.Pick0or1:
+												isIncluded = false;
 										}
+									}
 									// }
 
 									// Apply cutoff to non-contracted choice whether or not it is favorited
@@ -405,7 +405,7 @@ export const selectedPlanPrice = createSelector(
 		let price = selectedPlan ? selectedPlan.price : 0;
 
 		if (selectedPlan && sag.selectedLot && sag.selectedLot.salesPhase && sag.selectedLot.salesPhase.salesPhasePlanPriceAssocs
-			&& (sag.status === 'Pending' || !sag?.id))
+			&& (sag.status === SalesAgreementStatuses.Pending || !sag?.id))
 		{
 			const isPhaseEnabled = sag.selectedLot.financialCommunity && sag.selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = sag.selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
@@ -541,7 +541,7 @@ export const priceBreakdown = createSelector(
 				}
 			}
 
-			const changePrice = salesAgreement.status === 'Approved' && currentChangeOrder?.amount || 0;
+			const changePrice = salesAgreement.status === SalesAgreementStatuses.Approved && currentChangeOrder?.amount || 0;
 			let salesPrice = salesAgreement.salePrice || 0;
 
 			if (salesPrice === 0 && (scenario.buildMode === BuildMode.Preview || scenario.buildMode === BuildMode.Presale))

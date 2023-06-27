@@ -9,6 +9,7 @@ import { AttributeGroupMarket } from '../../models/attribute-group-market.model'
 import { LocationGroupMarket } from '../../models/location-group-market.model';
 import { SearchBarComponent } from '../../components/search-bar/search-bar.component';
 import { ActionButton } from '../../models/action-button.model';
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'attribute-group-action-panel',
@@ -129,18 +130,17 @@ export class AttributeGroupActionPanelComponent implements OnInit, AfterContentI
 	{
 		if (this.selectedGroups.length > 0)
 		{
-			let msgBody = `You are about to start a new search. If you continue you will lose your changes.<br><br> `;
-			msgBody += `Do you wish to continue?`;
+			let msgBody = `You are about to start a new search. ${Constants.LOSE_CHANGES}`;
 
 			let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					this.startSearch(event['searchFilter'], event['keyword']);
 				}

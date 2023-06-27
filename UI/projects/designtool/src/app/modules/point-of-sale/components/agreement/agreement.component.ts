@@ -15,7 +15,7 @@ import * as _ from "lodash";
 
 import 
 {
-	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString
+	UnsubscribeOnDestroy, Job, ConstructionStageTypes, SalesAgreement, Choice, convertDateToUtcString, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { JobService } from '../../../core/services/job.service';
@@ -144,7 +144,7 @@ export class AgreementComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get isSalesAgreementCancelledOrVoided(): boolean
 	{
-		return this.status == 'Void' || this.status == 'Cancel';
+		return this.status == SalesAgreementStatuses.Void || this.status == SalesAgreementStatuses.Cancel;
 	}
 
 	get buildType()

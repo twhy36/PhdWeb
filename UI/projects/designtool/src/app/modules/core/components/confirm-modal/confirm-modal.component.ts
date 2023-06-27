@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { ModalContent } from 'phd-common';
+import { ModalContent, Constants } from 'phd-common';
 
 @Component({
 	selector: 'confirm-modal-component',
@@ -11,9 +11,9 @@ export class ConfirmModalComponent extends ModalContent
 {
 	@Input() title = '';
 	@Input() body = '';
-	@Input() defaultOption = 'Continue';
-	@Input() primaryButton: { hide: boolean, text: string } = { hide: false, text: 'Continue' };
-	@Input() secondaryButton: { hide: boolean, text: string } = { hide: false, text: 'Cancel' };
+	@Input() defaultOption = Constants.CONTINUE;
+	@Input() primaryButton: { hide: boolean, text: string } = { hide: false, text: Constants.CONTINUE };
+	@Input() secondaryButton: { hide: boolean, text: string } = { hide: false, text: Constants.CANCEL };
 
 	constructor()
 	{

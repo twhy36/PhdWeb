@@ -8,11 +8,11 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import { map, switchMap, take, combineLatest, debounceTime } from 'rxjs/operators';
 
 import
-	{
-		UnsubscribeOnDestroy, ChangeOrder, Note, SalesAgreementProgram,
-		SalesAgreementDeposit, SalesAgreementContingency, SalesAgreement, ISalesProgram, SalesAgreementInfo,
-		SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, isSalesChangeOrder, Lot
-	} from 'phd-common';
+{
+	UnsubscribeOnDestroy, ChangeOrder, Note, SalesAgreementProgram,
+	SalesAgreementDeposit, SalesAgreementContingency, SalesAgreement, ISalesProgram, SalesAgreementInfo,
+	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, isSalesChangeOrder, Lot, Constants, SalesAgreementStatuses
+} from 'phd-common';
 
 import { SalesInfoService } from '../../../core/services/sales-info.service';
 import { ConfirmNavigationComponent } from '../../../core/guards/confirm-navigation.guard';
@@ -98,12 +98,12 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canAddTnCs()
 	{
-		return this.isChangingOrder && !this.editing && this.canSell && !this.cancelOrVoid && this.agreement.status !== 'Pending';
+		return this.isChangingOrder && !this.editing && this.canSell && !this.cancelOrVoid && this.agreement.status !== SalesAgreementStatuses.Pending;
 	}
 
 	get canAddNotes()
 	{
-		return this.agreement.status === 'Pending' || !this.isChangingOrder;
+		return this.agreement.status === SalesAgreementStatuses.Pending || !this.isChangingOrder;
 	}
 
 	get hasAvailableSalesPrograms(): boolean
@@ -289,7 +289,7 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 					this.inSalesChangeOrder = isSalesChangeOrder(changeOrder.currentChangeOrder);
 				}
 			}
-		);
+			);
 	}
 
 	setupPrograms()

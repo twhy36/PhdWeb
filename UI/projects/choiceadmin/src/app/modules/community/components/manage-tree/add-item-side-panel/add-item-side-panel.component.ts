@@ -6,6 +6,7 @@ import { SidePanelComponent } from '../../../../shared/components/side-panel/sid
 import { ConfirmModalComponent } from '../../../../core/components/confirm-modal/confirm-modal.component';
 
 import { DTPoint, IItemAdd, DTSubGroup } from '../../../../shared/models/tree.model';
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'add-item-side-panel',
@@ -111,9 +112,9 @@ export class AddItemSidePanelComponent
 
 	private confirmNavAway(): Promise<boolean>
 	{
-		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you want to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
+		const confirmMessage = Constants.LOSE_CHANGES;
+		const confirmTitle = Constants.WARNING;
+		const confirmDefaultOption = Constants.CANCEL;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -128,7 +129,7 @@ export class AddItemSidePanelComponent
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 }
