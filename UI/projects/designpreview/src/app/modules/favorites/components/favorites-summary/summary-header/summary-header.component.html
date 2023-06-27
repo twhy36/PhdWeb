@@ -28,7 +28,7 @@
 			<div class="phd-name-group">
 				<h1 id="favoritesListName" class="phd-favorites-list phd-favorites-list-on-print">{{headerTitle}}</h1>
 				<div [ngClass]="{'phd-name-group-presale': (isPresale && !isPresalePricingEnabled)}">
-					<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.communityName + ((!isPresale || isPresalePricingEnabled) ? ',' : '')}}</span>
+					<span class="phd-lot-label phd-lot-label-on-print">{{summaryHeader.communityName + (!isPresale ? ',' : '')}}</span>
 					<span *ngIf="!isPresalePricingEnabled" class="phd-lot-details phd-lot-details-on-print" [ngStyle]="{'margin-left': isPresale ? '0px' : '10px'}">{{getPlanName()}}</span>
 				</div>
 				<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
