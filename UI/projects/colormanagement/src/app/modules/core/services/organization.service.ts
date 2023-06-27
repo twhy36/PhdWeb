@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, Subject, ConnectableObservable, EMPTY, ReplaySubject, BehaviorSubject, throwError, of } from 'rxjs';
+import { Observable, Subject, ConnectableObservable, EMPTY, ReplaySubject, BehaviorSubject, throwError, of, combineLatest } from 'rxjs';
 import { map, catchError, publishReplay, take, switchMap, concat, filter, tap } from 'rxjs/operators';
 
 import { StorageService } from './storage.service';
 
 import { environment } from '../../../../environments/environment';
 import { IMarket, IPlan, IFinancialCommunity } from '../../shared/models/community.model';
+
+import { FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
 @Injectable()
 export class OrganizationService
@@ -62,7 +64,7 @@ export class OrganizationService
 		this._storageService.setLocal('COLOR_CURRENT_FC', id);
 	}
 
-	constructor(private _http: HttpClient, private _storageService: StorageService)
+	constructor(private _http: HttpClient, private _storageService: StorageService, private featureSwitchService: FeatureSwitchService)
 	{
 		this._markets$ = this.getMarkets().pipe(
 			publishReplay(1)
@@ -202,7 +204,7 @@ export class OrganizationService
 		{
 			let url = environment.apiUrl;
 
-			const filter = `marketId eq ${marketId}`;
+			const filter = `marketId eq ${marketId} and (salesStatusDescription eq 'Active' or salesStatusDescription eq 'New')`;
 			const select = 'id, marketId, name, number, salesStatusDescription';
 			const expand = 'market($select=id,number)';
 			const orderBy = 'name';
@@ -212,21 +214,36 @@ export class OrganizationService
 
 			this._lastMktId = marketId;
 
-			return this._http.get(url).pipe(
-				map((response: any) =>
+			return combineLatest([
+				this._http.get(url),
+				this.featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', [], marketId)
+			])
+			.pipe
+			(
+				take(1),
+				map(([response, communityFlags] : [any, IFeatureSwitchOrgAssoc[]]) =>
 				{
-					return response.value.map(data =>
+					let communities: Array<IFinancialCommunity> = [];
+
+					response.value.map(data =>
 					{
-						return {
-							id: data.id,
-							name: data.name,
-							number: data.number,
-							salesStatusDescription: data.salesStatusDescription
-						} as IFinancialCommunity;
+						const isLiteEnabledCommunity = communityFlags?.find(cf => cf.org?.edhFinancialCommunityId === data.id)?.state || false;
+
+						if (isLiteEnabledCommunity)
+						{
+							communities.push({
+								id: data.id,
+								name: data.name,
+								number: data.number,
+								salesStatusDescription: data.salesStatusDescription
+							} as IFinancialCommunity);
+						}
 					});
+
+					return communities;
 				}),
-				tap(comm => this._comms$.next(comm)),
-				catchError((err, src) => this.handleError(err)),
+			 	tap(comm => this._comms$.next(comm)),
+			 	catchError((err, src) => this.handleError(err))				
 			);
 		}
 
