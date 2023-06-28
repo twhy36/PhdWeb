@@ -11,7 +11,7 @@ import
 	SalesCommunity, ChangeOrderChoice, ChangeOrderGroup, Job, IMarket, SalesAgreementInfo, DecisionPoint, Choice,
 	IdentityService, SpinnerService, Claims, Permission, MyFavorite, ModalService, TimeOfSaleOptionPrice, Tree,
 	TreeVersionRules, PlanOption, OptionImage, updateLotChoiceRules, LotChoiceRuleAssoc, DesignToolAttribute, TreeService,
-	updateWithNewTreeVersion, Constants, SalesAgreementStatuses
+	updateWithNewTreeVersion, Constants
 } from 'phd-common';
 
 import { CommonActionTypes, LoadScenario, LoadError, ScenarioLoaded, LoadSalesAgreement, SalesAgreementLoaded, LoadSpec, JobLoaded, ESignEnvelopesLoaded } from './actions';
@@ -464,7 +464,7 @@ export class CommonEffects
 						changeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([currentChangeOrder])
 					}
 
-					let selectedPlan$ = result.salesAgreement && [SalesAgreementStatuses.Void, SalesAgreementStatuses.Cancel].indexOf(result.salesAgreement.status) !== -1 ? this.jobService.getSalesAgreementPlan(result.salesAgreement.id, result.job.id) : of(result.job.planId);
+					let selectedPlan$ = result.salesAgreement && [Constants.AGREEMENT_STATUS_VOID, Constants.AGREEMENT_STATUS_CANCEL].indexOf(result.salesAgreement.status) !== -1 ? this.jobService.getSalesAgreementPlan(result.salesAgreement.id, result.job.id) : of(result.job.planId);
 
 					return combineLatest([
 						this.orgService.getSalesCommunityByFinancialCommunityId(result.job.financialCommunityId, true),
@@ -588,7 +588,7 @@ export class CommonEffects
 								const getTree = treeVersionId ? this.treeService.getTree(treeVersionId) : of<Tree>(null);
 								const getRules = treeVersionId ? this.treeService.getRules(treeVersionId, true) : of<TreeVersionRules>(null);
 								const getLotChoiceRules = result.selectedLotId
-									&& (result.salesAgreement && ![SalesAgreementStatuses.OutForSignature, SalesAgreementStatuses.Signed, SalesAgreementStatuses.Approved, SalesAgreementStatuses.Closed].includes(result.salesAgreement.status))
+									&& (result.salesAgreement && ![Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED, Constants.AGREEMENT_STATUS_APPROVED, Constants.AGREEMENT_STATUS_CLOSED].includes(result.salesAgreement.status))
 									? this.lotService.getLotChoiceRuleAssocs(result.selectedLotId)
 									: of<LotChoiceRuleAssoc[]>(null);
 
@@ -655,7 +655,7 @@ export class CommonEffects
 										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
 										result.changeOrderGroup,
-										result.salesAgreement && [SalesAgreementStatuses.OutForSignature, SalesAgreementStatuses.Signed, SalesAgreementStatuses.Approved, SalesAgreementStatuses.Closed].indexOf(result.salesAgreement.status) !== -1),
+										result.salesAgreement && [Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED, Constants.AGREEMENT_STATUS_APPROVED, Constants.AGREEMENT_STATUS_CLOSED].indexOf(result.salesAgreement.status) !== -1),
 									map(data =>
 									{
 										if (data.tree)
@@ -704,7 +704,7 @@ export class CommonEffects
 						let baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 						let selectedPlanPrice: { planId: number, listPrice: number } = null;
 
-						if ([SalesAgreementStatuses.OutForSignature, SalesAgreementStatuses.Signed, SalesAgreementStatuses.Approved, SalesAgreementStatuses.Closed].indexOf(result.salesAgreement.status) !== -1)
+						if ([Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED, Constants.AGREEMENT_STATUS_APPROVED, Constants.AGREEMENT_STATUS_CLOSED].indexOf(result.salesAgreement.status) !== -1)
 						{
 							if (baseHouseOption)
 							{
@@ -745,7 +745,7 @@ export class CommonEffects
 						// #353697 Update tracked prices if they have changed while the agreement is pending
 						let timeOfSaleOptionPricesToUpdate: TimeOfSaleOptionPrice[] = [];
 
-						if (result.salesAgreement.status === SalesAgreementStatuses.Pending && result.job.timeOfSaleOptionPrices && result.job.timeOfSaleOptionPrices.length)
+						if (result.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING && result.job.timeOfSaleOptionPrices && result.job.timeOfSaleOptionPrices.length)
 						{
 							result.job.timeOfSaleOptionPrices.forEach(p =>
 							{
@@ -786,7 +786,7 @@ export class CommonEffects
 								),
 
 								// Select required chocie attributes
-								result.lot?.id && result.salesAgreement.status === SalesAgreementStatuses.Pending && !result.isPhdLite ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : []
+								result.lot?.id && result.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING && !result.isPhdLite ? <Observable<Action>>from([new SelectRequiredChoiceAttributes()]) : []
 							)
 						);
 					}
@@ -966,11 +966,11 @@ export class CommonEffects
 							return empty;
 						}
 
-						if (res.salesAgreement.status === SalesAgreementStatuses.Pending)
+						if (res.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING)
 						{
 							return of(new SavePendingJio());
 						}
-						else if (res.salesAgreement.status === SalesAgreementStatuses.Approved && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
+						else if (res.salesAgreement.status === Constants.AGREEMENT_STATUS_APPROVED && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
 						{
 							const jco = res.currentChangeOrder.jobChangeOrders;
 

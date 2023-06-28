@@ -4,7 +4,7 @@ import { Action, Store, select } from '@ngrx/store';
 import { Observable, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
 import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
 
-import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService, Constants, SalesAgreementStatuses } from 'phd-common';
+import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService, Constants } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -392,7 +392,7 @@ export class LiteEffects
 								}
 
 								// Option price
-								if (store.salesAgreement.status === SalesAgreementStatuses.Approved)
+								if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_APPROVED)
 								{
 									// Price locked in job
 									action.job.jobPlanOptions?.forEach(jobPlanOption =>
@@ -405,7 +405,7 @@ export class LiteEffects
 										}
 									});
 								}
-								else if (store.salesAgreement.status === SalesAgreementStatuses.Signed || store.salesAgreement.status === SalesAgreementStatuses.OutForSignature)
+								else if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_SIGNED || store.salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE)
 								{
 									if (action.changeOrder?.jobChangeOrders)
 									{
@@ -422,7 +422,7 @@ export class LiteEffects
 										});
 									}
 								}
-								else if (store.salesAgreement.status === SalesAgreementStatuses.Pending || !!store.job.id)
+								else if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING || !!store.job.id)
 								{
 									// Update the base house price if phase pricing is set up for the plan
 									if (action.lot.salesPhase?.salesPhasePlanPriceAssocs?.length)
@@ -566,7 +566,7 @@ export class LiteEffects
 				const saveScenarioOptionColors$ = scenarioId
 					? this.liteService.saveScenarioOptionColors(scenarioId, action.optionColors)
 					: of(null);
-				const isPendingJio = store.salesAgreement.id && store.salesAgreement.status === SalesAgreementStatuses.Pending;
+				const isPendingJio = store.salesAgreement.id && store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING;
 
 				return saveScenarioOptionColors$.pipe(
 					map(scenarioOptions =>
@@ -780,11 +780,11 @@ export class LiteEffects
 							return empty;
 						}
 
-						if (res.salesAgreement.status === SalesAgreementStatuses.Pending)
+						if (res.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING)
 						{
 							return of(new SavePendingJio());
 						}
-						else if (res.salesAgreement.status === SalesAgreementStatuses.Approved && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
+						else if (res.salesAgreement.status === Constants.AGREEMENT_STATUS_APPROVED && res.currentChangeOrder && res.currentChangeOrder.salesStatusDescription === 'Pending')
 						{
 							const jco = res.currentChangeOrder.jobChangeOrders;
 
@@ -816,7 +816,7 @@ export class LiteEffects
 					&& !store.lite.isSaving
 					&& store.scenario.buildMode === Constants.BUILD_MODE_BUYER;
 
-				const savingPendingJio = store.salesAgreement.id && store.salesAgreement.status === SalesAgreementStatuses.Pending;
+				const savingPendingJio = store.salesAgreement.id && store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING;
 
 				const savingChangeOrder = !!store.changeOrder &&
 					store.changeOrder.currentChangeOrder &&
@@ -1035,7 +1035,7 @@ export class LiteEffects
 						this.liteService.setOptionsIsPastCutOff(options, store.job);
 
 						// Option price
-						if (store.salesAgreement.status === SalesAgreementStatuses.Approved)
+						if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_APPROVED)
 						{
 							// Price locked in job
 							store.job.jobPlanOptions?.forEach(jobPlanOption =>

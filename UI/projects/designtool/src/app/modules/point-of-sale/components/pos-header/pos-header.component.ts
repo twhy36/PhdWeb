@@ -6,7 +6,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import { environment } from '../../../../../environments/environment';
 
-import { UnsubscribeOnDestroy, convertDateToUtcString, Constants, SalesAgreementStatuses } from 'phd-common';
+import { UnsubscribeOnDestroy, convertDateToUtcString, Constants } from 'phd-common';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -38,7 +38,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get showDate(): boolean
 	{
-		const statuses = [SalesAgreementStatuses.Void, 'OutForSignature', SalesAgreementStatuses.Cancel, SalesAgreementStatuses.Signed, SalesAgreementStatuses.Approved, SalesAgreementStatuses.Closed];
+		const statuses = [Constants.AGREEMENT_STATUS_VOID, 'OutForSignature', Constants.AGREEMENT_STATUS_CANCEL, Constants.AGREEMENT_STATUS_SIGNED, Constants.AGREEMENT_STATUS_APPROVED, Constants.AGREEMENT_STATUS_CLOSED];
 
 		return !!statuses.some(s => s === this.salesAgreementStatus);
 	}
@@ -49,13 +49,13 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 		switch (this.salesAgreementStatus)
 		{
-			case SalesAgreementStatuses.Signed:
+			case Constants.AGREEMENT_STATUS_SIGNED:
 				date = this.salesAgreementSignedDate;
 				break;
-			case SalesAgreementStatuses.Approved:
+			case Constants.AGREEMENT_STATUS_APPROVED:
 				date = this.salesAgreementApprovedDate;
 				break;
-			case SalesAgreementStatuses.Closed:
+			case Constants.AGREEMENT_STATUS_CLOSED:
 				date = this.salesAgreementClosedDate;
 				break;
 		}
@@ -65,7 +65,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get showEBill(): boolean
 	{
-		return this.router.url.includes('/point-of-sale/sales-info') && this.salesAgreementStatus !== SalesAgreementStatuses.Void;
+		return this.router.url.includes('/point-of-sale/sales-info') && this.salesAgreementStatus !== Constants.AGREEMENT_STATUS_VOID;
 	}
 
 	get eBillUrl(): string
@@ -93,7 +93,7 @@ export class PosHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement.status),
-			map(status => status === SalesAgreementStatuses.OutForSignature ? 'OutForSignature' : status)
+			map(status => status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE ? 'OutForSignature' : status)
 		).subscribe(status => this.salesAgreementStatus = status);
 
 		this.store.pipe(

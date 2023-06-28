@@ -7,7 +7,7 @@ import { switchMap, withLatestFrom, exhaustMap, map, take } from 'rxjs/operators
 import
 {
 	Buyer, Contact, PhoneType, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup,
-	formatPhoneNumber, Constants, SalesAgreementStatuses
+	formatPhoneNumber, Constants
 } from 'phd-common';
 
 import * as fromRoot from '../reducers';
@@ -42,7 +42,7 @@ export class ContractEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
-					if (store.salesAgreement.status === SalesAgreementStatuses.Pending)
+					if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING)
 					{
 						return of(new AddRemoveSelectedTemplate(0, false, ESignTypeEnum.SalesAgreement));
 					}

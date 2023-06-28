@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
-	SalesAgreement, DecisionPoint, Permission, ModalService, Constants, SalesAgreementStatuses
+	SalesAgreement, DecisionPoint, Permission, ModalService, Constants
 } from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';
@@ -296,7 +296,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canVoidAgreement(): boolean
 	{
-		return this.canSell && this.inPointOfSale && (this.agreement.status === SalesAgreementStatuses.Pending || this.agreement.status === SalesAgreementStatuses.OutForSignature || this.agreement.status === SalesAgreementStatuses.Signed) && !this.inChangeOrder;
+		return this.canSell && this.inPointOfSale && (this.agreement.status === Constants.AGREEMENT_STATUS_PENDING || this.agreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE || this.agreement.status === Constants.AGREEMENT_STATUS_SIGNED) && !this.inChangeOrder;
 	}
 
 	get canCancelAgreement(): boolean
@@ -336,7 +336,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canViewAddenda(): boolean
 	{
-		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== SalesAgreementStatuses.Void;
+		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== Constants.AGREEMENT_STATUS_VOID;
 	}
 
 	get allDepositsReconciled(): boolean
@@ -346,7 +346,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get showToggleSalesAgreementLock(): boolean
 	{
-		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === SalesAgreementStatuses.Approved;
+		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === Constants.AGREEMENT_STATUS_APPROVED;
 	}
 
 	get toggleAgreementLockLabel(): string

@@ -6,6 +6,13 @@ export enum Elevations
 
 export abstract class Constants
 {
+    static readonly AGREEMENT_STATUS_APPROVED = `Approved`;
+    static readonly AGREEMENT_STATUS_CANCEL = `Cancel`;
+    static readonly AGREEMENT_STATUS_CLOSED = `Closed`;
+    static readonly AGREEMENT_STATUS_OUT_FOR_SIGNATURE = `OutforSignature`;
+    static readonly AGREEMENT_STATUS_PENDING = `Pending`;
+    static readonly AGREEMENT_STATUS_SIGNED = `Signed`;
+    static readonly AGREEMENT_STATUS_VOID = `Void`;
     static readonly ASSOCIATE = `Associate`;
     static readonly BUILD_MODE_BUYER = `buyer`;
     static readonly BUILD_MODE_BUYER_PREVIEW = `buyerPreview`;
@@ -27,15 +34,4 @@ export abstract class Constants
     static readonly REMOVE = `Remove`;
     static readonly SAVE = `Save`;
     static readonly WARNING = `Warning`;
-}
-
-export enum SalesAgreementStatuses
-{
-    Approved = 'Approved',
-    Cancel = 'Cancel',
-    Closed = 'Closed',
-    OutForSignature = 'OutforSignature',
-    Pending = 'Pending',
-    Signed = 'Signed',
-    Void = 'Void'
 }

@@ -7,7 +7,7 @@ import { switchMap } from 'rxjs/operators';
 import
 {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
-	Group, DecisionPoint, BrowserService, BrandService, FinancialBrand, getBrandUrl, Constants, SalesAgreementStatuses
+	Group, DecisionPoint, BrowserService, BrandService, FinancialBrand, getBrandUrl, Constants
 } from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -115,7 +115,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.salesAgreement)
 		).subscribe(sag =>
 		{
-			this.salesAgreementStatus = sag.status === SalesAgreementStatuses.OutForSignature ? 'OutForSignature' : sag.status;
+			this.salesAgreementStatus = sag.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE ? 'OutForSignature' : sag.status;
 			this.salesAgreementNumber = sag && sag.salesAgreementNumber;
 			this.salesAgreementId = sag && sag.id;
 
@@ -164,7 +164,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					currentChangeOrder.jobChangeOrders.length &&
 					currentChangeOrder.jobChangeOrders[0].id > 0 &&
 					currentChangeOrder.jobChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO' &&
-					(this.salesAgreementStatus === SalesAgreementStatuses.Pending || this.salesAgreementStatus === SalesAgreementStatuses.OutForSignature || this.salesAgreementStatus === SalesAgreementStatuses.Signed);
+					[Constants.AGREEMENT_STATUS_PENDING, Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED].indexOf(this.salesAgreementStatus) === -1;
 
 				this.currentChangeOrderSalesStatus = currentChangeOrder.salesStatusDescription;
 				this.setVisibilityOfOptionsAndColorsMenu();
@@ -417,7 +417,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get isSalesAgreementCancelledOrVoided(): boolean
 	{
-		return this.salesAgreementStatus === SalesAgreementStatuses.Void || this.salesAgreementStatus === SalesAgreementStatuses.Cancel;
+		return this.salesAgreementStatus === Constants.AGREEMENT_STATUS_VOID || this.salesAgreementStatus === Constants.AGREEMENT_STATUS_CANCEL;
 	}
 
 	getChangeOrderMenuItemLabel()
