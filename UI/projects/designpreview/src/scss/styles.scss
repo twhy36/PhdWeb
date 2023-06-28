@@ -384,3 +384,9 @@ ngb-modal-backdrop {
 		}
 	}
 }
+
+@media print {
+	.phd-main-container {
+		padding-top: 0 !important;
+	}
+}
