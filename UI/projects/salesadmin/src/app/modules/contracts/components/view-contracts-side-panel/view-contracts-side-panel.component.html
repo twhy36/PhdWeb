@@ -56,7 +56,7 @@
 										for="documentName">Document Name</label>
 									<input type="text"
 										class="form-control"
-										[ngClass]="viewContractsForm.controls.documentName.invalid && (viewContractsForm.controls.documentName.dirty || viewContractsForm.controls.documentName.touched) ? 'phd-fieldRequired' : ''"
+										[ngClass]="!viewContractsForm.controls.documentName.value || (viewContractsForm.controls.documentName.invalid && (viewContractsForm.controls.documentName.dirty || viewContractsForm.controls.documentName.touched)) ? 'phd-fieldRequired' : ''"
 										id="documentName"
 										maxlength="100"
 										formControlName="documentName"
@@ -71,11 +71,11 @@
 											Invalid: This Document Name already exists.
 										</span>
 										<span class="text-danger"
-											*ngIf="viewContractsForm.controls.documentName.invalid && viewContractsForm.controls.documentName.dirty && viewContractsForm.controls.documentName.errors.whiteSpaceValidator">
+											*ngIf="viewContractsForm.controls.documentName.value && viewContractsForm.controls.documentName.invalid && viewContractsForm.controls.documentName.dirty && viewContractsForm.controls.documentName.errors.whiteSpaceValidator">
 											Invalid: Document Name must have alpha/numeric characters
 										</span>
 										<span class="text-danger"
-											*ngIf="viewContractsForm.controls.documentName.invalid && viewContractsForm.controls.documentName.dirty && viewContractsForm.controls.documentName.errors.pattern">
+											*ngIf="viewContractsForm.controls.documentName.value && viewContractsForm.controls.documentName.invalid && viewContractsForm.controls.documentName.dirty && viewContractsForm.controls.documentName.errors.pattern">
 											Invalid: Document Name has special characters
 										</span>
 									</div>
@@ -86,7 +86,7 @@
 										for="displayName">Display Name</label>
 									<input type="text"
 										class="form-control"
-										[ngClass]="viewContractsForm.controls.displayName.invalid && (viewContractsForm.controls.displayName.dirty || viewContractsForm.controls.displayName.touched) ? 'phd-fieldRequired' : ''"
+										[ngClass]="!viewContractsForm.controls.displayName.value || (viewContractsForm.controls.displayName.invalid && (viewContractsForm.controls.displayName.dirty || viewContractsForm.controls.displayName.touched)) ? 'phd-fieldRequired' : ''"
 										id="displayName"
 										maxlength="100"
 										formControlName="displayName"
@@ -98,7 +98,7 @@
 											Invalid: A Display Name is required.
 										</span>
 										<span class="text-danger"
-											*ngIf="viewContractsForm.controls.displayName.invalid && viewContractsForm.controls.displayName.dirty && viewContractsForm.controls.displayName.errors.whiteSpaceValidator">
+											*ngIf="viewContractsForm.controls.displayName.value && viewContractsForm.controls.displayName.invalid && viewContractsForm.controls.displayName.dirty && viewContractsForm.controls.displayName.errors.whiteSpaceValidator">
 											Invalid: Display Name must have alpha/numeric characters
 										</span>
 									</div>
@@ -126,7 +126,7 @@
 											for="release_rank">Document Type</label>
 										<select id="release_rank"
 											class="form-control"
-											[ngClass]="viewContractsForm.errors?.requireTemplateSelect && (viewContractsForm.controls.templateTypeId.dirty || viewContractsForm.controls.templateTypeId.touched) ? 'phd-fieldRequired' : ''"
+											[ngClass]="viewContractsForm.errors?.requireTemplateSelect && (!viewContractsForm.controls.templateTypeId.value || viewContractsForm.controls.templateTypeId.dirty || viewContractsForm.controls.templateTypeId.touched) ? 'phd-fieldRequired' : ''"
 											formControlName="templateTypeId"
 											(change)="updateSelection()">
 											<option *ngFor="let type of templateTypes"
