@@ -390,6 +390,7 @@ export class PHDSearchComponent
 		this.firstName = null;
 		this.lastName = null;
 		this.streetAddress = null;
+		this.searchActiveOnly = false;
 	}
 
 	/*
