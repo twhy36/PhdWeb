@@ -4,8 +4,8 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { map, filter, combineLatest, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
-import { Observable, ReplaySubject, of } from 'rxjs';
+import { map, filter, distinctUntilChanged, withLatestFrom, debounceTime, take } from 'rxjs/operators';
+import { Observable, ReplaySubject, of, combineLatest } from 'rxjs';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
@@ -22,7 +22,8 @@ import
 {
 	UnsubscribeOnDestroy, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
-	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing, findChoice, DecisionPointFilterType, ModalRef, Constants
+	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing,
+	findChoice, DecisionPointFilterType, ModalRef, Constants
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -35,6 +36,7 @@ import { LiteService } from '../../../core/services/lite.service';
 import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
 import { PhdSubMenu } from '../../../new-home/subNavItems';
 import { ScenarioService } from '../../../core/services/scenario.service';
+import { checkElevationAndColorSelectionOptions } from '../../../shared/classes/tree.utils';
 
 
 @Component({
@@ -176,138 +178,139 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			distinctUntilChanged()
 		).subscribe(params => this.params$.next(params));
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario),
-			combineLatest(this.params$,
-				this.store.pipe(select(state => state.lite)),
-				this.store.pipe(select(fromPlan.selectedPlanData))
-			),
-			withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)),
-				this.route.data,
-				this.store.pipe(select(state => state.salesAgreement))
-			)
-		).subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag]) =>
-		{
-			this.errorMessage = '';
-			this.showPhaseProgressBarItems = true;
-			this.salesAgreementId = sag && sag.id;
-
-			if (scenarioState.treeLoading)
+		combineLatest([
+			this.store.pipe(select(state => state.scenario)),
+			this.params$,
+			this.store.pipe(select(state => state.lite)),
+			this.store.pipe(select(fromPlan.selectedPlanData))
+		])
+			.pipe(
+				this.takeUntilDestroyed(),
+				withLatestFrom(this.store.pipe(select(fromRoot.filteredTree)),
+					this.route.data,
+					this.store.pipe(select(state => state.salesAgreement))
+				))
+			.subscribe(([[scenarioState, params, lite, plan], filteredTree, routeData, sag]) =>
 			{
-				return;
-			}
+				this.errorMessage = '';
+				this.showPhaseProgressBarItems = true;
+				this.salesAgreementId = sag && sag.id;
 
-			this.opportunityId = scenarioState?.scenario?.opportunityId;
-
-			this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).pipe(take(1)).subscribe(isPhdLiteEnabled => 
-			{
-				this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
-
-				if (routeData["isPreview"])
+				if (scenarioState.treeLoading)
 				{
-					if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== params.treeVersionId)
-					{
-						this.store.dispatch(new ScenarioActions.LoadPreview(params.treeVersionId));
-					}
-					else if (filteredTree)
-					{
-						this.router.navigateByUrl(`edit-home/0/${filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId}`);
-					}
+					return;
 				}
-				else if ((!scenarioState.scenario || params.scenarioId !== scenarioState.scenario.scenarioId) && !sag.id && this.buildMode === Constants.BUILD_MODE_BUYER)
-				{
-					this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
-				}
-				else if (filteredTree && params.divDPointCatalogId > 0 && !this.isPhdLite)
-				{
-					let groups = filteredTree.groups;
-					let sg;
-					let dp;
 
-					if (groups.length)
+				this.opportunityId = scenarioState?.scenario?.opportunityId;
+
+				this.liteService.isPhdLiteEnabled(scenarioState.scenario?.financialCommunityId).pipe(take(1)).subscribe(isPhdLiteEnabled => 
+				{
+					this.isPhdLite = isPhdLiteEnabled && (lite.isPhdLite || this.liteService.checkLiteScenario(scenarioState?.scenario?.scenarioChoices, scenarioState?.scenario?.scenarioOptions));
+
+					if (routeData['isPreview'])
 					{
-						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
-						dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
-
-						if (!dp)
+						if (!scenarioState.tree || scenarioState.tree.treeVersion.id !== params.treeVersionId)
 						{
-							let divPointCatalogId = groups[0].subGroups[0].points[0].divPointCatalogId;
+							this.store.dispatch(new ScenarioActions.LoadPreview(params.treeVersionId));
+						}
+						else if (filteredTree)
+						{
+							this.router.navigateByUrl(`edit-home/0/${filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId}`);
+						}
+					}
+					else if ((!scenarioState.scenario || params.scenarioId !== scenarioState.scenario.scenarioId) && !sag.id && this.buildMode === Constants.BUILD_MODE_BUYER)
+					{
+						this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
+					}
+					else if (filteredTree && params.divDPointCatalogId > 0 && !this.isPhdLite)
+					{
+						let groups = filteredTree.groups;
+						let sg;
+						let dp;
 
-							//this happens if the decision point has been filtered out of the tree - find a new decision point to navigate to
-							if (!!this.selectedGroupId)
+						if (groups.length)
+						{
+							sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
+							dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
+
+							if (!dp)
 							{
-								let origGroup = groups.find(g => g.id === this.selectedGroupId);
+								let divPointCatalogId = groups[0].subGroups[0].points[0].divPointCatalogId;
 
-								if (origGroup)
+								//this happens if the decision point has been filtered out of the tree - find a new decision point to navigate to
+								if (!!this.selectedGroupId)
 								{
-									let origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
+									const origGroup = groups.find(g => g.id === this.selectedGroupId);
 
-									if (origSg)
+									if (origGroup)
 									{
-										divPointCatalogId = origSg.points[0].divPointCatalogId;
+										const origSg = origGroup.subGroups.find(sg => sg.id === this.selectedSubgroupId);
+
+										if (origSg)
+										{
+											divPointCatalogId = origSg.points[0].divPointCatalogId;
+										}
+										else
+										{
+											divPointCatalogId = origGroup.subGroups[0].points[0].divPointCatalogId;
+										}
 									}
-									else
+								}
+
+								this.router.navigate(['..', divPointCatalogId], { relativeTo: this.route });
+							}
+							else
+							{
+								// #374124 Prevent the sidebar from showing old nav items when navigating to the New Home component
+								if (!this.router.url.includes('new-home'))
+								{
+									this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
+									this.selectedSubGroup$.next(sg);
+									this.selectedDecisionPoint$.next(dp);
+
+									//this is when they've actually navigated to a different decision point:
+									if (params.divDPointCatalogId !== this.selectedDivPointCatalogId)
 									{
-										divPointCatalogId = origGroup.subGroups[0].points[0].divPointCatalogId;
+										this.selectedDivPointCatalogId = dp.divPointCatalogId;
+
+										if (!dp.viewed)
+										{
+											this.store.dispatch(new ScenarioActions.SetPointViewed(dp.id));
+										}
 									}
 								}
 							}
-
-							this.router.navigate(['..', divPointCatalogId], { relativeTo: this.route });
 						}
-						else
+						else if (scenarioState.treeFilter)
 						{
-							// #374124 Prevent the sidebar from showing old nav items when navigating to the New Home component
-							if (!this.router.url.includes('new-home'))
+							// find the last point we were on using the full tree
+							groups = scenarioState.tree.treeVersion.groups;
+							sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
+							dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
+
+							if (dp)
 							{
 								this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
 								this.selectedSubGroup$.next(sg);
 								this.selectedDecisionPoint$.next(dp);
-
-								//this is when they've actually navigated to a different decision point:
-								if (params.divDPointCatalogId !== this.selectedDivPointCatalogId)
-								{
-									this.selectedDivPointCatalogId = dp.divPointCatalogId;
-
-									if (!dp.viewed)
-									{
-										this.store.dispatch(new ScenarioActions.SetPointViewed(dp.id));
-									}
-								}
 							}
+
+							this.errorMessage = 'Seems there are no results that match your search criteria.';
+							this.showPhaseProgressBarItems = false;
 						}
 					}
-					else if (scenarioState.treeFilter)
+					else if (filteredTree && !this.isPhdLite)
 					{
-						// find the last point we were on using the full tree
-						groups = scenarioState.tree.treeVersion.groups;
-						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.points.some(p => p.divPointCatalogId === params.divDPointCatalogId));
-						dp = !!sg ? sg.points.find(p => p.divPointCatalogId === params.divDPointCatalogId) : null;
-
-						if (dp)
-						{
-							this.setSelectedGroup(groups.find(g => g.subGroups.some(sg1 => sg1.id === sg.id)), sg);
-							this.selectedSubGroup$.next(sg);
-							this.selectedDecisionPoint$.next(dp);
-						}
-
-						this.errorMessage = 'Seems there are no results that match your search criteria.';
-						this.showPhaseProgressBarItems = false;
+						this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId]);
 					}
-				}
-				else if (filteredTree && !this.isPhdLite)
-				{
-					this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId]);
-				}
-				else if (this.isPhdLite && !this.plan && !!plan)
-				{
-					this.loadPhdLite();
-				}
-			});
+					else if (this.isPhdLite && !this.plan && !!plan)
+					{
+						this.loadPhdLite();
+					}
+				});
 
-			this.plan = plan;
-		});
+				this.plan = plan;
+			});
 
 		//subscribe to changes in phase progress selection
 		this.store.pipe(
@@ -319,7 +322,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (this.selectedSubgroupId && sg !== this.selectedSubgroupId)
 			{
-				let subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sg);
+				const subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sg);
 
 				if (subGroup)
 				{
@@ -328,53 +331,53 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario.isGanked),
-			combineLatest(
-				this.store.pipe(select(fromScenario.scenarioHasSalesAgreement)),
-				this.store.pipe(select(fromLot.lotsLoaded))
-			),
-			withLatestFrom(this.store.pipe(select(state => state.scenario?.scenario?.treeVersionId)))
-		).subscribe(([[isGanked, hasAgreement, lotsLoaded], treeVersionId]) =>
-		{
-			if (lotsLoaded)
+		combineLatest([
+			this.store.pipe(select(state => state.scenario.isGanked)),
+			this.store.pipe(select(fromScenario.scenarioHasSalesAgreement)),
+			this.store.pipe(select(fromLot.lotsLoaded))
+		])
+			.pipe(
+				this.takeUntilDestroyed(),
+				withLatestFrom(this.store.pipe(select(state => state.scenario?.scenario?.treeVersionId))))
+			.subscribe(([[isGanked, hasAgreement, lotsLoaded], treeVersionId]) =>
 			{
-				this.scenarioHasSalesAgreement = hasAgreement;
-
-				if (isGanked && this.lotConflictModal && !this.lotcheckModalDisplayed)
+				if (lotsLoaded)
 				{
-					this.lotcheckModalDisplayed = true;
+					this.scenarioHasSalesAgreement = hasAgreement;
 
-					const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: Constants.CANCEL, result: true, cssClass: 'btn-secondary' };
-
-					this.showConfirmModal(this.lotConflictModal, 'Attention!', primaryButton, secondaryButton).subscribe(result =>
+					if (isGanked && this.lotConflictModal && !this.lotcheckModalDisplayed)
 					{
-						if (result)
+						this.lotcheckModalDisplayed = true;
+
+						const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
+						const secondaryButton = { text: Constants.CANCEL, result: true, cssClass: 'btn-secondary' };
+
+						this.showConfirmModal(this.lotConflictModal, 'Attention!', primaryButton, secondaryButton).subscribe(result =>
 						{
-							if (this.scenarioHasSalesAgreement)
+							if (result)
 							{
-								const summaryUrl = !this.isPhdLite ? '/scenario-summary' : '/lite-summary';
-								this.router.navigateByUrl(summaryUrl);
+								if (this.scenarioHasSalesAgreement)
+								{
+									const summaryUrl = !this.isPhdLite ? '/scenario-summary' : '/lite-summary';
+									this.router.navigateByUrl(summaryUrl);
+								}
+								else
+								{
+									this.store.dispatch(new LotActions.DeselectLot());
+									this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
+									this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
+
+									this.router.navigateByUrl('/new-home/lot');
+								}
 							}
 							else
 							{
-								this.store.dispatch(new LotActions.DeselectLot());
-								this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
-								this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
-
-								this.router.navigateByUrl('/new-home/lot');
+								window.close();
 							}
-						}
-						else
-						{
-							window.close();
-						}
-					});
+						});
+					}
 				}
-			}
-		});
+			});
 
 		this.priceBreakdown$ = this.store.pipe(
 			select(fromRoot.priceBreakdown)
@@ -472,7 +475,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBuildIt() 
 	{
-		this.lotService.hasMonotonyConflict().subscribe(mc =>
+		combineLatest([
+			this.lotService.hasMonotonyConflict(),
+			this.store.pipe(select(fromScenario.elevationDP), take(1)),
+			this.store.pipe(select(fromScenario.colorSchemeDP), take(1))
+		]).subscribe(([mc, elevationDP, colorSchemeDP]) =>
 		{
 			if (mc.monotonyConflict)
 			{
@@ -482,13 +489,26 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else
 			{
-				this.scenarioService.onGenerateSalesAgreement(
-					this.buildMode,
-					this.lotStatus,
-					this.selectedLot.id,
-					this.salesAgreementId,
-					this.opportunityId
-				);
+				const elevationChoice = elevationDP?.choices.find(c => c.quantity > 0);
+				const colorSchemeChoice = colorSchemeDP?.choices.find(c => c.quantity > 0);
+
+				// check elevation and color scheme choices to make sure there is only one option assigned to each.
+				const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationChoice, colorSchemeChoice);
+
+				if (!!message)
+				{
+					this.modalService.showOkOnlyModal(message, '', true);
+				}
+				else
+				{
+					this.scenarioService.onGenerateSalesAgreement(
+						this.buildMode,
+						this.lotStatus,
+						this.selectedLot.id,
+						this.salesAgreementId,
+						this.opportunityId
+					);
+				}
 			}
 		});
 	}
@@ -514,13 +534,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	navigateToColorScheme()
 	{
-		this.store.pipe(
-			select(fromScenario.elevationDP),
-			combineLatest(
-				this.store.pipe(select(store => store.scenario.scenario.scenarioId)),
-				this.store.pipe(select(fromScenario.colorSchemeDP))
-			)
-		).subscribe(([elevationDP, scenario, colorSchemeDP]) =>
+		combineLatest([
+			this.store.pipe(select(fromScenario.elevationDP)),
+			this.store.pipe(select(store => store.scenario.scenario.scenarioId)),
+			this.store.pipe(select(fromScenario.colorSchemeDP))
+		]).subscribe(([elevationDP, scenario, colorSchemeDP]) =>
 		{
 			if (colorSchemeDP)
 			{
@@ -640,7 +658,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		// #353697 Determine what options are being replaced by this choice, and track their original price
 		const timeOfSaleOptionPrices = this.getReplacedOptionPrices(choice);
 
-		let selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes, timeOfSaleOptionPrices: timeOfSaleOptionPrices }];
+		const selectedChoices = [{ choiceId: choice.id, overrideNote: choice.overrideNote, quantity: !choice.quantity ? quantity || 1 : 0, attributes: choice.selectedAttributes, timeOfSaleOptionPrices: timeOfSaleOptionPrices }];
 		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach(c =>
@@ -859,7 +877,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getImpactedChoicesForReplacedOptionPrices(timeOfSaleOptionPrices: TimeOfSaleOptionPrice[], selectedChoice: Choice, deselectedChoice: Choice): Choice[]
 	{
-		let choices: Choice[] = [];
+		const choices: Choice[] = [];
 
 		// Compare option prices already being tracked to replaced options that are impacted by the selection
 		if (this.timeOfSaleOptionPrices && this.timeOfSaleOptionPrices.length)
@@ -931,7 +949,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	getAdjustedChoices(deselectedChoice: Choice, selectedChoice: Choice): Choice[]
 	{
-		let choices: Choice[] = [];
+		const choices: Choice[] = [];
 
 		// Using the latest rules, see what choices may be affected by options on this choice
 		const replaceRules = this.treeVersionRules.optionRules.filter(o => o.choices.map(oc => oc.id).some(id => [deselectedChoice?.id, selectedChoice?.id].includes(id) && o.replaceOptions?.length)

@@ -22,8 +22,11 @@ export class TreeService
 {
 	private _ds: string = encodeURIComponent('$');
 
-	constructor(private http: HttpClient, private tokenService: TokenService,
-        @Inject(forwardRef(() => API_URL)) private apiUrl: string) { }
+	constructor(
+		private http: HttpClient,
+		private tokenService: TokenService,
+		@Inject(forwardRef(() => API_URL)) private apiUrl: string
+	) { }
 	
 	/**
 	 * gets active tree versions for communities
@@ -33,7 +36,7 @@ export class TreeService
 	{
 		const communityFilterArray = communityIds.map(id => `dTree/plan/org/edhFinancialCommunityId eq ${id}`);
 		const communityFilter = communityFilterArray && communityFilterArray.length
-			? ` and (${communityFilterArray.join(" or ")})`
+			? ` and (${communityFilterArray.join(' or ')})`
 			: '';
 
 		const utcNow = getDateWithUtcOffset();
@@ -523,9 +526,9 @@ export class TreeService
                 {
                     if (data.tree && data.tree.treeVersion)
                     {
-                        let currentSubgroups = _.flatMap(data.tree.treeVersion.groups, g => g.subGroups);
-                        let currentPoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-                        let currentChoices = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+                        const currentSubgroups = _.flatMap(data.tree.treeVersion.groups, g => g.subGroups);
+                        const currentPoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+                        const currentChoices = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
                         if (choices)
                         {
