@@ -391,10 +391,9 @@ export class LiteEffects
 									});
 								}
 
-								// Option price
-								if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_APPROVED)
+								// Update option price if it is locked in in the job
+								if (!!store.job.id)
 								{
-									// Price locked in job
 									action.job.jobPlanOptions?.forEach(jobPlanOption =>
 									{
 										let option = options.find(option => option.id === jobPlanOption.planOptionId);
@@ -405,7 +404,8 @@ export class LiteEffects
 										}
 									});
 								}
-								else if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_SIGNED || store.salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE)
+
+								if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_SIGNED || store.salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE)
 								{
 									if (action.changeOrder?.jobChangeOrders)
 									{
@@ -422,7 +422,7 @@ export class LiteEffects
 										});
 									}
 								}
-								else if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING || !!store.job.id)
+								else if (store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING || !store.salesAgreement.status && !!store.job.id)
 								{
 									// Update the base house price if phase pricing is set up for the plan
 									if (action.lot.salesPhase?.salesPhasePlanPriceAssocs?.length)
@@ -435,20 +435,6 @@ export class LiteEffects
 											let baseHouseOption = options.find(option => option.isBaseHouse && option.isActive);
 											baseHouseOption.listPrice = phasePlanPrice.price;
 										}
-									}
-
-									// Update price for inactive options if they are in the spec job
-									if (!!store.job.id)
-									{
-										action.job.jobPlanOptions?.forEach(jobPlanOption =>
-										{
-											let option = options.find(option => option.id === jobPlanOption.planOptionId);
-
-											if (option && !option.isActive && option.listPrice !== jobPlanOption.listPrice)
-											{
-												option.listPrice = jobPlanOption.listPrice;
-											}
-										});
 									}
 								}
 
