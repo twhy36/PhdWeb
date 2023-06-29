@@ -134,7 +134,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	selectDecisionPointHandler(pointId: number, interval?: number) 
 	{
-		if (pointId && !this.currentSubgroup.useInteractiveFloorplan)
+		if (pointId && !this.currentSubgroup?.useInteractiveFloorplan)
 		{
 			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
 

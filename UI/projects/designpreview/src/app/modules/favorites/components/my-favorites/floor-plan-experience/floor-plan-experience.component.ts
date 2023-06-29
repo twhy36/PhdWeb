@@ -101,7 +101,7 @@ export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implement
 
 	selectDecisionPointHandler(pointId: number)
 	{
-		if (pointId && this.currentSubgroup.useInteractiveFloorplan)
+		if (pointId && this.currentSubgroup?.useInteractiveFloorplan)
 		{
 			setTimeout(() =>
 			{

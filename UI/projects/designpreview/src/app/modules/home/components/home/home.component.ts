@@ -11,8 +11,9 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage, TreeVersion } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
@@ -39,6 +40,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	floorplanSG: SubGroup;
 	noVisibleFP: boolean = false;
 	selectedFloor;
+	filteredTree: TreeVersion;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -206,11 +208,33 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				this.selectedFavoritesId = fav.selectedFavoritesId;
 			}
 		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.filteredTree)
+		).subscribe(tree =>
+		{
+			if (tree)
+			{
+				this.filteredTree = tree;
+			}
+		});
 	}
 
 	viewOptions()
 	{
-		this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId], { queryParamsHandling: 'merge' })
+		const firstSubGroup = _.flatMap(this.filteredTree.groups, g => _.flatMap(g.subGroups))[0] || null;
+
+		if (firstSubGroup)
+		{
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(firstSubGroup.id));
+			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId, firstSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
+		}
+		else
+		{
+			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId], { queryParamsHandling: 'merge' })
+		}
+
 	}
 
 	getImageSrc()

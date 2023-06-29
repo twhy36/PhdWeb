@@ -286,9 +286,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else if (filteredTree && !this.noVisibleGroups)
 			{
-				const subGroup = filteredTree.groups[0].subGroups[0];
+				const subGroup = filteredTree.groups[0]?.subGroups[0];
 
-				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
+				if (!!subGroup)
+				{
+					this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
+				}
 			}
 		});
 
