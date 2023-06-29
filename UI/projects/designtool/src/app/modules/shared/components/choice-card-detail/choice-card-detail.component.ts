@@ -441,7 +441,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		this.choice.selectedAttributes = selectedAttributes;
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: $event.overrideNote, quantity: $event.isOverride ? 1 : this.selectedMax, attributes: selectedAttributes }));
+		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: $event.overrideNote, quantity: this.selectedMax, attributes: selectedAttributes }));
 
 		// save change order
 		this.saveAttributes.emit();
