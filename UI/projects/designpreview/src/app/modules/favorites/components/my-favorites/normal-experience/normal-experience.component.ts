@@ -1,5 +1,4 @@
-import { ViewportScroller } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 import * as _ from 'lodash';
 
@@ -47,10 +46,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 	viewCreated: boolean = false;
 
-	constructor(private scroller: ViewportScroller) {
-		super();
-		scroller.setOffset([0, 200]); // This offset accounts for nav-bar group-bar and grey space above choice cards
-	}
+	constructor() { super(); }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -204,15 +200,47 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
 	{
-		const pointCardId = `point-card-${pointId?.toString()}`;
-		const pointCardElement = <HTMLElement>document.getElementById(pointCardId);
+		const pointCardElement = <HTMLElement>document.getElementById(`point-card-${pointId?.toString()}`);
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			setTimeout(() =>
+			if (isFirstPoint)
 			{
-				this.scroller.scrollToAnchor(pointCardId);
-			}, 250);
+				setTimeout(() =>
+				{
+					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
+
+					this.viewCreated = true;
+				}, 250);
+			}
+			else
+			{
+				// Workaround to display the element moved under the nav bar
+				setTimeout(() =>
+				{
+					const pos = pointCardElement.style.position;
+					const top = pointCardElement.style.top;
+
+					pointCardElement.style.position = 'relative';
+					pointCardElement.style.top = '-200px';
+					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+
+					this.viewCreated = true;
+
+					pointCardElement.style.top = top;
+					pointCardElement.style.position = pos;
+				}, 250);
+			}
+		}
+
+		const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
+
+		if (decisionBarElement && !this.subGroup.useInteractiveFloorplan)
+		{
+			setTimeout(() => 
+			{
+				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+			}, 1000);
 		}
 	}
 
