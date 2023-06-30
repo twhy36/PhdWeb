@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, ExtraOptions } from '@angular/router';
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';
@@ -25,6 +25,12 @@ import { BrandService } from './modules/core/services/brand.service';
 import { DefaultErrorComponent } from './modules/core/components/default-error/default-error.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { PresaleInterceptor } from './modules/core/interceptors/presale.interceptor';
+
+const routerOptions: ExtraOptions = {
+	scrollPositionRestoration: 'enabled',
+	anchorScrolling: 'enabled',
+	scrollOffset: [0, 200],
+}
 
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
@@ -80,7 +86,7 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 	SharedModule,
 	HomeModule,
 	FavoritesModule,
-	RouterModule.forRoot(appRoutes),
+	RouterModule.forRoot(appRoutes, routerOptions),
 	StoreModule,
 	CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
 	ToastrModule.forRoot({ closeButton: true }),

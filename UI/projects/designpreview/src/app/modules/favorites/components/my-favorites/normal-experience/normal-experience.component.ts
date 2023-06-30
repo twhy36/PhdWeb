@@ -9,6 +9,7 @@ import
 } from 'phd-common';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'normal-experience',
@@ -46,7 +47,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 	viewCreated: boolean = false;
 
-	constructor() { super(); }
+	constructor(private router: Router) { super(); }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -218,18 +219,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				// Workaround to display the element moved under the nav bar
 				setTimeout(() =>
 				{
-					const pos = pointCardElement.style.position;
-					const top = pointCardElement.style.top;
-
-					pointCardElement.style.position = 'relative';
-					pointCardElement.style.top = '-200px';
-					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
-
-					this.viewCreated = true;
-
-					pointCardElement.style.top = top;
-					pointCardElement.style.position = pos;
-				}, 250);
+					this.router.navigate([], { fragment: `point-card-${pointId?.toString()}`, queryParamsHandling: 'merge'});
+				}, 750);
 			}
 		}
 
