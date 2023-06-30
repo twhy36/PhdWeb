@@ -55,7 +55,11 @@ export class ModalService
 		// combine defaults with passed in options.
 		options = { ...this.defaultModalOptions, ...options };
 
-		this.modalRef = new ModalRef(this.modalService.open(content, options));
+		// do not open new modal if one already exists (like after pressing back button)
+		if (!this.modalService.hasOpenModals())
+		{
+			this.modalRef = new ModalRef(this.modalService.open(content, options));
+		}
 
 		// will be undefined if a templateRef is used
 		if (this.modalRef.componentInstance)
