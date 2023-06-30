@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
-	SalesAgreement, DecisionPoint, Permission, ModalService, Constants
+	SalesAgreement, DecisionPoint, Permission, ModalService, Constants, Tree, TreeVersionRules
 } from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';
@@ -29,10 +29,13 @@ import { ChangeOrderService } from './../../../core/services/change-order.servic
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import * as JobActions from '../../../ngrx-store/job/actions';
 
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+
 // PHD Lite
 import { LiteService } from './../../../core/services/lite.service';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 import { JobService } from '../../../core/services/job.service';
+import { checkElevationAndColorSelectionOptions } from '../../classes/tree.utils';
 
 @Component({
 	selector: 'action-bar',
@@ -99,28 +102,19 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isOutForESign: boolean;
 	canApprove: boolean;
 	salesAgreementId: number;
+	tree: Tree;
+	treeVersionRules: TreeVersionRules;
+	elevationDP: DecisionPoint;
+	colorSchemeDP: DecisionPoint;
 
 	// PHD Lite
 	isPhdLite: boolean;
 
 	setSummaryText()
 	{
-		let labelVal = 'View On Summary';
+		this.isFromSummary = this._navService.getPreviousUrl() === '/scenario-summary';
 
-		let prevUrl = this._navService.getPreviousUrl();
-
-		if (prevUrl == '/scenario-summary')
-		{
-			labelVal = 'Back to Summary';
-
-			this.isFromSummary = true;
-		}
-		else
-		{
-			this.isFromSummary = false;
-		}
-
-		this.summaryText = labelVal;
+		this.summaryText = this.isFromSummary ? 'Back to Summary' : 'View On Summary';
 	}
 
 	constructor(
@@ -141,6 +135,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.canEditAgreement$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.canCancelSpec$ = this.store.select(fromRoot.canCancelSpec);
 		this.canCancelModel$ = this.store.select(fromRoot.canCancelModel);
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lot)
@@ -148,6 +143,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.lotStatus = lot.selectedLot ? lot.selectedLot.lotStatusDescription : ''
 		});
+
 		this.isTemplatesSelected$ = this.store.pipe(
 			select(state => state.contract),
 			map(contract =>
@@ -271,6 +267,28 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 
+		this.store.pipe(
+			select(fromScenario.selectScenario)
+		).subscribe(scenario =>
+		{
+			this.tree = scenario.tree;
+			this.treeVersionRules = _.cloneDeep(scenario.rules);
+		});
+
+		combineLatest([
+			this.store.pipe(select(fromScenario.selectScenario)),
+			this.store.pipe(select(fromScenario.elevationDP)),
+			this.store.pipe(select(fromScenario.colorSchemeDP))
+		])
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([scenario, elevationDP, colorSchemeDP]) =>
+			{
+				this.tree = scenario.tree;
+				this.treeVersionRules = _.cloneDeep(scenario.rules);
+				this.elevationDP = elevationDP;
+				this.colorSchemeDP = colorSchemeDP;
+			});
+
 		this.setSummaryText();
 	}
 
@@ -286,12 +304,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canSignAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && ((!this.isEditingEnvelopeDraft && !this.isOutForESign) || this.canApprove);
+		return this.inPointOfSale && this.agreement.status === 'OutforSignature' && !this.inChangeOrder && ((!this.isEditingEnvelopeDraft && !this.isOutForESign) || this.canApprove);
 	}
 
 	get canApproveAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "Signed" && !this.inChangeOrder && this.salesStatusDescription != 'Approved';
+		return this.inPointOfSale && this.agreement.status === 'Signed' && !this.inChangeOrder && this.salesStatusDescription != 'Approved';
 	}
 
 	get canVoidAgreement(): boolean
@@ -301,17 +319,17 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canCancelAgreement(): boolean
 	{
-		return this.canCancelSalesAgreement && this.inPointOfSale && this.agreement.status === "Approved" && !this.inChangeOrder && !this.agreement.isLockedIn;
+		return this.canCancelSalesAgreement && this.inPointOfSale && this.agreement.status === 'Approved' && !this.inChangeOrder && !this.agreement.isLockedIn;
 	}
 
 	get inAgreement(): boolean
 	{
-		return this.router.url.includes("point-of-sale/agreement");
+		return this.router.url.includes('point-of-sale/agreement');
 	}
 
 	get inPointOfSale(): boolean
 	{
-		return this.router.url.includes("point-of-sale");
+		return this.router.url.includes('point-of-sale');
 	}
 
 	get inSpec(): boolean
@@ -530,7 +548,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
 		}
-		else if (this.getActionBarStatus() === 'COMPLETE')
+		else if (this.getActionBarStatus() === 'COMPLETE' && this.validateElevationAndColorOptions())
 		{
 			this.modalReference = this.modalService.open(modal, { size: 'lg', windowClass: 'phd-change-order-note' });
 		}
@@ -651,5 +669,25 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isChangePartiallyComplete(): boolean
 	{
 		return this.changeType === ChangeTypeEnum.PLAN && this.skipSaving && this.actionBarStatus === 'COMPLETE';
+	}
+
+	validateElevationAndColorOptions(): boolean
+	{
+		let isValidElevationAndColorOptions = true;
+
+		if (this.changeType === ChangeTypeEnum.CONSTRUCTION && !this.isPhdLite)
+		{
+			// check elevation and color scheme choices to make sure there is only one option assigned to each.
+			const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, this.elevationDP, this.colorSchemeDP);
+
+			if (!!message)
+			{
+				isValidElevationAndColorOptions = false;
+
+				this.modalService.showOkOnlyModal(message, '', true);
+			}
+		}
+
+		return isValidElevationAndColorOptions;
 	}
 }

@@ -433,12 +433,16 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
  * Check Elevation and Color Scheme for more than one option and create message to alert user of the issue
  * @param tree
  * @param optionRules
- * @param elevationChoice
- * @param colorSchemeChoice
+ * @param elevationDP
+ * @param colorSchemeDP
  * @returns
  */
-export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: OptionRule[], elevationChoice: Choice, colorSchemeChoice: Choice): string
+export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: OptionRule[], elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint): string
 {
+	// find selected elevation and color scheme choices
+	const elevationChoice = elevationDP?.choices.find(c => c.quantity > 0);
+	const colorSchemeChoice = colorSchemeDP?.choices.find(c => c.quantity > 0);
+
 	// find all rules with replace options
 	const filteredOptionRules = optionRules?.filter(opt => opt.replaceOptions.length > 0);
 	// get all selected choices
