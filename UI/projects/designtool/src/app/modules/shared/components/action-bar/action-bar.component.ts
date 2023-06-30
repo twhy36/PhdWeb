@@ -267,14 +267,6 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 
-		this.store.pipe(
-			select(fromScenario.selectScenario)
-		).subscribe(scenario =>
-		{
-			this.tree = scenario.tree;
-			this.treeVersionRules = _.cloneDeep(scenario.rules);
-		});
-
 		combineLatest([
 			this.store.pipe(select(fromScenario.selectScenario)),
 			this.store.pipe(select(fromScenario.elevationDP)),
@@ -675,7 +667,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		let isValidElevationAndColorOptions = true;
 
-		if (this.changeType === ChangeTypeEnum.CONSTRUCTION && !this.isPhdLite)
+		if ((this.changeType === ChangeTypeEnum.CONSTRUCTION || this.changeType === ChangeTypeEnum.PLAN) && !this.isPhdLite)
 		{
 			// check elevation and color scheme choices to make sure there is only one option assigned to each.
 			const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, this.elevationDP, this.colorSchemeDP);
