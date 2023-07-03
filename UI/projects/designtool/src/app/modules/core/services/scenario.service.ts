@@ -7,10 +7,9 @@ import { map, switchMap, catchError } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import { environment } from '../../../../environments/environment';
-import
-{
+import {
 	withSpinner, JobChoice, Scenario, DtoScenario, DtoScenarioChoice, DtoScenarioChoiceAttribute, DtoScenarioChoiceLocation,
-	SelectedChoice, DtoScenarioInfo, Tree, Choice, FloorPlanImage, ModalService, Constants
+	SelectedChoice, DtoScenarioInfo, Tree, Choice, FloorPlanImage, ModalService
 } from 'phd-common';
 import { Router } from '@angular/router';
 import { LotService } from './lot.service';
@@ -357,13 +356,13 @@ export class ScenarioService
 
 	onGenerateSalesAgreement(buildMode: string, lotStatus: string, selectedLotId: number, salesAgreementId: number, opportunityId: string)
 	{
-		if (buildMode === Constants.BUILD_MODE_SPEC || buildMode === Constants.BUILD_MODE_MODEL)
+		if (buildMode === 'spec' || buildMode === 'model')
 		{
-			if (buildMode === Constants.BUILD_MODE_MODEL && lotStatus === 'Available')
+			if (buildMode === 'model' && lotStatus === 'Available')
 			{
 				const title = 'Create Model';
 				const body = 'The Lot Status for this model will be set to UNAVAILABLE.';
-				const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
+				const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
 
 				this.showConfirmModal(body, title, primaryButton).subscribe(result =>
 				{
@@ -378,8 +377,8 @@ export class ScenarioService
 						const title = 'Create Model';
 						const body = 'The selected lot is scheduled to be released on ' + releaseDate + '. <br><br> If you continue, the lot will be removed from the release and the Lot Status will be set to UNAVAILABLE.';
 
-						const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-						const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+						const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
 						return this.showConfirmModal(body, title, primaryButton, secondaryButton);
 					})).subscribe(result =>
@@ -402,7 +401,7 @@ export class ScenarioService
 		else
 		{
 			this.opportunityService.getOpportunitySalesAssociateId(opportunityId).subscribe(salesAssociateId =>
-			{
+			{ 
 				if (salesAssociateId === null)
 				{
 					const title = 'Missing Sales Consultant';
@@ -413,10 +412,10 @@ export class ScenarioService
 				else
 				{
 					const title = 'Generate Home Purchase Agreement';
-					const body = `You are about to generate an Agreement for your configuration. ${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+					const body = 'You are about to generate an Agreement for your configuration. Do you wish to continue?';
 
-					const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+					const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
 					this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 					{

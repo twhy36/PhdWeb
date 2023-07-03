@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Constants } from '../../utils/constants.class';
 
 @Component({
 	selector: 'confirm-modal-component',
@@ -12,8 +11,8 @@ import { Constants } from '../../utils/constants.class';
 export class ConfirmModalComponent
 {
 	@Input() title: string = '';
-	@Input() body: string = '';
-	@Input() defaultOption: string = Constants.CONTINUE;
+	@Input() body: string =  '';
+	@Input() defaultOption: string = 'Continue';
 
 	constructor(public activeModal: NgbActiveModal) { }
 }

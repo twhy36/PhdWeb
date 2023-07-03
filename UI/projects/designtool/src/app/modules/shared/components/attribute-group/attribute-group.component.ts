@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, CutOffOverride } from 'phd-common';
 
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
 
@@ -256,30 +256,30 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		if (!this.overrideReason)
 		{
-			let body = '';
+			let body = 'This will override the ';
 
 			if (attribute.monotonyConflict && this.isPastCutOff)
 			{
-				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
+				body += `Monotony Conflict and the Cut-off`;
 			}
 			else if (attribute.monotonyConflict)
 			{
-				body = Constants.OVERRIDE_MONOTONY;
+				body += `Monotony Conflict`;
 			}
 			else
 			{
-				body = Constants.OVERRIDE_CUT_OFF;
+				body = CutOffOverride.Message;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
-			confirm.componentInstance.title = Constants.WARNING;
+			confirm.componentInstance.title = 'Warning';
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = Constants.CANCEL;
+			confirm.componentInstance.defaultOption = 'Cancel';
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== Constants.CLOSE)
+				if (result !== 'Close')
 				{
 					this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
 

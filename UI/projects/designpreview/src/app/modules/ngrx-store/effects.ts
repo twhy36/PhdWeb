@@ -7,10 +7,9 @@ import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
-import
-{
-	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined,
-	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService, Constants, SalesAgreementStatuses
+import { 
+	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined, 
+	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService
 } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
@@ -275,7 +274,7 @@ export class CommonEffects
 					const baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
 
-					if (result.salesAgreement.status === SalesAgreementStatuses.OutForSignature || result.salesAgreement.status === SalesAgreementStatuses.Signed || result.salesAgreement.status === SalesAgreementStatuses.Approved)
+					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
 					{
 						if (baseHouseOption)
 						{
@@ -307,32 +306,32 @@ export class CommonEffects
 		prev: boolean;
 		current: boolean;
 	}> = createEffect(
-		() => this.actions$.pipe(
-			withLatestFrom(this.store.pipe(select(showSpinner))),
-			map(([action, showSpinner]) =>
-			{
-				return showSpinner;
-			}),
-			scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
-			tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
-			{
-				if (showSpinnerScan.prev !== showSpinnerScan.current)
+			() => this.actions$.pipe(
+				withLatestFrom(this.store.pipe(select(showSpinner))),
+				map(([action, showSpinner]) =>
 				{
-					this.spinnerService.showSpinner(showSpinnerScan.current);
-				}
-			})),
-		{ dispatch: false }
-	);
+					return showSpinner;
+				}),
+				scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
+				tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
+				{
+					if (showSpinnerScan.prev !== showSpinnerScan.current)
+					{
+						this.spinnerService.showSpinner(showSpinnerScan.current);
+					}
+				})),
+			{ dispatch: false }
+		);
 
 	hasError$: Observable<Action> = createEffect(
 		() => this.actions$.pipe(
 			scan((prev, action) =>
-			({
-				prev: prev.action,
-				action: action instanceof (ErrorAction),
-				err: action
-			}),
-				{ prev: false, action: false, err: <ErrorAction>null }
+				({
+					prev: prev.action,
+					action: action instanceof (ErrorAction),
+					err: action
+				}),
+			{ prev: false, action: false, err: <ErrorAction>null }
 			),
 			filter((errorScan: { prev: boolean; action: boolean; err: Action; }) => !errorScan.prev && errorScan.action),
 			map((errorScan: { prev: boolean; action: boolean; err: Action; }) =>
@@ -352,11 +351,11 @@ export class CommonEffects
 						ErrorFrom: errFrom
 					};
 
-					if (errFrom !== ErrorFrom.PageNotFound)
+					if(errFrom !== ErrorFrom.PageNotFound)
 					{
 						this.loggingService.logError((<ErrorAction>errorScan.err).error, properties);
 					}
-
+					
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})

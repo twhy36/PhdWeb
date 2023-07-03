@@ -13,7 +13,6 @@ import { Option } from '../../../../../shared/models/option.model';
 import { ConfirmModalComponent } from '../../../../../core/components/confirm-modal/confirm-modal.component';
 
 import { LocationService } from '../../../../../core/services/location.service';
-import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'expansion-location-groups-tab-panel',
@@ -63,25 +62,26 @@ export class ExpansionLocationGroupsTabPanelComponent
 			msgBody += `<span class="font-weight-bold">${group.locationGroupName}</span>`;
 		});
 
-		msgBody += `</div><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+		msgBody += `</div>`;
+		msgBody += `<br>Do you wish to continue?`;
 
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CONTINUE;
+		confirm.componentInstance.defaultOption = 'Continue';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.removeGroups();
 			}
 		},
-			(reason) =>
-			{
+		(reason) =>
+		{
 
-			});
+		});
 	}
 
 	isGroupSelected(group: LocationGroupMarket): boolean
@@ -153,11 +153,11 @@ export class ExpansionLocationGroupsTabPanelComponent
 				this.onDisassociate.emit();
 				this._msgService.add({ severity: 'success', summary: 'Location Groups', detail: `Location Group(s) removed successfully!` });
 			},
-				(error) =>
-				{
-					this._msgService.clear();
-					this._msgService.add({ severity: 'error', summary: 'Location Groups', detail: `An error has occured!` });
-				});
+			(error) =>
+			{
+				this._msgService.clear();
+				this._msgService.add({ severity: 'error', summary: 'Location Groups', detail: `An error has occured!` });
+			});
 	}
 
 	onAssociateCommunities()

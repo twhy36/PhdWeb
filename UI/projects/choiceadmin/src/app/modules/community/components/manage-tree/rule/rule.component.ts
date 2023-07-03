@@ -11,7 +11,6 @@ import { ConfirmModalComponent } from '../../../../core/components/confirm-modal
 import { MessageService } from 'primeng/api';
 import { bind } from '../../../../shared/classes/decorators.class';
 import * as _ from 'lodash';
-import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'rule-component',
@@ -234,8 +233,7 @@ export class RuleComponent implements OnInit
 		});
 	}
 
-	private generateDuplicateRuleError(dupes: IRuleItem[]): string
-	{
+	private generateDuplicateRuleError(dupes: IRuleItem[]): string {
 		let error = 'Rule already exists: ';
 		dupes.map(d => error += d.label + ', ');
 		error = error.substring(0, error.length - 2);
@@ -566,7 +564,7 @@ export class RuleComponent implements OnInit
 	{
 		const confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = `Warning!`;
 		confirm.componentInstance.body = message;
 		confirm.componentInstance.defaultOption = '';
 

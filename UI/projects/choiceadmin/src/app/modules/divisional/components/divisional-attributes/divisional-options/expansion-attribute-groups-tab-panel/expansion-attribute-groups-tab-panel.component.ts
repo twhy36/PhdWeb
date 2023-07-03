@@ -12,7 +12,6 @@ import { AttributeService } from '../../../../../core/services/attribute.service
 import { DivisionalOptionService } from '../../../../../core/services/divisional-option.service';
 import { AttributeGroupMarket } from '../../../../../shared/models/attribute-group-market.model';
 import { Option } from '../../../../../shared/models/option.model';
-import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'expansion-attribute-groups-tab-panel',
@@ -75,17 +74,18 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnChanges
 			msgBody += `<span class="font-weight-bold">${group.groupName}</span>`;
 		});
 
-		msgBody += `</div><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+		msgBody += `</div>`;
+		msgBody += `<br>Do you wish to continue?`;
 
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CONTINUE;
+		confirm.componentInstance.defaultOption = 'Continue';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.removeGroups();
 			}
@@ -137,11 +137,11 @@ export class ExpansionAttributeGroupsTabPanelComponent implements OnChanges
 
 				this._msgService.add({ severity: 'success', summary: 'Attribute Groups', detail: `Attribute Group(s) removed successfully!` });
 			},
-				error =>
-				{
-					this._msgService.clear();
-					this._msgService.add({ severity: 'error', summary: 'Attribute Groups', detail: `An error has occured!` });
-				});
+			error =>
+			{
+				this._msgService.clear();
+				this._msgService.add({ severity: 'error', summary: 'Attribute Groups', detail: `An error has occured!` });
+			});
 	}
 
 	isGroupSelected(group: AttributeGroupMarket): boolean

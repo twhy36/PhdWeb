@@ -216,7 +216,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 			if (this.form.controls['programName'].value !== null && this.form.controls['discountAmount'].value !== null)
 			{
 				let changeOrderProgramId = this.changeOrderPrograms.find(cop => cop.salesProgramId === this.selectedSalesProgram.id)?.id;
-				salesChangeOrderSalesPrograms.push({ id: changeOrderProgramId ? changeOrderProgramId : 0, salesProgramId: this.selectedSalesProgram.id, salesProgramDescription: this.form.controls['description'].value, amount: this.form.controls['discountAmount'].value, action: 'Add', salesProgramType: this.selectedSalesProgram.salesProgramType.toString() });
+				salesChangeOrderSalesPrograms.push({id: changeOrderProgramId ? changeOrderProgramId : 0, salesProgramId: this.selectedSalesProgram.id, salesProgramDescription: this.form.controls['description'].value, amount: this.form.controls['discountAmount'].value, action: 'Add', salesProgramType: this.selectedSalesProgram.salesProgramType.toString() });
 			}
 
 			let originalProgramId = this.default.salesProgramId !== salesChangeOrderSalesPrograms[0].salesProgramId ? this.default.salesProgramId : null;
@@ -335,8 +335,8 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	//async deleteProgram() {
 	//	console.log( 'deleteProgram()' );
 	//	const confirmMessage = `Are you sure you want to delete this Program?`;
-	//	const confirmTitle = Constants.WARNING;
-	//	const confirmDefaultOption = Constants.CANCEL;
+	//	const confirmTitle = `Warning!`;
+	//	const confirmDefaultOption = `Cancel`;
 
 	//	if ( await this.showConfirmModal( confirmMessage, confirmTitle, confirmDefaultOption ) ) {
 	//		this.delete();
@@ -346,8 +346,8 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	//async cancelProgram() {
 	//	console.log( 'cancelProgram()' );
 	//	const confirmMessage = `If you continue you will lose your changes.<br><br>Do you wish to continue?`;
-	//	const confirmTitle = Constants.WARNING;
-	//	const confirmDefaultOption = Constants.CANCEL;
+	//	const confirmTitle = `Warning!`;
+	//	const confirmDefaultOption = `Cancel`;
 
 	//	if ( await this.showConfirmModal( confirmMessage, confirmTitle, confirmDefaultOption ) ) {
 	//		this.cancel();
@@ -362,7 +362,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 	//	confirm.componentInstance.defaultOption = defaultButton;
 
 	//	return confirm.result.then( ( result ) => {
-	//		return result === Constants.CONTINUE;
+	//		return result === 'Continue';
 	//	} );
 	//}
 

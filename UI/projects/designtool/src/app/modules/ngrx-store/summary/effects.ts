@@ -13,30 +13,23 @@ import { SetChangeOrderHanding, SavePendingJio } from '../change-order/actions';
 import { SelectHanding } from '../lot/actions';
 import { SetScenarioLotHanding } from '../scenario/actions';
 
-import { Constants, SalesAgreementStatuses } from 'phd-common';
-
 @Injectable()
 export class SummaryEffects
 {
-	setHanding$: Observable<Action> = createEffect(() =>
-	{
+	setHanding$: Observable<Action> = createEffect(() => {
 		return this.actions$.pipe(
 			ofType<SetHanding>(SummaryActionTypes.SetHanding),
 			withLatestFrom(this.store),
-			switchMap(([action, store]) =>
-			{
+			switchMap(([action, store]) => {
 				const actions = [];
 
-				if (store.changeOrder.isChangingOrder)
-				{
+				if (store.changeOrder.isChangingOrder) {
 					actions.push(new SetChangeOrderHanding(action.handing));
 				}
-				else if (!!store.salesAgreement.id && store.salesAgreement.status === SalesAgreementStatuses.Pending)
-				{
+				else if (!!store.salesAgreement.id && store.salesAgreement.status === 'Pending') {
 					actions.push(new SavePendingJio(action.handing));
 				}
-				else if (store.scenario.scenario)
-				{
+				else if (store.scenario.scenario) {
 					actions.push(new SelectHanding(action.lotId, action.handing.handing));
 					actions.push(new SetScenarioLotHanding(action.handing));
 				}

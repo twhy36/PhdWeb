@@ -8,7 +8,7 @@ import { cloneDeep, trim } from 'lodash'
 import
 {
 	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact,
-	MatchingContact, Realtor, ModalService, Constants, SalesAgreementStatuses
+	MatchingContact, Realtor, ModalService
 } from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
@@ -148,7 +148,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 				}
 			});
 		}
-
+		
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder)
@@ -199,7 +199,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 		return confirm.result.then((result) =>
 		{
-			return result === Constants.CONTINUE;
+			return result === 'Continue';
 		});
 	}
 
@@ -254,9 +254,9 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 	async cancel()
 	{
 
-		const confirmMessage = Constants.LOSE_CHANGES;
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you wish to continue?`;
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
 
 		if (!this.hasChanges || await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -537,7 +537,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private disableBuyerNameInput()
 	{
-		return this.isChangingOrder || this.isRealtor() ? false : this.salesAgreementStatus !== SalesAgreementStatuses.Pending;
+		return this.isChangingOrder || this.isRealtor() ? false : this.salesAgreementStatus !== 'Pending';
 	}
 
 	private createTrustForm(trust: string)

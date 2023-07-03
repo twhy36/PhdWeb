@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import { UnsubscribeOnDestroy, convertDateToUtcString, Constants, SalesAgreementStatuses } from 'phd-common';
+import { UnsubscribeOnDestroy, convertDateToUtcString } from 'phd-common';
 
 @Component({
 	selector: 'change-order-table',
@@ -62,7 +62,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 			return this.canApproveChangeOrder;
 		}
 
-		return (changeOrder.salesStatus !== SalesAgreementStatuses.Approved || changeOrder.constructionStatusDescription === 'Rejected')
+		return (changeOrder.salesStatus !== 'Approved' || changeOrder.constructionStatusDescription === 'Rejected')
 			&& canEditRejectedChangeOrder
 			&& changeOrder.isActiveChangeOrder
 			&& (this.canSell || this.canEdit || (this.canDesign && this.contactId === changeOrder.createdByContactId));
@@ -82,7 +82,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 						return 'Spec Customer';
 					}
 					else if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
-						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0
+						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0 
 						|| changeOrder.salesNotesChangeOrders.length > 0)
 					{
 						let changeOrderDescription = 'Construction'
@@ -130,7 +130,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 					}
 				case 'HomesiteTransfer':
 					if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
-						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0
+						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0 
 						|| changeOrder.salesNotesChangeOrders.length > 0)
 					{
 						let changeOrderDescription = 'Lot Transfer Change'
@@ -156,10 +156,10 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 					return changeOrder.changeOrderTypeDescription;
 				default:
 					if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderPriceAdjustments.length > 0
-						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0
+						|| changeOrder.salesChangeOrderSalesPrograms.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0 
 						|| changeOrder.salesNotesChangeOrders.length > 0)
 					{
-
+						
 						let changeOrderDescription = changeOrder.changeOrderTypeDescription
 						if (changeOrder.salesChangeOrderBuyers.length > 0 || changeOrder.salesChangeOrderTrusts.length > 0)
 						{
@@ -189,8 +189,8 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 	{
 		return (changeOrder.eSignStatus === 'completed' && changeOrder.salesStatus !== 'Withdrawn')
 			|| (changeOrder.eSignStatus === 'sent' && changeOrder.salesStatus !== 'Withdrawn')
-			|| (changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus !== 'Signed'
-				&& changeOrder.salesStatus !== 'Withdrawn' && changeOrder.salesStatus !== SalesAgreementStatuses.Approved);
+			|| (changeOrder.eSignStatus === 'draft'	&& changeOrder.salesStatus !== 'Signed' 
+				&& changeOrder.salesStatus !== 'Withdrawn' && changeOrder.salesStatus !== 'Approved');
 	}
 
 	convertDate(date: Date)

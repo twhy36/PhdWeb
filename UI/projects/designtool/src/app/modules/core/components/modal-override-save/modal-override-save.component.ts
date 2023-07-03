@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { ModalContent, Constants } from 'phd-common';
+import { ModalContent } from 'phd-common';
 
 @Component({
 	selector: 'override-save-component',
@@ -10,8 +10,8 @@ import { ModalContent, Constants } from 'phd-common';
 export class ModalOverrideSaveComponent extends ModalContent
 {
 	@Input() title: string = '';
-	@Input() body: string = '';
-	@Input() defaultOption: string = Constants.CONTINUE;
+	@Input() body: string =  '';
+	@Input() defaultOption: string = 'Continue';
 
 	override = '';
 

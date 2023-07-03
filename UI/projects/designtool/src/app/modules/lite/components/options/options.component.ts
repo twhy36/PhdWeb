@@ -4,7 +4,7 @@ import { combineLatest } from 'rxjs';
 import { delay, take } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent, CutOffOverride } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
@@ -227,12 +227,12 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.confirmOptionRelations(OptionRelationEnum.CantHave, cantHaveOptions.map(o => o.edhPlanOptionId))
 				.then((result) =>
 				{
-					if (result === Constants.CONTINUE)
+					if (result === 'Continue')
 					{
 						// Select the option while deselecting the cant have options
 						this.selectOption(option);
 
-						// If Constants.CONTINUE is selected from the first cant-have dialog,
+						// If 'Continue' is selected from the first cant-have dialog,
 						// then display the must-have dialog if it selects the checkbox
 						if (option.mustHavePlanOptionIds?.length && !option.isSelected)
 						{
@@ -309,7 +309,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		this.confirmOptionRelations(OptionRelationEnum.MustHave, allMustHaveOptionIds)
 			.then((result) =>
 			{
-				if (result === Constants.CONTINUE)
+				if (result === 'Continue')
 				{
 					const mustHaveOptionIds = allMustHaveOptionIds.filter(id => !this.scenarioOptions.find(o => o.edhPlanOptionId === id));
 
@@ -332,7 +332,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 					this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
 				}
-				else if (result === Constants.CANCEL)
+				else if (result === 'Cancel')
 				{
 					this.deselectOption(option);
 				}
@@ -453,13 +453,13 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	async onOverride(option: LitePlanOptionUI): Promise<boolean>
 	{
 		const confirm = this.modalService.open(ModalOverrideSaveComponent);
-		confirm.componentInstance.title = Constants.WARNING;
-		confirm.componentInstance.body = Constants.OVERRIDE_CUT_OFF;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.title = 'Warning';
+		confirm.componentInstance.body = CutOffOverride.Message;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		return confirm.result.then((result) =>
 		{
-			const overrideReasonWasProvided = result !== Constants.CLOSE;
+			const overrideReasonWasProvided = result !== 'Close';
 
 			if (overrideReasonWasProvided)
 			{
@@ -474,7 +474,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const confirmTitle = 'This option is no longer active';
 		const confirmMessage = 'If unselected, you will not be able to select it again. Are you sure you want to deselect it?';
-		const confirmDefaultOption = Constants.CONTINUE;
+		const confirmDefaultOption = 'Continue';
 
 		return await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -489,7 +489,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === Constants.CONTINUE;
+			return result === 'Continue';
 		});
 	}
 

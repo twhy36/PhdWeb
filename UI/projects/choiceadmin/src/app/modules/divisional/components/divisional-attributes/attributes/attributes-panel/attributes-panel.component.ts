@@ -17,7 +17,7 @@ import { SearchBarComponent } from '../../../../../shared/components/search-bar/
 import { SettingsService } from '../../../../../core/services/settings.service';
 import { Settings } from '../../../../../shared/models/settings.model';
 import { StorageService } from '../../../../../core/services/storage.service';
-import { Constants, PhdTableComponent } from 'phd-common';
+import { PhdTableComponent } from 'phd-common';
 import { TableLazyLoadEvent, TableSort } from '../../../../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
 
@@ -260,11 +260,11 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 			{
 				this.filteredAttributeList = data;
 			},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Attribute', detail: `An error has occured!` });
-				}
-			);
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Attribute', detail: `An error has occured!` });
+			}
+		);
 	}
 
 	onPanelScroll()
@@ -338,17 +338,18 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 		if (attribute.active)
 		{
 			let msgBody = `You are about to <span class="font-weight-bold text-danger">inactivate</span> the attribute<br><br> `;
-			msgBody += `<span class="font-weight-bold">${attribute.name}</span><br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+			msgBody += `<span class="font-weight-bold">${attribute.name}</span><br><br>`;
+			msgBody += `Do you wish to continue?`;
 
 			let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-			confirm.componentInstance.title = Constants.WARNING;
+			confirm.componentInstance.title = 'Warning!';
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = Constants.CONTINUE;
+			confirm.componentInstance.defaultOption = 'Continue';
 
 			confirm.result.then((result) =>
 			{
-				if (result == Constants.CONTINUE)
+				if (result == 'Continue')
 				{
 					this.toggleAttribute(attribute);
 				}
@@ -389,12 +390,12 @@ export class AttributesPanelComponent extends UnsubscribeOnDestroy implements On
 
 				this._msgService.add({ severity: 'success', summary: 'Attribute', detail: `Updated successfully!` });
 			},
-				error =>
-				{
-					attribute.active = !attribute.active;
+			error =>
+			{
+				attribute.active = !attribute.active;
 
-					this._msgService.add({ severity: 'error', summary: 'Attribute', detail: `An error has occured!` });
-				});
+				this._msgService.add({ severity: 'error', summary: 'Attribute', detail: `An error has occured!` });
+			});
 	}
 
 	onStatusChanged(event: any)

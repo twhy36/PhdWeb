@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject, combineLatest } from 'rxjs';
 import { map, filter, take } from 'rxjs/operators';
 
-import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity, ModalService, LotChoiceRules, ChoiceRules, PointRules, Choice, ConfirmModalComponent, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity, ModalService, LotChoiceRules, ChoiceRules, PointRules, Choice, ConfirmModalComponent } from 'phd-common';
 
 import { PlanService } from '../../../core/services/plan.service';
 
@@ -65,7 +65,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedPlanPrice$: Observable<number>;
 	job: Job;
 	isPhdLite: boolean = false;
-	salesCommunity: SalesCommunity;
+    salesCommunity: SalesCommunity;
 	totalPrice: number;
 
 	lotChoiceRules: LotChoiceRules[] = null;
@@ -129,31 +129,30 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		this.selectedPlan$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state =>
-			{
-				this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
-
-				if (!this.selectedPlan && state.plan.selectedPlan)
 				{
-					this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
-				}
+					this.selectedPlan = state.plan.selectedTree && state.plan.plans ? state.plan.plans.find(p => p.treeVersionId === state.plan.selectedTree) : null;
 
-				return this.selectedPlan;
-			})
+					if (!this.selectedPlan && state.plan.selectedPlan)
+					{
+						this.selectedPlan = state.plan.plans.find(p => p.id === state.plan.selectedPlan);
+					}
+
+					return this.selectedPlan;
+				})
 		);
 
 		this.plans$ = combineLatest([
 			this.store.pipe(select(state => state.plan.plans), filter(plans => !!plans)),
 			this.store.pipe(select(state => state.lot.selectedLot ? state.lot.selectedLot.id : null)),
-			this.selectedFilterBy$,
+			this.selectedFilterBy$, 
 			this.selectedSortBy$
 		]).pipe(
 			this.takeUntilDestroyed(),
 			map(([plans, selectedLot, financialCommunity, sortBy]) =>
 			{
 				return plans
-					.filter(p =>
-					{
-						return (financialCommunity === 0 || p.communityId === financialCommunity)
+					.filter(p => {
+						return (financialCommunity === 0 || p.communityId === financialCommunity) 
 							&& p.lotAssociations.length > 0
 							&& p.isActive;
 					})
@@ -229,20 +228,20 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.isChangingOrder$,
 			this.selectedPlan$
 		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([sag, pb, job, inChangeOrder, selectedPlan]) =>
-			{
-				this.job = job;
-				this.jobPlanId = job.planId;
-				this.salesPrice = !!sag ? sag.salePrice : 0;
-				this.selectionPrice = !!sag && !!pb ? pb.nonStandardSelections + pb.priceAdjustments - pb.salesProgram : 0;
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([sag, pb, job, inChangeOrder, selectedPlan]) =>
+		{
+			this.job = job;
+			this.jobPlanId = job.planId;
+			this.salesPrice = !!sag ? sag.salePrice : 0;
+			this.selectionPrice = !!sag && !!pb ? pb.nonStandardSelections + pb.priceAdjustments - pb.salesProgram : 0;
 
-				// In plan change order, include the selection price if the current selected plan is the same as the job plan
-				if (inChangeOrder && selectedPlan?.id === this.jobPlanId && pb)
-				{
-					this.selectionPrice += pb.selections;
-				}
-			});
+			// In plan change order, include the selection price if the current selected plan is the same as the job plan
+			if (inChangeOrder && selectedPlan?.id === this.jobPlanId && pb)
+			{
+				this.selectionPrice += pb.selections;
+			}
+		});
 
 		this.selectedPlanPrice$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -270,22 +269,22 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 				map(tree =>
 				{
 					return _.flatMap(tree?.treeVersion?.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-				})
+				})			
 			),
 			this.selectedLot$
 		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([choices, lot]) =>
-			{
-				this.currentChoices = choices;
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([choices, lot]) =>
+		{
+			this.currentChoices = choices;
 
-				// only try to run the check when the user makes a new selection
-				if (this.chooseClicked)
-				{
-					// need to let the plan and tree load first before checking for changes
-					this.checkLotChoiceRuleChanges(this.selectedPlan, lot);
-				}
-			});
+			// only try to run the check when the user makes a new selection
+			if (this.chooseClicked)
+			{
+				// need to let the plan and tree load first before checking for changes
+				this.checkLotChoiceRuleChanges(this.selectedPlan, lot);
+			}
+		});
 	}
 
 	sortPlans(sortBy: planSortByType)
@@ -316,11 +315,11 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 					confirm.componentInstance.title = 'Attention!';
 					confirm.componentInstance.body = body;
-					confirm.componentInstance.defaultOption = Constants.CONTINUE;
+					confirm.componentInstance.defaultOption = 'Continue';
 
 					return confirm.result.then((result) =>
 					{
-						if (result !== Constants.CLOSE)
+						if (result !== 'Close')
 						{
 							// 376203: if we have choices that are no longer required then we need to remove them.
 							this.newHomeService.unselectNoLongerRequiredChoices(noLongerRequiredSelections, this.currentChoices);
@@ -328,7 +327,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 						else
 						{
 							// Didn't want to change so lets revert back to the previous selection
-							this.toggleSelectedPlan(this.prevSelectedPlan, lot, this.prevSelectedPlan === null);
+							this.toggleSelectedPlan(this.prevSelectedPlan, lot, this.prevSelectedPlan === null);							
 						}
 					});
 				}
@@ -371,7 +370,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
 				}
 
-				if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
+				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
 					if (this.isPhdLite)
 					{
@@ -390,7 +389,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.dispatch(new ScenarioActions.SetScenarioPlan(null, null));
 
 			// Clear tree when a spec is deselected
-			if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
+			if (this.buildMode === 'spec' || this.buildMode === 'model')
 			{
 				this.store.dispatch(new ScenarioActions.TreeLoaded(null, null, null, null, null, this.salesCommunity));
 			}
@@ -448,7 +447,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	isLitePlanDisabled(plan: Plan): boolean
+	isLitePlanDisabled(plan: Plan) : boolean
 	{
 		return this.inChangeOrder
 			? this.isPhdLite && !!plan.treeVersionId || !this.isPhdLite && !plan.treeVersionId

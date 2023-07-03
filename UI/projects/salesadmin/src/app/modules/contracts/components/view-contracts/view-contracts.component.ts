@@ -15,7 +15,7 @@ import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
-import { ConfirmModalComponent, PhdTableComponent, Constants } from 'phd-common';
+import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 
 @Component({
 	selector: 'view-contracts',
@@ -186,13 +186,13 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this._contractService.deleteTemplate(dto)
 					.subscribe(data =>

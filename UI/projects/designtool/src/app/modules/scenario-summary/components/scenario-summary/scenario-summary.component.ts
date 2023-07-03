@@ -14,7 +14,7 @@ import
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType, ConfirmModalComponent, ModalRef, Constants
+	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType, ConfirmModalComponent, ModalRef, CutOffOverride
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -246,7 +246,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			this.takeUntilDestroyed()
 		).subscribe(([changeOrder, scenario, job, sag]) =>
 		{
-			if (scenario.buildMode === Constants.BUILD_MODE_MODEL && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
+			if (scenario.buildMode === 'model' && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
 				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
 					.subscribe(isPhdLiteEnabled =>
@@ -300,12 +300,12 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 					? changeOrder.changeInput && (changeOrder.changeInput.type === ChangeTypeEnum.CONSTRUCTION || changeOrder.changeInput.type === ChangeTypeEnum.PLAN)
 					: true;
 
-				if (buildMode === Constants.BUILD_MODE_PREVIEW)
+				if (buildMode === 'preview')
 				{
 					return false;
 				}
 
-				if (lot && lot.lotBuildTypeDesc !== 'Dirt' && buildMode === Constants.BUILD_MODE_BUYER && salesAgreement.id === 0)
+				if (lot && lot.lotBuildTypeDesc !== 'Dirt' && buildMode === 'buyer' && salesAgreement.id === 0)
 				{
 					return false;
 				}
@@ -354,7 +354,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			withLatestFrom(this.store.select(state => state.job), this.store.select(state => state.changeOrder)),
 			switchMap(([scenario, job, changeOrder]) =>
 			{
-				if (job.id === 0 && !!scenario?.scenario?.scenarioId)
+				if (job.id === 0 && !!scenario?.scenario?.scenarioId )
 				{
 					return this.scenarioService.getFloorPlanImages(scenario.scenario.scenarioId);
 				}
@@ -431,7 +431,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				if (params && params.jobId && job.id !== params.jobId && !job.jobLoading)
 				{
 					this.store.dispatch(new JobActions.LoadJobForJob(params.jobId));
-					this.store.dispatch(new ScenarioActions.SetBuildMode(Constants.BUILD_MODE_MODEL));
+					this.store.dispatch(new ScenarioActions.SetBuildMode('model'));
 				}
 			}
 			else
@@ -796,16 +796,16 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 			if (this.disableHanding)
 			{
-				const body = Constants.OVERRIDE_CUT_OFF;
+				const body = CutOffOverride.Message;
 				const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });
 
-				confirm.componentInstance.title = Constants.WARNING;
+				confirm.componentInstance.title = 'Warning';
 				confirm.componentInstance.body = body;
-				confirm.componentInstance.defaultOption = Constants.CANCEL;
+				confirm.componentInstance.defaultOption = 'Cancel';
 
 				return confirm.result.then((result) =>
 				{
-					if (result !== Constants.CLOSE)
+					if (result !== 'Close')
 					{
 						newHanding.overrideNote = result;
 
@@ -861,11 +861,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	{
 		let deselect = false;
 		const body = `Some of your change order choices are Past Cutoff date/stage and will need to have an Cutoff Override.`;
-		const title = Constants.WARNING;
+		const title = 'Warning';
 
 		if (canOverride)
 		{
-			const defaultOption = Constants.CANCEL;
+			const defaultOption = 'Cancel';
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
 			confirm.componentInstance.title = title;
@@ -874,7 +874,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 			confirm.result.then((result) =>
 			{
-				if (result === Constants.CLOSE)
+				if (result === 'Close')
 				{
 					deselect = true;
 				}
@@ -947,13 +947,13 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	{
 		let confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
-		confirm.componentInstance.body = `This will remove all Design Selections. Once removed, you must make the Design Selections again if you want to add it to the configuration.<br /><br />${Constants.DO_YOU_WISH_TO_CONTINUE}`;
-		confirm.componentInstance.defaultOption = Constants.CONTINUE;
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = `This will remove all Design Selections. Once removed, you must make the Design Selections again if you want to add it to the configuration.<br /><br />Do you wish to continue?`;
+		confirm.componentInstance.defaultOption = 'Continue';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
 				let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));

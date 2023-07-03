@@ -13,7 +13,7 @@ import
 
 import { Store, select } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, FinancialCommunity, ChangeTypeEnum, Job, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, FinancialCommunity, ChangeTypeEnum, Job } from 'phd-common';
 
 import { LoadSpecs } from '../../../ngrx-store/job/actions';
 import * as LotActions from '../../../ngrx-store/lot/actions';
@@ -151,7 +151,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.buildMode = buildMode;
 
-				if (buildMode === Constants.BUILD_MODE_BUYER && lotsLoaded && specJobs == null)
+				if (buildMode === 'buyer' && lotsLoaded && specJobs == null)
 				{
 					this.store.dispatch(new LoadSpecs());
 				}
@@ -235,7 +235,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			)
 			.subscribe(([params, scenario]) =>
 			{
-				if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
+				if (this.buildMode === 'spec' || this.buildMode === 'model')
 				{
 					this.store.dispatch(new NavActions.SetSubNavItems(SpecSubNavItems));
 
@@ -244,7 +244,7 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 						this.marketId = +params.marketid;
 						this.communityId = +params.communityid;
 
-						this.store.dispatch(new LotActions.LoadLots(this.communityId, (this.buildMode === Constants.BUILD_MODE_MODEL)));
+						this.store.dispatch(new LotActions.LoadLots(this.communityId, (this.buildMode === 'model')));
 						this.store.dispatch(new OrgActions.LoadSalesCommunity(this.communityId));
 						this.store.dispatch(new PlanActions.LoadPlans(this.communityId));
 
@@ -276,10 +276,10 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario)
-		).subscribe(scenario => 
-		{
-			this.disableButtons$.next(!scenario.scenario)
-		});
+			).subscribe(scenario => 
+			{
+				this.disableButtons$.next(!scenario.scenario)
+			});
 	}
 
 	onSubNavItemSelected(id: number)
@@ -323,5 +323,5 @@ export class NewHomeComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new ScenarioActions.SetFinancialCommunityFilter(filterBy ? filterBy.id : 0));
 	}
 
-
+	
 }

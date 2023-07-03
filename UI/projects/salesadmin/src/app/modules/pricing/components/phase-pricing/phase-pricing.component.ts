@@ -12,7 +12,7 @@ import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignm
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { ISalesPhase } from '../../../shared/models/pricing.model';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmModalComponent, Constants, PhdTableComponent } from 'phd-common';
+import { ConfirmModalComponent, PhdTableComponent } from 'phd-common';
 import { PhasePricingSidePanelComponent } from '../phase-pricing-side-panel/phase-pricing-side-panel.component';
 
 @Component({
@@ -123,13 +123,13 @@ export class PhasePricingComponent extends UnsubscribeOnDestroy implements OnIni
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 
 				this.enablePhasePricing(newValue);

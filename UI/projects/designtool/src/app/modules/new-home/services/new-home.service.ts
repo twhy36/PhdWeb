@@ -6,7 +6,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as NavActions from '../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../ngrx-store/scenario/actions';
 
-import { Choice, ChoiceRules, Job, LotChoiceRuleAssoc, LotChoiceRules, PointRules, PointStatus, Scenario, updateLotChoiceRules, Constants } from 'phd-common';
+import { Choice, ChoiceRules, Job, LotChoiceRuleAssoc, LotChoiceRules, PointRules, PointStatus, Scenario, updateLotChoiceRules } from 'phd-common';
 import { PhdSubMenu } from '../../new-home/subNavItems';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class NewHomeService
 	{
 		// 1: Name, 2: Plan, 3: Lot, 4: QMI
 
-		let isScenarioNamed = buildMode === Constants.BUILD_MODE_BUYER ? scenario.scenarioName.length > 0 : true;
+		let isScenarioNamed = buildMode === 'buyer' ? scenario.scenarioName.length > 0 : true;
 		let isJob = job && job.id !== 0;
 		let selectedPlanId = scenario.planId;
 		let selectedLotId = scenario.lotId;
@@ -117,7 +117,7 @@ export class NewHomeService
 					&& rule.mustHave)
 			};
 		}).filter(r => r.rules.length);
-
+		
 		// All must not have lot choice rules on the current lot
 		const mustNotHaveSelections = lotChoiceRules?.map((lcr) =>
 		{
@@ -131,7 +131,7 @@ export class NewHomeService
 		// Fetch user selected choices disabled by rules, due to a choice bing disabled by lot choice rules
 		var disabledByRules = new Array<Choice>();
 
-		if (buildMode === Constants.BUILD_MODE_SPEC || buildMode === Constants.BUILD_MODE_MODEL)
+		if (buildMode === 'spec' || buildMode === 'model')
 		{
 			// User selected lot choices that weren't required/disabled due to lot choice rules
 			let prevUserSelectedChoices = currentChoices.filter(cc => !prevLotChoiceRules?.find(plc => plc.divChoiceCatalogId === cc.divChoiceCatalogId) && cc.quantity > 0);
@@ -238,13 +238,13 @@ export class NewHomeService
 		let mustNotHaveSection = buildSection(mustNotHaveSelections);
 		let disabledByRulesSection = buildSection(disabledByRules, false);
 		let noLongerRequiredSelectionsSection = buildSection(noLongerRequiredSelections);
-
+				
 		if (mustHaveSection.length)
 		{
 			body += `<b>Lot ${lotBlock} has the following requirement(s) which will be systematially selected if you continue: </b><br />`;
 			body += mustHaveSection;
 		}
-
+		
 		if (mustNotHaveSection.length)
 		{
 			body += body.length ? '<br />' : '';

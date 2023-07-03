@@ -5,7 +5,7 @@ import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
-import { UnsubscribeOnDestroy, ConfirmModalComponent, MyFavorite, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, ConfirmModalComponent, MyFavorite } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
@@ -21,7 +21,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	selector: 'manage-favorites',
 	templateUrl: 'manage-favorites.component.html',
 	styleUrls: ['manage-favorites.component.scss']
-})
+	})
 export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	brandTheme: string;
@@ -96,12 +96,12 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 							this.router.navigateByUrl(`/favorites/my-favorites/${favorite.id}`);
 						}
 					},
-						error => 
-						{
-							const msg = 'Failed to create favorites list!';
-							this.toastr.error(msg, 'Error');
-							this.adobeService.setErrorEvent(msg);
-						});
+					error => 
+					{
+						const msg = 'Failed to create favorites list!';
+						this.toastr.error(msg, 'Error');
+						this.adobeService.setErrorEvent(msg);
+					});
 			}
 		}
 	}
@@ -136,15 +136,15 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 
 		const confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'WARNING';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CONTINUE;
+		confirm.componentInstance.defaultOption = 'Continue';
 
 		this.adobeService.setAlertEvent(confirm.componentInstance.title + ' ' + confirm.componentInstance.body, 'Delete Favorite List Alert');
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.store.dispatch(new FavoriteActions.DeleteMyFavorite(fav));
 			}

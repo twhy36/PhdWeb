@@ -5,7 +5,7 @@ import { ReplaySubject } from 'rxjs';
 import 
 {
 	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc,
-	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, Constants
+	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, CutOffOverride
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -537,30 +537,30 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (!this.overrideReason)
 		{
-			let body = '';
+			let body = 'This will override the ';
 
 			if (this.hasMonotonyConflict && this.isPastCutOff)
 			{
-				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
+				body += `Monotony Conflict and the Cut-off`;
 			}
 			else if (this.hasMonotonyConflict)
 			{
-				body = Constants.OVERRIDE_MONOTONY;
+				body += `Monotony Conflict`;
 			}
 			else
 			{
-				body = Constants.OVERRIDE_CUT_OFF;
+				body = CutOffOverride.Message;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });
 
-			confirm.componentInstance.title = Constants.WARNING;
+			confirm.componentInstance.title = 'Warning';
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = Constants.CANCEL;
+			confirm.componentInstance.defaultOption = 'Cancel';
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== Constants.CLOSE)
+				if (result !== 'Close')
 				{
 					this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
 

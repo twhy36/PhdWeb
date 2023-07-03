@@ -11,10 +11,10 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 import
-{
-	UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum,
-	ScenarioOptionColor, Constants
-} from 'phd-common';
+	{
+		UnsubscribeOnDestroy, PriceBreakdown, PointStatus, LotExt, ModalRef, ModalService, ChangeTypeEnum,
+		ScenarioOptionColor
+	} from 'phd-common';
 
 import { ActionBarCallType } from '../../../shared/classes/constants.class';
 import { ExteriorSubNavItems, LiteSubMenu, LitePlanOption, LegacyColorScheme } from '../../../shared/models/lite.model';
@@ -112,11 +112,11 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 			this.store.pipe(select(fromLite.selectedColorScheme)),
 			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
-			{
-				this.setExteriorItemsStatus(elevation, colorScheme, legacyColorScheme);
-			});
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
+		{
+			this.setExteriorItemsStatus(elevation, colorScheme, legacyColorScheme);
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -129,11 +129,11 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 				this.salesAgreementId = salesAgreement.id;
 				this.primaryAction = 'Agreement Info';
 			}
-			else if (build === Constants.BUILD_MODE_SPEC)
+			else if (build === 'spec')
 			{
 				this.primaryAction = 'Create Spec';
 			}
-			else if (build === Constants.BUILD_MODE_MODEL)
+			else if (build === 'model')
 			{
 				this.primaryAction = 'Create Model';
 			}
@@ -248,7 +248,7 @@ export class LiteExperienceComponent extends UnsubscribeOnDestroy implements OnI
 			this.store.pipe(select(fromLite.areColorSelectionsValid), take(1))
 		]).subscribe(([mc, areColorsValid]) =>
 		{
-			const specOrModel = this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL;
+			const specOrModel = this.buildMode === 'spec' || this.buildMode === 'model';
 
 			if (mc.monotonyConflict)
 			{
