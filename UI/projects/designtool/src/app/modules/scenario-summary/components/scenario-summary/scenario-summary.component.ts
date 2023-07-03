@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChildren, QueryList, AfterViewInit, ChangeDetect
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Store, select } from '@ngrx/store';
-import { ReplaySubject, Observable, of, combineLatest } from 'rxjs';
-import { withLatestFrom, map, switchMap, take, distinctUntilChanged } from 'rxjs/operators';
+import { ReplaySubject, Observable, of } from 'rxjs';
+import { withLatestFrom, map, switchMap, combineLatest, take, distinctUntilChanged } from 'rxjs/operators';
 
 import { ToastrService } from 'ngx-toastr';
 
@@ -14,8 +14,7 @@ import
 	UnsubscribeOnDestroy, blink, ChangeOrderHanding, ChangeTypeEnum, ChangeOrderChoice, PlanOption,
 	PointStatus, SelectedChoice, PriceBreakdown, ScenarioStatusType, SummaryData, BuyerInfo, SummaryReportType,
 	SDGroup, SDSubGroup, SDPoint, SDChoice, SDImage, SDAttributeReassignment, Group, Choice, DecisionPoint,
-	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType,
-	ConfirmModalComponent, ModalRef, Tree, TreeVersionRules, Constants
+	PDFViewerComponent, ModalService, SubGroup, TreeFilter, FloorPlanImage, PointStatusFilter, DecisionPointFilterType, ConfirmModalComponent, ModalRef, Constants
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -43,13 +42,14 @@ import { SummaryHeader, SummaryHeaderComponent } from '../../../shared/component
 
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { PhdSubMenu } from '../../../new-home/subNavItems';
-import { checkElevationAndColorSelectionOptions } from '../../../shared/classes/tree.utils';
 
 @Component({
 	selector: 'app-scenario-summary',
 	templateUrl: './scenario-summary.component.html',
 	styleUrls: ['./scenario-summary.component.scss'],
-	animations: [blink]
+	animations: [
+		blink
+	]
 })
 export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
 {
@@ -112,8 +112,6 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	monotonyConflict: MonotonyConflict;
 	monotonyConflictModalRef: ModalRef;
 	opportunityId: string;
-	tree: Tree;
-	treeVersionRules: TreeVersionRules;
 
 	get showRemoveDesignSelectionsButton(): boolean
 	{
@@ -163,12 +161,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.scenario)
-		).subscribe(scenario =>
-		{
-			this.fullGroups = scenario.tree ? scenario.tree.treeVersion.groups : null;
-			this.tree = scenario.tree;
-			this.treeVersionRules = _.cloneDeep(scenario.rules);
-		});
+		).subscribe(scenario => this.fullGroups = scenario.tree ? scenario.tree.treeVersion.groups : null);
 
 		this.pointStatusFilter$ = this.store.pipe(
 			select(state => state.summary.pointStatusFilter)
@@ -216,18 +209,19 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(fromRoot.priceBreakdown)
 		).subscribe(pb => this.priceBreakdown = pb);
 
-		combineLatest([
-			this.store.pipe(select(state => state.salesAgreement)),
-			this.store.pipe(select(fromRoot.allowEstimates)),
-			this.store.pipe(select(fromRoot.isSpecOrModel))
-		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([sag, allowEstimates, isSpecOrModel]) =>
-			{
-				this.allowEstimates = allowEstimates;
-				this.isSpecOrModel = isSpecOrModel;
-				this.salesAgreementId = sag?.id ?? 0;
-			});
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement),
+			combineLatest(
+				this.store.pipe(select(fromRoot.allowEstimates)),
+				this.store.pipe(select(fromRoot.isSpecOrModel))
+			),
+		).subscribe(([sag, allowEstimates, isSpecOrModel]) =>
+		{
+			this.allowEstimates = allowEstimates;
+			this.isSpecOrModel = isSpecOrModel;
+			this.salesAgreementId = sag?.id ?? 0;
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -244,47 +238,44 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(state => state.scenario)
 		).subscribe(sc => this.summaryHeader.communitySalesName = sc.salesCommunity ? sc.salesCommunity.name : null);
 
-		combineLatest([
-			this.store.pipe(select(state => state.changeOrder)),
-			this.store.pipe(select(state => state.scenario)),
-			this.store.pipe(select(state => state.job)),
-			this.store.pipe(select(state => state.salesAgreement))
-		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([changeOrder, scenario, job, sag]) =>
+		this.store.pipe(
+			select(state => state.changeOrder),
+			combineLatest(this.store.pipe(select(state => state.scenario)),
+				this.store.pipe(select(state => state.job)),
+				this.store.pipe(select(state => state.salesAgreement))),
+			this.takeUntilDestroyed()
+		).subscribe(([changeOrder, scenario, job, sag]) =>
+		{
+			if (scenario.buildMode === Constants.BUILD_MODE_MODEL && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 			{
-				if (scenario.buildMode === Constants.BUILD_MODE_MODEL && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
-				{
-					this.liteService.isPhdLiteEnabled(job.financialCommunityId)
-						.subscribe(isPhdLiteEnabled =>
+				this.liteService.isPhdLiteEnabled(job.financialCommunityId)
+					.subscribe(isPhdLiteEnabled =>
+					{
+						this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
+						if (this.isPhdLite) 
 						{
-							this.isPhdLite = isPhdLiteEnabled && this.liteService.checkLiteAgreement(job, changeOrder.currentChangeOrder);
+							this._toastr.clear();
+							this.router.navigate(['lite-summary']);
+						}
+					});
+			}
 
-							if (this.isPhdLite) 
-							{
-								this._toastr.clear();
+			if (changeOrder.isChangingOrder)
+			{
+				this.summaryHeader.handing = changeOrder.changeInput && changeOrder.changeInput.handing ? changeOrder.changeInput.handing.handing : null;
+			}
+			else if (!!sag.id)
+			{
+				this.summaryHeader.handing = this.changeOrderService.getSelectedHanding(job).handing;
+			}
+			else if (scenario.scenario)
+			{
+				this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
+				this.opportunityId = scenario.scenario.opportunityId;
+			}
 
-								this.router.navigate(['lite-summary']);
-							}
-						});
-				}
-
-				if (changeOrder.isChangingOrder)
-				{
-					this.summaryHeader.handing = changeOrder.changeInput && changeOrder.changeInput.handing ? changeOrder.changeInput.handing.handing : null;
-				}
-				else if (!!sag.id)
-				{
-					this.summaryHeader.handing = this.changeOrderService.getSelectedHanding(job).handing;
-				}
-				else if (scenario.scenario)
-				{
-					this.summaryHeader.handing = scenario.scenario.handing && scenario.scenario.handing.handing ? scenario.scenario.handing.handing : job.handing;
-					this.opportunityId = scenario.scenario.opportunityId;
-				}
-
-				this.selectedHanding = this.summaryHeader.handing;
-			});
+			this.selectedHanding = this.summaryHeader.handing;
+		});
 
 		this.scenarioId$ = this.store.pipe(
 			select(state => state.scenario.scenario.scenarioId)
@@ -295,13 +286,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			select(fromScenario.isPreview)
 		).subscribe(isPreview => this.summaryHeader.isPreview = isPreview);
 
-		this.isChangingOrder$ = combineLatest([
-			this.store.pipe(select(state => state.changeOrder)),
-			this.store.pipe(select(fromLot.selectSelectedLot)),
-			this.store.pipe(select(fromScenario.buildMode)),
-			this.store.pipe(select(state => state.salesAgreement))
-		]).pipe(
-			this.takeUntilDestroyed(),
+		this.isChangingOrder$ = this.store.pipe(
+			select(state => state.changeOrder),
+			combineLatest(this.store.pipe(select(fromLot.selectSelectedLot)),
+				this.store.pipe(select(fromScenario.buildMode)),
+				this.store.pipe(select(state => state.salesAgreement))),
 			map(([changeOrder, lot, buildMode, salesAgreement]) =>
 			{
 				this.canEditHanding = changeOrder.isChangingOrder
@@ -420,38 +409,36 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			distinctUntilChanged()
 		).subscribe(params => this.params$.next(params));
 
-		combineLatest([
-			this.store.pipe(select(state => state.job)),
-			this.params$,
-			this.store.pipe(select(fromScenario.selectScenario))
-		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([job, params, scenario]) =>
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(state => state.job),
+			combineLatest(this.params$, this.store.pipe(select(fromScenario.selectScenario))),
+		).subscribe(([job, params, scenario]) =>
+		{
+			if (job && job.projectedDates && job.projectedDates.projectedStartDate)
 			{
-				if (job && job.projectedDates && job.projectedDates.projectedStartDate)
+				const constructionDate = new Date(job.projectedDates.projectedStartDate);
+
+				constructionDate.setDate(constructionDate.getDate() - 14);
+
+				const date = new Date();
+
+				this.disableHanding = constructionDate < date;
+			}
+
+			if (!scenario.tree)
+			{
+				if (params && params.jobId && job.id !== params.jobId && !job.jobLoading)
 				{
-					const constructionDate = new Date(job.projectedDates.projectedStartDate);
-
-					constructionDate.setDate(constructionDate.getDate() - 14);
-
-					const date = new Date();
-
-					this.disableHanding = constructionDate < date;
+					this.store.dispatch(new JobActions.LoadJobForJob(params.jobId));
+					this.store.dispatch(new ScenarioActions.SetBuildMode(Constants.BUILD_MODE_MODEL));
 				}
-
-				if (!scenario.tree)
-				{
-					if (params && params.jobId && job.id !== params.jobId && !job.jobLoading)
-					{
-						this.store.dispatch(new JobActions.LoadJobForJob(params.jobId));
-						this.store.dispatch(new ScenarioActions.SetBuildMode(Constants.BUILD_MODE_MODEL));
-					}
-				}
-				else
-				{
-					this.canDisplay = true;
-				}
-			});
+			}
+			else
+			{
+				this.canDisplay = true;
+			}
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -576,11 +563,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	async onBuildIt()
 	{
-		combineLatest([
-			this.lotService.hasMonotonyConflict(),
-			this.store.pipe(select(fromScenario.elevationDP), take(1)),
-			this.store.pipe(select(fromScenario.colorSchemeDP), take(1))
-		]).subscribe(([mc, elevationDP, colorSchemeDP]) =>
+		this.lotService.hasMonotonyConflict().subscribe(mc =>
 		{
 			if (mc.monotonyConflict)
 			{
@@ -590,26 +573,13 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			}
 			else
 			{
-				const elevationChoice = elevationDP?.choices.find(c => c.quantity > 0);
-				const colorSchemeChoice = colorSchemeDP?.choices.find(c => c.quantity > 0);
-
-				// check elevation and color scheme choices to make sure there is only one option assigned to each.
-				const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationChoice, colorSchemeChoice);
-
-				if (!!message)
-				{
-					this.modalService.showOkOnlyModal(message, '', true);
-				}
-				else
-				{
-					this.scenarioService.onGenerateSalesAgreement(
-						this.buildMode,
-						this.summaryHeader.lot.lotStatusDescription,
-						this.summaryHeader.lot.id,
-						this.salesAgreementId,
-						this.opportunityId
-					);
-				}
+				this.scenarioService.onGenerateSalesAgreement(
+					this.buildMode,
+					this.summaryHeader.lot.lotStatusDescription,
+					this.summaryHeader.lot.id,
+					this.salesAgreementId,
+					this.opportunityId
+				);
 			}
 		});
 	}
@@ -635,11 +605,13 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	navigateToColorScheme()
 	{
-		combineLatest([
-			this.store.pipe(select(fromScenario.elevationDP)),
-			this.store.pipe(select(store => store.scenario.scenario.scenarioId)),
-			this.store.pipe(select(fromScenario.colorSchemeDP))
-		]).subscribe(([elevationDP, scenario, colorSchemeDP]) =>
+		this.store.pipe(
+			select(fromScenario.elevationDP),
+			combineLatest(
+				this.store.pipe(select(store => store.scenario.scenario.scenarioId)),
+				this.store.pipe(select(fromScenario.colorSchemeDP))
+			)
+		).subscribe(([elevationDP, scenario, colorSchemeDP]) =>
 		{
 			if (colorSchemeDP)
 			{
@@ -679,16 +651,16 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			switchMap(summaryData => this._reportsService.getSelectionSummary(reportType, summaryData))
 		).subscribe(pdfData =>
 		{
-			const pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
+			let pdfViewer = this.modalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
 
 			pdfViewer.componentInstance.pdfModalTitle = `Configuration Preview - ${reportType}`;
 			pdfViewer.componentInstance.pdfData = pdfData;
 			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
-		error =>
-		{
-			this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-		});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	compileSummaryData(reportType: SummaryReportType): Observable<SummaryData>
@@ -710,10 +682,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			}),
 			map(choicePriceRanges =>
 			{
-				const summaryData = {} as SummaryData;
-				const buyerInfo = {} as BuyerInfo;
-				const summaryHeader = this.summaryHeaderComponent;
-				const priceBreakdown = summaryHeader.priceBreakdownComponent;
+				let summaryData = {} as SummaryData;
+				let buyerInfo = {} as BuyerInfo;
+				let summaryHeader = this.summaryHeaderComponent;
+				let priceBreakdown = summaryHeader.priceBreakdownComponent;
 
 				summaryData.title = this.title;
 				summaryData.images = this.summaryImages;
@@ -757,19 +729,19 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 				summaryData.groups = this.fullGroups.map(g =>
 				{
-					const group = new SDGroup(g);
+					let group = new SDGroup(g);
 
 					group.subGroups = g.subGroups.map(sg =>
 					{
-						const subGroup = new SDSubGroup(sg);
+						let subGroup = new SDSubGroup(sg);
 
 						subGroup.points = sg.points.filter(pointFilter).map(p =>
 						{
-							const point = new SDPoint(p);
+							let point = new SDPoint(p);
 
 							point.choices = p.choices.filter(choiceFilter).map(c =>
 							{
-								const choice = new SDChoice(c, choicePriceRanges.find(ch => ch.choiceId === c.id));
+								let choice = new SDChoice(c, choicePriceRanges.find(ch => ch.choiceId === c.id));
 
 								return choice;
 							});
@@ -783,22 +755,22 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 					return group;
 				}).filter(g => !!g.subGroups.length);
 
-				const subGroups = _.flatMap(summaryData.groups, g => g.subGroups);
-				const points = _.flatMap(subGroups, sg => sg.points);
-				const choices = _.flatMap(points, p => p.choices);
+				let subGroups = _.flatMap(summaryData.groups, g => g.subGroups);
+				let points = _.flatMap(subGroups, sg => sg.points);
+				let choices = _.flatMap(points, p => p.choices);
 
 				// filter down to just choices with reassignments
-				const choicesWithReassignments = choices.filter(c => c.selectedAttributes && c.selectedAttributes.length > 0 && c.selectedAttributes.some(sa => sa.attributeReassignmentFromChoiceId != null));
+				let choicesWithReassignments = choices.filter(c => c.selectedAttributes && c.selectedAttributes.length > 0 && c.selectedAttributes.some(sa => sa.attributeReassignmentFromChoiceId != null));
 
 				choicesWithReassignments.forEach(choice =>
 				{
 					// return only those selected attributes that are reassignments
-					const selectedAttributes = choice.selectedAttributes.filter(sa => sa.attributeReassignmentFromChoiceId != null);
+					let selectedAttributes = choice.selectedAttributes.filter(sa => sa.attributeReassignmentFromChoiceId != null);
 
 					selectedAttributes.forEach(sa =>
 					{
 						// find the parent the attribute originally came from
-						const parentChoice = choices.find(c => c.id === sa.attributeReassignmentFromChoiceId);
+						let parentChoice = choices.find(c => c.id === sa.attributeReassignmentFromChoiceId);
 
 						// Add where the reassignment landed
 						parentChoice.attributeReassignments.push({ id: choice.id, label: choice.label } as SDAttributeReassignment);
@@ -973,7 +945,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	onRemoveDesignSelections()
 	{
-		const confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
+		let confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
 		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = `This will remove all Design Selections. Once removed, you must make the Design Selections again if you want to add it to the configuration.<br /><br />${Constants.DO_YOU_WISH_TO_CONTINUE}`;
@@ -983,9 +955,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		{
 			if (result == Constants.CONTINUE)
 			{
-				const subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
-				const points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
-				const choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
+				let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
+				let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
+				let choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
 
 				if (choices.length > 0)
 				{
@@ -1002,9 +974,9 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 	getNonStructuralChoices(): Choice[]
 	{
-		const subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
-		const points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
-		const choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
+		let subGroups = _.flatMap(this.fullGroups, g => g.subGroups);
+		let points = _.flatMap(subGroups, sg => sg.points.filter(p => !p.isStructuralItem));
+		let choices = _.flatMap(points, p => p.choices.filter(c => c.quantity > 0));
 
 		return choices;
 	}
