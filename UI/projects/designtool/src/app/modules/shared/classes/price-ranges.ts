@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { cloneDeep, flatMap, flatten, uniq } from 'lodash';
 
-import { PlanOption, TreeVersionRules, PickType, Tree, OptionRule, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
+import { PlanOption, TreeVersionRules, PickType, Tree, getMaxSortOrderChoice, findChoice, findPoint, applyRules } from '../../../../../../phd-common/src/public-api';
 
 export function getChoicePriceRanges(state: { options: PlanOption[], rules: TreeVersionRules, tree: Tree; })
 {
@@ -291,124 +291,38 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 		}
 	}
 
-	function* getOptionRuleSelections(optionRules: OptionRule[], disabledRules: OptionRule[], selections: choiceSelection[] = []): IterableIterator<choiceSelection[]>
+	//make an iterable with each possible choice selection
+	function* choicePermutations(choices: number[], selections: { choiceId: number, selected: boolean; }[] = []): IterableIterator<{ choiceId: number, selected: boolean; }[]>
 	{
-		let rule = optionRules[0];
-
-		if (selections.some(s => rule.choices.some(c => c.id === s.choiceId && c.mustHave !== s.selected)))
+		if (choices.length === 0)
 		{
-			//no way this situation can work
-			return;
-		}
-
-		if (disabledRules.some(dr => dr.choices.every(c => selections.some(s => s.choiceId === c.id && s.selected === c.mustHave))))
-		{
-			//one of our disabled option rules is satisfied, so no go
-			return;
-		}
-
-		let newSelections = [...rule.choices.map(orc => ({ choiceId: orc.id, selected: orc.mustHave })), ...selections];
-
-		if (optionRules.length === 1)
-		{
-			for (let returnSelections of getSelections(newSelections))
+			//throw out combinations that violate pick types
+			if (points.some(p => (p.pointPickTypeId === PickType.Pick0or1 || p.pointPickTypeId === PickType.Pick1) && selections.filter(s => p.choices.some(c => c.id === s.choiceId && s.selected)).length > 1))
 			{
-				//if these selections don't enable any of our disabled option rules, go ahead and try it
-				if (!disabledRules.some(dr => dr.choices.every(c => returnSelections.some(s => s.choiceId === c.id && s.selected === c.mustHave))))
-				{
-					yield returnSelections;
-				}
+				return;
 			}
+
+			yield selections;
 		}
-		else 
+		else
 		{
-			yield* getOptionRuleSelections(optionRules.slice(1), disabledRules, newSelections);
-		}
-	}
-
-	function* combinations<T>(items: T[]): IterableIterator<T[]>
-	{
-		yield items;
-
-		if (items.length > 1)
-		{
-			for(let i = 0; i < items.length; i++)
-			{
-				yield *combinations(items.slice(i, i+1));
-			}
-		}
-	}
-
-	function* sortedOptionRuleCombinations(choiceId: number, direction: 'asc' | 'desc'): IterableIterator<{ optionRule: OptionRule, enabled: boolean }[]>
-	{
-		var choiceOptionRules = maxSortOrderChoices.filter(c => c.maxSortOrderChoice === choiceId);
-
-		if (choiceOptionRules.length === 0)
-		{
-			return;
-		}
-		else if (choiceOptionRules.length === 1)
-		{
-			//just one rule, so just one combination
-			yield [{ optionRule: choiceOptionRules[0].rule, enabled: true }];
-			return;
-		}
-		else 
-		{
-			//figure out what each option would add to the choice price
-			let getPrice: (rule: OptionRule) => number = (rule: OptionRule) => 
-			{
-				let opt = options.find(o => o.financialOptionIntegrationKey === rule.optionId);
-				return opt?.listPrice - _.sum(rule.replaceOptions.map(ro => {
-					let replaceRule = rules.optionRules.find(or => or.optionId === ro);
-					if (replaceRule)
-					{
-						return getPrice(replaceRule);
-					}
-					else 
-					{
-						return 0;
-					}
-				}));
-			};
-
-			//naively start at a high/low number and find the highest/lowest priced combination of option mappings
-			let prices = choiceOptionRules.map(r => ({ rule: r.rule, price: getPrice(r.rule) }));
-			let priceCombinations = [...combinations(prices)];
-			let ceiling = _.sum(prices.map(p => p.price));
-
-			for (let i = (direction === 'desc' ? ceiling : 0); direction === 'desc' ? i >= 0 : i <= ceiling; direction === 'desc' ? i-- : i++)
-			{
-				for (let combination of priceCombinations)
-				{
-					if (_.sum(combination.map(c => c.price)) === i)
-					{
-						yield choiceOptionRules.map(or => ({
-							optionRule: or.rule,
-							enabled: combination.some(c => c.rule.optionId === or.rule.optionId)
-						}));
-					}
-				}
-			}
+			yield* choicePermutations(choices.slice(1), [{ choiceId: choices[0], selected: false }, ...selections]);
+			yield* choicePermutations(choices.slice(1), [{ choiceId: choices[0], selected: true }, ...selections]);
 		}
 	}
 
 	return choices.map(choice =>
 	{
 		var previousChoices = getRelevantChoices(choice.id);
-		let result: { min: number, max: number } = { min: null, max: null };
+		let min: number = null, max: number = null;
 
-		let calculateMinMax = (field: 'min' | 'max') => 
+		if (previousChoices.length)
 		{
-			//go through each possible combination of option rules in order, and go until we find one that can be enabled (while all the others are disabled)
-			for (let combination of sortedOptionRuleCombinations(choice.id, field === 'max' ? 'desc' : 'asc'))
+			for (let perm of choicePermutations(previousChoices))
 			{
-				let found = false;
-
-				//try each way to satisfy option mappings and point/choice rules for the given option mappings
-				for (let selections of getOptionRuleSelections(
-					combination.filter(c => c.enabled).map(c => c.optionRule),
-					combination.filter(c => !c.enabled).map(c => c.optionRule)))
+				//try each way to satisfy point and choice rules for the given choices,
+				//and add in the choice we're currently pricing
+				for (let selections of getSelections([...perm.filter(p => p.selected), { choiceId: choice.id, selected: true }], perm.filter(p => !p.selected)))
 				{
 					// Remove duplicates from the list
 					selections = selections.filter((ch, idx, arr) =>
@@ -441,8 +355,7 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 					applyRules(staticTree, rules, options);
 
 					let clonedChoice = findChoice(staticTree, c => c.id === choice.id);
-
-					if (!clonedChoice.enabled || !findPoint(staticTree, p => p.id === choice.treePointId).enabled)
+					if (!clonedChoice.enabled)
 					{
 						//if the choice we're evaluating is not actually enabled, 
 						//try the next combination. theoretically shouldn't get here,
@@ -450,27 +363,25 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 						continue;
 					}
 
-					result[field] = clonedChoice.price;
+					if (clonedChoice.enabled && findPoint(staticTree, p => p.id === choice.treePointId).enabled)
+					{
+						if (min === null || min > clonedChoice.price)
+						{
+							min = clonedChoice.price;
+						}
 
+						if (max === null || max < clonedChoice.price)
+						{
+							max = clonedChoice.price;
+						}
+					}
+					
 					//since we've found a valid combination of choices, we can stop
 					//iterating through the possibilities. this is the key to this 
 					//function scaling reasonably.
-					found = true;
-
-					break;
-				}
-
-				if (found)
-				{
 					break;
 				}
 			}
-		};
-
-		if (previousChoices.length)
-		{
-			calculateMinMax('max');
-			calculateMinMax('min');
 		}
 		else
 		{
@@ -486,20 +397,21 @@ export function getChoicePriceRanges(state: { options: PlanOption[], rules: Tree
 
 			let clonedChoice = choices.find(ch => ch.id === choice.id);
 
-			if (result.min === null || result.min > clonedChoice.price)
+			if (min === null || min > clonedChoice.price)
 			{
-				result.min = clonedChoice.price;
+				min = clonedChoice.price;
 			}
 
-			if (result.max === null || result.max < clonedChoice.price)
+			if (max === null || max < clonedChoice.price)
 			{
-				result.max = clonedChoice.price;
+				max = clonedChoice.price;
 			}
 		}
 
 		return {
 			choiceId: choice.id,
-			...result
+			min,
+			max
 		};
 	});
 }
