@@ -22,7 +22,9 @@
 					</span>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
-					<i class="fa fa-check phd-icon-selected"></i>
+					<span class="phd-non-clickable">
+						<i class="fa fa-check phd-icon-selected"></i>
+					</span>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
 					<button class="phd-clickable" (click)="$event.stopPropagation();toggleChoice()">

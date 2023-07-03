@@ -46,6 +46,7 @@
 	.phd-choice-details {
 		margin: 10px 0 0 10px;
 		max-height: 220px;
+		min-height: 71px;
 
 		h1 {
 			font-size: 15px;
@@ -72,6 +73,13 @@
 
 			.fa-heart-o {
 				background: white;
+			}
+		}
+
+		.phd-non-clickable {
+			.fa-check {
+				font-size: 20px;
+				padding: 10px 15px 5px 15px;
 			}
 		}
 	}
