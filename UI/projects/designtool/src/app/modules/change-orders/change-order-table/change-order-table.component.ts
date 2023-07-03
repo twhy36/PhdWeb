@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import { UnsubscribeOnDestroy, convertDateToUtcString, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, convertDateToUtcString, Constants, SalesAgreementStatuses } from 'phd-common';
 
 @Component({
 	selector: 'change-order-table',
@@ -62,7 +62,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 			return this.canApproveChangeOrder;
 		}
 
-		return (changeOrder.salesStatus !== Constants.AGREEMENT_STATUS_APPROVED || changeOrder.constructionStatusDescription === 'Rejected')
+		return (changeOrder.salesStatus !== SalesAgreementStatuses.Approved || changeOrder.constructionStatusDescription === 'Rejected')
 			&& canEditRejectedChangeOrder
 			&& changeOrder.isActiveChangeOrder
 			&& (this.canSell || this.canEdit || (this.canDesign && this.contactId === changeOrder.createdByContactId));
@@ -190,7 +190,7 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 		return (changeOrder.eSignStatus === 'completed' && changeOrder.salesStatus !== 'Withdrawn')
 			|| (changeOrder.eSignStatus === 'sent' && changeOrder.salesStatus !== 'Withdrawn')
 			|| (changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus !== 'Signed'
-				&& changeOrder.salesStatus !== 'Withdrawn' && changeOrder.salesStatus !== Constants.AGREEMENT_STATUS_APPROVED);
+				&& changeOrder.salesStatus !== 'Withdrawn' && changeOrder.salesStatus !== SalesAgreementStatuses.Approved);
 	}
 
 	convertDate(date: Date)

@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import
 {
 	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined,
-	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService, Constants
+	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
@@ -275,7 +275,7 @@ export class CommonEffects
 					const baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
 
-					if ([Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED, Constants.AGREEMENT_STATUS_APPROVED].indexOf(result.salesAgreement.status) !== -1)
+					if (result.salesAgreement.status === SalesAgreementStatuses.OutForSignature || result.salesAgreement.status === SalesAgreementStatuses.Signed || result.salesAgreement.status === SalesAgreementStatuses.Approved)
 					{
 						if (baseHouseOption)
 						{

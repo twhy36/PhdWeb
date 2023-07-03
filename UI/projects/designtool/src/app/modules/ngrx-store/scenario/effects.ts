@@ -9,7 +9,7 @@ import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, de
 import * as _ from 'lodash';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-import { Plan, DtoScenarioInfo, TreeService, Constants } from 'phd-common';
+import { Plan, DtoScenarioInfo, TreeService, Constants, SalesAgreementStatuses } from 'phd-common';
 
 import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
@@ -140,7 +140,7 @@ export class ScenarioEffects
 					store.scenario.buildMode === Constants.BUILD_MODE_BUYER;
 
 				const savingPendingJio = store.salesAgreement.id
-					&& store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING
+					&& store.salesAgreement.status === SalesAgreementStatuses.Pending
 					&& store.scenario.buildMode !== Constants.BUILD_MODE_PREVIEW;
 
 				const savingChangeOrder = !!store.changeOrder &&

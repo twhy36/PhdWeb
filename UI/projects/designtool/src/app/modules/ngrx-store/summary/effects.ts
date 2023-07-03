@@ -13,7 +13,7 @@ import { SetChangeOrderHanding, SavePendingJio } from '../change-order/actions';
 import { SelectHanding } from '../lot/actions';
 import { SetScenarioLotHanding } from '../scenario/actions';
 
-import { Constants } from 'phd-common';
+import { Constants, SalesAgreementStatuses } from 'phd-common';
 
 @Injectable()
 export class SummaryEffects
@@ -31,7 +31,7 @@ export class SummaryEffects
 				{
 					actions.push(new SetChangeOrderHanding(action.handing));
 				}
-				else if (!!store.salesAgreement.id && store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING)
+				else if (!!store.salesAgreement.id && store.salesAgreement.status === SalesAgreementStatuses.Pending)
 				{
 					actions.push(new SavePendingJio(action.handing));
 				}

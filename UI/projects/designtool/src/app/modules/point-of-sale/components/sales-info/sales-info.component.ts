@@ -11,7 +11,7 @@ import
 {
 	UnsubscribeOnDestroy, ChangeOrder, Note, SalesAgreementProgram,
 	SalesAgreementDeposit, SalesAgreementContingency, SalesAgreement, ISalesProgram, SalesAgreementInfo,
-	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, isSalesChangeOrder, Lot, Constants
+	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, isSalesChangeOrder, Lot, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { SalesInfoService } from '../../../core/services/sales-info.service';
@@ -98,12 +98,12 @@ export class SalesInfoComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canAddTnCs()
 	{
-		return this.isChangingOrder && !this.editing && this.canSell && !this.cancelOrVoid && this.agreement.status !== Constants.AGREEMENT_STATUS_PENDING;
+		return this.isChangingOrder && !this.editing && this.canSell && !this.cancelOrVoid && this.agreement.status !== SalesAgreementStatuses.Pending;
 	}
 
 	get canAddNotes()
 	{
-		return this.agreement.status === Constants.AGREEMENT_STATUS_PENDING || !this.isChangingOrder;
+		return this.agreement.status === SalesAgreementStatuses.Pending || !this.isChangingOrder;
 	}
 
 	get hasAvailableSalesPrograms(): boolean

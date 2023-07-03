@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { Note, SalesAgreement, ModalService, Constants } from 'phd-common';
+import { Note, SalesAgreement, ModalService, Constants, SalesAgreementStatuses } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
@@ -65,12 +65,12 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	get externalCategoryOptions()
 	{
 		// returns external sub categories excluding Terms & conditions. Future proofing more than anything since this will return nothing at this time.
-		return this.subCategoryOptions.filter(cat => !cat.internal && ((cat.id === 10 && (this.isTnC || this.agreement.status === Constants.AGREEMENT_STATUS_PENDING)) || cat.id !== 10));
+		return this.subCategoryOptions.filter(cat => !cat.internal && ((cat.id === 10 && (this.isTnC || this.agreement.status === SalesAgreementStatuses.Pending)) || cat.id !== 10));
 	}
 
 	get isPendingOrInChangeOrder()
 	{
-		return this.agreement.status === Constants.AGREEMENT_STATUS_PENDING || this.inChangeOrder;
+		return this.agreement.status === SalesAgreementStatuses.Pending || this.inChangeOrder;
 	}
 
 	get subCategoryName()
@@ -145,7 +145,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 			type: 'salesAgreements'
 		};
 
-		if (saveNote.noteSubCategoryId === 10 && this.agreement.status !== Constants.AGREEMENT_STATUS_PENDING)
+		if (saveNote.noteSubCategoryId === 10 && this.agreement.status !== SalesAgreementStatuses.Pending)
 		{
 			const agreementNote = this.agreement.notes.some(note => note.id === saveNote.id);
 
@@ -172,7 +172,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 		{
 			if (result)
 			{
-				if (this.note.noteSubCategoryId == 10 && this.agreement.status !== Constants.AGREEMENT_STATUS_PENDING)
+				if (this.note.noteSubCategoryId == 10 && this.agreement.status !== SalesAgreementStatuses.Pending)
 				{
 					this.store.dispatch(new DeleteTermsAndConditions(this.note))
 				}

@@ -8,7 +8,7 @@ import { cloneDeep, trim } from 'lodash'
 import
 {
 	Buyer, EmailAssoc, PhoneAssoc, AddressAssoc, Address, Contact,
-	MatchingContact, Realtor, ModalService, Constants
+	MatchingContact, Realtor, ModalService, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { ContactService } from '../../../core/services/contact.service';
@@ -537,7 +537,7 @@ export class BuyerInfoDetailComponent extends ComponentCanNavAway implements OnI
 
 	private disableBuyerNameInput()
 	{
-		return this.isChangingOrder || this.isRealtor() ? false : this.salesAgreementStatus !== Constants.AGREEMENT_STATUS_PENDING;
+		return this.isChangingOrder || this.isRealtor() ? false : this.salesAgreementStatus !== SalesAgreementStatuses.Pending;
 	}
 
 	private createTrustForm(trust: string)

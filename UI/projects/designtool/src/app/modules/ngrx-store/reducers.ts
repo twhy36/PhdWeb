@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import
 {
 	isChoiceComplete, isChoiceAttributesComplete, ChangeTypeEnum, Lot, PointStatus,
-	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, DecisionPointFilterType, setSubgroupStatus, setPointStatus, setGroupStatus, Constants
+	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, DecisionPointFilterType, setSubgroupStatus, setPointStatus, setGroupStatus, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import * as fromScenario from './scenario/reducer';
@@ -414,7 +414,7 @@ export const canEditAgreementOrSpec = createSelector(
 		{
 			return isPreview
 				|| (salesAgreement.id === 0 && !scenarioHasSalesAgreement)
-				|| salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING
+				|| salesAgreement.status === SalesAgreementStatuses.Pending
 				|| (currentChangeOrder
 					? currentChangeOrder.salesStatusDescription === 'Pending'
 					: false
@@ -428,7 +428,7 @@ export const canEditCancelOrVoidAgreement = createSelector(
 	fromScenario.buildMode,
 	(salesAgreement, buildMode) =>
 	{
-		return ((salesAgreement.id === 0 && buildMode !== Constants.BUILD_MODE_SPEC && buildMode !== Constants.BUILD_MODE_MODEL) || salesAgreement.status === Constants.AGREEMENT_STATUS_CANCEL || salesAgreement.status === Constants.AGREEMENT_STATUS_VOID || salesAgreement.status === Constants.AGREEMENT_STATUS_CLOSED);
+		return ((salesAgreement.id === 0 && buildMode !== Constants.BUILD_MODE_SPEC && buildMode !== Constants.BUILD_MODE_MODEL) || salesAgreement.status === SalesAgreementStatuses.Cancel || salesAgreement.status === SalesAgreementStatuses.Void || salesAgreement.status === SalesAgreementStatuses.Closed);
 	}
 )
 
@@ -437,7 +437,7 @@ export const isSpecSalePending = createSelector(
 	fromJob.jobState,
 	(salesAgreement, job) =>
 	{
-		return job && job.lot && job.lot.lotBuildTypeDesc === 'Spec' && salesAgreement && (salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING || salesAgreement.status === Constants.AGREEMENT_STATUS_SIGNED || salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE);
+		return job && job.lot && job.lot.lotBuildTypeDesc === 'Spec' && salesAgreement && (salesAgreement.status === SalesAgreementStatuses.Pending || salesAgreement.status === SalesAgreementStatuses.Signed || salesAgreement.status === SalesAgreementStatuses.OutForSignature);
 	}
 )
 
@@ -551,25 +551,25 @@ export const salesAgreementStatus = createSelector(
 
 		switch (sa.status)
 		{
-			case Constants.AGREEMENT_STATUS_PENDING:
+			case SalesAgreementStatuses.Pending:
 				saStatus = 'Pending Sale';
 				break;
-			case Constants.AGREEMENT_STATUS_SIGNED:
+			case SalesAgreementStatuses.Signed:
 				saStatus = 'Signed';
 				break;
-			case Constants.AGREEMENT_STATUS_APPROVED:
+			case SalesAgreementStatuses.Approved:
 				saStatus = 'Approved';
 				break;
-			case Constants.AGREEMENT_STATUS_CANCEL:
+			case SalesAgreementStatuses.Cancel:
 				saStatus = 'Cancelled';
 				break;
-			case Constants.AGREEMENT_STATUS_VOID:
+			case SalesAgreementStatuses.Void:
 				saStatus = 'Voided';
 				break;
-			case Constants.AGREEMENT_STATUS_CLOSED:
+			case SalesAgreementStatuses.Closed:
 				saStatus = 'Closed';
 				break;
-			case Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE:
+			case SalesAgreementStatuses.OutForSignature:
 				saStatus = 'Out for Signature';
 				break;
 		}
@@ -597,7 +597,7 @@ export const selectedPlanPrice = createSelector(
 	{
 		let price = selectedPlan ? selectedPlan.price : 0;
 
-		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING) || !salesAgreement?.id))
+		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === SalesAgreementStatuses.Pending) || !salesAgreement?.id))
 		{
 			const isPhaseEnabled = selectedLot.financialCommunity && selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
