@@ -21,7 +21,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	selector: 'manage-favorites',
 	templateUrl: 'manage-favorites.component.html',
 	styleUrls: ['manage-favorites.component.scss']
-})
+	})
 export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	brandTheme: string;
@@ -96,12 +96,12 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 							this.router.navigateByUrl(`/favorites/my-favorites/${favorite.id}`);
 						}
 					},
-						error => 
-						{
-							const msg = 'Failed to create favorites list!';
-							this.toastr.error(msg, 'Error');
-							this.adobeService.setErrorEvent(msg);
-						});
+					error => 
+					{
+						const msg = 'Failed to create favorites list!';
+						this.toastr.error(msg, 'Error');
+						this.adobeService.setErrorEvent(msg);
+					});
 			}
 		}
 	}

@@ -41,7 +41,7 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'favorites-summary',
 	templateUrl: './favorites-summary.component.html',
 	styleUrls: ['./favorites-summary.component.scss']
-})
+	})
 export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
@@ -496,7 +496,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		this.emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
 
 		this.emptyFavoritesModal.componentInstance.title = 'Oops. No options have been selected.';
-		this.emptyFavoritesModal.componentInstance.body = `<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>`;
+		this.emptyFavoritesModal.componentInstance.body = '<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>';
 		this.emptyFavoritesModal.componentInstance.buttonText = 'Back';
 		this.emptyFavoritesModal.componentInstance.defaultOption = 'Back';
 

@@ -16,7 +16,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 	templateUrl: './normal-experience.component.html',
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
-})
+	})
 export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;
@@ -47,7 +47,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 	viewCreated: boolean = false;
 
-	constructor(private scroller: ViewportScroller) {
+	constructor(private scroller: ViewportScroller) 
+	{
 		super();
 		scroller.setOffset([0, 200]); // This offset accounts for nav-bar group-bar and grey space above choice cards
 	}
@@ -103,24 +104,24 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 			switch (point.pointPickTypeId)
 			{
-				case PickType.Pick1:
-					return isPreviouslyContracted
-						? 'Pending & Contracted Options'
-						: 'Please select one of the choices below';
-				case PickType.Pick1ormore:
-					return isPreviouslyContracted
-						? 'Pending & Contracted Options'
-						: 'Please select at least one of the Choices below';
-				case PickType.Pick0ormore:
-					return isPreviouslyContracted
-						? 'Pending & Contracted Options'
-						: 'Please select at least one of the Choices below';
-				case PickType.Pick0or1:
-					return isPreviouslyContracted
-						? 'Pending & Contracted Options'
-						: 'Please select one of the choices below';
-				default:
-					return '';
+			case PickType.Pick1:
+				return isPreviouslyContracted
+					? 'Pending & Contracted Options'
+					: 'Please select one of the choices below';
+			case PickType.Pick1ormore:
+				return isPreviouslyContracted
+					? 'Pending & Contracted Options'
+					: 'Please select at least one of the Choices below';
+			case PickType.Pick0ormore:
+				return isPreviouslyContracted
+					? 'Pending & Contracted Options'
+					: 'Please select at least one of the Choices below';
+			case PickType.Pick0or1:
+				return isPreviouslyContracted
+					? 'Pending & Contracted Options'
+					: 'Please select one of the choices below';
+			default:
+				return '';
 			}
 		}
 

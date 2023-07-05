@@ -12,9 +12,9 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 	templateUrl: './detailed-decision-bar.component.html',
 	styleUrls: ['./detailed-decision-bar.component.scss'],
 	animations: [
-		slideOut
+	slideOut
 	]
-})
+	})
 export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];
@@ -46,16 +46,16 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 
 			switch (point.pointPickTypeId)
 			{
-				case PickType.Pick1:
-					return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select one of the choices below';
-				case PickType.Pick1ormore:
-					return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select at least one of the Choices below';
-				case PickType.Pick0ormore:
-					return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select at least one of the Choices below';
-				case PickType.Pick0or1:
-					return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select one of the choices below';
-				default:
-					return '';
+			case PickType.Pick1:
+				return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select one of the choices below';
+			case PickType.Pick1ormore:
+				return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select at least one of the Choices below';
+			case PickType.Pick0ormore:
+				return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select at least one of the Choices below';
+			case PickType.Pick0or1:
+				return isPreviouslyContracted ? 'Pending & Contracted Options' : 'Please select one of the choices below';
+			default:
+				return '';
 			}
 		}
 

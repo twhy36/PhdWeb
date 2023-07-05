@@ -23,7 +23,7 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
-})
+	})
 export class AppComponent extends UnsubscribeOnDestroy implements OnInit 
 {
 	title = 'Design Preview';

@@ -192,8 +192,10 @@ describe('MyFavoritesComponent', () =>
 		});
 	});
 
-	describe('welcome popup', () => {
-		it('should call modalService.open when showWelcomeModal = true', () => {
+	describe('welcome popup', () => 
+	{
+		it('should call modalService.open when showWelcomeModal = true', () => 
+		{
 			const newState = {
 				...initialState,
 				app: { showWelcomeModal: true },
@@ -213,7 +215,8 @@ describe('MyFavoritesComponent', () =>
 				, true);
 		});
 
-		it('should not call modalService.open when showWelcomeModal = false', () => {
+		it('should not call modalService.open when showWelcomeModal = false', () => 
+		{
 			const newState = {
 				...initialState,
 				app: { showWelcomeModal: false },
