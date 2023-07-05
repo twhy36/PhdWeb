@@ -10,6 +10,7 @@ import
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 import { Router } from '@angular/router';
+import { ViewportScroller } from '@angular/common';
 
 @Component({
 	selector: 'normal-experience',
@@ -47,7 +48,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 	viewCreated: boolean = false;
 
-	constructor(private router: Router) { super(); }
+	constructor(private router: Router, private viewportScroller: ViewportScroller) { super(); }
 
 	ngOnChanges(changes: SimpleChanges)
 	{
@@ -205,33 +206,12 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			if (isFirstPoint)
-			{
 				setTimeout(() =>
 				{
-					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
+					this.viewportScroller.scrollToAnchor(`point-card-${pointId?.toString()}`)
 
 					this.viewCreated = true;
-				}, 250);
-			}
-			else
-			{
-				// Workaround to display the element moved under the nav bar
-				setTimeout(() =>
-				{
-					this.router.navigate([], { fragment: `point-card-${pointId?.toString()}`, queryParamsHandling: 'merge'});
-				}, 750);
-			}
-		}
-
-		const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
-
-		if (decisionBarElement && !this.subGroup.useInteractiveFloorplan)
-		{
-			setTimeout(() => 
-			{
-				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-			}, 1000);
+				}, 600);
 		}
 	}
 

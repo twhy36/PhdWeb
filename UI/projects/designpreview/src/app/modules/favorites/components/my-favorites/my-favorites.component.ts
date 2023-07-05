@@ -622,6 +622,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectDecisionPoint(pointId: number)
 	{
 		this.selectedPointId = pointId;
+		this.cd.detectChanges()
 
 		// if point is in a different subGroup, we need to select the subGroup as well
 		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId))
