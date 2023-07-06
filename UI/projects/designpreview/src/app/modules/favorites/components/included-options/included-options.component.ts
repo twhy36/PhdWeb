@@ -477,6 +477,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	{
 		return group.groupCatalogId;
 	}
+	
 	subGroupUpdated(index: number, subGroup: SubGroup)
 	{
 		return subGroup.subGroupCatalogId;

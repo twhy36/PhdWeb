@@ -561,10 +561,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		this.cd.detectChanges();
-		// setTimeout(() =>
-		// {
-			this.mainPanel?.scrollPointIntoView(this.selectedPointId);
-		// }, 350);
+		this.mainPanel?.scrollPointIntoView(this.selectedPointId);
 	}
 
 	getChoicePath(): string

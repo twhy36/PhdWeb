@@ -99,17 +99,17 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 		return `#included-subgroup-${subGroup.id?.toString()}`
 	}
 
-	groupUpdated(group: Group)
+	groupUpdated(index: number, group: Group)
 	{
 		return group.groupCatalogId;
 	}
 
-	subGroupUpdated(subGroup: SubGroup)
+	subGroupUpdated(index: number, subGroup: SubGroup)
 	{
 		return subGroup.subGroupCatalogId;
 	}
 
-	pointUpdated(point: DecisionPoint) {
+	pointUpdated(index: number, point: DecisionPoint) {
 		return point.completed || point.enabled;
 	}
 }

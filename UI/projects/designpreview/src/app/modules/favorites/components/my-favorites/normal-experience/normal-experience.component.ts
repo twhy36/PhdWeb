@@ -56,7 +56,6 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	ngOnChanges(changes: SimpleChanges)
 	{
-		console.log('changes', changes)
 		if (changes['currentSubgroup'])
 		{
 			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
@@ -209,11 +208,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-				// setTimeout(() =>
-				// {
-					this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`)
-					// pointCardElement.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'})
-				// }, 250);
+			this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`)
 		}
 	}
 
