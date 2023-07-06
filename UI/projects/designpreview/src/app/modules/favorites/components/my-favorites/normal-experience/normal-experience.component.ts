@@ -208,7 +208,9 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`)
+			setTimeout(() => {
+				this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`);
+			}, 200)
 		}
 	}
 

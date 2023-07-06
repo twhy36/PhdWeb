@@ -26,12 +26,6 @@ import { DefaultErrorComponent } from './modules/core/components/default-error/d
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { PresaleInterceptor } from './modules/core/interceptors/presale.interceptor';
 
-const routerOptions: ExtraOptions = {
-	scrollPositionRestoration: 'enabled',
-	anchorScrolling: 'enabled',
-	scrollOffset: [0, 200],
-}
-
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
 	{ path: 'favorites', component: FavoritesModule },
@@ -86,7 +80,7 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 	SharedModule,
 	HomeModule,
 	FavoritesModule,
-	RouterModule.forRoot(appRoutes, routerOptions),
+	RouterModule.forRoot(appRoutes),
 	StoreModule,
 	CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
 	ToastrModule.forRoot({ closeButton: true }),
