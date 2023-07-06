@@ -16,6 +16,7 @@ import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { MyFavoritesComponent } from './my-favorites.component';
 import { ModalService, NavigationService, PointStatus, TreeService } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
+import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 
 describe('MyFavoritesComponent', () =>
 {
@@ -40,6 +41,7 @@ describe('MyFavoritesComponent', () =>
 	const mockModalService = mock(ModalService);
 	const mockNavService = mock(NavigationService);
 	const mockBrandService = mock(BrandService);
+	let instanceModalService;
 
 	beforeEach(fakeAsync(() =>
 	{
@@ -66,6 +68,7 @@ describe('MyFavoritesComponent', () =>
 			.compileComponents();
 
 		mockStore = TestBed.inject(MockStore);
+		instanceModalService = TestBed.inject(ModalService)
 	}));
 
 	beforeEach(() =>
@@ -186,6 +189,42 @@ describe('MyFavoritesComponent', () =>
 				expect(component.selectedPointId).toEqual(11);
 				expect(onStoreSpy).toHaveBeenCalled();
 			});
+		});
+	});
+
+	describe('welcome popup', () => 
+	{
+		it('should call modalService.open when showWelcomeModal = true', () => 
+		{
+			const newState = {
+				...initialState,
+				app: { showWelcomeModal: true },
+			};
+			mockStore.setState(newState);
+			spyOn(instanceModalService, 'open').and.callThrough();
+			component.ngOnInit();
+			expect(instanceModalService.open).toHaveBeenCalled();
+			expect(instanceModalService.open).toHaveBeenCalledWith(
+				WelcomeModalComponent,
+				{
+					centered: true,
+					backdrop: 'static',
+					keyboard: false,
+					windowClass: null,
+				}
+				, true);
+		});
+
+		it('should not call modalService.open when showWelcomeModal = false', () => 
+		{
+			const newState = {
+				...initialState,
+				app: { showWelcomeModal: false },
+			};
+			mockStore.setState(newState);
+			spyOn(instanceModalService, 'open').and.callThrough();
+			component.ngOnInit();
+			expect(instanceModalService.open).not.toHaveBeenCalled();
 		});
 	});
 });

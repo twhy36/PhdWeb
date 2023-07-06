@@ -8,7 +8,7 @@ import { Constants } from 'phd-common';
 	selector: 'info-modal-component',
 	templateUrl: './info-modal.component.html',
 	styleUrls: ['./info-modal.component.scss']
-})
+	})
 
 export class InfoModalComponent
 {

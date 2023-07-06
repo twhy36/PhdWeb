@@ -489,11 +489,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else
 			{
-				const elevationChoice = elevationDP?.choices.find(c => c.quantity > 0);
-				const colorSchemeChoice = colorSchemeDP?.choices.find(c => c.quantity > 0);
-
 				// check elevation and color scheme choices to make sure there is only one option assigned to each.
-				const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationChoice, colorSchemeChoice);
+				const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationDP, colorSchemeDP);
 
 				if (!!message)
 				{

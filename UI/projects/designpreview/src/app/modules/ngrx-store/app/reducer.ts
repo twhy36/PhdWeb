@@ -10,7 +10,7 @@ export interface State {
 	welcomeAcknowledged: boolean;
 }
 
-export const initialState: State = { latestError: null, pageNotFound: false, showWelcomeModal: false, welcomeAcknowledged: false };
+export const initialState: State = { latestError: null, pageNotFound: false, showWelcomeModal: true, welcomeAcknowledged: false };
 
 export function reducer(state: State = initialState, action: AppActions): State 
 {

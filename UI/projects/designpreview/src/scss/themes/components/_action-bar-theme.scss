@@ -23,7 +23,8 @@
 		}
 
 		.phd-toggle-off {
-			color: mat.get-color-from-palette($accent-palette, 500);
+			color: mat.get-color-from-palette($accent-palette, 500) !important;
+			background-color: transparent !important;
 		}
 
 		.phd-action-bar-action-btn {

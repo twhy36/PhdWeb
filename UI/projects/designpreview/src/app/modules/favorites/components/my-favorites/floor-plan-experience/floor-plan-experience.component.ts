@@ -15,7 +15,7 @@ import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
 	selector: 'floor-plan-experience',
 	templateUrl: './floor-plan-experience.component.html',
 	styleUrls: ['./floor-plan-experience.component.scss']
-})
+	})
 export class FloorPlanExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;

@@ -32,7 +32,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	templateUrl: './included-options.component.html',
 	styleUrls: ['./included-options.component.scss'],
 	animations: [flipOver]
-})
+	})
 export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	brandTheme: string;
@@ -297,7 +297,8 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 	{
 		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
-		if (!this.isPresale) {
+		if (!this.isPresale) 
+		{
 			if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 			{
 				choiceStatus = 'Contracted';

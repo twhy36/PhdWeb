@@ -103,10 +103,10 @@ export const filteredTree = createSelector(
 										{
 											switch (p.pointPickTypeId) 
 											{
-												case PickType.Pick1:
-													isIncluded = false;
-												case PickType.Pick0or1:
-													isIncluded = false;
+											case PickType.Pick1:
+												isIncluded = false;
+											case PickType.Pick0or1:
+												isIncluded = false;
 											}
 										}
 									}
@@ -329,10 +329,10 @@ export const includedTree = createSelector(
 									{
 										switch (p.pointPickTypeId) 
 										{
-											case PickType.Pick1:
-												isIncluded = false;
-											case PickType.Pick0or1:
-												isIncluded = false;
+										case PickType.Pick1:
+											isIncluded = false;
+										case PickType.Pick0or1:
+											isIncluded = false;
 										}
 									}
 									// }

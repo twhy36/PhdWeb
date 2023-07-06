@@ -18,10 +18,11 @@
 						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
 							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
 								<!--eslint-disable-next-line @angular-eslint/template/eqeqeq-->
-								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)"
+								<cl-image *ngIf="activeIndex?.current == currentIndex" public-id="{{image.imageURL}}"
+									(onLoad)="onLoadImage()" (onError)="onLoadImageError($event)"
 									type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" alt="" role="group"
 									attr.aria-label="{{'Slide ' + (currentIndex + 1) + ' of ' + choiceImages.length}}"
-									*ngIf="activeIndex?.current == currentIndex"></cl-image>
+									></cl-image>
 							</ng-template>
 						</ngb-carousel>
 					</section>
