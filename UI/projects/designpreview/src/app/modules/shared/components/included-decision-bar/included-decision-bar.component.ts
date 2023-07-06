@@ -109,7 +109,8 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 		return subGroup.subGroupCatalogId;
 	}
 
-	pointUpdated(index: number, point: DecisionPoint) {
+	pointUpdated(index: number, point: DecisionPoint) 
+	{
 		return point.completed || point.enabled;
 	}
 }

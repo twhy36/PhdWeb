@@ -208,7 +208,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			setTimeout(() => {
+			setTimeout(() => 
+			{
 				this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`);
 			}, 200)
 		}
@@ -263,11 +264,13 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		return isValueChanged;
 	}
 
-	pointUpdated(index: number, point: DecisionPoint) {
+	pointUpdated(index: number, point: DecisionPoint) 
+	{
 		return point.divPointCatalogId;
 	}
 
-	choiceUpdated(index: number, choice: Choice) {
+	choiceUpdated(index: number, choice: Choice) 
+	{
 		return choice.divChoiceCatalogId;
 	}
 }
