@@ -9,7 +9,7 @@ import
 {
 	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, 
 	MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, 
-	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType, PriceBreakdown
+	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType, PriceBreakdown, Group
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -253,6 +253,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		if (point && this.currentPointId != point.id)
 		{
 			this.currentPointId = point.id;
+			this.store.dispatch(new NavActions.SetIncludedSubgroup(null, this.currentPointId));
 		}
 
 		this.choiceToggled = true;

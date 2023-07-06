@@ -561,12 +561,10 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		this.cd.detectChanges();
-		setTimeout(() =>
-		{
-			const firstPointId = this.selectedSubGroup.points && this.selectedSubGroup.points.length ? this.selectedSubGroup.points[0].id : 0;
-
-			this.mainPanel?.scrollPointIntoView(this.selectedPointId, this.selectedPointId === firstPointId);
-		}, 350);
+		// setTimeout(() =>
+		// {
+			this.mainPanel?.scrollPointIntoView(this.selectedPointId);
+		// }, 350);
 	}
 
 	getChoicePath(): string
