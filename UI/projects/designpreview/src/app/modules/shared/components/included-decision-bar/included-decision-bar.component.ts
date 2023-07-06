@@ -3,7 +3,7 @@ import { Store, select } from '@ngrx/store';
 
 import * as _ from 'lodash';
 import * as fromRoot from '../../../ngrx-store/reducers';
-import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, SubGroup } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, SubGroup, Group } from 'phd-common';
 
 @Component({
 	selector: 'included-decision-bar',
@@ -97,5 +97,19 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 	getSubGroupLabelId(subGroup: SubGroup)
 	{
 		return `#included-subgroup-${subGroup.id?.toString()}`
+	}
+
+	groupUpdated(group: Group)
+	{
+		return group.groupCatalogId;
+	}
+
+	subGroupUpdated(subGroup: SubGroup)
+	{
+		return subGroup.subGroupCatalogId;
+	}
+
+	pointUpdated(point: DecisionPoint) {
+		return point.completed || point.enabled;
 	}
 }

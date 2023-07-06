@@ -33,12 +33,12 @@
 		<div class="phd-include-options"></div>
 		<ng-container *ngIf="!noVisibleGroups">
 			<div class="phd-point-container">
-				<ng-container *ngFor="let point of points">
+				<ng-container *ngFor="let point of points; trackBy:pointUpdated">
 					<ng-container *ngIf="displayDecisionPoint(point)">
 						<h2 class="phd-point-label" [attr.id]="'point-card-' + point.id">{{point?.label}}</h2>
 						<h3 class="phd-point-title">{{getSubTitle(point)}}</h3>
 						<ul class="d-flex flex-wrap phd-choice-cards">
-							<ng-container *ngFor="let choice of point.choices">
+							<ng-container *ngFor="let choice of point.choices; trackBy:choiceUpdated">
 								<choice-card *ngIf="!choice.isHiddenFromBuyerView"
 										[currentChoice]="getChoiceExt(choice, point)"
 										[currentPoint]="point"

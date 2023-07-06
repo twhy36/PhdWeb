@@ -134,9 +134,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (pointId && !this.currentSubgroup?.useInteractiveFloorplan)
 		{
-			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-
-			this.scrollPointIntoView(pointId, pointId === firstPointId);
+			this.scrollPointIntoView(pointId);
 
 			this.selectDecisionPoint.emit(pointId);
 		}
@@ -200,7 +198,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
-	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
+	scrollPointIntoView(pointId: number)
 	{
 		const pointCardElement = <HTMLElement>document.getElementById(`point-card-${pointId?.toString()}`);
 
@@ -209,9 +207,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				setTimeout(() =>
 				{
 					this.viewportScroller.scrollToAnchor(`point-card-${pointId?.toString()}`)
-
-					this.viewCreated = true;
-				}, 600);
+					// pointCardElement.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'})
+				}, 250);
 		}
 	}
 
@@ -262,5 +259,13 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		return isValueChanged;
+	}
+
+	pointUpdated(index: number, point: DecisionPoint) {
+		return point.divPointCatalogId;
+	}
+
+	choiceUpdated(index: number, choice: Choice) {
+		return choice.divChoiceCatalogId;
 	}
 }

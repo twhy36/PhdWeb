@@ -51,4 +51,10 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy
 	{
 		return `#point-card-${point.id?.toString()}`
 	}
+
+	pointUpdated(point: DecisionPoint)
+	{
+		return point.divPointCatalogId;
+	}
+
 }

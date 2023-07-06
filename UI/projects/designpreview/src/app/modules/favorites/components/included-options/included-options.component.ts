@@ -470,4 +470,23 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParamsHandling: 'merge' });
 	}
+
+	groupUpdated(index: number, group: Group)
+	{
+		return group.groupCatalogId;
+	}
+	subGroupUpdated(index: number, subGroup: SubGroup)
+	{
+		return subGroup.subGroupCatalogId;
+	}
+
+	pointUpdated(index: number, point: DecisionPoint)
+	{
+		return point.divPointCatalogId;
+	}
+
+	choiceUpdated(index: number, choice: Choice)
+	{
+		return choice.divChoiceCatalogId;
+	}
 }
