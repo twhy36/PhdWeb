@@ -694,7 +694,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
 
 					// Find any choices with locked in options that still replace this option
-					const existingChoices = choices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
+					const existingChoices = treeChoices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
 
 					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
 					return !replaceRules.length && !existingChoices.length;
