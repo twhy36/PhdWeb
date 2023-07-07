@@ -9,7 +9,7 @@ import
 {
 	UnsubscribeOnDestroy, flipOver, DecisionPoint, SubGroup, Choice, TreeVersion, 
 	MyFavoritesChoice, getDependentChoices, Tree, TreeVersionRules, PlanOption, 
-	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType, PriceBreakdown, Group
+	MyFavoritesPointDeclined, ModalRef, ModalService, JobChoice, PickType, PriceBreakdown
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
