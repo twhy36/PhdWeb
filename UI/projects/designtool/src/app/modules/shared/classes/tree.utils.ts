@@ -437,14 +437,11 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
  * @param colorSchemeDP
  * @returns
  */
-export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: OptionRule[], elevationDP: DecisionPoint, colorSchemeDP: DecisionPoint): string
+export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: OptionRule[], elevationChoice: Choice, colorSchemeChoice: Choice): string
 {
-	// find selected elevation and color scheme choices
-	const elevationChoice = elevationDP?.choices.find(c => c.quantity > 0);
-	const colorSchemeChoice = colorSchemeDP?.choices.find(c => c.quantity > 0);
-
 	// find all rules with replace options
 	const filteredOptionRules = optionRules?.filter(opt => opt.replaceOptions.length > 0);
+
 	// get all selected choices
 	const selectedChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))?.filter(c => c.quantity > 0);
 
@@ -489,7 +486,7 @@ export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: 
 		let msg = '';
 
 		// find any replace options that are missing from the choice
-		const replacedOptions = replaceOption(choice.id);
+		const replacedOptions = replaceOption(choice?.id);
 		// combine results
 		const optionCount = (choice?.options?.length || 0) + (replacedOptions?.length || 0);
 

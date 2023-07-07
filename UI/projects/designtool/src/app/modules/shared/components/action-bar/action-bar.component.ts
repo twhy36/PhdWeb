@@ -669,8 +669,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		if ((this.changeType === ChangeTypeEnum.CONSTRUCTION || this.changeType === ChangeTypeEnum.PLAN) && !this.isPhdLite)
 		{
+			// find selected elevation and color scheme choices
+			const elevationChoice = this.elevationDP?.choices.find(c => c.quantity > 0);
+			const colorSchemeChoice = this.colorSchemeDP?.choices.find(c => c.quantity > 0);
+
 			// check elevation and color scheme choices to make sure there is only one option assigned to each.
-			const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, this.elevationDP, this.colorSchemeDP);
+			const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationChoice, colorSchemeChoice);
 
 			if (!!message)
 			{

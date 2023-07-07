@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, TemplateRef, ElementRef, Renderer2 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { Observable, of } from 'rxjs';
-import { map, combineLatest, filter, switchMap, distinctUntilChanged, take, withLatestFrom } from 'rxjs/operators';
+import { Observable, of, combineLatest } from 'rxjs';
+import { map, filter, switchMap, distinctUntilChanged, take, withLatestFrom } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
@@ -226,21 +226,25 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.isPeopleComplete$ = this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement),
-			combineLatest(this.store.select(fromRoot.isActivePrimaryBuyerComplete), this.store.select(fromRoot.activeCoBuyers)),
-			map(([sa, buyerComplete, coBuyers]) =>
-			{
-				let isPeopleComplete = true;
-
-				if (sa.status === Constants.AGREEMENT_STATUS_PENDING)
+		this.isPeopleComplete$ = combineLatest([
+			this.store.pipe(select(state => state.salesAgreement)),
+			this.store.select(fromRoot.isActivePrimaryBuyerComplete),
+			this.store.select(fromRoot.activeCoBuyers)
+		])
+			.pipe(
+				this.takeUntilDestroyed(),
+				map(([sa, buyerComplete, coBuyers]) =>
 				{
-					isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
-				}
+					let isPeopleComplete = true;
 
-				return isPeopleComplete;
-			}));
+					if (sa.status === Constants.AGREEMENT_STATUS_PENDING)
+					{
+						isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
+					}
+
+					return isPeopleComplete;
+				})
+			);
 
 		this.isAgreementInfoViewed$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -258,30 +262,34 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.salesAgreementActionBarStatus$ = this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.contract),
-			combineLatest(this.isSalesInfoComplete$, this.isPeopleComplete$, this.isAgreementInfoViewed$, this.isElevationColorSchemeComplete$),
-			map(([contract, isSalesInfoComplete, isPeopleComplete, isAgreementInfoViewed, isElevationColorSchemeComplete]) =>
-			{
-				let status: ActionBarStatusType = 'INCOMPLETE';
-				const selectedTemplates = contract.selectedTemplates;
-
-				if ((selectedTemplates && selectedTemplates.length) && contract.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && isPeopleComplete && isSalesInfoComplete && isAgreementInfoViewed && isElevationColorSchemeComplete)
+		this.salesAgreementActionBarStatus$ = combineLatest([
+			this.store.pipe(select(state => state.contract)),
+			this.isSalesInfoComplete$,
+			this.isPeopleComplete$,
+			this.isAgreementInfoViewed$,
+			this.isElevationColorSchemeComplete$])
+			.pipe(
+				this.takeUntilDestroyed(),
+				map(([contract, isSalesInfoComplete, isPeopleComplete, isAgreementInfoViewed, isElevationColorSchemeComplete]) =>
 				{
-					status = 'COMPLETE';
-				}
+					let status: ActionBarStatusType = 'INCOMPLETE';
+					const selectedTemplates = contract.selectedTemplates;
 
-				return status;
-			})
-		);
+					if ((selectedTemplates && selectedTemplates.length) && contract.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && isPeopleComplete && isSalesInfoComplete && isAgreementInfoViewed && isElevationColorSchemeComplete)
+					{
+						status = 'COMPLETE';
+					}
+
+					return status;
+				})
+			);
 
 		this.salesChangeOrderActionBarStatus$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder),
 			map(changeOrder =>
 			{
-				return changeOrder.changeInput && changeOrder.changeInput.isDirty ? "COMPLETE" : "INCOMPLETE";
+				return changeOrder.changeInput && changeOrder.changeInput.isDirty ? 'COMPLETE' : 'INCOMPLETE';
 			})
 		);
 
@@ -427,10 +435,10 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 				this.openPdfViewer(pdfObject);
 			}
 		},
-			error =>
-			{
-				this.toastr.error(`There was an issue generating the PDF.`, 'Error - Print');
-			});
+		error =>
+		{
+			this.toastr.error(`There was an issue generating the PDF.`, 'Error - Print');
+		});
 	}
 
 	closeModal()

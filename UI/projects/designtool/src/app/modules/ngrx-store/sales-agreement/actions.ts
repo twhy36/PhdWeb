@@ -12,7 +12,7 @@ export enum SalesAgreementActionTypes
 {
 	// Sales Agreement
 	CreateSalesAgreementForScenario = 'Create Sales Agreement For Scenario',
-	SalesAgreementCreated = "Sales Agreement Created",
+	SalesAgreementCreated = 'Sales Agreement Created',
 	SalesAgreementSaved = 'Sales Agreement Saved',
 	UpdateSalesAgreement = 'Update Sales Agreement',
 	VoidSalesAgreement = 'Void Sales Agreement',
@@ -33,7 +33,7 @@ export enum SalesAgreementActionTypes
 	AddCoBuyer = 'Add Co-Buyer',
 	BuyerSaved = 'Buyer Saved',
 	BuyersLoaded = 'Buyers Loaded',
-	BuyersSwapped = "Buyers Swapped",
+	BuyersSwapped = 'Buyers Swapped',
 	CoBuyerAdded = 'Co-Buyer Added',
 	CoBuyerDeleted = 'Co-Buyer Deleted',
 	CoBuyersReSorted = 'Co-Buyers Re-Sorted',

@@ -755,7 +755,7 @@ export class ChangeOrderEffects
 						]))
 					);
 				})
-			), LoadError, "Error setting current change order!!")
+			), LoadError, 'Error setting current change order!!')
 		);
 	});
 
@@ -780,9 +780,11 @@ export class ChangeOrderEffects
 
 					if (jio)
 					{
-						let jobHanding = new ChangeOrderHanding();
+						const jobHanding = new ChangeOrderHanding();
+
 						jobHanding.handing = store.job.handing;
-						let currentHanding = action.handing || (isSpecSalePending ? this.changeOrderService.getSelectedHanding(store.job) : jobHanding);
+
+						const currentHanding = action.handing || (isSpecSalePending ? this.changeOrderService.getSelectedHanding(store.job) : jobHanding);
 
 						const baseHouseOption = store.scenario.options ? store.scenario.options.find(o => o.isBaseHouse) : null;
 						let inputData = isPhdLite
@@ -833,16 +835,19 @@ export class ChangeOrderEffects
 						return createJobChangeOrder$.pipe(
 							switchMap(changeOrder =>
 							{
-								let actions: any[] = [
+								const actions: any[] = [
 									new ChangeOrdersCreatedForJob([changeOrder]),
 									new ChangeOrdersCreated([changeOrder])
 								];
 
 								const buyerChangeOrder = changeOrder ? changeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'BuyerChangeOrder') : null;
+
 								if (isSpecSalePending && buyerChangeOrder)
 								{
-									let newInput = _.cloneDeep(store.changeOrder.changeInput);
+									const newInput = _.cloneDeep(store.changeOrder.changeInput);
+
 									newInput.buyers = mergeSalesChangeOrderBuyers(store.salesAgreement.buyers, changeOrder);
+
 									actions.push(new ChangeInputInitialized(newInput));
 								}
 
@@ -855,7 +860,7 @@ export class ChangeOrderEffects
 						return new Observable<never>();
 					}
 				})
-			), SaveError, "Error saving pending JIO!!")
+			), SaveError, 'Error saving pending JIO!!')
 		);
 	});
 

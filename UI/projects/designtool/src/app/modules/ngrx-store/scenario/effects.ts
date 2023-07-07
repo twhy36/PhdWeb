@@ -120,7 +120,7 @@ export class ScenarioEffects
 							);
 					}
 				})
-			), LoadError, "Error loading tree!!"),
+			), LoadError, 'Error loading tree!!'),
 			share()
 		);
 	});
@@ -199,7 +199,7 @@ export class ScenarioEffects
 				take(1),
 				switchMap(store => this.scenarioService.saveScenario(store.scenario.scenario, store.scenario.tree, store.job ? store.job.jobChoices : null)),
 				map(scenario => new ScenarioSaved(scenario))
-			), SaveError, "Error saving scenario!!", MapFunction.concatMap)
+			), SaveError, 'Error saving scenario!!', MapFunction.concatMap)
 		);
 	});
 
@@ -209,7 +209,7 @@ export class ScenarioEffects
 			withLatestFrom(this.store),
 			flatMap(([action, store]) =>
 			{
-				let point = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
+				const point = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
 					.find(p => p.id === action.pointId);
 
 				if (point && store.scenario.scenario && !!store.scenario.scenario.scenarioId)
@@ -247,7 +247,7 @@ export class ScenarioEffects
 					return of(info);
 				}),
 				switchMap(results => of(new IsFloorplanFlippedScenario(results.isFloorplanFlipped)))
-			), SaveError, "Error saving floorplan flipped!!")
+			), SaveError, 'Error saving floorplan flipped!!')
 		);
 	});
 
@@ -318,7 +318,7 @@ export class ScenarioEffects
 						map(() => new ScenarioInfoSaved(action.scenarioInfo)
 						));
 				})
-			), SaveError, "Error saving scenario info!!")
+			), SaveError, 'Error saving scenario info!!')
 		);
 	});
 

@@ -519,24 +519,22 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		case ScenarioActionTypes.SetChoicePriceRanges:
 			return { ...state, priceRanges: action.priceRanges };
 		case ScenarioActionTypes.SetLockedInChoices:
+			newTree = _.cloneDeep(state.tree);
+
+			const newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+
+			for (const choice of action.choices)
 			{
-				newTree = _.cloneDeep(state.tree);
+				const newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
 
-				let newChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-
-				for (let choice of action.choices)
+				if (newChoice)
 				{
-					let newChoice = newChoices.find(x => x.divChoiceCatalogId === choice.divChoiceCatalogId);
-
-					if (newChoice)
-					{
-						newChoice.lockedInChoice = choice.lockedInChoice;
-						newChoice.lockedInOptions = choice.lockedInOptions;
-					}
+					newChoice.lockedInChoice = choice.lockedInChoice;
+					newChoice.lockedInOptions = choice.lockedInOptions;
 				}
-
-				return { ...state, tree: newTree };
 			}
+
+			return { ...state, tree: newTree };
 		default:
 			return state;
 	}

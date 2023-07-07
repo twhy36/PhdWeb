@@ -96,6 +96,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	tree: Tree;
 	treeFilter$: Observable<TreeFilter>;
 	treeVersionRules: TreeVersionRules;
+	elevationDP: DecisionPoint;
+	colorSchemeDP: DecisionPoint;
 	options: PlanOption[];
 	viewChoice: Choice;
 	viewPoint: DecisionPoint;
@@ -108,6 +110,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	jobId: number;
 	timeOfSaleOptionPrices: TimeOfSaleOptionPrice[];
 	opportunityId: string;
+	salesAgreementStatus: string;
 
 	private params$ = new ReplaySubject<{ scenarioId: number, divDPointCatalogId: number, treeVersionId: number, choiceId?: number }>(1);
 	private selectedGroupId: number;
@@ -194,7 +197,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.errorMessage = '';
 				this.showPhaseProgressBarItems = true;
-				this.salesAgreementId = sag && sag.id;
+				this.salesAgreementId = sag?.id;
+				this.salesAgreementStatus = sag?.status;
 
 				if (scenarioState.treeLoading)
 				{
@@ -444,13 +448,17 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.store.pipe(
-			select(fromScenario.selectScenario)
-		).subscribe(scenario =>
+		combineLatest([
+			this.store.pipe(select(fromScenario.selectScenario)),
+			this.store.pipe(select(fromScenario.elevationDP)),
+			this.store.pipe(select(fromScenario.colorSchemeDP))
+		]).subscribe(([scenario, elevationDP, colorSchemeDP]) =>
 		{
 			this.tree = scenario.tree;
 			this.treeVersionRules = _.cloneDeep(scenario.rules);
 			this.options = _.cloneDeep(scenario.options);
+			this.elevationDP = elevationDP;
+			this.colorSchemeDP = colorSchemeDP;
 		});
 
 		this.canConfigure$ = this.store.pipe(select(fromRoot.canConfigure));
@@ -475,39 +483,51 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onBuildIt() 
 	{
-		combineLatest([
-			this.lotService.hasMonotonyConflict(),
-			this.store.pipe(select(fromScenario.elevationDP), take(1)),
-			this.store.pipe(select(fromScenario.colorSchemeDP), take(1))
-		]).subscribe(([mc, elevationDP, colorSchemeDP]) =>
-		{
-			if (mc.monotonyConflict)
+		this.lotService.hasMonotonyConflict()
+			.subscribe(mc =>
 			{
-				this.monotonyConflict = mc;
-
-				this.loadMonotonyModal();
-			}
-			else
-			{
-				// check elevation and color scheme choices to make sure there is only one option assigned to each.
-				const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationDP, colorSchemeDP);
-
-				if (!!message)
+				if (mc.monotonyConflict)
 				{
-					this.modalService.showOkOnlyModal(message, '', true);
+					this.monotonyConflict = mc;
+
+					this.loadMonotonyModal();
 				}
 				else
 				{
-					this.scenarioService.onGenerateSalesAgreement(
-						this.buildMode,
-						this.lotStatus,
-						this.selectedLot.id,
-						this.salesAgreementId,
-						this.opportunityId
-					);
+					// find selected elevation and color scheme choices
+					const elevationChoice = this.elevationDP?.choices.find(c => c.quantity > 0);
+					const colorSchemeChoice = this.colorSchemeDP?.choices.find(c => c.quantity > 0);
+
+					// check elevation and color scheme choices to make sure there is only one option assigned to each.
+					if (this.validateElevationAndColorOptions(elevationChoice, colorSchemeChoice))
+					{
+						this.scenarioService.onGenerateSalesAgreement(
+							this.buildMode,
+							this.lotStatus,
+							this.selectedLot.id,
+							this.salesAgreementId,
+							this.opportunityId
+						);
+					}
 				}
-			}
-		});
+			});
+	}
+
+	validateElevationAndColorOptions(elevationChoice: Choice, colorSchemeChoice: Choice): boolean
+	{
+		let isValidElevationAndColorOptions = true;
+
+		// check elevation and color scheme choices to make sure there is only one option assigned to each.
+		const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationChoice, colorSchemeChoice);
+
+		if (!!message)
+		{
+			isValidElevationAndColorOptions = false;
+
+			this.modalService.showOkOnlyModal(message, '', true);
+		}
+
+		return isValidElevationAndColorOptions;
 	}
 
 	loadMonotonyModal()
@@ -650,6 +670,23 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleChoice({ choice: choice, saveNow: saveNow, quantity: quantity }: { choice: Choice, saveNow: boolean, quantity?: number })
 	{
+		if (this.salesAgreementStatus === Constants.AGREEMENT_STATUS_PENDING && choice.quantity === 0)
+		{
+			const elevationChoice: Choice = this.elevationDP.choices.find(c => c.id === choice.id);
+			const colorSchemeChoice: Choice = this.colorSchemeDP.choices.find(c => c.id === choice.id);
+
+			if (!!elevationChoice || !!colorSchemeChoice)
+			{
+				// #401033 - Check Elevation and Color Scheme choices to make sure there is only one option assigned
+				const isValid = this.validateElevationAndColorOptions(elevationChoice, colorSchemeChoice);
+
+				if (!isValid)
+				{
+					return;
+				}
+			}
+		}
+
 		const choiceToDeselect = getChoiceToDeselect(this.tree, choice);
 
 		// #353697 Determine what options are being replaced by this choice, and track their original price
