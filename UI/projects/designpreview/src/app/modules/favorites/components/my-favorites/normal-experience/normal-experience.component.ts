@@ -211,7 +211,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			setTimeout(() => 
 			{
 				this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`);
-			}, 200)
+			}, 250)
 		}
 	}
 
