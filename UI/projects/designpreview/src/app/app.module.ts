@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule, ExtraOptions } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
 import { CloudinaryModule } from '@cloudinary/angular-5.x';

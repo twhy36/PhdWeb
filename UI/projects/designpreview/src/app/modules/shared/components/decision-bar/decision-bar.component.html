@@ -3,7 +3,7 @@
 		Side Navigation
 	</h3>
 	<ul class="list-unstyled">
-		<ng-container *ngFor="let point of points; trackBy:pointUpdated">
+		<ng-container *ngFor="let point of points; trackBy:pointTrackBy">
 			<a attr.href="{{ getPointCardId(point) }}" class="phd-point-link" [attr.aria-current]="currentPointId === point.id ? 'page' : null" (click)="$event.preventDefault(); onDecisionPointClick(point)">
 				<li *ngIf="displayDecisionPoint(point)"
 					[class.active]="currentPointId === point.id"

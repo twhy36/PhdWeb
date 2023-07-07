@@ -26,6 +26,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 import { BrandService } from '../../../core/services/brand.service';
+import { choiceTrackBy, groupTrackBy, pointTrackBy, subGroupTrackBy } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'included-options',
@@ -473,23 +474,11 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParamsHandling: 'merge' });
 	}
 
-	groupUpdated(index: number, group: Group)
-	{
-		return group.groupCatalogId;
-	}
+	groupTrackBy = groupTrackBy;
 	
-	subGroupUpdated(index: number, subGroup: SubGroup)
-	{
-		return subGroup.subGroupCatalogId;
-	}
+	subGroupTrackBy = subGroupTrackBy;
 
-	pointUpdated(index: number, point: DecisionPoint)
-	{
-		return point.divPointCatalogId;
-	}
+	pointTrackBy = pointTrackBy;
 
-	choiceUpdated(index: number, choice: Choice)
-	{
-		return choice.divChoiceCatalogId;
-	}
+	choiceTrackBy = choiceTrackBy;
 }

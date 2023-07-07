@@ -3,8 +3,8 @@
 		Side Navigation
 	</h3>
 	<ul class="phd-included-list">
-		<ng-container *ngFor="let group of tree.groups; trackBy:groupUpdated">
-			<ng-container *ngFor="let subGroup of group.subGroups; trackBy:subGroupUpdated">
+		<ng-container *ngFor="let group of tree.groups; trackBy:groupTrackBy">
+			<ng-container *ngFor="let subGroup of group.subGroups; trackBy:subGroupTrackBy">
 				<a attr.href="{{ getSubGroupLabelId(subGroup) }}" [attr.aria-current]="currentSubGroupId === subGroup.id ? 'page' : null" (click)="$event.preventDefault(); onSubGroupClick(subGroup)">
 					<li *ngIf="displaySubGroup(subGroup)" 
 						[class.active]="currentSubGroupId === subGroup.id"
@@ -14,7 +14,7 @@
 					</li>
 				</a>
 				
-				<ng-container *ngFor="let point of subGroup.points; trackBy:pointUpdated">
+				<ng-container *ngFor="let point of subGroup.points; trackBy:pointTrackBy">
 					<a attr.href="{{ getPointLabelId(point) }}" [attr.aria-current]="currentPointId === point.id ? 'page' : null" (click)="$event.preventDefault(); onDecisionPointClick(point)">
 						<li *ngIf="displayDecisionPoint(point)"
 							[class.active]="currentPointId === point.id"

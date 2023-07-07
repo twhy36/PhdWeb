@@ -24,19 +24,19 @@
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<ng-container *ngIf="!noVisibleGroups">
 			<div class="phd-point-container">
-				<ng-container *ngFor="let group of includedTree.groups; trackBy:groupUpdated">
-					<ng-container *ngFor="let subGroup of group.subGroups; trackBy:subGroupUpdated">
+				<ng-container *ngFor="let group of includedTree.groups; trackBy:groupTrackBy">
+					<ng-container *ngFor="let subGroup of group.subGroups; trackBy:subGroupTrackBy">
 						<ng-container *ngIf="defaultChoicePresent(subGroup)">
 							<h3 class="d-flex flex-row phd-group-subgroup-header" [attr.id]="'included-subgroup-' + subGroup.id">
 								<div class="phd-group-label">{{group.label}}:</div>
 								<div class="phd-subgroup-label">{{subGroup.label}}</div>
 							</h3>
 							<div class="d-flex flex-wrap phd-choice-container">
-								<ng-container *ngFor="let point of subGroup.points; trackBy:pointUpdated">
+								<ng-container *ngFor="let point of subGroup.points; trackBy:pointTrackBy">
 									<div *ngIf="displayDecisionPoint(point)">
 										<a href="" class="phd-point-link" [attr.id]="'included-point-' + point.id" (click)="$event.preventDefault(); onViewDecisionPoint(point)">{{point?.label}}</a>
 										<div class="phd-choice-cards">
-											<ng-container *ngFor="let choice of displayedChoices(point.choices); trackBy:choiceUpdated">
+											<ng-container *ngFor="let choice of displayedChoices(point.choices); trackBy:choiceTrackBy">
 												<choice-card *ngIf="!choice.isHiddenFromBuyerView"
 														[currentChoice]="getChoiceExt(choice, point)"
 														[currentPoint]="point"

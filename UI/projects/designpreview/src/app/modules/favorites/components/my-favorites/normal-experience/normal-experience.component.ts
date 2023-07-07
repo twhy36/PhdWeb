@@ -9,8 +9,8 @@ import
 } from 'phd-common';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
-import { Router } from '@angular/router';
 import { ViewportScroller } from '@angular/common';
+import { choiceTrackBy, pointTrackBy } from '../../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'normal-experience',
@@ -264,13 +264,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		return isValueChanged;
 	}
 
-	pointUpdated(index: number, point: DecisionPoint) 
-	{
-		return point.divPointCatalogId;
-	}
+	pointTrackBy = pointTrackBy;
 
-	choiceUpdated(index: number, choice: Choice) 
-	{
-		return choice.divChoiceCatalogId;
-	}
+	choiceTrackBy = choiceTrackBy;
 }
