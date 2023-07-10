@@ -53,7 +53,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	selector: 'my-favorites',
 	templateUrl: 'my-favorites.component.html',
 	styleUrls: ['my-favorites.component.scss']
-	})
+})
 export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(GroupBarComponent) private groupBar: GroupBarComponent;
@@ -227,6 +227,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				if (groups.length)
 				{
 					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
+
+					//when choice is requested for detail and subgroup not in filtered tree, find subgroup in original tree
+					if (!sg && params.divChoiceCatalogId)
+					{
+						groups = scenarioState.tree.treeVersion.groups;
+						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
+					}
 
 					if (!sg)
 					{
