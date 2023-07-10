@@ -26,6 +26,7 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 import { BrandService } from '../../../core/services/brand.service';
+import { choiceTrackBy, groupTrackBy, pointTrackBy, subGroupTrackBy } from '../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'included-options',
@@ -253,6 +254,7 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 		if (point && this.currentPointId != point.id)
 		{
 			this.currentPointId = point.id;
+			this.store.dispatch(new NavActions.SetIncludedSubgroup(null, this.currentPointId));
 		}
 
 		this.choiceToggled = true;
@@ -324,33 +326,22 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		if (pointCardElement)
 		{
-			if (isFirstPoint)
-			{
-				setTimeout(() =>
-				{
-					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
-					this.viewCreated = true;
-				}, 200);
-			}
-			else
-			{
-				// Workaround to display the element moved under the nav bar
-				setTimeout(() =>
-				{
-					const pos = pointCardElement.style.position;
-					const top = pointCardElement.style.top;
+			// Workaround to display the element moved under the nav bar
+			const pos = pointCardElement.style.position;
+			const top = pointCardElement.style.top;
 
-					pointCardElement.style.position = 'relative';
-					pointCardElement.style.top = '-10px';
+			pointCardElement.style.position = 'relative';
+			pointCardElement.style.top = '-10px';
 
-					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+			pointCardElement.scrollIntoView({
+				behavior: this.viewCreated ? 'smooth' : 'auto',
+				block: 'start',
+			});
 
-					this.viewCreated = true;
+			this.viewCreated = true;
 
-					pointCardElement.style.top = top;
-					pointCardElement.style.position = pos;
-				}, 200);
-			}
+			pointCardElement.style.top = top;
+			pointCardElement.style.position = pos;
 		}
 
 		const decisionBarElement = document.getElementById('included-decision-bar-' + pointId?.toString());
@@ -370,34 +361,19 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		if (subGroupElement)
 		{
-			if (isFirstSubGroup)
-			{
-				setTimeout(() =>
-				{
-					subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
-
-					this.viewCreated = true;
-				}, 200);
-			}
-			else
-			{
 				// Workaround to display the element moved under the nav bar
-				setTimeout(() =>
-				{
-					const pos = subGroupElement.style.position;
-					const top = subGroupElement.style.top;
+				const pos = subGroupElement.style.position;
+				const top = subGroupElement.style.top;
 
-					subGroupElement.style.position = 'relative';
-					subGroupElement.style.top = '-10px';
+				subGroupElement.style.position = 'relative';
+				subGroupElement.style.top = '-10px';
 
-					subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
+				subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start', inline: 'nearest' });
 
-					this.viewCreated = true;
+				this.viewCreated = true;
 
-					subGroupElement.style.top = top;
-					subGroupElement.style.position = pos;
-				}, 200);
-			}
+				subGroupElement.style.top = top;
+				subGroupElement.style.position = pos;
 		}
 
 		const decisionBarSgElement = document.getElementById('included-decision-bar-sg-' + subGroupId?.toString());
@@ -471,4 +447,12 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, sg.subGroupCatalogId], { queryParamsHandling: 'merge' });
 	}
+
+	groupTrackBy = groupTrackBy;
+	
+	subGroupTrackBy = subGroupTrackBy;
+
+	pointTrackBy = pointTrackBy;
+
+	choiceTrackBy = choiceTrackBy;
 }

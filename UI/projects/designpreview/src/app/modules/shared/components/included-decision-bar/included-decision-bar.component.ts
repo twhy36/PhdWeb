@@ -4,6 +4,7 @@ import { Store, select } from '@ngrx/store';
 import * as _ from 'lodash';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint, TreeVersion, SubGroup } from 'phd-common';
+import { groupTrackBy, pointTrackBy, subGroupTrackBy } from '../../classes/utils.class';
 
 @Component({
 	selector: 'included-decision-bar',
@@ -98,4 +99,10 @@ export class IncludedDecisionBarComponent extends UnsubscribeOnDestroy
 	{
 		return `#included-subgroup-${subGroup.id?.toString()}`
 	}
+
+	groupTrackBy = groupTrackBy;
+
+	subGroupTrackBy = subGroupTrackBy;
+
+	pointTrackBy = pointTrackBy;
 }

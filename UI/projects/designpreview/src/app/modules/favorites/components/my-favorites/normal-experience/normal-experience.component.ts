@@ -1,5 +1,4 @@
-import { ViewportScroller } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 import * as _ from 'lodash';
 
@@ -10,6 +9,8 @@ import
 } from 'phd-common';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
+import { ViewportScroller } from '@angular/common';
+import { choiceTrackBy, pointTrackBy } from '../../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'normal-experience',
@@ -137,9 +138,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (pointId && !this.currentSubgroup?.useInteractiveFloorplan)
 		{
-			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-
-			this.scrollPointIntoView(pointId, pointId === firstPointId);
+			this.scrollPointIntoView(pointId);
 
 			this.selectDecisionPoint.emit(pointId);
 		}
@@ -203,17 +202,16 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
-	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
+	scrollPointIntoView(pointId: number)
 	{
-		const pointCardId = `point-card-${pointId?.toString()}`;
-		const pointCardElement = <HTMLElement>document.getElementById(pointCardId);
+		const pointCardElement = <HTMLElement>document.getElementById(`point-card-${pointId?.toString()}`);
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			setTimeout(() =>
+			setTimeout(() => 
 			{
-				this.scroller.scrollToAnchor(pointCardId);
-			}, 250);
+				this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`);
+			}, 250)
 		}
 	}
 
@@ -265,4 +263,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		return isValueChanged;
 	}
+
+	pointTrackBy = pointTrackBy;
+
+	choiceTrackBy = choiceTrackBy;
 }

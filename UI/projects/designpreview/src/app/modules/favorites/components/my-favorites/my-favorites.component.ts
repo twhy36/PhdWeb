@@ -568,12 +568,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		this.cd.detectChanges();
-		setTimeout(() =>
-		{
-			const firstPointId = this.selectedSubGroup.points && this.selectedSubGroup.points.length ? this.selectedSubGroup.points[0].id : 0;
-
-			this.mainPanel?.scrollPointIntoView(this.selectedPointId, this.selectedPointId === firstPointId);
-		}, 350);
+		this.mainPanel?.scrollPointIntoView(this.selectedPointId);
 	}
 
 	getChoicePath(): string
@@ -629,6 +624,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectDecisionPoint(pointId: number)
 	{
 		this.selectedPointId = pointId;
+		this.cd.detectChanges()
 
 		// if point is in a different subGroup, we need to select the subGroup as well
 		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId))

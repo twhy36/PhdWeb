@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Choice } from 'phd-common';
+import { Choice, DecisionPoint, Group, SubGroup } from 'phd-common';
 import { PresalePayload } from '../models/presale-payload.model';
 import { Buffer } from 'buffer';
 
@@ -155,4 +155,25 @@ export function ScrollTop()
 	{
 		window.scrollTo(0, 0);
 	}
+}
+
+// functions to return unique identifier for entities in an ngFor to track them, to only update DOM elements that have changed
+export function groupTrackBy(index: number, group: Group)
+{
+	return group.groupCatalogId;
+}
+	
+export function subGroupTrackBy(index: number, subGroup: SubGroup)
+{
+	return subGroup.subGroupCatalogId;
+}
+	
+export function pointTrackBy(index: number, point: DecisionPoint)
+{
+	return point.divPointCatalogId;
+}
+	
+export function choiceTrackBy(index: number, choice: Choice)
+{
+	return choice.divChoiceCatalogId;
 }
