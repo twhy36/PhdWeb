@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import { UnsubscribeOnDestroy, convertDateToUtcString, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, convertDateToUtcString, Constants, ESignRecipientEnvelope, ESignRecipientStatusEnum } from 'phd-common';
 
 @Component({
 	selector: 'change-order-table',
@@ -196,5 +196,10 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 	convertDate(date: Date)
 	{
 		return convertDateToUtcString(date);
+	}
+
+	getRecipientStatus(eSignRecipientEnvelope: ESignRecipientEnvelope)
+	{
+		return ESignRecipientStatusEnum[eSignRecipientEnvelope.eSignRecipientStatusId];
 	}
 }

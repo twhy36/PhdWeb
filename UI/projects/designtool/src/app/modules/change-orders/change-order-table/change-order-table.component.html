@@ -1,5 +1,5 @@
 
-<table class="table table-striped table-sm phd-table-changeOrders phd-change-order-table" cellspacing="0">
+<table class="table table-striped table-sm phd-change-order-table" cellspacing="0">
 	<thead class="thead-light">
 		<tr>
 			<th>
@@ -18,78 +18,90 @@
 	</thead>
 
 	<tbody tableBodyResize>
-		<tr *ngFor="let changeOrder of changeOrders">
-			<td>
-				<div *ngIf="changeOrder.isActiveChangeOrder">
-					<div class="phd-change-order-index" *ngIf="changeOrders.length === 1 || (changeOrders.length > 1 && !changeOrder.isResubmittedChangeOrder)">
-						<button type="button" *ngIf="changeOrder.changeOrderTypeDescription !== 'Cancellation'" class="btn btn-md btn-link phd-button" (click)="generateDocument(changeOrder)">View</button>
-						<span class="phd-index">{{changeOrder.index}}</span>
-					</div>
-					<div class="phd-change-order-index" *ngIf="changeOrders.length > 1 && changeOrder.isResubmittedChangeOrder">
-						<button type="button" class="btn btn-md btn-link phd-button" (click)="generateDocument(changeOrder)">View</button>
-						<span class="phd-index">{{changeOrder.index}}</span>
-					</div>
-				</div>
-				<div *ngIf="!changeOrder.isActiveChangeOrder">
-					<div class="phd-orderId">
-						<button type="button" *ngIf="changeOrder.changeOrderTypeDescription !== 'Cancellation'" class="btn btn-md btn-link phd-button" (click)="generateDocument(changeOrder)">View</button>
-						{{changeOrder.index}}
-					</div>
-				</div>
-			</td>
-			<td>{{convertDate(changeOrder.createdUtcDate) | date:'L/dd/yyyy'}}</td>
-			<td>{{changeOrder.signedDate | date:'L/dd/yyyy'}}</td>
-			<td>
-				<span>{{getChangeOrderType(changeOrder)}}</span>
-			</td>
-			<td>
-				<span class="phd-change-order-description">{{changeOrder.jobChangeOrderGroupDescription}}</span>
-			</td>
-			<td class="phd-sales-status">
-				<span>
-					{{changeOrder.salesStatus}}
-					<a *ngIf="!!changeOrder.eSignStatus && displaySalesStatusIndicator(changeOrder)" [ngbTooltip]="eSignStatusTooltip" (click)="generateDocument(changeOrder)">
-						<i class="pl-1 fas"
-						   [ngClass]="{'fa-check-circle text-success': changeOrder.eSignStatus === 'completed',
+        <tr *ngFor="let changeOrder of changeOrders">
+            <td>
+                <div *ngIf="changeOrder.isActiveChangeOrder">
+                    <div class="phd-change-order-index" *ngIf="changeOrders.length === 1 || (changeOrders.length > 1 && !changeOrder.isResubmittedChangeOrder)">
+                        <button type="button" *ngIf="changeOrder.changeOrderTypeDescription !== 'Cancellation'" class="btn btn-md btn-link phd-button" (click)="generateDocument(changeOrder)">View</button>
+                        <span class="phd-index">{{changeOrder.index}}</span>
+                    </div>
+                    <div class="phd-change-order-index" *ngIf="changeOrders.length > 1 && changeOrder.isResubmittedChangeOrder">
+                        <button type="button" class="btn btn-md btn-link phd-button" (click)="generateDocument(changeOrder)">View</button>
+                        <span class="phd-index">{{changeOrder.index}}</span>
+                    </div>
+                </div>
+                <div *ngIf="!changeOrder.isActiveChangeOrder">
+                    <div class="phd-orderId">
+                        <button type="button" *ngIf="changeOrder.changeOrderTypeDescription !== 'Cancellation'" class="btn btn-md btn-link phd-button" (click)="generateDocument(changeOrder)">View</button>
+                        {{changeOrder.index}}
+                    </div>
+                </div>
+            </td>
+            <td>{{convertDate(changeOrder.createdUtcDate) | date:'L/dd/yyyy'}}</td>
+            <td>{{changeOrder.signedDate | date:'L/dd/yyyy'}}</td>
+            <td>
+                <span>{{getChangeOrderType(changeOrder)}}</span>
+            </td>
+            <td>
+                <span class="phd-change-order-description">{{changeOrder.jobChangeOrderGroupDescription}}</span>
+            </td>
+            <td class="phd-sales-status">
+                <span>
+                    {{changeOrder.salesStatus}}
+                    <a *ngIf="!!changeOrder.eSignStatus && displaySalesStatusIndicator(changeOrder)" [ngbTooltip]="eSignStatusTooltip" tooltipClass="phd-tooltip-table" placement="top" (click)="generateDocument(changeOrder)">
+                        <i class="pl-1 fas"
+                           [ngClass]="{'fa-check-circle text-success': changeOrder.eSignStatus === 'completed',
 								       'fa-arrow-alt-circle-right text-warning': changeOrder.eSignStatus === 'sent',
 								       'fa-minus-circle text-danger': changeOrder.eSignStatus === 'draft'}"></i>
-					</a>
-					<ng-template #eSignStatusTooltip>
-						<div>
-							<span class="font-weight-bold">{{changeOrder.eSignStatus | titlecase}}:</span>
-							<span class="pl-1">{{changeOrder.eSignStatusDate | date:'L/dd/yyyy'}}</span>
-						</div>
-						<div *ngIf="changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus === 'Out For Signature'" class="d-flex flex-row">
-							<span class="font-weight-bold">Exp:</span>
-							<span class="pl-1">{{changeOrder.eSignExpirationDate | date:'L/dd/yyyy'}}</span>
-						</div>							
-					</ng-template>
-				</span>
-			</td>
-			<td>
-				<span *ngIf="changeOrder.salesStatus === 'Approved' || changeOrder.salesStatus === 'Resolved'
+                    </a>
+                    <ng-template #eSignStatusTooltip>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th ><span class="font-weight-bold">Recipient Name</span></th>
+                                    <th><span class="font-weight-bold">Status</span></th>
+                                    <th><span class="font-weight-bold">Date</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let recipient of changeOrder.eSignEnvelopes[0].eSignRecipientEnvelopeEvents">
+                                    <td><span>{{ recipient.recipientUserName | titlecase }}</span></td>
+                                    <td><span>{{ getRecipientStatus(recipient) }}</span></td>
+                                    <td><span class="pl-1">{{ recipient.lastModifiedStatusUtcDate | date:'L/dd/yyyy' }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div *ngIf="changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus === 'Out For Signature'" class="d-flex flex-row">
+                            <span class="font-weight-bold">Exp:</span>
+                            <span class="pl-1">{{changeOrder.eSignExpirationDate | date:'L/dd/yyyy'}}</span>
+                        </div>
+                    </ng-template>
+                </span>
+            </td>
+            <td>
+                <span *ngIf="changeOrder.salesStatus === 'Approved' || changeOrder.salesStatus === 'Resolved'
 					  || changeOrder.salesStatus === 'Withdrawn' && changeOrder.constructionStatusDescription === 'Rejected'">
-					{{changeOrder.constructionStatusDescription === 'Pending' ? 'In Review' : changeOrder.constructionStatusDescription}}
-				</span>
-			</td>
-			<td>{{changeOrder.createdBy}}</td>
-			<td>
-				<div *ngIf="changeOrder.actionTypes.length !== 0">
-					<span *ngIf="canEditChangeOrder(changeOrder)">
-						<select id="{{changeOrder.id}}" (change)="onChange($event.target.value, changeOrder.actionTypes)" #changeOrderAction [disabled]="(changeOrder.salesStatus === 'Signed' && !canApproveChangeOrder) || isSaving"
-								[attr.title]="changeOrder.salesStatus === 'Signed' && !canApproveChangeOrder ? 'Requires GSM Approval' : null">
-							<option *ngFor="let action of changeOrder.actionTypes" [ngValue]="action.id" [disabled]="action.id === 0">{{action.value}}</option>
-						</select>
-					</span>
-					<span *ngIf="!changeOrder.isActiveChangeOrder">
-						<!--Remove the button temporarily for CRP
-		<!--<button type="button" class="btn btn-md btn-link">Email Document</button>-->
-					</span>
-				</div>
-			</td>
-			<td>
-				<span class="phd-amount-margin">{{changeOrder.amount | currency:'USD':'symbol':'0.0-0'}}</span>
-			</td>
-		</tr>
+                    {{changeOrder.constructionStatusDescription === 'Pending' ? 'In Review' : changeOrder.constructionStatusDescription}}
+                </span>
+            </td>
+            <td>{{changeOrder.createdBy}}</td>
+            <td>
+                <div *ngIf="changeOrder.actionTypes.length !== 0">
+                    <span *ngIf="canEditChangeOrder(changeOrder)">
+                        <select id="{{changeOrder.id}}" (change)="onChange($event.target.value, changeOrder.actionTypes)" #changeOrderAction [disabled]="(changeOrder.salesStatus === 'Signed' && !canApproveChangeOrder) || isSaving"
+                                [attr.title]="changeOrder.salesStatus === 'Signed' && !canApproveChangeOrder ? 'Requires GSM Approval' : null">
+                            <option *ngFor="let action of changeOrder.actionTypes" [ngValue]="action.id" [disabled]="action.id === 0">{{action.value}}</option>
+                        </select>
+                    </span>
+                    <span *ngIf="!changeOrder.isActiveChangeOrder">
+                        <!--Remove the button temporarily for CRP
+                <!--<button type="button" class="btn btn-md btn-link">Email Document</button>-->
+                    </span>
+                </div>
+            </td>
+            <td>
+                <span class="phd-amount-margin">{{changeOrder.amount | currency:'USD':'symbol':'0.0-0'}}</span>
+            </td>
+        </tr>
 	</tbody>
 </table>
