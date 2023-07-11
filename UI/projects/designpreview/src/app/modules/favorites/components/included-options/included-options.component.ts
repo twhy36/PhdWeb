@@ -361,19 +361,19 @@ export class IncludedOptionsComponent extends UnsubscribeOnDestroy implements On
 
 		if (subGroupElement)
 		{
-				// Workaround to display the element moved under the nav bar
-				const pos = subGroupElement.style.position;
-				const top = subGroupElement.style.top;
+			// Workaround to display the element moved under the nav bar
+			const pos = subGroupElement.style.position;
+			const top = subGroupElement.style.top;
 
-				subGroupElement.style.position = 'relative';
-				subGroupElement.style.top = '-10px';
+			subGroupElement.style.position = 'relative';
+			subGroupElement.style.top = '-10px';
 
-				subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start', inline: 'nearest' });
+			subGroupElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start', inline: 'nearest' });
 
-				this.viewCreated = true;
+			this.viewCreated = true;
 
-				subGroupElement.style.top = top;
-				subGroupElement.style.position = pos;
+			subGroupElement.style.top = top;
+			subGroupElement.style.position = pos;
 		}
 
 		const decisionBarSgElement = document.getElementById('included-decision-bar-sg-' + subGroupId?.toString());

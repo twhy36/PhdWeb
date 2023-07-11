@@ -116,19 +116,19 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.buildMode = state.buildMode;
 			switch (state.buildMode)
 			{
-			case (BuildMode.Preview):
-				this.showContractedOptionsLink = false;
-				this.showFloorplanLink = true;
-				break;
-			case (BuildMode.Presale):
-				this.showContractedOptionsLink = false;
-				this.showFloorplanLink = false;
-				this.welcomeText = 'Welcome To Your Future Home';
-				break;
-			default:
-				this.showContractedOptionsLink = true;
-				this.showFloorplanLink = true;
-				break;
+				case (BuildMode.Preview):
+					this.showContractedOptionsLink = false;
+					this.showFloorplanLink = true;
+					break;
+				case (BuildMode.Presale):
+					this.showContractedOptionsLink = false;
+					this.showFloorplanLink = false;
+					this.welcomeText = 'Welcome To Your Future Home';
+					break;
+				default:
+					this.showContractedOptionsLink = true;
+					this.showFloorplanLink = true;
+					break;
 			}
 		});
 	}
@@ -149,15 +149,15 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		switch (this.buildMode)
 		{
-		case (BuildMode.Preview):
-			this.router.navigate(['/preview'], { queryParamsHandling: 'merge' });
-			break;
-		case (BuildMode.Presale):
-			this.router.navigate(['presale'], { queryParamsHandling: 'merge' });
-			break;
-		default:
-			this.router.navigate(['/home'], { queryParamsHandling: 'merge' });
-			break;
+			case (BuildMode.Preview):
+				this.router.navigate(['/preview'], { queryParamsHandling: 'merge' });
+				break;
+			case (BuildMode.Presale):
+				this.router.navigate(['presale'], { queryParamsHandling: 'merge' });
+				break;
+			default:
+				this.router.navigate(['/home'], { queryParamsHandling: 'merge' });
+				break;
 		}
 	}
 

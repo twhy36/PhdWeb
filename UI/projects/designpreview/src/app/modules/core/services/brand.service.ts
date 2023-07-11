@@ -37,42 +37,42 @@ export class BrandService
 
 		switch (baseUrl) 
 		{
-		case (environment.brandMap.americanWest):
-			this.brandLogout = environment.brandLogoutMap.americanWest;
-			this.brandName = Brands.AmericanWest;
-			this.brandTheme = BrandThemes.AmericanWest;
-			this.brandTitle = BrandTitles.AmericanWest;
-			break;			
-		case (environment.brandMap.centex):
-			this.brandLogout = environment.brandLogoutMap.centex;
-			this.brandName = Brands.Centex;
-			this.brandTheme = BrandThemes.Centex;
-			this.brandTitle = BrandTitles.Centex;
-			break;			
-		case (environment.brandMap.delwebb):
-			this.brandLogout = environment.brandLogoutMap.delwebb;
-			this.brandName = Brands.DelWebb;
-			this.brandTheme = BrandThemes.DelWebb;
-			this.brandTitle = BrandTitles.DelWebb;
-			break;
-		case (environment.brandMap.divosta):
-			this.brandLogout = environment.brandLogoutMap.divosta;
-			this.brandName = Brands.Divosta;
-			this.brandTheme = BrandThemes.DiVosta;
-			this.brandTitle = BrandTitles.Divosta;
-			break;
-		case (environment.brandMap.johnWieland):
-			this.brandLogout = environment.brandLogoutMap.johnWieland;
-			this.brandName = Brands.JohnWieland;
-			this.brandTheme = BrandThemes.JohnWieland;
-			this.brandTitle = BrandTitles.JohnWieland;
-			break;
-		case (environment.brandMap.pulte):
-			this.brandLogout = environment.brandLogoutMap.pulte;
-			this.brandName = Brands.Pulte;
-			this.brandTheme = BrandThemes.Pulte;
-			this.brandTitle = BrandTitles.JohnWieland;
-			break;
+			case (environment.brandMap.americanWest):
+				this.brandLogout = environment.brandLogoutMap.americanWest;
+				this.brandName = Brands.AmericanWest;
+				this.brandTheme = BrandThemes.AmericanWest;
+				this.brandTitle = BrandTitles.AmericanWest;
+				break;			
+			case (environment.brandMap.centex):
+				this.brandLogout = environment.brandLogoutMap.centex;
+				this.brandName = Brands.Centex;
+				this.brandTheme = BrandThemes.Centex;
+				this.brandTitle = BrandTitles.Centex;
+				break;			
+			case (environment.brandMap.delwebb):
+				this.brandLogout = environment.brandLogoutMap.delwebb;
+				this.brandName = Brands.DelWebb;
+				this.brandTheme = BrandThemes.DelWebb;
+				this.brandTitle = BrandTitles.DelWebb;
+				break;
+			case (environment.brandMap.divosta):
+				this.brandLogout = environment.brandLogoutMap.divosta;
+				this.brandName = Brands.Divosta;
+				this.brandTheme = BrandThemes.DiVosta;
+				this.brandTitle = BrandTitles.Divosta;
+				break;
+			case (environment.brandMap.johnWieland):
+				this.brandLogout = environment.brandLogoutMap.johnWieland;
+				this.brandName = Brands.JohnWieland;
+				this.brandTheme = BrandThemes.JohnWieland;
+				this.brandTitle = BrandTitles.JohnWieland;
+				break;
+			case (environment.brandMap.pulte):
+				this.brandLogout = environment.brandLogoutMap.pulte;
+				this.brandName = Brands.Pulte;
+				this.brandTheme = BrandThemes.Pulte;
+				this.brandTitle = BrandTitles.JohnWieland;
+				break;
 		}
 	}
 
@@ -100,12 +100,12 @@ export class BrandService
 
 		switch(displayMode)
 		{
-		case(BrandDisplayMode.Title):
-			return this.brandTitle;
-		case(BrandDisplayMode.LogoutUrl):
-			return this.brandLogout;
-		default:
-			return this.brandName;
+			case(BrandDisplayMode.Title):
+				return this.brandTitle;
+			case(BrandDisplayMode.LogoutUrl):
+				return this.brandLogout;
+			default:
+				return this.brandName;
 		}
 	}
 

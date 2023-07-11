@@ -2,7 +2,7 @@
 
 $aw-typography: mat.define-typography-config(
 	$font-family: 'Optima',
-	$headline-1: mat.define-typography-level(42px, 36px, 400),
+	$headline-1: mat.define-typography-level(16px, 36px, 700),
 	$headline-2: mat.define-typography-level(38px, 36px, 400),
 	$headline-3: mat.define-typography-level(30px, 30px, 400),
 	$headline-4: mat.define-typography-level(28px, 33.6px, 500),
@@ -18,7 +18,7 @@ $aw-typography: mat.define-typography-config(
 
 $ch-typography: mat.define-typography-config(
 	$font-family: 'Apercu',
-	$headline-1: mat.define-typography-level(42px, 36px, 400),
+	$headline-1: mat.define-typography-level(16px, 36px, 700),
 	$headline-2: mat.define-typography-level(38px, 36px, 400),
 	$headline-3: mat.define-typography-level(30px, 30px, 400),
 	$headline-4: mat.define-typography-level(28px, 33.6px, 500),
@@ -34,7 +34,7 @@ $ch-typography: mat.define-typography-config(
 
 $dv-typography: mat.define-typography-config(
 	$font-family: 'StagSans',
-	$headline-1: mat.define-typography-level(42px, 36px, 400),
+	$headline-1: mat.define-typography-level(16px, 36px, 700),
 	$headline-2: mat.define-typography-level(38px, 36px, 400),
 	$headline-3: mat.define-typography-level(30px, 30px, 400),
 	$headline-4: mat.define-typography-level(28px, 33.6px, 500),
@@ -50,7 +50,7 @@ $dv-typography: mat.define-typography-config(
 
 $dw-typography: mat.define-typography-config(
 	$font-family: 'Museo Sans',
-	$headline-1: mat.define-typography-level(42px, 36px, 400),
+	$headline-1: mat.define-typography-level(16px, 36px, 700),
 	$headline-2: mat.define-typography-level(38px, 36px, 400),
 	$headline-3: mat.define-typography-level(30px, 30px, 400),
 	$headline-4: mat.define-typography-level(28px, 33.6px, 500),
@@ -66,7 +66,7 @@ $dw-typography: mat.define-typography-config(
 
 $jw-typography: mat.define-typography-config(
 	$font-family: 'Palatino',
-	$headline-1: mat.define-typography-level(42px, 36px, 400),
+	$headline-1: mat.define-typography-level(16px, 36px, 700),
 	$headline-2: mat.define-typography-level(38px, 36px, 400),
 	$headline-3: mat.define-typography-level(30px, 30px, 400),
 	$headline-4: mat.define-typography-level(28px, 33.6px, 500),
@@ -82,7 +82,7 @@ $jw-typography: mat.define-typography-config(
 
 $ph-typography: mat.define-typography-config(
 	$font-family: 'Lineto-Brown-Pro',
-	$headline-1: mat.define-typography-level(42px, 36px, 400),
+	$headline-1: mat.define-typography-level(16px, 36px, 700),
 	$headline-2: mat.define-typography-level(38px, 36px, 400),
 	$headline-3: mat.define-typography-level(30px, 30px, 400),
 	$headline-4: mat.define-typography-level(28px, 33.6px, 500),
