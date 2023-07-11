@@ -52,9 +52,11 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	private choiceCard: ChoiceCardComponent;
 	@ViewChild(ChoiceCardComponent) set card(choiceCard: ChoiceCardComponent)
 	{
+		const isSameCard = this.choiceCard?.currentChoice?.id === choiceCard?.currentChoice?.id;
+
 		this.choiceCard = choiceCard;
 
-		if (choiceCard)
+		if (choiceCard && !isSameCard)
 		{
 			this.choiceCard.onChoiceDetail(this.viewChoice, this.choiceCard.content);
 		}

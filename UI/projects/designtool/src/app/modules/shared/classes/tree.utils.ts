@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import
 {
 	LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
-	ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+	ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, ConstructionStageTypes, OptionRule,
 	Tree, Choice, DecisionPoint, MyFavoritesChoice, getMaxSortOrderChoice
 } from 'phd-common';
@@ -106,11 +106,6 @@ export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<Desi
 	});
 
 	return result;
-}
-
-export function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrderChoice) => boolean
-{
-	return (choice: JobChoice | ChangeOrderChoice) => isJobChoice(choice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
 
 export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule

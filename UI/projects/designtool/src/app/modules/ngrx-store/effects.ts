@@ -650,8 +650,10 @@ export class CommonEffects
 									}),
 									this.treeService.mergeIntoTree(
 										[
-											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Delete' && coc.dpChoiceId === jc.dpChoiceId)),
-											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])
+											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => (coc.action === 'Delete' || coc.action === 'Change') && coc.dpChoiceId === jc.dpChoiceId)),
+											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : []),
+											// changed choices
+											...result.selectedChoices.filter(sc => _.flatMap(result.changeOrderGroup?.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Change' && coc.divChoiceCatalogId === sc.divChoiceCatalogId))
 										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
 										result.changeOrderGroup,

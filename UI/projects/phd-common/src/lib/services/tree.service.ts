@@ -535,7 +535,7 @@ export class TreeService
                             let missingChoices = [];
 
                             //find previosly selected choices which are no longer in the tree
-                            choices.filter(isLocked(changeOrder)).forEach(choice =>
+                            choices.filter(isLocked(changeOrder, true)).forEach(choice =>
                             {
                                 let existingChoice = currentChoices.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId);
 
