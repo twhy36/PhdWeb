@@ -467,8 +467,9 @@ export class JobService
 	{
 		let changeOrderGroupIds: Array<number> = jobDto.changeOrderGroups.map(t => t.id);
 		const filter = `edhChangeOrderGroupId in (${changeOrderGroupIds}) and eSignStatusId ne 4`;
+		const expand = 'eSignRecipientEnvelopeEvents'
 
-		const url = `${environment.apiUrl}eSignEnvelopes?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
+		const url = `${environment.apiUrl}eSignEnvelopes?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		return this._http.get<any>(url).pipe(
 			map(response =>
