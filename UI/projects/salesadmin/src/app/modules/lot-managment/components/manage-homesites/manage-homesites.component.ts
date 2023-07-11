@@ -47,8 +47,25 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	selectedCommunityWebsiteKey: string | null = null;
 	lots: Array<HomeSite> = [];
 	filteredLots: Array<HomeSite> = [];
-	lotStatus: SelectItem[] = [{ label: 'Available', value: 'Available' }, { label: 'Sold', value: 'Sold' }, { label: 'Unavailable', value: 'Unavailable' }, { label: 'Closed', value: 'Closed' }, { label: 'Model', value: 'Model' }, { label: 'Pending Release', value: 'Pending Release' }, { label: 'Pending Sale', value: 'Pending Sale' }, { label: 'Spec', value: 'Spec' }, { label: 'Spec Unavailable', value: 'Spec Unavailable' }];
-	handingOptions: SelectItem[] = [{ label: 'Left', value: 'Left' }, { label: 'Right', value: 'Right' }, { label: 'N/A', value: 'NA' }];
+	lotStatus: SelectItem[] = [
+		{ label: 'Available', value: 'Available' },
+		{ label: 'Closed', value: 'Closed' },
+		{ label: 'Pending Release', value: 'Pending Release' },
+		{ label: 'Pending Sale', value: 'Pending Sale' },
+		{ label: 'Sold', value: 'Sold' },
+		{ label: 'Unavailable', value: 'Unavailable' }
+	];
+	handingOptions: SelectItem[] = [
+		{ label: 'Left', value: 'Left' },
+		{ label: 'Right', value: 'Right' },
+		{ label: 'N/A', value: 'NA' }
+	];
+	buildTypeOptions: SelectItem[] = [
+		{ label: 'None', value: 'None' },
+		{ label: 'Spec', value: 'Spec' },
+		{ label: 'Model', value: 'Model' },
+		{ label: 'Dirt', value: 'Dirt' }
+	];
 	currentPage: number = 0;
 	filteredCurrentPage: number = 0;
 	allDataLoaded: boolean;
@@ -63,6 +80,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	keyword: string = null;
 	statusFilter: string[] = [];
 	handingFilter: string[] = [];
+	buildTypeFilter: string[] = [];
 	selectedSearchFilter: string = 'Homesite';
 	viewAdjacencies: Array<HomeSiteDtos.ILabel> = [];
 	physicalLotTypes: Array<HomeSiteDtos.ILabel> = [];
@@ -100,19 +118,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			}),
 			switchMap(mkt =>
 			{
-				if (mkt)
-				{
-					return this._orgService.getFinancialCommunities(mkt.id);
-				}
-				else
-				{
-					return of([]);
-				}
+				return mkt ? this._orgService.getFinancialCommunities(mkt.id) : of([]);
 			}),
 			map(comms => comms.map(comm => new FinancialCommunityViewModel(comm)).filter(c => c.isActive)),
 			switchMap(activeComms =>
 			{
-				return forkJoin(of(activeComms), this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', activeComms.map(c => c.id)));
+				return forkJoin([of(activeComms), this._featureSwitchService.getFeatureSwitchForCommunities('Phd Lite', activeComms.map(c => c.id))]);
 			}),
 			map(([activeComms, featureSwitchOrgAssocs]) =>
 			{
@@ -137,6 +148,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				this.selectedCommunity.isPhdLiteEnabled = this.getIsPhdLiteEnabled(comm.id);
 
 				this._homeSiteService.loadCommunityLots(comm.id);
+
 				this.getWebsiteIntegrationKey(this.selectedCommunity.salesCommunityId);
 
 				this.isColorSchemePlanRuleEnabled = comm.dto.isColorSchemePlanRuleEnabled;
@@ -163,15 +175,13 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 	getWebsiteIntegrationKey(salesCommunityId: number)
 	{
-		if (salesCommunityId == null)
+		if (salesCommunityId === null)
 		{
-			return;
+			this._orgService.getWebsiteCommunity(salesCommunityId).subscribe(data =>
+			{
+				this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
+			});
 		}
-
-		this._orgService.getWebsiteCommunity(salesCommunityId).subscribe(data =>
-		{
-			this.selectedCommunityWebsiteKey = data?.webSiteIntegrationKey;
-		});
 	}
 
 	setReleaseData()
@@ -185,7 +195,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		this.isLoading = true;
 		this.lots = [];
 
-		let fc = this.selectedCommunity;
+		const fc = this.selectedCommunity;
 
 		if (!fc.lotsInited)
 		{
@@ -194,7 +204,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			const lotDtosObs = this._homeSiteService.getCommunityHomeSites(commId, this.settings.infiniteScrollPageSize, 0);
 			const releasesDtosObs = this._releaseService.getHomeSiteReleases(commId);
 
-			forkJoin(lotDtosObs, releasesDtosObs).pipe(map(([lotDto, rDto]) =>
+			forkJoin([lotDtosObs, releasesDtosObs]).pipe(map(([lotDto, rDto]) =>
 			{
 				this.releaseDTOs = rDto;
 
@@ -240,9 +250,9 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		const top = this.settings.infiniteScrollPageSize;
 
 		// Use filtered page numbering in case of active filters
-		const skip = this.keyword || this.statusFilter.length || this.handingFilter.length ? this.filteredCurrentPage * this.settings.infiniteScrollPageSize : this.currentPage * this.settings.infiniteScrollPageSize;
+		const skip = this.keyword || this.statusFilter.length || this.handingFilter.length || this.buildTypeFilter.length ? this.filteredCurrentPage * this.settings.infiniteScrollPageSize : this.currentPage * this.settings.infiniteScrollPageSize;
 
-		this._homeSiteService.getCommunityHomeSites(this.selectedCommunity.id, top, skip, this.keyword, this.statusFilter, this.handingFilter).subscribe(data =>
+		this._homeSiteService.getCommunityHomeSites(this.selectedCommunity.id, top, skip, this.keyword, this.statusFilter, this.handingFilter, this.buildTypeFilter).subscribe(data =>
 		{
 			var result = data.map(l => new HomeSiteViewModel(l, this.selectedCommunity.dto, this.releaseDTOs.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
 
@@ -255,7 +265,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			});
 
 			// If filtered data is being scrolled, then combine filtered result
-			if (this.keyword || this.statusFilter.length || this.handingFilter.length)
+			if (this.keyword || this.statusFilter.length || this.handingFilter.length || this.buildTypeFilter.length)
 			{
 				this.filteredLots = unionBy(this.filteredLots, result);
 				this.allFilteredDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
@@ -277,45 +287,38 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		});
 	}
 
-	resetFilteredData()
-	{
-		this.filteredCurrentPage = 0;
-		this.allFilteredDataLoaded = false;
-	}
-
 	keywordSearch(event: any)
 	{
-		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
-
 		this.searchBar.keyword = this.keyword = event['keyword'].trim();
 
-		this.filterHomesites();
+		this.onFilterChange();
+	}
 
-		if (!this.isSearchingFromServer)
-		{
-			this.onSearchResultUpdated();
-		}
+	onBuildTypeChange(event: any)
+	{
+		this.buildTypeFilter = event.value;
+
+		this.onFilterChange();
 	}
 
 	onStatusChange(event: any)
 	{
-		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
-
 		this.statusFilter = event.value;
 
-		this.filterHomesites();
-
-		if (!this.isSearchingFromServer)
-		{
-			this.onSearchResultUpdated();
-		}
+		this.onFilterChange();
 	}
 
 	onHandingChange(event: any)
 	{
-		this.resetFilteredData(); // Any filter change should re run the query and remove current filters
-
 		this.handingFilter = event.value;
+
+		this.onFilterChange();
+	}
+
+	onFilterChange()
+	{
+		// Any filter change should re run the query and remove current filters
+		this.resetFilteredData(); 
 
 		this.filterHomesites();
 
@@ -327,9 +330,14 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 	filterHomesites()
 	{
+		const setFilteredLots = (filteredByLots: any[]) =>
+		{
+			// Intersect results if there are filtered results else just set the non empty results
+			this.filteredLots = this.filteredLots.length > 0 && filteredByLots.length > 0 ? intersection(this.filteredLots, filteredByLots) : this.filteredLots.length > 0 ? this.filteredLots : filteredByLots;
+		};
 		this.isSearchingFromServer = false;
 
-		if (this.keyword || this.statusFilter.length || this.handingFilter.length)
+		if (this.keyword || this.statusFilter.length || this.handingFilter.length || this.buildTypeFilter.length)
 		{
 			if (this.allDataLoaded)
 			{
@@ -338,16 +346,17 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				var keywordLots = [];
 				var statusLots = [];
 				var handingLots = [];
+				var buildTypeLots = [];
 
 				if (this.keyword)
 				{
-					let splittedKeywords = this.keyword.split(' ');
+					const splittedKeywords = this.keyword.split(' ');
 
 					splittedKeywords.forEach(keyword =>
 					{
 						if (keyword)
 						{
-							let filteredResults = this.lots.filter(lot => this.searchBar.wildcardMatch(lot.lotBlock, keyword));
+							const filteredResults = this.lots.filter(lot => this.searchBar.wildcardMatch(lot.lotBlock, keyword));
 
 							keywordLots = union(keywordLots, filteredResults);
 						}
@@ -358,38 +367,17 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				this.statusFilter.forEach(status =>
 				{
-					if (status === 'Spec')
-					{
-						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === status && (lot.dto && lot.dto.job && lot.dto.job.jobTypeName !== 'Model'));
+					const filteredResults = this.lots.filter(lot => lot.lotStatusDescription === status);
 
-						statusLots = union(statusLots, filteredResults);
-					}
-					else if (status === 'Model')
-					{
-						let filteredResults = this.lots.filter(lot => (lot.lotBuildTypeDescription === status || lot.lotBuildTypeDescription === 'Spec') && (lot.dto && lot.dto.job && lot.dto.job.jobTypeName === 'Model'));
-
-						statusLots = union(statusLots, filteredResults);
-					}
-					else if (status === 'Spec Unavailable')
-					{
-						let filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === 'Spec' && lot.lotStatusDescription === 'Unavailable' && (lot.dto && lot.dto.job && lot.dto.job.jobTypeName !== 'Model'));
-
-						statusLots = union(statusLots, filteredResults);
-					}
-					else
-					{
-						let filteredResults = this.lots.filter(lot => lot.lotStatusDescription === status);
-
-						statusLots = union(statusLots, filteredResults);
-					}
+					statusLots = union(statusLots, filteredResults);
 				});
 
 				// Intersect results if there are filtered results from keywordSearch & statusSearch, else just set the non empty results
-				this.filteredLots = this.filteredLots.length > 0 && statusLots.length > 0 ? intersection(this.filteredLots, statusLots) : this.filteredLots.length > 0 ? this.filteredLots : statusLots;
+				setFilteredLots(statusLots);
 
 				this.handingFilter.forEach(handing =>
 				{
-					let filteredResults = this.lots.filter(lot =>
+					const filteredResults = this.lots.filter(lot =>
 					{
 						var handingRec = (<any>lot).handingDisplay;
 
@@ -400,12 +388,22 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 				});
 
 				// Intersect results if there are filtered results from keywordSearch + statusSearch & handingSearch, else just set the non empty results
-				this.filteredLots = this.filteredLots.length > 0 && handingLots.length > 0 ? intersection(this.filteredLots, handingLots) : this.filteredLots.length > 0 ? this.filteredLots : handingLots;
+				setFilteredLots(handingLots);
+
+				this.buildTypeFilter.forEach(buildType =>
+				{
+					const filteredResults = this.lots.filter(lot => buildType === 'None' ? lot.lotBuildTypeDescription === null : lot.lotBuildTypeDescription === buildType);
+
+					buildTypeLots = union(buildTypeLots, filteredResults);
+				});
+
+				// Intersect results if there are filtered results from keywordSearch + buildTypeSearch & handingSearch, else just set the non empty results
+				setFilteredLots(buildTypeLots);
 			}
 			else
 			{
 				// filter server to fetch data
-				this.filterHomesitesFromServer(this.keyword, this.statusFilter, this.handingFilter);
+				this.filterHomesitesFromServer(this.keyword, this.statusFilter, this.handingFilter, this.buildTypeFilter);
 			}
 		}
 		else
@@ -430,7 +428,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		}
 	}
 
-	filterHomesitesFromServer(keyword: string, statusFilter?: string[], handingFilter?: string[])
+	filterHomesitesFromServer(keyword: string, statusFilter?: string[], handingFilter?: string[], buildTypeFilter?: string[])
 	{
 		this.isSearchingFromServer = true;
 
@@ -439,45 +437,54 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		const top = this.settings.infiniteScrollPageSize;
 		const skip = this.filteredCurrentPage * this.settings.infiniteScrollPageSize;
 
-		this._homeSiteService.getCommunityHomeSites(this.selectedCommunity.id, top, skip, keyword, statusFilter, handingFilter).subscribe(data =>
-		{
-			this.isSearchingFromServer = false;
-
-			if (data.length)
+		this._homeSiteService.getCommunityHomeSites(this.selectedCommunity.id, top, skip, keyword, statusFilter, handingFilter, buildTypeFilter)
+			.pipe(finalize(() =>
 			{
-				var result = data.map(l => new HomeSiteViewModel(l, this.selectedCommunity.dto, this.releaseDTOs.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
-
-				const pipe = new HandingsPipe();
-
-				result.forEach(n =>
+				this.isSearchingFromServer = false;
+				this.isLoading = false;
+			}))
+			.subscribe(data =>
+			{
+				if (data.length)
 				{
-					(<any>n).handingDisplay = pipe.transform(n.handing);
-					(<any>n).handingValues = (n.handing || []).map(h => h.handingId);
-				});
+					var result = data.map(l => new HomeSiteViewModel(l, this.selectedCommunity.dto, this.releaseDTOs.find(r => r.homeSitesAssociated.findIndex(x => x == l.id) != -1)));
 
-				this.filteredLots = result;
-				this.lotCount = this.filteredLots.length;
+					const pipe = new HandingsPipe();
 
-				this.filteredCurrentPage++;
-				this.allFilteredDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
-			}
-			else
-			{
-				// No results found
-				this.filteredLots = [];
-			}
+					result.forEach(n =>
+					{
+						(<any>n).handingDisplay = pipe.transform(n.handing);
+						(<any>n).handingValues = (n.handing || []).map(h => h.handingId);
+					});
 
-			this.isLoading = false;
-		});
+					this.filteredLots = result;
+					this.lotCount = this.filteredLots.length;
+
+					this.filteredCurrentPage++;
+
+					this.allFilteredDataLoaded = !result.length || result.length < this.settings.infiniteScrollPageSize;
+				}
+				else
+				{
+					// No results found
+					this.filteredLots = [];
+				}
+			});
 	}
 
 	clearFilter()
 	{
 		this.keyword = null;
-		this.allFilteredDataLoaded = false;
-		this.filteredCurrentPage = 0;
+
+		this.resetFilteredData();
 
 		this.filterHomesites();
+	}
+
+	resetFilteredData()
+	{
+		this.filteredCurrentPage = 0;
+		this.allFilteredDataLoaded = false;
 	}
 
 	onSidePanelClose(status: boolean)
@@ -531,12 +538,14 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			if (result === Constants.CONTINUE)
 			{
 				this.saving = true;
+
 				const dto: IHomeSiteReleaseDto = {
 					releaseDate: new Date().toDateString(),
 					releaseDescription: 'Single release of ' + homesite.lotBlock,
 					releaseRank: null,
 					homeSitesAssociated: [homesite.commLbid]
 				};
+
 				dto.financialCommunityId = this.selectedCommunity.id;
 
 				this._releaseService.saveRelease(dto).pipe(
@@ -551,10 +560,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 					this._msgService.add({ severity: 'success', summary: 'Release', detail: `has been saved!` });
 				},
-					error =>
-					{
-						this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
-					});
+				error =>
+				{
+					this._msgService.add({ severity: 'error', summary: 'Error', detail: 'Release failed to save.' });
+				});
 			}
 		}, (reason) =>
 		{
@@ -574,7 +583,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		const saveHomesite$ = event.homesite ? this._homeSiteService.saveHomesite(commLbId, event.homesite.homesiteDto, event.homesite.lotBuildTypeUpdated) : of({} as HomeSiteDtos.ILotDto);
 		const saveMonotonyRules$ = event.rule ? this._homeSiteService.saveMonotonyRules(event.rule.monotonyRules, event.rule.lotId) : of({} as Response);
 
-		forkJoin(saveHomesite$, saveMonotonyRules$).pipe(
+		forkJoin([saveHomesite$, saveMonotonyRules$]).pipe(
 			finalize(() =>
 			{
 				this.saving = false;
@@ -603,10 +612,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 			this.sidePanelOpen = false;
 		},
-			error =>
-			{
-				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-			});
+		error =>
+		{
+			this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+		});
 	}
 
 	formatAddress(address: HomeSiteDtos.IAddress)
@@ -637,7 +646,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	toggleIsHiddenTho(lot: HomeSite)
 	{
 		// Wait to change the value of the original until the patch completes
-		let lotDto = clone(lot.dto);
+		const lotDto = clone(lot.dto);
 
 		lotDto.isHiddenInTho = !lotDto.isHiddenInTho;
 
@@ -650,10 +659,10 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock + ' ' + toggleResultText}` });
 			},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
-				});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error });
+			});
 	}
 
 	getIsPhdLiteEnabled(financialCommunityId: number)
@@ -691,12 +700,35 @@ class FinancialCommunityViewModel
 		this.dto = dto;
 	}
 
-	get marketId() { return this.dto.marketId; }
-	get id() { return this.dto.id; }
-	get name() { return this.dto.name; }
-	get key() { return this.dto.key; }
-	get salesCommunityId() { return this.dto.salesCommunityId; }
-	get isActive() { return (this.dto.salesStatusDescription === 'Active' || this.dto.salesStatusDescription === 'New'); }
+	get marketId()
+	{
+		return this.dto.marketId;
+	}
+
+	get id()
+	{
+		return this.dto.id;
+	}
+
+	get name()
+	{
+		return this.dto.name;
+	}
+
+	get key()
+	{
+		return this.dto.key;
+	}
+
+	get salesCommunityId()
+	{
+		return this.dto.salesCommunityId;
+	}
+
+	get isActive()
+	{
+		return (this.dto.salesStatusDescription === 'Active' || this.dto.salesStatusDescription === 'New');
+	}
 
 	static sorter(left: FinancialCommunityViewModel, right: FinancialCommunityViewModel): number
 	{
@@ -713,7 +745,7 @@ class HomeSiteViewModel extends HomeSite
 
 	get availabilityDate()
 	{
-		return this.release && this.release.releaseDate ? moment(this.release.releaseDate).utc().format(HomeSiteDateFormat) : '';
+		return this.release?.releaseDate ? moment(this.release.releaseDate).utc().format(HomeSiteDateFormat) : '';
 	}
 
 	get lotJobType()
