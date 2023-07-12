@@ -608,10 +608,7 @@ export class PHDSearchComponent
 
 	getBuildTypeUrl(lot: SearchResult)
 	{
-		let url = `${environment.baseUrl.designTool}`;
-
-		url += lot.buildTypeDisplayName === 'Spec' ? `spec` : `scenario-summary`;
-		url += `/${lot.jobId}`;
+		let url = `${environment.baseUrl.designTool}scenario-summary/${lot.jobId}`;
 
 		return url;
 	}
