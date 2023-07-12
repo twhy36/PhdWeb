@@ -61,7 +61,6 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 		{ label: 'N/A', value: 'NA' }
 	];
 	buildTypeOptions: SelectItem[] = [
-		{ label: 'None', value: 'None' },
 		{ label: 'Spec', value: 'Spec' },
 		{ label: 'Model', value: 'Model' },
 		{ label: 'Dirt', value: 'Dirt' }
@@ -392,7 +391,20 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				this.buildTypeFilter.forEach(buildType =>
 				{
-					const filteredResults = this.lots.filter(lot => buildType === 'None' ? lot.lotBuildTypeDescription === null : lot.lotBuildTypeDescription === buildType);
+					let filteredResults: HomeSite[] = [];
+
+					if (buildType === 'Dirt')
+					{
+						filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === buildType || lot.lotBuildTypeDescription === null)
+					}
+					else if (buildType === 'Model')
+					{
+						filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === buildType || (lot.lotBuildTypeDescription === 'Spec' && lot.dto?.job?.jobTypeName === 'Model'));
+					}
+					else if (buildType === 'Spec')
+					{
+						filteredResults = this.lots.filter(lot => lot.lotBuildTypeDescription === buildType && lot.dto?.job?.jobTypeName !== 'Model');
+					}
 
 					buildTypeLots = union(buildTypeLots, filteredResults);
 				});
@@ -750,7 +762,7 @@ class HomeSiteViewModel extends HomeSite
 
 	get lotJobType()
 	{
-		return (this.dto.lotBuildTypeDescription === 'Spec' && (this.dto.job && this.dto.job.jobTypeName === 'Model')) ? 'Model' : this.dto.lotBuildTypeDescription;
+		return (this.dto.lotBuildTypeDescription === 'Spec' && this.dto.job?.jobTypeName === 'Model') ? 'Model' : this.dto.lotBuildTypeDescription;
 	}
 
 	constructor(dto: HomeSiteDtos.ILotDto, community: FinancialCommunity, release: IHomeSiteReleaseDto)

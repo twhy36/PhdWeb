@@ -90,14 +90,22 @@ export class HomeSiteService
 
 			buildTypeFilter.map(buildType =>
 			{
-				if (buildType === 'None')
+				let addon = '';
+
+				if (buildType === 'Dirt')
 				{
-					filters.push(`lotBuildTypeDesc eq null`);
+					addon += ` or lotBuildTypeDesc eq null`;
 				}
-				else
+				else if (buildType === 'Model')
 				{
-					filters.push(`lotBuildTypeDesc eq '${buildType}'`);
+					addon += ` or (lotBuildTypeDesc eq 'Spec' and jobs/any(j: j/jobTypeName eq 'Model'))`;
 				}
+				else if(buildType === 'Spec')
+				{
+					addon += ` and jobs/any(j: j/jobTypeName ne 'Model')`;
+				}
+
+				filters.push(`(lotBuildTypeDesc eq '${buildType}'${addon})`);
 			});
 
 			filter += applyFilter(filters);
