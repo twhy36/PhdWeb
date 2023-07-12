@@ -13,6 +13,7 @@ import { CommonActionTypes } from '../actions';
 export interface State
 {
 	isChangingOrder: boolean,
+	isChangeOrderEmpty: boolean,
 	loadingCurrentChangeOrder: boolean,
 	loadError: boolean,
 	savingChangeOrder: boolean,
@@ -23,6 +24,7 @@ export interface State
 
 export const initialState: State = {
 	isChangingOrder: false,
+	isChangeOrderEmpty: true,
 	loadingCurrentChangeOrder: false,
 	loadError: false,
 	savingChangeOrder: false,
@@ -71,6 +73,9 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 
 				return { ...state, isChangingOrder: updatingChangeOrder ? state.isChangingOrder : action.isChangingOrder, currentChangeOrder: changeOrder, changeInput: updatingChangeOrder ? newChangeInput : action.changeInput };
 			}
+
+		case ChangeOrderActionTypes.SetIsChangeOrderEmpty:			
+				return { ...state, isChangeOrderEmpty: action.isChangeOrderEmpty };			
 
 		case CommonActionTypes.ESignEnvelopesLoaded:
 			let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
