@@ -22,7 +22,7 @@ export const environment: IEnvironment = {
 	authQueryParams: 'domain_hint=pulte.com',
 	pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
 	appInsights: {
-		instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0',
+		connectionString: 'InstrumentationKey=858d9527-b103-4d11-86b2-4d3db2e630c1;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
 	},
 	whatFix: {

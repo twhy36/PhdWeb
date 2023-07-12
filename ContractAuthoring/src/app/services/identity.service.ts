@@ -9,21 +9,25 @@ export const WINDOW_ORIGIN = new InjectionToken<string>('origin');
 export const API_URL = new InjectionToken<string>('apiUrl');
 
 @Injectable()
-export class IdentityService {
+export class IdentityService
+{
     private loggedInSubject$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
 
-    public init(): Observable<boolean> {
+    public init(): Observable<boolean>
+    {
         return this.loggedInSubject$.pipe(take(1));
     }
 
-    public get loggedIn(): Observable<boolean> {
+    public get loggedIn(): Observable<boolean>
+    {
         return this.loggedInSubject$;
     }
 
     constructor(@Inject(forwardRef(() => OAuthService)) private osvc: OAuthService,
         @Inject(forwardRef(() => AUTH_CONFIG)) private authConfig: AuthConfig,
         @Inject(forwardRef(() => WINDOW_ORIGIN)) private origin: string,
-        @Inject(forwardRef(() => ApplicationInsights)) private appInsights: ApplicationInsights) {
+        @Inject(forwardRef(() => ApplicationInsights)) private appInsights: ApplicationInsights)
+    {
         this.configure(this.authConfig);
 
         this.loggedInSubject$.pipe(
@@ -32,23 +36,26 @@ export class IdentityService {
         ).subscribe(() => 
         {
             this.appInsights.setAuthenticatedUserContext(this.osvc.getIdentityClaims()['preferred_username']);
-            this.appInsights.trackTrace({message: `ContractAuthoring - user authenticated`});
+            this.appInsights.trackTrace({ message: `ContractAuthoring - user authenticated` });
         });
     }
 
-    private configure(authConfig: AuthConfig) {
+    private configure(authConfig: AuthConfig)
+    {
         debugger;
         authConfig.redirectUri = this.origin;
         this.osvc.configure(authConfig);
         this.osvc.setupAutomaticSilentRefresh();
         this.osvc.loadDiscoveryDocumentAndTryLogin({
             preventClearHashAfterLogin: true
-        }).then(res => {
+        }).then(res =>
+        {
             this.loggedInSubject$.next(this.osvc.hasValidAccessToken() && this.osvc.hasValidIdToken());
         });
     }
 
-    public login(): void {
+    public login(): void
+    {
         this.osvc.initLoginFlow();
     }
 }

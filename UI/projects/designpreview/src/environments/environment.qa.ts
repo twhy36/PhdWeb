@@ -15,8 +15,8 @@ export const environment: IEnvironment = {
 			logoutUrl: 'https://cdr.qa.pulte.com/My-Pulte-Account/Login'
 		},
 		azureAD: {
-			issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-			clientId: "90bf975f-6a55-42cb-9016-1103586c8f50",
+			issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
+			clientId: '90bf975f-6a55-42cb-9016-1103586c8f50',
 			responseType: 'code',
 			clearHashAfterLogin: true,
 			requestAccessToken: true,
@@ -29,9 +29,9 @@ export const environment: IEnvironment = {
 			issuer: 'https://phdapi.qa.pulte.com',
 		}
 	},
-	authQueryParams: "domain_hint=pulte.com",
+	authQueryParams: 'domain_hint=pulte.com',
 	appInsights: {
-		connectionString:'InstrumentationKey=59530951-22f6-449f-ac70-8dffc824b34d;IngestionEndpoint=https://eastus-5.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
+		connectionString: 'InstrumentationKey=59530951-22f6-449f-ac70-8dffc824b34d;IngestionEndpoint=https://eastus-5.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: false,
 		disableExceptionTracking: false,
 		disableAjaxTracking: true

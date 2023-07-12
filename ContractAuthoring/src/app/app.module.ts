@@ -20,18 +20,22 @@ import { environment } from '../environments/environment';
 import { OAuthModuleConfig, OAuthModule } from 'angular-oauth2-oidc';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-const appInitializerFn = (identityService: IdentityService) => {
+const appInitializerFn = (identityService: IdentityService) =>
+{
     // the APP_INITIALIZER provider waits for promises to be resolved
     return () => identityService.init().pipe(
-        tap(loggedIn => {
-            if (!loggedIn) {
+        tap(loggedIn =>
+        {
+            if (!loggedIn)
+            {
                 identityService.login();
             }
         })
     ).toPromise();
 };
 
-export function oAuthModuleConfigFactory(apiUrl: string) {
+export function oAuthModuleConfigFactory(apiUrl: string)
+{
     return {
         resourceServer:
         {
@@ -41,17 +45,18 @@ export function oAuthModuleConfigFactory(apiUrl: string) {
     };
 }
 
-export function getOrigin() {
+export function getOrigin()
+{
     return window.origin;
 }
 
 const appInsights = new ApplicationInsights(
-{ 
-    config: 
     {
-        instrumentationKey: environment.appInsights.instrumentationKey
-    } 
-});
+        config:
+        {
+            connectionString: environment.appInsights.connectionString
+        }
+    });
 appInsights.loadAppInsights();
 appInsights.trackTrace({
     message: "Starting contract authoring tool"
