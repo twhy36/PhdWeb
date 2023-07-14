@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 {
 	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption, TreeService
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption, TreeService, Constants
 } from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -397,7 +397,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			}
 			else if (!this.canEditAgreement)
 			{
-				btnLabel = (this.buildMode !== 'spec') ? 'Agreement Locked' : 'Spec Locked';
+				btnLabel = (this.buildMode !== Constants.BUILD_MODE_SPEC) ? 'Agreement Locked' : 'Spec Locked';
 			}
 			else
 			{
@@ -554,26 +554,26 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 			if (this.monotonyConflict.monotonyConflict && this.isPastCutOff)
 			{
-				body = `This will override the Monotony Conflict and the Cut-off`;
+				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
 			}
 			else if (this.monotonyConflict.monotonyConflict)
 			{
-				body = `This will override the Monotony Conflict`;
+				body = Constants.OVERRIDE_MONOTONY;
 			}
 			else
 			{
-				body = `This will override the Cut-off`;
+				body = Constants.OVERRIDE_CUT_OFF;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
-			confirm.componentInstance.title = 'Warning';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== 'Close')
+				if (result !== Constants.CLOSE)
 				{
 					this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
 

@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, Constants } from 'phd-common';
 
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
 
@@ -195,7 +195,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		const attribute = $event.attribute;
 		const selectedAttributeId = this.getSelectedAttributeId(attributeGroupId);
 		const alc = this.attributeListComponents?.find(x => x.attributeGroupId == attributeGroupId); //reference to attribute group's attribute list component
-		
+
 		//if a user selected a different attribute and the attribute group is active
 		if (this.isActive && selectedAttributeId !== attribute.id)
 		{
@@ -256,30 +256,30 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	{
 		if (!this.overrideReason)
 		{
-			let body = 'This will override the ';
+			let body = '';
 
 			if (attribute.monotonyConflict && this.isPastCutOff)
 			{
-				body += `Monotony Conflict and the Cut-off`;
+				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
 			}
 			else if (attribute.monotonyConflict)
 			{
-				body += `Monotony Conflict`;
+				body = Constants.OVERRIDE_MONOTONY;
 			}
 			else
 			{
-				body += `Cut-off`;
+				body = Constants.OVERRIDE_CUT_OFF;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
-			confirm.componentInstance.title = 'Warning';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== 'Close')
+				if (result !== Constants.CLOSE)
 				{
 					this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
 

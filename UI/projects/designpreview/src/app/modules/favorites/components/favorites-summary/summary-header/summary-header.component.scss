@@ -1,5 +1,4 @@
-@import '../../../../../../scss/styles.scss';
-$headerTextPadding: 15px;
+@import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
 .phd-logo-image {
 	width: calc(40vw);
@@ -22,7 +21,7 @@ $headerTextPadding: 15px;
 	width: calc(85vw);
 
 	.phd-upper-header {
-		padding-left: $headerTextPadding;
+		padding-left: 15px;
 	}
 
 	.phd-print-description {
@@ -37,10 +36,8 @@ $headerTextPadding: 15px;
 	.phd-print-description-items {
 		display: flex;
 		transform: translateY(30px);
-		color: var(--action-icon-color);
 
 		button {
-			color: var(--action-icon-color);
 			background: transparent;
 			border: none;
 			padding: 0;
@@ -49,8 +46,29 @@ $headerTextPadding: 15px;
 		}
 	}
 
+	.phd-print-description-items-presale-pricing {
+		display: flex;
+
+		.fa-print {
+			margin-left: 12px;
+			font-size: 24px;
+		}
+
+		button {
+			background: transparent;
+			border: none;
+			padding: 0;
+			display: flex;
+			justify-content: start;
+		}
+
+		.phd-print-text {
+			font-size: 12px;
+			margin: 5px;
+		}
+	}
+
 	.phd-print-text {
-		font-size: 14px;
 		margin: 5px;
 	}
 
@@ -59,18 +77,12 @@ $headerTextPadding: 15px;
 	}
 
 	.phd-favorites-list {
-		font-size: 28px;
-		font-weight: 500;
 		margin-top: 5px;
 	}
 
 	.phd-lot-label {
 		text-transform: uppercase;
 		font-size: 16px;
-	}
-
-	.phd-lot-details {
-		font-size: 15px;
 	}
 
 	.phd-price-breakdown {
@@ -109,34 +121,29 @@ $headerTextPadding: 15px;
 				background-color: #FFFFFF;
 			}
 		}
-
-		.phd-icon-selected {
-			color: var(--primary-icon-color);
-		}
 	}
 
 	.phd-divider {
 		width: 100%;
+		background-color: $mid-gray;
 		height: 1px;
 		min-height: 1px;
-		background-color: $mid_gray;
 		transform: translateX(15px);
 	}
 
 	.phd-vertical-divider {
-		border: 1px solid $mid_gray;
+		border: 1px solid $mid-gray;
 		height: 70%;
 		transform: translateY(22%);
 		margin: 0 30px;
 	}
 
 	.phd-favorites-disclaimer {
-		font-size: 14px;
-		padding-left: $headerTextPadding;
+		padding-left: 15px;
 	}
 }
 
-.summary-header {
+.phd-summary-header {
 	display: flex;
 	flex-direction: row;
 	z-index: 1;
@@ -145,47 +152,28 @@ $headerTextPadding: 15px;
 		position: fixed;
 		top: 125px;
 
-		&,
-		::ng-deep & * {
-			transition: all .2s;
-		}
-
 		&::after {
+			background-color: white;
 			content: ' ';
 			position: fixed;
 			width: 100%;
 			height: 115px;
 			z-index: -1;
 			left: 0;
-			background-color: white;
-			box-shadow: 0 9px 4px -8px $mid_gray;
+			box-shadow: 0 1px 4px 0px $mid-gray;
 		}
 	}
 }
 
-.summary-header-presale {
-	display: flex;
-	flex-direction: row;
-	z-index: 1;
-
+.phd-summary-header-presale {
 	&.is-sticky {
-		position: fixed;
-		top: 125px;
-
 		&,
 		::ng-deep & * {
 			transition: all .2s;
 		}
 
 		&::after {
-			content: ' ';
-			position: fixed;
-			width: 100%;
 			height: 130px;
-			z-index: -1;
-			left: 0;
-			background-color: white;
-			box-shadow: 0 9px 4px -8px $mid_gray;
 		}
 	}
 }
@@ -213,7 +201,7 @@ $headerTextPadding: 15px;
 		width: 29.5cm !important;
 		height: 1px !important;
 		margin-left: 0.5cm !important;
-		border: 1px solid $mid_gray !important;
+		border: 1px solid $mid-gray !important;
 		print-color-adjust: exact;
 	}
 
@@ -241,12 +229,6 @@ $headerTextPadding: 15px;
 
 	.phd-name-group {
 		margin-right: 175px;
-	}
-
-	.phd-print-description-items {
-		display: flex;
-		transform: translateY(30px);
-		color: var(--action-icon-color);
 	}
 
 	.phd-print-text {

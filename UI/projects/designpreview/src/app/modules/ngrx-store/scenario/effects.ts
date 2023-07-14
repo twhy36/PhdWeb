@@ -5,17 +5,17 @@ import { Action, Store, select } from '@ngrx/store';
 import { combineLatest, Observable, of } from 'rxjs';
 import { switchMap, tap, withLatestFrom } from 'rxjs/operators';
 
-import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter } from './actions';
+import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter, SetPresalePricingEnabled } from './actions';
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
 import * as _ from 'lodash';
-import { DeleteMyFavoritesPointDeclined } from '../favorite/actions';
+import { DeleteMyFavoritesPointDeclined, LoadDefaultFavorite } from '../favorite/actions';
 import { from } from 'rxjs';
 import { ErrorFrom, tryCatch } from '../error.action';
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
-import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, TreeService } from 'phd-common';
+import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, FeatureSwitchService, TreeService, IOrg } from 'phd-common';
 import { LoadError } from '../actions';
 import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
 import { AdobeService } from '../../core/services/adobe.service';
@@ -104,6 +104,7 @@ export class ScenarioEffects
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(webPlanMapping),
+						new LoadDefaultFavorite()
 					]);
 				})
 			), LoadError, 'Error loading preview!!', ErrorFrom.LoadPreview)
@@ -154,16 +155,17 @@ export class ScenarioEffects
 						combineLatest([
 							of(tree),
 							of(rules),
-							of(optionImages)
+							of(optionImages),
+							this.featureSwitchService.isFeatureEnabled('Design Preview Presale Pricing', { orgID: tree.orgId, edhFinancialCommunityId: tree.financialCommunityId } as IOrg),
 						]),
 						this.optionService.getPlanOptionsByPlanKey(tree.financialCommunityId, tree.planKey),
 						this.planService.getWebPlanMapping(tree.planKey, tree.financialCommunityId),
 						this.planService.getPlanByPlanKey(tree.planKey, tree.financialCommunityId, optionIds),
 						this.orgService.getSalesCommunityByFinancialCommunityId(tree.financialCommunityId, true),
-						this.treeService.getChoiceImageAssoc(choiceIds)
+						this.treeService.getChoiceImageAssoc(choiceIds),
 					]);
 				}),
-				switchMap(([[tree, rules, optionImages], planOptions, webPlanMapping, plan, salesCommunity, choiceImages]) =>
+				switchMap(([[tree, rules, optionImages, isPresalePricingEnabled], planOptions, webPlanMapping, plan, salesCommunity, choiceImages]) =>
 				{
 					//map choice level images
 					mergeTreeChoiceImages(choiceImages, tree);
@@ -175,6 +177,8 @@ export class ScenarioEffects
 						new PlansLoaded(plans),
 						new SelectPlan(plan.id, plan.treeVersionId, plan.marketingPlanId),
 						new SetWebPlanMapping(webPlanMapping),
+						new SetPresalePricingEnabled(isPresalePricingEnabled),
+						new LoadDefaultFavorite()
 					]);
 				})
 			), LoadError, 'Error loading presale!!', ErrorFrom.LoadPresale)
@@ -199,5 +203,6 @@ export class ScenarioEffects
 		private adobeService: AdobeService,
 		private optionService: OptionService,
 		private planService: PlanService,
-		private orgService: OrganizationService) { }
+		private orgService: OrganizationService,
+		private featureSwitchService: FeatureSwitchService) { }
 }

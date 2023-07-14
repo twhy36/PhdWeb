@@ -30,13 +30,14 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	@Input() communityWebsiteKey: string;
 	@Input() isColorSchemePlanRuleEnabled: boolean;
 	@Input() communitySubmaps?: string[];
-	@Input() filteredLots: Array<HomeSiteDtos.ILotDto> = []
+	@Input() filteredLots: Array<HomeSiteDtos.ILotDto> = [];
+	@Input() canChangeBuildType: boolean = true;
 
 	@Output() onSaveHomesiteAndMonotonyRules = new EventEmitter<{ homesite: HomeSiteDtos.IHomeSiteEventDto, rule: MonotonyRuleDtos.IMonotonyRuleEventDto }>();
 
 	@ViewChild(SidePanelComponent)
 	private sidePanel: SidePanelComponent;
-	
+
 	@ViewChild(AvSitePlanComponent)
 	private alphaVisionMap!: AvSitePlanComponent;
 
@@ -50,8 +51,8 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	disableMonotonyForm: boolean;
 	fromMonotony: string;
 
-	inaccessibleLotStatuses = ["Sold", "Closed"];
-	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat("PendingSale");
+	inaccessibleLotStatuses = ['Sold', 'Closed'];
+	disallowedStatusesForPremiumUpdate = this.inaccessibleLotStatuses.concat('PendingSale');
 
 	isOpen: boolean = true;
 
@@ -68,7 +69,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	showMapsNavigation: boolean = false;
 
-	currentSubmap: string ='Master Map';
+	currentSubmap: string = 'Master Map';
 
 	selectedLotSubmap: string = '';
 
@@ -99,7 +100,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		return !this.lotInaccessible && !this.monotonyForm.pristine && this.monotonyForm.valid && !this.saving;
 	}
 
-		
 	get handings(): Array<HomeSiteDtos.Handing>
 	{
 		return [HomeSiteDtos.Handing.Left, HomeSiteDtos.Handing.Right, HomeSiteDtos.Handing.NA];
@@ -107,7 +107,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	get facings(): Array<string>
 	{
-		return ["", ...this.enumKeys(HomeSiteDtos.Facing)];
+		return ['', ...this.enumKeys(HomeSiteDtos.Facing)];
 	}
 
 	get foundationTypes(): Array<string>
@@ -145,6 +145,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 			if ((control.value).length > 0)
 			{
 				let isWhitespace = (control.value || '').trim().length === 0;
+
 				isValid = !isWhitespace;
 			}
 
@@ -157,8 +158,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	ngOnInit()
 	{
 		this.homeSiteService.getCommunityLots().subscribe(lots => this.communitylots = lots);
-		this.canEditAvailability = this.selectedHomesite.dto.lotStatusDescription === "Available"
-			|| (this.selectedHomesite.dto.lotBuildTypeDescription === "Spec" && this.selectedHomesite.dto.lotStatusDescription === "Unavailable"); //check on this
+		this.canEditAvailability = this.selectedHomesite.dto.lotStatusDescription === 'Available'
+			|| (this.selectedHomesite.dto.lotBuildTypeDescription === 'Spec' && this.selectedHomesite.dto.lotStatusDescription === 'Unavailable'); //check on this
+
 		this.createForm();
 		this.getLotsForMonotonyRules();
 		this.createMonotonyForm();
@@ -166,6 +168,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		if (this.selectedHomesite.lotStatusDescription === 'Sold' || this.selectedHomesite.lotStatusDescription == 'Closed')
 		{
 			this.disableMonotonyForm = true;
+
 			this.monotonyForm.disable();
 		}
 
@@ -189,27 +192,21 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	{
 		this.homesiteForm = new UntypedFormGroup({
 			'premium': new UntypedFormControl({ value: this.selectedHomesite.dto.premium, disabled: this.disallowedStatusesForPremiumUpdate.includes(this.selectedHomesite.dto.lotStatusDescription) }, [Validators.required, Validators.min(0)]),
-			'lotStatusDescription': new UntypedFormControl(this.selectedHomesite.dto.lotStatusDescription !== "Available"),
+			'lotStatusDescription': new UntypedFormControl(this.selectedHomesite.dto.lotStatusDescription !== 'Available'),
 			'isHiddenInTho': new UntypedFormControl(this.selectedHomesite.dto.isHiddenInTho),
 			'facing': new UntypedFormControl({ value: this.selectedHomesite.dto.facing, disabled: this.lotInaccessible }),
 			'foundationType': new UntypedFormControl(this.selectedHomesite.dto.foundationType, Validators.required),
 			'altLotBlock': new UntypedFormControl({ value: this.selectedHomesite.dto.altLotBlock, disabled: this.lotInaccessible }, this.whiteSpaceValidator()),
-			'viewAdjacency': new UntypedFormControl({
-				value: this.selectedHomesite.dto.view &&
-					this.selectedHomesite.dto.view.value, disabled: this.lotInaccessible
-			}, Validators.required),
-			'physicalLotTypes': new UntypedFormControl({
-				value: this.selectedHomesite.dto.lotType &&
-					this.selectedHomesite.dto.lotType.value, disabled: this.lotInaccessible
-			}, Validators.required),
+			'viewAdjacency': new UntypedFormControl({ value: this.selectedHomesite.dto.view?.value, disabled: this.lotInaccessible	}, Validators.required),
+			'physicalLotTypes': new UntypedFormControl({ value: this.selectedHomesite.dto.lotType && this.selectedHomesite.dto.lotType.value, disabled: this.lotInaccessible }, Validators.required),
 			'warranty': new UntypedFormControl({ value: this.selectedHomesite.phdLotWarranty, disabled: this.lotInaccessible }, Validators.required),
-			'changeModelToSpec': new UntypedFormControl({ value: this.selectedHomesite.lotBuildTypeDescription, disable: this.selectedHomesite.lotBuildTypeDescription !== 'Model' })
+			'buildType': new UntypedFormControl({ value: this.selectedHomesite.lotBuildTypeDescription, disabled: this.selectedHomesite.lotBuildTypeDescription !== 'Model' })
 		});
 
 		//add controls for Left, Right, and NA Handing
 		this.handings.forEach(hand =>
 		{
-			this.homesiteForm.addControl('handing-' + hand, new UntypedFormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));			
+			this.homesiteForm.addControl('handing-' + hand, new UntypedFormControl(this.selectedHomesite.dto.lotHandings.some(h => h.handingId === hand)));
 		});
 
 		this.homesiteForm.setValidators(this.checkRequired(this.homesiteForm.controls['handing-1'], this.homesiteForm.controls['handing-2'], this.homesiteForm.controls['handing-3']));
@@ -233,6 +230,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.monotonyRules.forEach(rule =>
 		{
 			const lot = this.communitylots.find(x => x.id === rule.relatedLotId);
+
 			if (!!lot)
 			{
 				if (rule.monotonyRuleType === 'Elevation')
@@ -305,7 +303,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	{
 		for (let lot of this.monotonyForm.controls['elevation'].value)
 		{
-
 			var currentLot = this.elevationAvailableLots.filter(t => t === lot);
 
 			if (currentLot.length != 0)
@@ -326,7 +323,6 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	{
 		for (let lot of this.monotonyForm.controls['color'].value)
 		{
-
 			var currentLot = this.colorAvailableLots.filter(t => t === lot);
 
 			if (currentLot.length != 0)
@@ -386,7 +382,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	removeHandings()
 	{
 		//if NA is turned on, remove all selected handings
-		if(this.homesiteForm.controls['handing-3'])
+		if (this.homesiteForm.controls['handing-3'])
 		{
 			this.homesiteForm.controls['handing-' + 1].setValue(false);
 			this.homesiteForm.controls['handing-' + 2].setValue(false);
@@ -404,7 +400,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 				monotonyRuleType: 'Elevation',
 				lotId: lotId,
 				relatedLotId: this.communitylots.find(x => x.lotBlock === lot).id
-			})
+			});
 		});
 
 		this.colorSelectedLots.forEach(lot =>
@@ -413,7 +409,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 				monotonyRuleType: 'ColorScheme',
 				lotId: lotId,
 				relatedLotId: this.communitylots.find(x => x.lotBlock === lot).id
-			})
+			});
 		});
 
 		return { lotId: lotId, monotonyRules: monotonyRulesToSave } as MonotonyRuleDtos.IMonotonyRuleEventDto;
@@ -428,7 +424,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 				if ((this.colorSelectedLots.find(rule => rule === lot)) === undefined)
 				{
 					this.colorSelectedLots.push(lot);
+
 					const index = this.colorAvailableLots.indexOf(lot);
+
 					if (index !== -1)
 					{
 						this.colorAvailableLots.splice(index, 1);
@@ -461,12 +459,14 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		}
 
 		this._msgService.add({ severity: 'success', summary: 'Copy was successful' });
+
 		this.enableSaveMonotonyAndHomesiteButton();
 	}
 
 	enableSaveMonotonyAndHomesiteButton()
 	{
 		this.saving = false;
+
 		this.homesiteForm.markAsDirty();
 		this.monotonyForm.markAsDirty();
 	}
@@ -493,7 +493,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 
 	/**
 	 * Handles the click event on the Save button.
-	 */ 
+	 */
 	onSave()
 	{
 		let homesiteDto: HomeSiteDtos.IHomeSiteEventDto;
@@ -525,10 +525,11 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		this.selectedHomesite.dto.altLotBlock = this.homesiteForm.controls['altLotBlock'].value;
 		this.selectedHomesite.dto.isHiddenInTho = this.homesiteForm.controls['isHiddenInTho'].value;
 
-		const lotBuildTypeUpdated = this.homesiteForm.controls['changeModelToSpec'].dirty;
-		this.selectedHomesite.dto.lotBuildTypeDescription = lotBuildTypeUpdated ? this.homesiteForm.controls['changeModelToSpec'].value : this.selectedHomesite.lotBuildTypeDescription;
+		const lotBuildTypeUpdated = this.homesiteForm.controls['buildType'].dirty;
 
-		return { homesiteDto: this.selectedHomesite.dto, lotBuildTypeUpdated: lotBuildTypeUpdated} as HomeSiteDtos.IHomeSiteEventDto;
+		this.selectedHomesite.dto.lotBuildTypeDescription = lotBuildTypeUpdated ? this.homesiteForm.controls['buildType'].value : this.selectedHomesite.lotBuildTypeDescription;
+
+		return { homesiteDto: this.selectedHomesite.dto, lotBuildTypeUpdated: lotBuildTypeUpdated } as HomeSiteDtos.IHomeSiteEventDto;
 	}
 
 	controlHasErrors(control: AbstractControl)
@@ -541,7 +542,7 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 		//grab enum key and values -- return keys
 		return Object.keys(enumType).filter(
 			type => isNaN(<any>type)
-		)
+		);
 	}
 
 	getAvailable(homesite: HomeSite)
@@ -552,21 +553,24 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	getCommunitySubmapNames(mapNameList: string[] | undefined)
 	{
 		this.communitySubmaps = mapNameList;
+
 		if (this.communitySubmaps && this.communitySubmaps.length > 1)
 		{
 			this.showMapsNavigation = true;
 		}
 	}
-	
+
 	getCurrentMap(currentMap: string)
 	{
 		this.currentSubmap = (currentMap === '') ? 'Master Map' : currentMap;
+
 		this.changeSubmap();
 	}
-	
+
 	getSelectedLotSubmap(selectedLotSubmap: string)
 	{
 		this.selectedLotSubmap = selectedLotSubmap;
+
 		this.changeSubmap();
 	}
 
@@ -578,7 +582,9 @@ export class ManageHomesitesSidePanelComponent implements OnInit
 	onMapNameChange(submap: string) 
 	{
 		this.alphaVisionMap?.selectNewMap(submap);
+
 		this.currentSubmap = submap;
+
 		this.changeSubmap();
 	}
 }

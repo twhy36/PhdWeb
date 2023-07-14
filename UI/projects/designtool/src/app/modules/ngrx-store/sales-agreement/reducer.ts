@@ -5,7 +5,7 @@ import { SalesAgreementActions, SalesAgreementActionTypes } from './actions';
 
 import { RehydrateMap } from '../sessionStorage';
 
-import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram } from 'phd-common';
+import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram, Constants } from 'phd-common';
 import { CommonActionTypes } from '../actions';
 
 export interface State extends SalesAgreement
@@ -97,10 +97,10 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 		case SalesAgreementActionTypes.UpdateSalesAgreement:
 			return { ...state, savingSalesAgreement: true, saveError: false, isUnsaved: true };
 		case SalesAgreementActionTypes.SalesAgreementSaved:
-			let sa = action.salesAgreement;
+			const sa = action.salesAgreement;
 
 			// only include the fields that can be updated by saving a sales agreement.
-			let newSA = {
+			const newSA = {
 				approvedDate: sa.approvedDate,
 				createdUtcDate: sa.createdUtcDate,
 				ecoeDate: sa.ecoeDate,
@@ -142,7 +142,8 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 		case SalesAgreementActionTypes.BuyersSwapped:
 			const buyersAfterSwap = state.buyers.map<Buyer>(b =>
 			{
-				if (b.sortKey === 0) {
+				if (b.sortKey === 0)
+				{
 					return action.newPrimaryBuyer;
 				}
 
@@ -318,7 +319,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			// by the time the API call returns. There seems to be a delay, but the record does get updated properly
 			const lastModifiedDate = new Date(new Date().toUTCString());
 
-			return { ...state, status: 'Cancel', statusUtcDate: lastModifiedDate, savingSalesAgreement: false, saveError: false, isUnsaved: false };
+			return { ...state, status: Constants.CANCEL, statusUtcDate: lastModifiedDate, savingSalesAgreement: false, saveError: false, isUnsaved: false };
 		case SalesAgreementActionTypes.LoadConsultants:
 			return { ...state, loadError: false };
 		case SalesAgreementActionTypes.ConsultantsLoaded:
@@ -367,103 +368,102 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 
 			return newState;
 		case CommonActionTypes.ChangeOrdersUpdated:
+
+			let salesAgreementPrograms: Array<SalesAgreementProgram> = _.cloneDeep(state.programs) || [];
+			let salesAgreementBuyers: Array<Buyer> = _.cloneDeep(state.buyers) || [];
+			let trustName: string = _.cloneDeep(state.trustName) || null;
+
+			action.changeOrders.forEach(changeOrder =>
 			{
-				let salesAgreementPrograms: Array<SalesAgreementProgram> = _.cloneDeep(state.programs) || [];
-				let salesAgreementBuyers: Array<Buyer> = _.cloneDeep(state.buyers) || [];
-				let trustName: string = _.cloneDeep(state.trustName) || null;
-
-				action.changeOrders.forEach(changeOrder =>
+				if (changeOrder && changeOrder.salesStatusDescription === 'Approved')
 				{
-					if (changeOrder && changeOrder.salesStatusDescription === 'Approved')
+					let buyerCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'BuyerChangeOrder');
+
+					if (buyerCO)
 					{
-						let buyerCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'BuyerChangeOrder');
-
-						if (buyerCO)
+						buyerCO.jobSalesChangeOrderBuyers.forEach(buyer =>
 						{
-							buyerCO.jobSalesChangeOrderBuyers.forEach(buyer =>
-							{
-								const existingBuyer = salesAgreementBuyers.findIndex(t => t.opportunityContactAssoc.id === buyer.opportunityContactAssoc.id);
+							const existingBuyer = salesAgreementBuyers.findIndex(t => t.opportunityContactAssoc.id === buyer.opportunityContactAssoc.id);
 
-								if (buyer.action === 'Add')
+							if (buyer.action === 'Add')
+							{
+								if (existingBuyer > -1)
 								{
-									if (existingBuyer > -1)
-									{
-										salesAgreementBuyers.splice(existingBuyer, 1);
-									}
-
-									salesAgreementBuyers.push({
-										id: buyer.id,
-										isOriginalSigner: false,
-										isPrimaryBuyer: buyer.isPrimaryBuyer,
-										opportunityContactAssoc: buyer.opportunityContactAssoc,
-										sortKey: buyer.sortKey
-									});
+									salesAgreementBuyers.splice(existingBuyer, 1);
 								}
-								else if (buyer.action === 'Delete')
+
+								salesAgreementBuyers.push({
+									id: buyer.id,
+									isOriginalSigner: false,
+									isPrimaryBuyer: buyer.isPrimaryBuyer,
+									opportunityContactAssoc: buyer.opportunityContactAssoc,
+									sortKey: buyer.sortKey
+								});
+							}
+							else if (buyer.action === 'Delete')
+							{
+								if (existingBuyer > -1)
 								{
-									if (existingBuyer > -1)
-									{
-										salesAgreementBuyers.splice(existingBuyer, 1);
-									}
+									salesAgreementBuyers.splice(existingBuyer, 1);
 								}
-							});
-
-							let deletedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === 'Delete');
-							let addedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === 'Add');
-
-							if (addedTrust)
-							{
-								trustName = addedTrust.trustName;
 							}
-							else if (deletedTrust)
-							{
-								trustName = null;
-							}
+						});
+
+						let deletedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === 'Delete');
+						let addedTrust = buyerCO.jobSalesChangeOrderTrusts.find(t => t.action === 'Add');
+
+						if (addedTrust)
+						{
+							trustName = addedTrust.trustName;
 						}
-
-						let priceAdjustmentCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'PriceAdjustment');
-
-						if (priceAdjustmentCO)
+						else if (deletedTrust)
 						{
-							priceAdjustmentCO.jobSalesChangeOrderSalesPrograms.forEach(program =>
-							{
-								if (program.action === 'Add')
-								{
-									const existingProgram = salesAgreementPrograms.findIndex(t => t.salesProgramId === program.salesProgramId);
-
-									if (existingProgram > -1)
-									{
-										salesAgreementPrograms.splice(existingProgram, 1);
-									}
-
-									let salesProgram: ISalesProgram = {
-										salesProgramType: program.salesProgramType
-									};
-
-									salesAgreementPrograms.push({
-										id: program.id,
-										amount: program.amount,
-										salesProgramDescription: program.salesProgramDescription,
-										salesProgramId: program.salesProgramId,
-										salesProgram: salesProgram
-									});
-								}
-								else if (program.action === 'Delete')
-								{
-									const existingProgram = salesAgreementPrograms.findIndex(t => t.salesProgramId === program.salesProgramId);
-
-									if (existingProgram > -1)
-									{
-										salesAgreementPrograms.splice(existingProgram, 1);
-									}
-								}
-							});
+							trustName = null;
 						}
 					}
-				});
 
-				return { ...state, programs: salesAgreementPrograms, buyers: salesAgreementBuyers, trustName: trustName };
-			}
+					let priceAdjustmentCO = changeOrder.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'PriceAdjustment');
+
+					if (priceAdjustmentCO)
+					{
+						priceAdjustmentCO.jobSalesChangeOrderSalesPrograms.forEach(program =>
+						{
+							if (program.action === 'Add')
+							{
+								const existingProgram = salesAgreementPrograms.findIndex(t => t.salesProgramId === program.salesProgramId);
+
+								if (existingProgram > -1)
+								{
+									salesAgreementPrograms.splice(existingProgram, 1);
+								}
+
+								let salesProgram: ISalesProgram = {
+									salesProgramType: program.salesProgramType
+								};
+
+								salesAgreementPrograms.push({
+									id: program.id,
+									amount: program.amount,
+									salesProgramDescription: program.salesProgramDescription,
+									salesProgramId: program.salesProgramId,
+									salesProgram: salesProgram
+								});
+							}
+							else if (program.action === 'Delete')
+							{
+								const existingProgram = salesAgreementPrograms.findIndex(t => t.salesProgramId === program.salesProgramId);
+
+								if (existingProgram > -1)
+								{
+									salesAgreementPrograms.splice(existingProgram, 1);
+								}
+							}
+						});
+					}
+				}
+			});
+
+			return { ...state, programs: salesAgreementPrograms, buyers: salesAgreementBuyers, trustName: trustName };
 		default:
 			return state;
 	}

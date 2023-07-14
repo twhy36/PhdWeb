@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import
 {
 	Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
-	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
+	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder, Constants
 } from 'phd-common';
 
 import { ChangeOrderActions, ChangeOrderActionTypes } from './actions';
@@ -13,6 +13,7 @@ import { CommonActionTypes } from '../actions';
 export interface State
 {
 	isChangingOrder: boolean,
+	isChangeOrderEmpty: boolean,
 	loadingCurrentChangeOrder: boolean,
 	loadError: boolean,
 	savingChangeOrder: boolean,
@@ -23,6 +24,7 @@ export interface State
 
 export const initialState: State = {
 	isChangingOrder: false,
+	isChangeOrderEmpty: true,
 	loadingCurrentChangeOrder: false,
 	loadError: false,
 	savingChangeOrder: false,
@@ -71,6 +73,9 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 
 				return { ...state, isChangingOrder: updatingChangeOrder ? state.isChangingOrder : action.isChangingOrder, currentChangeOrder: changeOrder, changeInput: updatingChangeOrder ? newChangeInput : action.changeInput };
 			}
+
+		case ChangeOrderActionTypes.SetIsChangeOrderEmpty:			
+				return { ...state, isChangeOrderEmpty: action.isChangeOrderEmpty };			
 
 		case CommonActionTypes.ESignEnvelopesLoaded:
 			let changeOrder = new ChangeOrderGroup(state.currentChangeOrder);
@@ -125,7 +130,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 					// change orders don't apply unless sales agreement is approved
 					&& (action.type === ChangeOrderActionTypes.CurrentChangeOrderLoaded
 						|| !action.salesAgreement		// check pending CO in spec/model
-						|| (action.salesAgreement && ['Pending', 'OutforSignature', 'Signed'].indexOf(action.salesAgreement.status) === -1)
+						|| (action.salesAgreement && [Constants.AGREEMENT_STATUS_PENDING, Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED].indexOf(action.salesAgreement.status) === -1)
 					);
 				let newInput = state.changeInput === null ? new ChangeInput() : _.cloneDeep(state.changeInput);
 				let newCurrentChangeOrder = _.cloneDeep(action.changeOrder);
@@ -809,7 +814,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 							}
 
 							break;
-						case 'Approved':
+						case Constants.AGREEMENT_STATUS_APPROVED:
 							changeOrder.constructionStatusDescription = updatedChangeOrder.constructionStatusDescription;
 
 							break;

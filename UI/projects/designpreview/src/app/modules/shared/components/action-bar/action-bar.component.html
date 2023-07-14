@@ -1,4 +1,4 @@
-<footer id="phd-action-bar" class="d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
+<footer class="phd-action-bar d-flex align-items-center" [class.is-hidden]="isActionBarHidden">
 	<h1 class="phd-visually-hidden">
 		Footer
 	</h1>
@@ -25,16 +25,16 @@
 						<div class="handle"></div>
 				</button>
 			</div>
-			<span class="phd-contracted-options-label" (click)="clickToggleContractedOptions()">Contracted Options</span>
+			<span class="phd-contracted-options-label" (click)="clickToggleContractedOptions()">Display Pending &<br>Contracted Options</span>
 			<info-tooltip-component *ngIf="!isDesignComplete" [template]="contractedOptions"></info-tooltip-component>
 		</div>
 	</ul>
 
-	<ng-container *ngIf="!isPresale && !isContractedPage">
+	<ng-container *ngIf="(isPresalePricingEnabled || !isPresale) && !isContractedPage">
 		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end">
 			<div class="d-flex flex-column align-items-end align-content-center">
 				<span *ngIf="!isDesignComplete" class="phd-price-label">Estimated Favorites Total : </span>
-				<span class="phd-price-label">{{isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Purchase Price :' }}</span>
+				<span class="phd-price-label">{{ totalPriceLabel }} : </span>
 			</div>
 		</div>
 		<div *ngIf="primaryAction" class="d-flex flex-row align-items-end justify-content-left">
@@ -56,8 +56,14 @@
 <ng-template #totalPricing>
 	<div>
 		<p><strong>Estimated Favorites Total:</strong> Estimated total price of all options selected in this application.</p>
-		<p><strong>Estimated Total Purchase Price:</strong> Total price of all options under contract plus your Estimated Favorites Total.</p>
-		<p><em>(Option pricing is subject to change until placed under contract with a Sales Representative.)</em></p>
+		<p><strong>{{ isPresalePricingEnabled
+			? 'Estimated Total Price: '
+			: 'Estimated Total Purchase Price: ' }}</strong> {{ isPresalePricingEnabled 
+			? 'Total price of the Estimated Base Price plus your Estimated Favorites Total.' 
+			: 'Total price of all options under contract plus your Estimated Favorites Total.' }}</p>
+		<p><em>{{ isPresalePricingEnabled
+			? '(Pricing is subject to change until placed under contract with a Sales Representative.)'
+			: '(Option pricing is subject to change until placed under contract with a Sales Representative.)' }}</em></p>
 	</div>
 </ng-template>
 

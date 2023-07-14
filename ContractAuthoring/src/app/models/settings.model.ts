@@ -1,4 +1,4 @@
-export interface Settings {
-	apiUrl: string;
-	appInsightsKey: string;
+export interface Settings
+{
+    apiUrl: string;
 }

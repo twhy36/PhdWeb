@@ -1,4 +1,4 @@
-<div class="choice-container">
+<div class="phd-choice-container">
 	<ng-container *ngIf="point.enabled">
 		<button class="icon phd-clickable" (click)="$event.stopPropagation()">
 			<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart" (click)="toggleDecline()"></i></span>
@@ -10,7 +10,7 @@
 			<i class="fa fa-ban" attr.aria-label="{{point.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
 		</button>
 	</ng-container>
-	<div class="choice-label">{{"No Selections"}}</div>
+	<div class="phd-choice-label phd-choice-link">{{"No Selections"}}</div>
 </div>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">

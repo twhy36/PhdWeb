@@ -4,7 +4,7 @@ import { ReplaySubject } from 'rxjs';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption, Constants } from 'phd-common';
 import { LitePlanOption, Color, LitePlanOptionUI } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -29,7 +29,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	@Input() scenarioOptions: ScenarioOption[];
 	@Input() isSelected: boolean;
 
-	@Output() toggled: EventEmitter<{option: LitePlanOption, color: Color}> = new EventEmitter();
+	@Output() toggled: EventEmitter<{ option: LitePlanOption, color: Color }> = new EventEmitter();
 
 	canConfigure: boolean;
 	canEditAgreementOrSpec: boolean;
@@ -135,7 +135,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		if (!this.canEditAgreementOrSpec)
 		{
-			return this.isSelected ? 'selected': this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
+			return this.isSelected ? 'selected' : this.buildMode === Constants.BUILD_MODE_SPEC ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
 		}
 
 		return this.isSelected ? 'Unselect' : 'CHOOSE';
@@ -171,26 +171,26 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 
 			if (this.monotonyConflict.monotonyConflict && this.option.isPastCutOff)
 			{
-				body = `This will override the Monotony Conflict and the Cut-off`;
+				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
 			}
 			else if (this.monotonyConflict.monotonyConflict)
 			{
-				body = `This will override the Monotony Conflict`;
+				body = Constants.OVERRIDE_MONOTONY;
 			}
 			else
 			{
-				body = `This will override the Cut-off`;
+				body = Constants.OVERRIDE_CUT_OFF;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
-			confirm.componentInstance.title = 'Warning';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== 'Close')
+				if (result !== Constants.CLOSE)
 				{
 					this.addOverrideReason(result);
 				}
@@ -206,6 +206,6 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		this.override$.next((!!overrideReason));
 		this.store.dispatch(new LiteActions.SetLiteOverrideReason(overrideReason, !this.color));
-		this.toggled.emit({option: this.option, color: this.color});
+		this.toggled.emit({ option: this.option, color: this.color });
 	}
 }

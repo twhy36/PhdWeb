@@ -17,7 +17,7 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'contracted-summary',
 	templateUrl: './contracted-summary.component.html',
 	styleUrls: ['./contracted-summary.component.scss']
-})
+	})
 export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	groups: GroupExt[];

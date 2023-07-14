@@ -6,7 +6,7 @@ import { CommunityService } from "../../../core/services/community.service";
 import { OrganizationService } from "../../../core/services/organization.service";
 import { CommunityPdf } from "../../../shared/models/communityPdf.model";
 import { UnsubscribeOnDestroy } from "../../../shared/utils/unsubscribe-on-destroy";
-import { ConfirmModalComponent, PhdTableComponent } from "phd-common";
+import { ConfirmModalComponent, PhdTableComponent, Constants } from "phd-common";
 
 @Component({
 	selector: 'community-pdf-table',
@@ -74,13 +74,13 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 		let msgBody = `Are you sure you want to delete this Contract Document?`;
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				this._communityService.deleteCommunityPdf(dto)
 					.subscribe(() =>
@@ -120,7 +120,7 @@ export class CommunityPdfTableComponent extends UnsubscribeOnDestroy implements 
 		tableComponent.hideTooltip();
 	}
 
-	onRowReorder(event:any)
+	onRowReorder(event: any)
 	{
 		if (event.dragIndex !== event.dropIndex)
 		{

@@ -3,17 +3,20 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { UnsubscribeOnDestroy } from 'phd-common';
+
+import { BuildMode } from '../../models/build-mode.model';
 import { BrandService } from '../../../core/services/brand.service';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 
 @Component({
 	selector: 'action-bar',
 	templateUrl: 'action-bar.component.html',
 	styleUrls: ['action-bar.component.scss']
-})
+	})
 export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit 
 {
 	@Input() scrollListener = window;
@@ -45,10 +48,20 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 	favoritesListIcon = '';
 	communityName: string;
 	planName: string;
+	isPresalePricingEnabled: boolean = false;
 
 	get isContractedOptionsDisabled(): boolean
 	{
 		return this.isPreview || this.isDesignComplete;
+	}
+
+	get totalPriceLabel(): string
+	{
+		if (this.isPresale && this.isPresalePricingEnabled)
+		{
+			return 'Estimated Total Price';
+		}
+		return this.isDesignComplete ? 'Total Purchase Price' : 'Estimated Total Purchase Price'
 	}
 
 	constructor(
@@ -77,6 +90,22 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(planData =>
 		{
 			this.planName = planData && planData.salesName;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.buildMode),
+		).subscribe(buildMode =>
+		{
+			this.isPresale = buildMode === BuildMode.Presale;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.presalePricingEnabled),
+		).subscribe(isPresalePricingEnabled =>
+		{
+			this.isPresalePricingEnabled = isPresalePricingEnabled;
 		});
 	}
 

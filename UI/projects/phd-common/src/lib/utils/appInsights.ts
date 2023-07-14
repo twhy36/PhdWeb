@@ -4,36 +4,40 @@ import { IConfiguration, IConfig, ApplicationInsights, ITelemetryItem } from '@m
 export type TelemetryInitializer = (item: ITelemetryItem) => boolean | void;
 export const TELEMETRY_INIT = new InjectionToken<TelemetryInitializer>('telemetryInit');
 
-export function initAppInsights(config: IConfiguration & IConfig, telemetryInit?: TelemetryInitializer | TelemetryInitializer[]) {
+export function initAppInsights(config: IConfiguration & IConfig, telemetryInit?: TelemetryInitializer | TelemetryInitializer[])
+{
 	const appInsights = new ApplicationInsights({ config });
 	appInsights.loadAppInsights();
 
 	if (telemetryInit)
 	{
-        if (Array.isArray(telemetryInit))
-        {
-		    telemetryInit.forEach(initializer => appInsights.addTelemetryInitializer(initializer));
-        }
-        else 
-        {
-            appInsights.addTelemetryInitializer(telemetryInit);
-        }
-    }
+		if (Array.isArray(telemetryInit))
+		{
+			telemetryInit.forEach(initializer => appInsights.addTelemetryInitializer(initializer));
+		}
+		else 
+		{
+			appInsights.addTelemetryInitializer(telemetryInit);
+		}
+	}
 
 	return appInsights;
 }
 
 export function setClientApp(clientApp: string): TelemetryInitializer
 {
-    return (item) => 
-    {
-        if (item && item.baseData)
-        {
-            if (item.baseData.properties) {
-                item.baseData.properties["ClientApp"] = clientApp;
-            } else {
-                item.baseData.properties = { "ClientApp": clientApp };
-            }
-        }
-    }
+	return (item) => 
+	{
+		if (item && item.baseData)
+		{
+			if (item.baseData.properties)
+			{
+				item.baseData.properties['ClientApp'] = clientApp;
+			}
+			else
+			{
+				item.baseData.properties = { 'ClientApp': clientApp };
+			}
+		}
+	}
 }

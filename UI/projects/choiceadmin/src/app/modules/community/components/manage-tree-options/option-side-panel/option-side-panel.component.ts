@@ -15,7 +15,7 @@ import { PhdApiDto, PhdEntityDto } from '../../../../shared/models/api-dtos.mode
 import { ITreeOption, OptionImage, IOptionRuleChoice, IOptionRuleChoiceGroup } from '../../../../shared/models/option.model';
 
 import { cloneDeep } from "lodash";
-import { IdentityService, Permission } from 'phd-common';
+import { Constants, IdentityService, Permission } from 'phd-common';
 import { getMaxSortOrderChoice } from '../../../../shared/classes/utils.class';
 
 @Component({
@@ -102,6 +102,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		}
 
 		this.optionRuleSelectedChoices = [];
+
 		this.resetImageSort();
 
 		this.currentTab = $event.activeId;
@@ -249,7 +250,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		}
 	}
 
-	saveOptionChoiceRule(selectedItems: DTChoice[], callback: Function, assocId?:number)
+	saveOptionChoiceRule(selectedItems: DTChoice[], callback: Function, assocId?: number)
 	{
 		this.isSaving = true;
 
@@ -310,13 +311,13 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 		this._treeService.hasAttributeReassignment(params.optionRuleChoice.id).subscribe(async hasAttributeReassignment =>
 		{
 			// if no reassignments proceed, else show prompt asking if they'd like to continue
-			if (!hasAttributeReassignment || (hasAttributeReassignment && await this.confirmAttributeReassignment(params.optionRuleChoice.label)))
+			if (!hasAttributeReassignment || await this.confirmAttributeReassignment(params.optionRuleChoice.label))
 			{
 				this.deleteOptionChoiceRule(params.optionRuleChoice, params.callback);
 			}
 		});
 	}
-	
+
 	deleteOptionChoiceRule(optionRuleChoice: IOptionRuleChoice, callback: Function)
 	{
 		this.isSaving = true;
@@ -532,10 +533,10 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 					this.origOptionsImageList = cloneDeep(this.optionsImageList);
 				},
-				(error) =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
-				});
+					(error) =>
+					{
+						this._msgService.add({ severity: 'error', summary: 'Error Saving Sort.' });
+					});
 		}
 		else
 		{
@@ -689,9 +690,9 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 	private confirmNavAway(): Promise<boolean>
 	{
-		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you want to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
+		const confirmMessage = Constants.LOSE_CHANGES;
+		const confirmTitle = Constants.WARNING;
+		const confirmDefaultOption = Constants.CANCEL;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -699,8 +700,8 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 	private confirmAttributeReassignment(attributeGroupLabel: string): Promise<boolean>
 	{
 		const confirmMessage = `You are about to delete the Attribute Group Re-Assignment:<br><br> ${attributeGroupLabel}<br><br>Do you want to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
+		const confirmTitle = Constants.WARNING;
+		const confirmDefaultOption = Constants.CANCEL;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -715,7 +716,7 @@ export class OptionSidePanelComponent implements OnInit, OnChanges
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 }

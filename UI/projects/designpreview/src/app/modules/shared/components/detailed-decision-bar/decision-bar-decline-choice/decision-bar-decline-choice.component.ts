@@ -1,11 +1,18 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
 import { DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
+import _ from 'lodash';
+
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../../ngrx-store/reducers';
+import * as NavActions from '../../../../ngrx-store/nav/actions';
+import { BrandService } from '../../../../core/services/brand.service';
 
 @Component({
 	selector: 'decision-bar-decline-choice',
 	templateUrl: './decision-bar-decline-choice.component.html',
 	styleUrls: ['./decision-bar-decline-choice.component.scss']
-})
+	})
 export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges 
 {
 	@Input() point: DecisionPoint;
@@ -21,12 +28,18 @@ export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges
 
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: ModalRef;
+	brandTheme: string;
 
-	constructor(public modalService: ModalService) { }
+	constructor(
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService,
+		public modalService: ModalService
+	) { }
 
 	ngOnInit() 
 	{
 		this.updateIsDeclined();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnChanges() 
@@ -47,9 +60,12 @@ export class DecisionBarDeclineChoiceComponent implements OnInit, OnChanges
 		}
 	}
 
-	openBlockedChoiceModal() 
+	openBlockedChoiceModal()
 	{
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.point.id === p.id)) || null;
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.point.id, null));
+
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandTheme}` }, true);
 	}
 
 	onCloseClicked()

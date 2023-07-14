@@ -3,7 +3,7 @@ import { AdobeService } from '../services/adobe.service';
 
 @Directive({
 	selector: '[clickDirective]'
-})
+	})
 export class ClickDirective
 {
 	constructor(private adobeService: AdobeService)

@@ -6,7 +6,7 @@ import { UnsubscribeOnDestroy } from 'phd-common';
 	selector: 'header-bar',
 	templateUrl: 'header-bar.component.html',
 	styleUrls: ['header-bar.component.scss']
-})
+	})
 export class HeaderBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() communityName: string;

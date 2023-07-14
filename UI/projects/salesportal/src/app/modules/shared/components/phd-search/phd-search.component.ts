@@ -6,7 +6,7 @@ import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
 import { IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
-import { FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
+import { FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants } from 'phd-common';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -66,13 +66,13 @@ export class PHDSearchComponent
 	];
 
 	salesAgreementStatusOptions: Array<SelectItem> = [
-		{ label: 'Pending', value: 'Pending' },
-		{ label: 'Out For Signature', value: 'OutforSignature' },
-		{ label: 'Signed', value: 'Signed' },
-		{ label: 'Approved', value: 'Approved' },
-		{ label: 'Closed', value: 'Closed' },
-		{ label: 'Void', value: 'Void' },
-		{ label: 'Cancel', value: 'Cancel' }
+		{ label: 'Pending', value: Constants.AGREEMENT_STATUS_PENDING },
+		{ label: 'Out For Signature', value: Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE },
+		{ label: 'Signed', value: Constants.AGREEMENT_STATUS_SIGNED },
+		{ label: 'Approved', value: Constants.AGREEMENT_STATUS_APPROVED },
+		{ label: 'Closed', value: Constants.AGREEMENT_STATUS_CLOSED },
+		{ label: 'Void', value: Constants.AGREEMENT_STATUS_VOID },
+		{ label: 'Cancel', value: Constants.AGREEMENT_STATUS_CANCEL }
 	];
 
 	homesiteTypeOptions: Array<SelectItem> = [
@@ -129,7 +129,7 @@ export class PHDSearchComponent
 	search()
 	{
 		const filters: Array<IFilterItems> = [];
-		
+
 		this.searchError = null;
 		this.searchResults = null;
 		this.optionsShown = false;
@@ -138,7 +138,7 @@ export class PHDSearchComponent
 		{
 			filters.push({ items: [{ name: 'lotBlock', value: this.homesiteNumber }] });
 		}
-		
+
 		if (this.pendingLotBlocks.length > 0)
 		{
 			let lotBlocks = [];
@@ -202,7 +202,7 @@ export class PHDSearchComponent
 			if (filteredLots && results && results.length > 0)
 			{
 				results.map(result =>
-				{					
+				{
 					// filter the results for a sales agreement id that contains the sales agreement # string if needed
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
 					{
@@ -213,7 +213,7 @@ export class PHDSearchComponent
 							// if the salesAgreement number is truthy OR if found in the list of selected sales agreement statuses OR if selected Ready To Close check status of approved and isLockedIn
 							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) ||
 								(this.selectedSalesAgreementStatus.length > 0 &&
-									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === 'Approved' && agreement.isLockedIn)))
+									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === Constants.AGREEMENT_STATUS_APPROVED && agreement.isLockedIn)))
 							{
 								// flag the lot as able to be added to the filtered lots
 								addLot = true;
@@ -250,7 +250,9 @@ export class PHDSearchComponent
 			else if (this.selectedBuildTypes && !this.selectedBuildTypes.includes('Model') && (this.selectedBuildTypes.includes('Spec') || this.selectedBuildTypes.includes('Dirt')))
 			{
 				filteredLots = filteredLots ? filteredLots : results;
-				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House') && (lot.buildType === 'Spec' || lot.buildType === 'Dirt'));
+
+				// jobTypeName if it is associated with a job check for spec or House else look for null or undefined
+				filteredLots = filteredLots.filter(lot => (lot.jobTypeName === 'Spec' || lot.jobTypeName === 'House' || lot.jobTypeName == null) && (lot.buildType === 'Spec' || lot.buildType === 'Dirt'));
 			}
 
 			if (this.searchActiveOnly)
@@ -311,7 +313,7 @@ export class PHDSearchComponent
 	{
 		this.clear();
 
-		this.selectedSalesAgreementStatus = ['Pending', 'OutforSignature', 'Signed'];
+		this.selectedSalesAgreementStatus = [Constants.AGREEMENT_STATUS_PENDING, Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED];
 
 		setTimeout(t =>
 		{
@@ -325,17 +327,17 @@ export class PHDSearchComponent
 
 		this.searchActiveOnly = true;
 		const filters: Array<IFilterItems> = [];
-		this.selectedSalesAgreementStatus = ['Approved'];
+		this.selectedSalesAgreementStatus = [Constants.AGREEMENT_STATUS_APPROVED];
 		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
 		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
+
 		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
 		{
-			
 			let filteredLots = [];
 
-			if (filteredLots && results && results.length > 0)
+			if (results?.length > 0)
 			{
 				results.map(result =>
 				{
@@ -344,18 +346,18 @@ export class PHDSearchComponent
 					{
 						result.salesAgreements.map(agreement =>
 						{
-							
+
 							// if the agreement.status is 'Approved' and agreement.isLockedIn is true
-							if (agreement.status === 'Approved' && agreement.isLockedIn)
-							{	
+							if (agreement.status === Constants.AGREEMENT_STATUS_APPROVED && agreement.isLockedIn)
+							{
 								filteredLots.push(result);
 							}
 						});
 					}
 				});
 			}
-			
-			this.searchResults = filteredLots ? filteredLots : results;			
+
+			this.searchResults = filteredLots.length > 0 ? filteredLots : results;
 		});
 	}
 
@@ -388,6 +390,7 @@ export class PHDSearchComponent
 		this.firstName = null;
 		this.lastName = null;
 		this.streetAddress = null;
+		this.searchActiveOnly = false;
 	}
 
 	/*
@@ -605,10 +608,7 @@ export class PHDSearchComponent
 
 	getBuildTypeUrl(lot: SearchResult)
 	{
-		let url = `${environment.baseUrl.designTool}`;
-
-		url += lot.buildTypeDisplayName === 'Spec' ? `spec` : `scenario-summary`;
-		url += `/${lot.jobId}`;
+		let url = `${environment.baseUrl.designTool}scenario-summary/${lot.jobId}`;
 
 		return url;
 	}
@@ -622,11 +622,11 @@ export class PHDSearchComponent
 		return lot.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
 
-	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement) : boolean
+	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement): boolean
 	{
-		return agreement 
-			&& agreement.salesAgreementNumber 
-			&& agreement.isOnFinalLot 
-			&& (!!lot.buyers?.length || agreement.status === 'Cancel' || agreement.status === 'Void');
+		return agreement
+			&& agreement.salesAgreementNumber
+			&& agreement.isOnFinalLot
+			&& (!!lot.buyers?.length || agreement.status === Constants.AGREEMENT_STATUS_CANCEL || agreement.status === Constants.AGREEMENT_STATUS_VOID);
 	}
 }

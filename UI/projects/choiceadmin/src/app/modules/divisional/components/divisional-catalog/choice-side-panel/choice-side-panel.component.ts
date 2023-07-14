@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, Validators, AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
 
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -36,14 +36,14 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	get showPlus(): boolean
 	{
-		return (<UntypedFormArray>this.catalogForm.get('labelArray')).length < this.maxLabels;
+		return this.labelArray.length < this.maxLabels;
 	}
 
 	get disableIsDefault(): boolean
 	{
 		return this.catalogItem.parent.choices.some(x => x.isDefault == true && x.id != this.catalogItem.id);
 	}
-	
+
 	get disableHideChoice(): boolean
 	{
 		return this.catalogItem.parent.choices.some(x => x.priceHiddenFromBuyerView == true);
@@ -61,19 +61,12 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	get canSave(): boolean
 	{
-		let canSave = this.catalogForm.pristine || !this.catalogForm.valid || this.isSaving;
+		const canSave = this.catalogForm.pristine || !this.catalogForm.valid || this.isSaving;
 
 		if (this.sidePanel)
 		{
 			// make panel dirty if at least one label input has a value
-			if (this.isAdd)
-			{				
-				this.sidePanel.isDirty = this.labelArray.controls.some(c => c.value && (<string>c.value).trim().length > 0);
-			}
-			else
-			{
-				this.sidePanel.isDirty = !canSave;
-			}
+			this.sidePanel.isDirty = this.isAdd ? this.labelArray.controls.some(c => c.value && (<string>c.value).trim().length > 0) : !canSave;
 		}
 
 		return canSave;
@@ -92,20 +85,21 @@ export class ChoiceSidePanelComponent implements OnInit
 		if (this.isAdd)
 		{
 			// re-validate array of label inputs whenever one changes
-			this.catalogForm.get('labelArray').valueChanges.subscribe((labels: Array<string>) =>
+			this.labelArray.valueChanges.subscribe((labels: Array<string>) =>
 			{
 				if (labels.some(l => l && l.trim().length > 0))
 				{
 					// remove required validation if at least one label input has a value
-					(<UntypedFormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.clearValidators());
+					this.labelArray.controls.forEach(c => c.removeValidators(Validators.required));
 				}
 				else
 				{
 					// add required validation when no label inputs have a value
-					(<UntypedFormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.setValidators(Validators.required));
+					this.labelArray.controls.forEach(c => c.addValidators(Validators.required));
 				}
 
-				(<UntypedFormArray>this.catalogForm.get('labelArray')).controls.forEach(c => c.updateValueAndValidity({ onlySelf: true }));
+				// will trigger validation to rerun.
+				this.labelArray.controls.forEach(c => c.updateValueAndValidity({ onlySelf: true }));
 			});
 		}
 	}
@@ -131,25 +125,25 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	createForm()
 	{
-		let item = this.catalogItem;
+		const item = this.catalogItem;
 
 		if (item.id == null)
 		{
 			this.catalogForm = new UntypedFormGroup({
 				'labelArray': new UntypedFormArray([
-					new UntypedFormControl(null, Validators.required, this.labelValidator.bind(this))
+					new UntypedFormControl(null, { validators: [Validators.required], asyncValidators: [this.labelValidator()], updateOn: 'blur' })
 				])
 			});
 		}
 		else
 		{
-			let label: string = item.label;
-			let isDefault: boolean = item.isDefault;
-			let isHiddenFromBuyerView: boolean = item.isHiddenFromBuyerView;
-			let priceHiddenFromBuyerView: boolean = item.priceHiddenFromBuyerView;
+			const label: string = item.label;
+			const isDefault: boolean = item.isDefault;
+			const isHiddenFromBuyerView: boolean = item.isHiddenFromBuyerView;
+			const priceHiddenFromBuyerView: boolean = item.priceHiddenFromBuyerView;
 
 			this.catalogForm = new UntypedFormGroup({
-				'label': new UntypedFormControl(label, Validators.required, this.labelValidator.bind(this)),
+				'label': new UntypedFormControl(label, { validators: [Validators.required], asyncValidators: [this.labelValidator()], updateOn: 'blur' }),
 				'isDefault': new UntypedFormControl({ value: isDefault, disabled: this.disableIsDefault }),
 				'isHiddenFromBuyerView': new UntypedFormControl(isHiddenFromBuyerView),
 				'priceHiddenFromBuyerView': new UntypedFormControl(priceHiddenFromBuyerView)
@@ -159,49 +153,48 @@ export class ChoiceSidePanelComponent implements OnInit
 
 	onAddChoice(tabIndex?: number)
 	{
-		const labelArray = <UntypedFormArray>this.catalogForm.get('labelArray');
-
-		if (this.showPlus && (tabIndex === undefined || (tabIndex === labelArray.length - 1)))
+		if (this.showPlus && (tabIndex === undefined || (tabIndex === this.labelArray.length - 1)))
 		{
-			const control = new UntypedFormControl(null, Validators.required, this.labelValidator.bind(this));
+			const control = new UntypedFormControl(null, { validators: [Validators.required], asyncValidators: [this.labelValidator()], updateOn: 'blur' });
 
-			labelArray.push(control);
+			this.labelArray.push(control);
 		}
 	}
 
 	/**
 	 * Validate label checking for duplicates
-	 * @param control
 	 */
-	labelValidator(control: AbstractControl): Promise<{ [key: string]: any; }> | Observable<{ [key: string]: any; }>
+	labelValidator(): AsyncValidatorFn
 	{
-		const divDPointId = this.catalogItem.parent.id;
-		const labelValue = control.value ? (<string>control.value).toLowerCase() : '';
-		const label: string = labelValue.trim();
-
-		if (label.length > 0)
+		return (control: AbstractControl): Observable<ValidationErrors | null> =>
 		{
-			let obs = this._divService.doesChoiceLabelExist(label, this.catalogItem.id, divDPointId).pipe(map((data) =>
+			const divDPointId = this.catalogItem.parent.id;
+			const labelValue = control.value ? (<string>control.value).toLowerCase() : '';
+			const label: string = labelValue.trim();
+			const hasValidLabel = this.isAdd && this.labelArray.controls.some(c => c.value && (<string>c.value).trim().length > 0);
+
+			if (label.length > 0)
 			{
-				if (!data && this.isAdd)
+				const obs = this._divService.doesChoiceLabelExist(label, this.catalogItem.id, divDPointId).pipe(map((data) =>
 				{
-					let labelArray = (<UntypedFormArray>this.catalogForm.get('labelArray'));
+					if (!data && this.isAdd)
+					{
+						// check the current array of labels for any duplicates
+						data = this.labelArray.controls.some(x => x.value && (<string>x.value).toLowerCase().trim() == label && x != control);
+					}
 
-					// check the current array of labels for any duplicates
-					data = labelArray.controls.some(x => x.value && (<string>x.value).toLowerCase().trim() == label && x != control);
-				}
+					return data ? { 'alreadyExist': true } : null;
+				}));
 
-				return data ? { 'alreadyExist': true } : null;
-			}));
+				return obs;
+			}
+			else if (!hasValidLabel && labelValue.length === 0 && label.length === 0)
+			{
+				return of({ 'invalidLabel': true });
+			}
 
-			return obs;
+			return of(null);
 		}
-		else if (labelValue.length && label.length === 0)
-		{
-			return of({ 'invalidLabel': true });
-		}
-
-		return of(null);
 	}
 
 	save()
@@ -211,9 +204,7 @@ export class ChoiceSidePanelComponent implements OnInit
 
 		if (item.id == null)
 		{
-			const labelArray = (<UntypedFormArray>form.get('labelArray'));
-
-			const choices = labelArray.controls.filter(c => c.value && c.value.length).map(c =>
+			const choices = this.labelArray.controls.filter(c => c.value && c.value.length).map(c =>
 			{
 				let newChoice = new DivDChoice({
 					choiceLabel: c.value.trim(),
@@ -237,10 +228,10 @@ export class ChoiceSidePanelComponent implements OnInit
 		}
 		else
 		{
-			let label = form.get('label').value.trim();
-			let isDefault = form.get('isDefault').value;
-			let isHiddenFromBuyerView = form.get('isHiddenFromBuyerView').value;
-			let priceHiddenFromBuyerView = form.get('priceHiddenFromBuyerView').value;
+			const label = form.get('label').value.trim();
+			const isDefault = form.get('isDefault').value;
+			const isHiddenFromBuyerView = form.get('isHiddenFromBuyerView').value;
+			const priceHiddenFromBuyerView = form.get('priceHiddenFromBuyerView').value;
 
 			item.dto.choiceLabel = label;
 			item.isDefault = isDefault;
@@ -261,10 +252,14 @@ export class ChoiceSidePanelComponent implements OnInit
 		this.sidePanel.toggleSidePanel();
 	}
 
-	checkHiddenStatus() {
-		if (!this.catalogForm.get('isHiddenFromBuyerView').value && this.catalogForm.get('priceHiddenFromBuyerView').value) {
+	checkHiddenStatus()
+	{
+		if (!this.catalogForm.get('isHiddenFromBuyerView').value && this.catalogForm.get('priceHiddenFromBuyerView').value)
+		{
 			this.catalogForm.get('priceHiddenFromBuyerView').setValue(false);
-		} else if (!this.catalogForm.get('priceHiddenFromBuyerView').value && this.catalogForm.get('isHiddenFromBuyerView').value) {
+		}
+		else if (!this.catalogForm.get('priceHiddenFromBuyerView').value && this.catalogForm.get('isHiddenFromBuyerView').value)
+		{
 			this.catalogForm.get('isHiddenFromBuyerView').setValue(false);
 		}
 	}

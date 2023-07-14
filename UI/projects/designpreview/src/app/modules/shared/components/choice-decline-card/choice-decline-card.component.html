@@ -1,4 +1,4 @@
-<div class="phd-choice-decline-card" [@flipOver]>
+<li class="phd-choice-decline-card" [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-decline-card-presale-height' : 'phd-decline-card-standard-height'" [@flipOver]  role="group" aria-label="No Selections">
 	<div class="phd-header">
 		<div class="phd-decline-choice-image">
 			<img class="phd-logo-image" [src]="imageSrc" alt="">
@@ -6,51 +6,29 @@
 	</div>
 
 	<div class="phd-body">
-		<div *ngIf="!isPresale" class="phd-choice-decline-details">
+		<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'd-flex flex-row justify-content-between' : ''" class="phd-choice-decline-details">
 			<h1 class="phd-2-line-limit">
 				No Selections
 			</h1>
-			<div class="d-flex flex-row justify-content-between">
+			<div [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-pricing-block' : 'phd-standard-pricing-block'" class="d-flex flex-row justify-content-between">
 				<div>
 					<strong></strong>
 				</div>
 				<ng-container *ngIf="currentPoint.enabled">
-					<button class="phd-non-clickable" (click)="$event.stopPropagation();toggleDecline()">
+					<button [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-padding' : 'phd-standard-padding'" class="phd-non-clickable" (click)="$event.stopPropagation();toggleDecline()">
 						<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart"></i></span>
 						<i *ngIf="!isDeclined" aria-pressed="false" class="fa fa-heart-o"></i>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="!currentPoint.enabled">
-					<button class="phd-clickable phd-favorite-selector" (click)="openBlockedChoiceModal()">
+					<button [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-presale-padding' : 'phd-standard-padding'" class="phd-clickable phd-favorite-selector" (click)="openBlockedChoiceModal()">
 						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}"></i>
 					</button>
 				</ng-container>
 			</div>
 		</div>
-
-		<div *ngIf="isPresale" class="phd-choice-decline-details d-flex flex-row justify-content-between" [ngClass]="getBodyHeight()">
-			<h1 class="phd-2-line-limit">
-				No Selections
-			</h1>
-			<div class="phd-presale-icon d-flex flex-row justify-content-between">
-				<div>
-					<strong></strong>
-				</div>
-				<ng-container *ngIf="currentPoint.enabled">
-					<button class="phd-non-clickable" (click)="$event.stopPropagation()">
-						<span class="phd-icon-selected"><i *ngIf="isDeclined" aria-pressed="true" class="fa fa-heart" (click)="toggleDecline()"></i></span>
-						<i *ngIf="!isDeclined && currentPoint.enabled" aria-pressed="false" class="fa fa-heart-o" (click)="toggleDecline()"></i>
-					</button>
-				</ng-container>
-				<ng-container *ngIf="!currentPoint.enabled">
-					<button class="phd-clickable phd-favorite-selector">
-						<i class="fa fa-ban" attr.aria-label="{{currentPoint.label + ' is blocked'}}" (click)="openBlockedChoiceModal()"></i>
-					</button>
-				</ng-container>
-			</div>
-		</div>
 	</div>
-</div>
+</li>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
 	<blocked-choice-modal

@@ -7,7 +7,7 @@ import { IEnvironment } from './environment.model';
 
 export const environment: IEnvironment = {
 	apiUrl: 'http://localhost:2845/odata/',
-	authQueryParams: "domain_hint=pulte.com",
+	authQueryParams: 'domain_hint=pulte.com',
 	baseUrl: {
 		colorManagement: 'http://localhost:14770/',
 		buyerTracker: 'http://buyertracker.dev.pulte.com/',
@@ -36,14 +36,14 @@ export const environment: IEnvironment = {
 		salesTally: 'https://salesportal.dev.pulte.com/salesportal/salestally'
 	},
 	appInsights: {
-		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
+		connectionString: 'InstrumentationKey=08875504-9c0f-45a6-8cc5-8a819e51aff0;IngestionEndpoint=https://eastus-6.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
 	},
 
 	production: false,
 	authConfig: {
-		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-		clientId: "d6079aab-8c1d-40e7-81fb-78bda38faea2",
+		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
+		clientId: 'd6079aab-8c1d-40e7-81fb-78bda38faea2',
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,

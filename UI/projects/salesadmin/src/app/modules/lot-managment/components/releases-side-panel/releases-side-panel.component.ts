@@ -3,7 +3,7 @@ import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms
 
 import { HomeSite } from '../../../shared/models/homesite.model';
 import { IHomeSiteReleaseDto, IHomeSiteReleaseSidePanelItem } from '../../../shared/models/homesite-releases.model';
-import { ConfirmModalComponent, SidePanelComponent } from 'phd-common';
+import { ConfirmModalComponent, SidePanelComponent, Constants } from 'phd-common';
 
 import * as moment from "moment";
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -180,12 +180,13 @@ export class ReleasesSidePanelComponent implements OnInit
 		this.setSelectedLotValue();
 	}
 
-	
+
 	checkReleaseModels()
 	{
 		if (this.selectedItems.find(s => s.isModel))
 		{
-			let models = this.selectedItems.filter(x => x.isModel).map(model => {
+			let models = this.selectedItems.filter(x => x.isModel).map(model =>
+			{
 				return model.label;
 			});
 			const ngbModalOptions: NgbModalOptions = {
@@ -197,25 +198,25 @@ export class ReleasesSidePanelComponent implements OnInit
 			if (models.length === 1)
 			{
 				confirm.componentInstance.title = 'Create Release';
-				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lot is a model: <br><br><span class="font-weight-bold">' 
-				+ models[0] + '</span><br><br>If you continue, ' 
-				+ 'this model will be released and made available for sale on the scheduled release date.</div>';
-				confirm.componentInstance.defaultOption = 'Continue';
-				confirm.componentInstance.primaryButtonText = 'Continue';
+				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lot is a model: <br><br><span class="font-weight-bold">'
+					+ models[0] + '</span><br><br>If you continue, '
+					+ 'this model will be released and made available for sale on the scheduled release date.</div>';
+				confirm.componentInstance.defaultOption = Constants.CONTINUE;
+				confirm.componentInstance.primaryButtonText = Constants.CONTINUE;
 			}
 			else
 			{
 				confirm.componentInstance.title = 'Create Release';
-				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lots are models: <br><br> <span class="font-weight-bold">' 
-				+ models.join(',') + '</span> <br><br>If you continue, ' 
-				+ 'these models will be released and made available for sale on the scheduled release date.</div>';
-				confirm.componentInstance.defaultOption = 'Continue';
-				confirm.componentInstance.primaryButtonText = 'Continue';
+				confirm.componentInstance.body = '<div class="phd-center-text">The following selected lots are models: <br><br> <span class="font-weight-bold">'
+					+ models.join(',') + '</span> <br><br>If you continue, '
+					+ 'these models will be released and made available for sale on the scheduled release date.</div>';
+				confirm.componentInstance.defaultOption = Constants.CONTINUE;
+				confirm.componentInstance.primaryButtonText = Constants.CONTINUE;
 			}
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					this.saveRelease();
 				}
@@ -252,7 +253,7 @@ export class ReleasesSidePanelComponent implements OnInit
 		}
 
 		this.onSaveRelease.emit(dto);
-		
+
 	}
 }
 
@@ -262,9 +263,10 @@ class MultiSelectHomeSiteItem implements IMultiSelectItem
 	selectable: boolean = false;
 	isModel: boolean;
 
-	constructor(private _homeSite: HomeSite) {
+	constructor(private _homeSite: HomeSite)
+	{
 		this.isModel = _homeSite.lotBuildTypeDescription === 'Model';
-	 }
+	}
 
 	get id(): number
 	{

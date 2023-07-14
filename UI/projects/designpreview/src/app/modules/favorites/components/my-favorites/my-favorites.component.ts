@@ -34,6 +34,7 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as AppActions from '../../../ngrx-store/app/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
@@ -46,17 +47,19 @@ import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'my-favorites',
 	templateUrl: 'my-favorites.component.html',
 	styleUrls: ['my-favorites.component.scss']
-})
+	})
 export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(GroupBarComponent) private groupBar: GroupBarComponent;
 	@ViewChild(NormalExperienceComponent) private mainPanel: NormalExperienceComponent;
 
+	brandTheme: string;
 	communityName: string = '';
 	planName: string = '';
 	groups: Group[];
@@ -81,6 +84,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	isFloorplanFlipped: boolean;
 	isPreview: boolean;
 	isPresale: boolean;
+	isPresalePricingEnabled: boolean;
 	isDesignComplete: boolean;
 	isReadonly: boolean = false;
 	noVisibleGroups: boolean = false;
@@ -94,6 +98,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
 		const subGroupIndex = subGroups.findIndex(sg => sg.id === this.selectedSubgroupId);
+
 		if (subGroupIndex > -1)
 		{
 			const nextSubgroup = subGroupIndex === subGroups.length - 1
@@ -110,11 +115,14 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		private route: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
+		private brandService: BrandService,
 		private modalService: ModalService,
 		private location: Location,
 		private navService: NavigationService)
 	{
 		super();
+
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnInit()
@@ -152,9 +160,11 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				centered: true,
 				backdrop: 'static',
-				keyboard: false
+				keyboard: false,
+				windowClass: this.brandTheme,
 			};
-			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
+
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true);
 		}
 
 		this.store.pipe(
@@ -165,14 +175,8 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			if (tree)
 			{
 				this.groups = tree.groups;
-				if (!this.groups.length)
-				{
-					this.noVisibleGroups = true;
-				}
-				else
-				{
-					this.noVisibleGroups = false;
-				}
+
+				this.noVisibleGroups = !this.groups.length;
 			}
 		});
 
@@ -224,6 +228,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
 
+					//when choice is requested for detail and subgroup not in filtered tree, find subgroup in original tree
+					if (!sg && params.divChoiceCatalogId)
+					{
+						groups = scenarioState.tree.treeVersion.groups;
+						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
+					}
+
 					if (!sg)
 					{
 						let subGroupCatalogId = groups[0].subGroups[0].subGroupCatalogId;
@@ -247,6 +258,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 								}
 							}
 						}
+
 						this.router.navigate(['..', subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
 					}
 					else
@@ -281,9 +293,12 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 			else if (filteredTree && !this.noVisibleGroups)
 			{
-				const subGroup = filteredTree.groups[0].subGroups[0];
+				const subGroup = filteredTree.groups[0]?.subGroups[0];
 
-				this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
+				if (!!subGroup)
+				{
+					this.router.navigate([subGroup.subGroupCatalogId], { relativeTo: this.route, replaceUrl: true, queryParamsHandling: 'merge' });
+				}
 			}
 		});
 
@@ -299,6 +314,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const subGroup = _.flatMap(groups, g => g.subGroups).find(s => s.id === sgId) || _.flatMap(groups, g => g.subGroups)[0];
 
 			this.selectedPointId = nav && nav.selectedPoint;
+
 			if (!this.selectedPointId && subGroup && subGroup.points && subGroup.points.length)
 			{
 				this.selectedPointId = subGroup.points[0].id;
@@ -346,6 +362,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
 			this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
 			this.myFavoriteId = favorite && favorite.id;
+
 			this.updateSelectedChoice();
 		});
 
@@ -371,6 +388,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
 					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+
 					if (fpSubGroup)
 					{
 						this.marketingPlanId$.next(plan.marketingPlanId[0]);
@@ -398,6 +416,14 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(sag =>
 		{
 			this.isFloorplanFlipped = sag.isFloorplanFlipped;
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.presalePricingEnabled)
+		).subscribe(isPricingEnabled => 
+		{
+			this.isPresalePricingEnabled = isPricingEnabled;
 		});
 	}
 
@@ -434,6 +460,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		else
 		{
 			this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
+
 			this.router.navigate(['favorites', 'summary'], { queryParamsHandling: 'merge' });
 		}
 	}
@@ -452,6 +479,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.deselectDeclinedPoints(choice);
 		}
+
 		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
@@ -522,6 +550,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			const firstPoint = newSubgroup?.points[0] || null;
 
 			this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, newSubgroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
+
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(sgId, firstPoint.id, null));
 		}
 		else
@@ -534,22 +563,19 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.router.navigate(['favorites', 'my-favorites', this.myFavoriteId, this.selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 			}
+
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(this.selectedSubgroupId, this.selectedPointId, null));
 		}
 
 		this.cd.detectChanges();
-		setTimeout(() =>
-		{
-			const firstPointId = this.selectedSubGroup.points && this.selectedSubGroup.points.length ? this.selectedSubGroup.points[0].id : 0;
-
-			this.mainPanel?.scrollPointIntoView(this.selectedPointId, this.selectedPointId === firstPointId);
-		}, 350);
+		this.mainPanel?.scrollPointIntoView(this.selectedPointId);
 	}
 
 	getChoicePath(): string
 	{
 		let subGroupName = '';
 		let pointName = '';
+
 		if (this.previousUrl && this.previousUrl.length)
 		{
 			if (this.previousUrl.includes('favorites/summary'))
@@ -566,7 +592,9 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 		if (this.selectedSubGroup)
 		{
 			subGroupName = this.selectedSubGroup.label;
+
 			const selectedPoint = this.selectedSubGroup.points.find(p => p.id === this.selectedPointId);
+
 			if (selectedPoint)
 			{
 				pointName = selectedPoint.label;
@@ -596,6 +624,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 	selectDecisionPoint(pointId: number)
 	{
 		this.selectedPointId = pointId;
+		this.cd.detectChanges()
 
 		// if point is in a different subGroup, we need to select the subGroup as well
 		if (this.selectedSubGroup && !this.selectedSubGroup.points.find(p => p.id === pointId))

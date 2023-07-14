@@ -9,7 +9,7 @@
 	<div class="d-flex flex-row phd-point-panel">
 		<div id="includedDecisionBar" *ngIf="!isPointPanelCollapsed" class="phd-point-bar">
 			<included-decision-bar
-				[tree]="filteredTree"
+				[tree]="includedTree"
 				[points]="points"
 				(selectDecisionPoint)="selectDecisionPoint($event)" 
 				(selectSubGroup)="selectSubGroup($event)">
@@ -24,25 +24,26 @@
 	<div class="d-flex flex-column phd-card-panel" [ngClass]="isPointPanelCollapsed ? 'phd-card-panel-collapsed' : ''">
 		<ng-container *ngIf="!noVisibleGroups">
 			<div class="phd-point-container">
-				<ng-container *ngFor="let group of filteredTree.groups">
-					<ng-container *ngFor="let subGroup of group.subGroups">
+				<ng-container *ngFor="let group of includedTree.groups; trackBy:groupTrackBy">
+					<ng-container *ngFor="let subGroup of group.subGroups; trackBy:subGroupTrackBy">
 						<ng-container *ngIf="defaultChoicePresent(subGroup)">
 							<h3 class="d-flex flex-row phd-group-subgroup-header" [attr.id]="'included-subgroup-' + subGroup.id">
 								<div class="phd-group-label">{{group.label}}:</div>
 								<div class="phd-subgroup-label">{{subGroup.label}}</div>
 							</h3>
 							<div class="d-flex flex-wrap phd-choice-container">
-								<ng-container *ngFor="let point of subGroup.points">
+								<ng-container *ngFor="let point of subGroup.points; trackBy:pointTrackBy">
 									<div *ngIf="displayDecisionPoint(point)">
-										<a href="" class="phd-point-label" [attr.id]="'included-point-' + point.id" (click)="$event.preventDefault(); onViewDecisionPoint(point)">{{point?.label}}</a>
+										<a href="" class="phd-point-link" [attr.id]="'included-point-' + point.id" (click)="$event.preventDefault(); onViewDecisionPoint(point)">{{point?.label}}</a>
 										<div class="phd-choice-cards">
-											<ng-container *ngFor="let choice of displayedChoices(point.choices)">
+											<ng-container *ngFor="let choice of displayedChoices(point.choices); trackBy:choiceTrackBy">
 												<choice-card *ngIf="!choice.isHiddenFromBuyerView"
 														[currentChoice]="getChoiceExt(choice, point)"
 														[currentPoint]="point"
-														[groups]="filteredTree.groups"
+														[groups]="includedTree.groups"
 														[tree]="tree"
-														[isPresale]="buildMode === 'presale'"
+														[isPresale]="isPresale"
+														[isPresalePricingEnabled]="isPresalePricingEnabled" 
 														[isIncludedOptions]="true"
 														(toggled)="choiceToggleHandler($event)"
 														(viewChoiceDetail)="viewChoiceDetail($event)">
@@ -61,6 +62,8 @@
 </main>
 
 <action-bar primaryAction="Next: Additional Options"
+			[favoritesPrice]="priceBreakdown.favoritesPrice"
+			[price]="priceBreakdown.totalPrice"
 			[isPresale]="true"
 			[hideContractedToggle]="true"
 			(callToAction)="onNextClicked()">

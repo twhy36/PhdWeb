@@ -23,6 +23,7 @@
 							[tree]="tree"
 							[isReadonly]="isReadonly"
 							[isPresale]="isPresale"
+							[isPresalePricingEnabled]="isPresalePricingEnabled"
 							(toggleChoice)="clickToggleChoice($event)"
 							(viewChoiceDetail)="clickViewChoiceDetail($event)"
 							(selectDecisionPoint)="clickSelectDecisionPoint($event)">
@@ -30,6 +31,7 @@
 					</ng-container>
 					<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"
 								[point]="point"
+								[groups]="groups"
 								[myFavoritesPointsDeclined]="myFavoritesPointsDeclined"
 								[tree]="tree"
 								[isReadonly]="isReadonly"

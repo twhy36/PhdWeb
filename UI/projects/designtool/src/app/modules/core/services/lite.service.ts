@@ -17,7 +17,7 @@ import
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
 	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes,
 	ScenarioOption, ScenarioOptionColor, Scenario, IJob, FeatureSwitchService, PriceBreakdown,
-	IPendingJobSummary
+	IPendingJobSummary, Constants
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -212,7 +212,7 @@ export class LiteService
 		);
 	}
 
-	getColorItems(optionIds: Array<number>): Observable<ColorItem[]>
+	getColorItems(optionIds: Array<number>, isActiveOnly: boolean = true): Observable<ColorItem[]>
 	{
 		const batchGuid = getNewGuid();
 		const batchSize = 50;
@@ -224,7 +224,11 @@ export class LiteService
 			const batchIds = optionIds.slice(i, i + batchSize);
 			const entity = `colorItems`;
 			const expand = `colorItemColorAssoc($expand=color)`;
-			let filter = `(edhPlanOptionId in (${batchIds.join(',')})) and (isActive eq true)`;
+			let filter = `(edhPlanOptionId in (${batchIds.join(',')}))`;
+			if (isActiveOnly)
+			{
+				filter += ` and (isActive eq true)`;
+			}
 			const select = `colorItemId,name,edhPlanOptionId,isActive`;
 
 			let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
@@ -293,7 +297,9 @@ export class LiteService
 		let missingColorItems = [];
 		let missingColors = [];
 
-		job.jobPlanOptions?.forEach(jpo => 
+		const genericOption = job.jobPlanOptions?.find(jpo => jpo.integrationKey === '99999');
+
+		job.jobPlanOptions?.filter(jpo => jpo.planOptionId !== genericOption?.planOptionId)?.forEach(jpo => 
 		{
 			jpo.jobPlanOptionAttributes?.forEach(jpoa => 
 			{
@@ -309,7 +315,9 @@ export class LiteService
 						missingColorItems.push(
 							{
 								planOptionId: option.id,
-								name: jpoa.attributeGroupLabel
+								name: jpoa.attributeGroupLabel,
+								optionSubCategoryId: option.optionSubCategoryId,
+								colorName: jpoa.attributeName
 							});
 					}
 
@@ -352,8 +360,9 @@ export class LiteService
 
 			let filter = `(${batchFilter})`;
 			const select = `colorItemId,name,edhPlanOptionId,isActive`;
+			const expand = `colorItemColorAssoc($expand=color)`;
 
-			let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+			let qryStr = `${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 
 			const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;
 
@@ -380,7 +389,7 @@ export class LiteService
 							name: item.name,
 							edhPlanOptionId: item.edhPlanOptionId,
 							isActive: item.isActive,
-							color: []
+							color: this.mapColors(item['colorItemColorAssoc'], item.colorItemId)
 						});
 					});
 				})
@@ -800,8 +809,8 @@ export class LiteService
 	{
 		const title = 'Generate Home Purchase Agreement';
 		const body = 'This House Configuration has Options selected that require a color.  Either some colors were not selected or some colors you selected have been set to inactive.  Click Continue to generate this sales agreement now, or click Cancel to select the colors for options.';
-		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
+		const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
 
 		this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 		{
@@ -1459,8 +1468,7 @@ export class LiteService
 		buildMode: string,
 		options: LitePlanOption[],
 		selectedElevation: LitePlanOption,
-		pendingJobSummary: IPendingJobSummary,
-		skipSpinner: boolean = true
+		pendingJobSummary: IPendingJobSummary
 	): Observable<Job>
 	{
 		const action = `CreateJIOForSpecLite`;
@@ -1498,7 +1506,7 @@ export class LiteService
 			pendingJobSummary: pendingJobSummary
 		};
 
-		return (skipSpinner ? this._http : withSpinner(this._http)).post(url, data).pipe(
+		return (withSpinner(this._http)).post(url, data).pipe(
 			map((results: IJob) => new Job(results)),
 			catchError(error =>
 			{
@@ -1675,8 +1683,6 @@ export class LiteService
 						if (missingColorItem)
 						{
 							option.colorItems.push(missingColorItem);
-
-							addColorToColorItem(missingColorItem, option.optionSubCategoryId, jpoa.attributeName);
 						}
 					}
 					else if (!color)
@@ -1688,23 +1694,59 @@ export class LiteService
 		});
 	}
 
-	mapPendingJobSummaryLite(jobId: number, priceBreakdown: PriceBreakdown, selectedOptions: ScenarioOption[], options: LitePlanOption[]) : IPendingJobSummary
+	mapPendingJobSummaryLite(jobId: number, priceBreakdown: PriceBreakdown, selectedOptions: ScenarioOption[], options: LitePlanOption[]): IPendingJobSummary
 	{
 		const elevationOption = options?.find(option => selectedOptions?.find(selectedOption => selectedOption.edhPlanOptionId === option.id)
 			&& (option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached));
 
 		return {
-            jobId: jobId,
-            planPrice: priceBreakdown.baseHouse,
-            elevationPlanOptionId: elevationOption?.id,
-            elevationPrice: elevationOption?.listPrice,
-            totalOptionsPrice: priceBreakdown.selections,
-            salesProgramAmount: priceBreakdown.salesProgram,
-            totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
-            totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
-            totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
-            totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
-            netHousePrice: priceBreakdown.totalPrice			
+			jobId: jobId,
+			planPrice: priceBreakdown.baseHouse,
+			elevationPlanOptionId: elevationOption?.id,
+			elevationPrice: elevationOption?.listPrice,
+			totalOptionsPrice: priceBreakdown.selections,
+			salesProgramAmount: priceBreakdown.salesProgram,
+			totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
+			totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
+			totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
+			totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
+			netHousePrice: priceBreakdown.totalPrice
 		} as IPendingJobSummary;
-	}		
+	}
+
+	addJobColors(jobId: number)
+	{
+		const endpoint = environment.apiUrl + `AddJobColors(${jobId})`;
+
+		return this._http.post(endpoint, null).pipe(
+			map(response =>
+			{
+				return response;
+			}),
+			catchError(this.handleError)
+		);
+	}
+
+	hasUnMappedJobColors(missingColorItemsAndColors: any, colorItems: ColorItem[]): boolean
+	{
+		const hasUnMappedColorItems = !missingColorItemsAndColors.missingColorItems.some(mci =>
+		{
+			return colorItems.some(ci => mci.planOptionId === ci.edhPlanOptionId && mci.name === ci.name);
+		});
+
+		const colors = _.flatMap(colorItems, ci => ci.color);
+		const hasUnMappedColors = !missingColorItemsAndColors.missingColors.some(mc =>
+		{
+			return colors.some(cl => mc.optionSubCategoryId === cl.edhOptionSubcategoryId && mc.name === cl.name);
+		});
+
+		const hasUnMappedColorItemColorAssoc = !missingColorItemsAndColors.missingColorItems.some(mci =>
+		{
+			return colorItems.some(ci => mci.planOptionId === ci.edhPlanOptionId
+				&& mci.name === ci.name
+				&& colors.some(cl => mci.optionSubCategoryId === cl.edhOptionSubcategoryId && mci.name === cl.name));
+		});
+
+		return hasUnMappedColorItems || hasUnMappedColors || hasUnMappedColorItemColorAssoc;
+	}
 }

@@ -11,9 +11,9 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
-import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
+import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage, TreeVersion } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
@@ -23,7 +23,7 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'home',
 	templateUrl: 'home.component.html',
 	styleUrls: ['home.component.scss']
-})
+	})
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	communityName: string = '';
@@ -33,13 +33,14 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	salesAgreement: SalesAgreement;
 	isPreview: boolean;
 	isPresale: boolean;
-	isLoadingMyFavorite: boolean = false;
+	selectedFavoritesId: number;
 	hasFloorPlanImages: boolean = false;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
 	isFloorplanFlipped: boolean;
 	floorplanSG: SubGroup;
 	noVisibleFP: boolean = false;
 	selectedFloor;
+	filteredTree: TreeVersion;
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -78,22 +79,21 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				switch (urlBuildMode)
 				{
 					case BuildMode.Preview:
-						//set current buildmode to preview for Preview URL path
+					//set current buildmode to preview for Preview URL path
 						this.isPreview = true;
 
 						const treeVersionId = +params.get('treeVersionId');
 
 						if (!scenarioState.tree ||
-							scenarioState.tree.treeVersion.id !== treeVersionId
-							|| scenarioState.buildMode != BuildMode.Preview)
+								scenarioState.tree.treeVersion.id !== treeVersionId
+								|| scenarioState.buildMode != BuildMode.Preview)
 						{
 							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
 							return new Observable<never>();
 						}
 						break;
-
 					case BuildMode.Presale:
-						//set current buildmode to presale for presale URL path
+					//set current buildmode to presale for presale URL path
 						this.isPresale = true;
 
 						const planCommunityId = Number(sessionStorage.getItem('presale_plan_community_id'));
@@ -111,18 +111,17 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 							return new Observable<never>();
 						}
 						break;
-
 					default:
-						// PostContract ID changes or store BuildMode is not PostContract
-						// reload SA and update buildmode to Buyer
+					// PostContract ID changes or store BuildMode is not PostContract
+					// reload SA and update buildmode to Buyer
 						const salesAgreementId = +params.get('salesAgreementId');
 
 						if (salesAgreementId > 0 &&
-							(salesAgreementState.id !== salesAgreementId
-								|| scenarioState.buildMode !== BuildMode.Buyer)
+								(salesAgreementState.id !== salesAgreementId
+									|| scenarioState.buildMode !== BuildMode.Buyer)
 						)
 						{
-							//load store data in Buyer mode with pass querystring ID
+						//load store data in Buyer mode with pass querystring ID
 							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
 							return new Observable<never>();
 						}
@@ -200,42 +199,42 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromRoot.filteredTree),
-			withLatestFrom(this.store.select(state => state.favorite), this.store.select(state => state.nav)),
-		).subscribe(([tree, fav, nav]) =>
+			select(state => state.favorite)
+		).subscribe(fav =>
 		{
 			if (fav)
 			{
-				if (this.isLoadingMyFavorite && !fav.isLoading)
-				{
-					this.isLoadingMyFavorite = false;
+				//nav to top subgroup choice
+				this.selectedFavoritesId = fav.selectedFavoritesId;
+			}
+		});
 
-					const subGroups = _.flatMap(tree.groups, g => _.flatMap(g.subGroups)) || [];
-					const selectedSubGroup = subGroups.find(sg => sg.id === nav.selectedSubGroup);
-					if (selectedSubGroup)
-					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' })
-					}
-					else
-					{
-						this.router.navigate(['favorites', 'my-favorites', fav.selectedFavoritesId], { queryParamsHandling: 'merge' })
-					}
-				}
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.filteredTree)
+		).subscribe(tree =>
+		{
+			if (tree)
+			{
+				this.filteredTree = tree;
 			}
 		});
 	}
 
 	viewOptions()
 	{
-		this.isLoadingMyFavorite = true;
-		if (this.isPreview || this.isPresale)
+		const firstSubGroup = _.flatMap(this.filteredTree.groups, g => _.flatMap(g.subGroups))[0] || null;
+
+		if (firstSubGroup)
 		{
-			this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
+			this.store.dispatch(new NavActions.SetSelectedSubgroup(firstSubGroup.id));
+			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId, firstSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 		else
 		{
-			this.store.dispatch(new FavoriteActions.LoadMyFavorite());
+			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId], { queryParamsHandling: 'merge' })
 		}
+
 	}
 
 	getImageSrc()

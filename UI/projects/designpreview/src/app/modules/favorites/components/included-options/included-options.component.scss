@@ -61,12 +61,11 @@ $point-panel-width: 245px;
 	margin-top: 20px;
 }
 
-.phd-point-label {
+.phd-point-link {
 	text-transform: capitalize;
 	padding-left: 10px;
 	font-size: 16px;
 	margin-top: 8px;
-	color: var(--link-color);
 	text-decoration: underline;
 	width: fit-content;
 	cursor: pointer;

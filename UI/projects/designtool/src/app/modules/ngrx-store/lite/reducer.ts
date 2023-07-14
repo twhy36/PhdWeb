@@ -17,6 +17,7 @@ export interface State
 	isSaving: boolean;
 	isScenarioLoaded: boolean;
 	isUnsaved: boolean;
+	isLiteQMIToggled: boolean;
 	options: LitePlanOption[];
 	scenarioOptions: ScenarioOption[];
 	categories: IOptionCategory[];
@@ -32,6 +33,7 @@ export const initialState: State =
 	isScenarioLoaded: false,
 	isSaving: false,
 	isUnsaved: false,
+	isLiteQMIToggled: false,
 	options: [],
 	scenarioOptions: [],
 	categories: [],
@@ -176,6 +178,9 @@ export function reducer(state: State = initialState, action: LiteActions): State
 		case LiteActionTypes.ResetLiteState:
 			return { ...initialState };
 
+		case LiteActionTypes.SetIsLiteQMIToggled:
+			return { ...state, isLiteQMIToggled: action.isLiteQMIToggled };
+				
 		default:
 			return state;
 	}

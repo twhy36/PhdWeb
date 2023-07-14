@@ -133,7 +133,8 @@ export class LocationGroupsSidePanelComponent implements OnInit
 				groupLabel: this.locationGroup.groupLabel,
 				isActive: this.locationGroup.isActive,
 				id: this.locationGroup.id,
-				tags: this.locationGroup.tags
+				tags: this.locationGroup.tags,
+				marketId: this.locationGroup.marketId
 			} as LocationGroupMarket;
 
 			locationGroup = this._locoService.patchLocationGroup(groupData);

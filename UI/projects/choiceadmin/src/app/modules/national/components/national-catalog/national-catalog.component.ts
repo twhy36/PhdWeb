@@ -15,7 +15,7 @@ import { DSubGroup, ICatalogSubGroupDto } from '../../../shared/models/subgroup.
 import { DPoint, ICatalogPointDto } from '../../../shared/models/point.model';
 import { CatalogItem } from '../../../shared/models/catalog-item.model';
 import { NationalCatalog } from '../../../shared/models/national-catalog.model';
-import { Permission } from 'phd-common';
+import { Constants, Permission } from 'phd-common';
 import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree-toggle.component';
 
 @Component({
@@ -26,7 +26,7 @@ import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree
 export class NationalCatalogComponent implements OnInit
 {
 	Permission = Permission;
-	
+
 	@ViewChild(NationalCatalogReactivateComponent)
 	private natCatReactivateSidePanel: NationalCatalogReactivateComponent;
 
@@ -52,11 +52,11 @@ export class NationalCatalogComponent implements OnInit
 	isDirty: boolean = false;
 
 	dragEnable: boolean = false;
-    canSort = false;
-    dragHasChanged: boolean = false;
-    confirmedCancelSort: boolean = false;
+	canSort = false;
+	dragHasChanged: boolean = false;
+	confirmedCancelSort: boolean = false;
 
-    lockedFromChanges: boolean = false;
+	lockedFromChanges: boolean = false;
 
 	get openGroups(): boolean
 	{
@@ -79,99 +79,99 @@ export class NationalCatalogComponent implements OnInit
 	{
 		this._nationalCatalog = nc;
 	}
-	
+
 	get groups(): DGroup[]
 	{
-        return this.nationalCatalog ? this.nationalCatalog.groups : [];
+		return this.nationalCatalog ? this.nationalCatalog.groups : [];
 	}
-	
+
 	constructor(private _natService: NationalService, private _modalService: NgbModal, private _msgService: MessageService, private _uiUtils: UiUtilsService) { }
 
 	ngOnInit()
 	{
-        this.getNationalCatalog();
-    }
+		this.getNationalCatalog();
+	}
 
-    getNationalCatalog()
-    {
-        this._natService.getNationalCatalog().subscribe((data) =>
-        {
-            this.nationalCatalog = data;
-        });
-    }
-	
-    addCatalogItem(event: any, parent?: DGroup | DSubGroup)
-    {
-        this.sidePanelOpen = false;
-        this.catalogItem = null;
+	getNationalCatalog()
+	{
+		this._natService.getNationalCatalog().subscribe((data) =>
+		{
+			this.nationalCatalog = data;
+		});
+	}
 
-        let catItem = new CatalogItem();
+	addCatalogItem(event: any, parent?: DGroup | DSubGroup)
+	{
+		this.sidePanelOpen = false;
+		this.catalogItem = null;
 
-        var maxOrder = 0;
+		let catItem = new CatalogItem();
 
-        if (parent instanceof DGroup)
-        {
+		var maxOrder = 0;
+
+		if (parent instanceof DGroup)
+		{
 			maxOrder = Math.max.apply(Math, parent.children.map(x => x.sortOrder));
 			catItem.item = new DSubGroup({ dGroupCatalogID: parent.id, dSubGroupCatalogID: 0, points: [], dSubGroupLabel: '', dSubGroupSortOrder: 0, isActive: true, hasInactivePoints: false, isFloorplanSubgroup: false, subGroupTypeId: 1 });
 			catItem.item.parent = parent;
-            catItem.itemType = 'SubGroup';
-        }
-        else if (parent instanceof DSubGroup)
-        {
-            maxOrder = Math.max.apply(Math, parent.children.map(x => x.sortOrder));
+			catItem.itemType = 'SubGroup';
+		}
+		else if (parent instanceof DSubGroup)
+		{
+			maxOrder = Math.max.apply(Math, parent.children.map(x => x.sortOrder));
 
 			catItem.item = new DPoint({ dPointCatalogID: 0, dPointDescription: '', dPointLabel: '', dPointSortOrder: 0, dSubGroupCatalogID: parent.id, isActive: true });
 			catItem.item.parent = parent;
-            catItem.showDescription = true;
-            catItem.itemType = 'Point';
-        }
-        else
-        {
-            maxOrder = Math.max.apply(Math, this.nationalCatalog.groups.map(x => x.sortOrder));
+			catItem.showDescription = true;
+			catItem.itemType = 'Point';
+		}
+		else
+		{
+			maxOrder = Math.max.apply(Math, this.nationalCatalog.groups.map(x => x.sortOrder));
 
 			catItem.item = new DGroup({ dGroupCatalogID: 0, dGroupLabel: '', dGroupSortOrder: 0, subGroups: [], isActive: true, hasInactiveSubGroups: false, dGroupImagePath: null });
 
-            catItem.itemType = 'Group';
+			catItem.itemType = 'Group';
 		}
 
 		let sortOrder = isFinite(maxOrder) ? maxOrder : 0;
 
 		catItem.item.sortOrder = (sortOrder + 1);
-		
-        this.catalogItem = catItem;
+
+		this.catalogItem = catItem;
 
 		this.openSidePanel(event, '', catItem.itemType);
 	}
-	
-    editCatalogItem(event: any, item: DGroup | DSubGroup | DPoint)
-	{
-        this.sidePanelOpen = false;
 
-        let catItem = new CatalogItem();
+	editCatalogItem(event: any, item: DGroup | DSubGroup | DPoint)
+	{
+		this.sidePanelOpen = false;
+
+		let catItem = new CatalogItem();
 
 		catItem.item = item;
 
-        if (item instanceof DPoint)
-        {
-            catItem.showDescription = true;
-            catItem.itemType = 'Point';
-        }
-        else if (item instanceof DSubGroup)
-        {
-            catItem.itemType = 'SubGroup';
-        }
-        else
-        {
-            catItem.itemType = 'Group';
-        }
+		if (item instanceof DPoint)
+		{
+			catItem.showDescription = true;
+			catItem.itemType = 'Point';
+		}
+		else if (item instanceof DSubGroup)
+		{
+			catItem.itemType = 'SubGroup';
+		}
+		else
+		{
+			catItem.itemType = 'Group';
+		}
 
-        this.catalogItem = catItem;
+		this.catalogItem = catItem;
 
 		this.openSidePanel(event, '', '', true);
-    }
+	}
 
-    onSaveCatalogItem(catItem: CatalogItem)
-    {
+	onSaveCatalogItem(catItem: CatalogItem)
+	{
 		if (catItem.item instanceof DGroup)
 		{
 			this.saveGroup(catItem.item);
@@ -203,7 +203,7 @@ export class NationalCatalogComponent implements OnInit
 				group.dto.dGroupCatalogID = dto.dGroupCatalogID;
 
 				this.nationalCatalog.groups.push(group);
-				
+
 				this.toggleSidePanel();
 
 				this._msgService.add({ severity: 'success', summary: 'Group', detail: `Added successfully!` });
@@ -274,8 +274,8 @@ export class NationalCatalogComponent implements OnInit
 			{
 				point.dto.dPointCatalogID = dto.dPointCatalogID;
 
-                point.parent.children.push(point);
-                point.parent.children.sort((l, r) => l.label.toLowerCase() < r.label.toLowerCase() ? -1 : 1); // resort
+				point.parent.children.push(point);
+				point.parent.children.sort((l, r) => l.label.toLowerCase() < r.label.toLowerCase() ? -1 : 1); // resort
 
 				this.toggleSidePanel();
 
@@ -343,7 +343,7 @@ export class NationalCatalogComponent implements OnInit
 	createMsgModal(item: DGroup | DSubGroup | DPoint)
 	{
 		this.workingItem = new WorkingItem(item);
-		
+
 		let newMessage = new MessageModal();
 
 		this._natService.isNatCatItemInUse(item).subscribe((isInUse) =>
@@ -376,18 +376,17 @@ export class NationalCatalogComponent implements OnInit
 			this.msgModal = newMessage;
 
 			let msgBody = `You are about to <span class="font-weight-bold text-danger">${newMessage.msgAction}</span> the following ${newMessage.msgResult}<br><br> `;
-			msgBody += `<span class="font-weight-bold">${newMessage.msgSubject}</span><br><br>`;
-			msgBody += `Do you wish to continue?`;
-			
+			msgBody += `<span class="font-weight-bold">${newMessage.msgSubject}</span><br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+
 			let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-			confirm.componentInstance.title = 'Warning!';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = msgBody;
-			confirm.componentInstance.defaultOption = 'Continue';
+			confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 			confirm.result.then((result) =>
 			{
-				if (result == 'Continue')
+				if (result == Constants.CONTINUE)
 				{
 					this.deleteCatalogItem(newMessage.msgAction);
 				}
@@ -423,8 +422,8 @@ export class NationalCatalogComponent implements OnInit
 						summary: actionSummary,
 						detail: `${fullItemType} ${this.workingItem.item.label} has been ${actionDetail}`
 					});
-					
-					this.workingItem = null;					
+
+					this.workingItem = null;
 				});
 			}
 			catch (e)
@@ -461,7 +460,7 @@ export class NationalCatalogComponent implements OnInit
 
 		itemToRemove = parent.find(x => x.id == item.id);
 		index = parent.indexOf(itemToRemove);
-		
+
 		parent.splice(index, 1);
 	}
 
@@ -469,7 +468,7 @@ export class NationalCatalogComponent implements OnInit
 	{
 		let parentId = parent != null ? parent.id : null;
 		this.reactivateSidePanelOpen = false;
-		
+
 		this._natService.getInactiveItems(itemType, parentId).subscribe((data) =>
 		{
 			this.inactiveItems = data;
@@ -539,12 +538,12 @@ export class NationalCatalogComponent implements OnInit
 				workingItem.children.push(...pointItems);
 				workingItem.children.sort((l, r) => l.sortOrder < r.sortOrder ? -1 : 1);
 				workingItem.hasInactiveChildren = hasRemainingItems;
-            }
+			}
 
-            if (itemType == 'Point')
-            {
-                itemType = 'Decision Point';
-            }
+			if (itemType == 'Point')
+			{
+				itemType = 'Decision Point';
+			}
 
 			this._msgService.add({ severity: 'success', summary: 'Reactivate', detail: `${itemType}(s) have been reactivated` });
 
@@ -552,168 +551,165 @@ export class NationalCatalogComponent implements OnInit
 			this.toggleReactivateSidePanel();
 		});
 	}
-		
+
 	onEditSort()
 	{
 		this.canSort = true;
 	}
-	
-    editSort()
-    {
-        this.dragEnable = true;
-        this.dragHasChanged = false;
-        this.lockedFromChanges = true;
-    }
 
-    saveSort()
-    {
-        this.dragEnable = false;
-        this.lockedFromChanges = false;
+	editSort()
+	{
+		this.dragEnable = true;
+		this.dragHasChanged = false;
+		this.lockedFromChanges = true;
+	}
 
-        if (this.dragHasChanged)
-        {
-            this.dragHasChanged = false;
+	saveSort()
+	{
+		this.dragEnable = false;
+		this.lockedFromChanges = false;
 
-            try
-            {
-                this._natService.saveNationalCatalogSortOrder(this.groups).subscribe(() =>
-                {
-                    this._msgService.add({ severity: 'success', summary: 'Sort', detail: `Sort Saved!` });
-                });
-            }
-            catch (error)
-            {
-                this._msgService.add({ severity: 'error', summary: 'Sort', detail: `Error Saving Sort.` });
-            }
-        }
-        else
-        {
-            this._msgService.add({ severity: 'info', summary: 'Sort', detail: `Sort was not saved. No changes were made.` });
-        }
-    }
+		if (this.dragHasChanged)
+		{
+			this.dragHasChanged = false;
 
-    async cancelSortNavAway(): Promise<boolean>
-    {
-        let msgBody = `If you continue you will lose your changes.<br><br> `;
-        msgBody += `Do you wish to continue?`;
+			try
+			{
+				this._natService.saveNationalCatalogSortOrder(this.groups).subscribe(() =>
+				{
+					this._msgService.add({ severity: 'success', summary: 'Sort', detail: `Sort Saved!` });
+				});
+			}
+			catch (error)
+			{
+				this._msgService.add({ severity: 'error', summary: 'Sort', detail: `Error Saving Sort.` });
+			}
+		}
+		else
+		{
+			this._msgService.add({ severity: 'info', summary: 'Sort', detail: `Sort was not saved. No changes were made.` });
+		}
+	}
 
-        let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
+	async cancelSortNavAway(): Promise<boolean>
+	{
+		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-        confirm.componentInstance.title = 'Warning!';
-        confirm.componentInstance.body = msgBody;
-        confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.body = Constants.LOSE_CHANGES;
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
-        let canCancel = await confirm.result.then((result) =>
-        {
-            return result == 'Continue';
-        });
+		let canCancel = await confirm.result.then((result) =>
+		{
+			return result == Constants.CONTINUE;
+		});
 
-        return canCancel;
-    }
+		return canCancel;
+	}
 
-    async cancelSort()
-    {
-        if (!this.dragHasChanged || await this.cancelSortNavAway())
-        {
-            this.dragEnable = false;
+	async cancelSort()
+	{
+		if (!this.dragHasChanged || await this.cancelSortNavAway())
+		{
+			this.dragEnable = false;
 
-            // revert back to origianl array if things were changed but not saved.
-            if (this.dragHasChanged)
-            {
-                this.getNationalCatalog();
+			// revert back to origianl array if things were changed but not saved.
+			if (this.dragHasChanged)
+			{
+				this.getNationalCatalog();
 
-                this.dragHasChanged = false;
-            }
+				this.dragHasChanged = false;
+			}
 
-            this.lockedFromChanges = false;
-        }
-    }
+			this.lockedFromChanges = false;
+		}
+	}
 
-    handleDrop(event: any, item: any)
-    {
-        if (event)
-        {
-            let dragId = this.draggedItem.id;
+	handleDrop(event: any, item: any)
+	{
+		if (event)
+		{
+			let dragId = this.draggedItem.id;
 
-            if (this.canDrop(dragId, item) && item.id != dragId)
-            {
-                this.dragHasChanged = true;
+			if (this.canDrop(dragId, item) && item.id != dragId)
+			{
+				this.dragHasChanged = true;
 
-                let parent = item instanceof DGroup ? this.nationalCatalog : item.parent;
+				let parent = item instanceof DGroup ? this.nationalCatalog : item.parent;
 
-                let oldIndex = parent.children.findIndex(x => x.id == dragId);
-                let newIndex = parent.children.findIndex(x => x.id == item.id);
+				let oldIndex = parent.children.findIndex(x => x.id == dragId);
+				let newIndex = parent.children.findIndex(x => x.id == item.id);
 
-                this.reSort(parent.children, oldIndex, newIndex);
-            }  
-        }
-    }
+				this.reSort(parent.children, oldIndex, newIndex);
+			}
+		}
+	}
 
-    draggedItem: DGroup | DSubGroup | DPoint;
+	draggedItem: DGroup | DSubGroup | DPoint;
 
-    handleDragStart(event: any, item: DGroup | DSubGroup | DPoint)
-    {
-        if (event)
-        {
-            this.draggedItem = item;
-        }
-    }
+	handleDragStart(event: any, item: DGroup | DSubGroup | DPoint)
+	{
+		if (event)
+		{
+			this.draggedItem = item;
+		}
+	}
 
-    handleDragEnter(event: any, item: DGroup | DSubGroup | DPoint)
-    {
-        if (event)
-        {
-            let dragId = this.draggedItem.id;
+	handleDragEnter(event: any, item: DGroup | DSubGroup | DPoint)
+	{
+		if (event)
+		{
+			let dragId = this.draggedItem.id;
 
-            if (!this.canDrop(dragId, item))
-            {
-                event[0].nativeElement.classList.remove('over');
-            }
-        }
-    }
+			if (!this.canDrop(dragId, item))
+			{
+				event[0].nativeElement.classList.remove('over');
+			}
+		}
+	}
 
-    canDrop(dragId: number, item: any)
-    {
-        let parent = item instanceof DGroup ? this.nationalCatalog : item.parent;
+	canDrop(dragId: number, item: any)
+	{
+		let parent = item instanceof DGroup ? this.nationalCatalog : item.parent;
 
-        let canDrop = parent.children.findIndex(x => x.id == dragId) != -1;
+		let canDrop = parent.children.findIndex(x => x.id == dragId) != -1;
 
-        return canDrop;
-    }
+		return canDrop;
+	}
 
-    reSort(itemList: any, oldIndex: number, newIndex: number, sortName?: string)
-    {
-        sortName = sortName != null ? sortName : 'sortOrder';
+	reSort(itemList: any, oldIndex: number, newIndex: number, sortName?: string)
+	{
+		sortName = sortName != null ? sortName : 'sortOrder';
 
-        if (newIndex >= itemList.length)
-        {
-            var k = newIndex - itemList.length;
+		if (newIndex >= itemList.length)
+		{
+			var k = newIndex - itemList.length;
 
-            while ((k--) + 1)
-            {
-                itemList.push(undefined);
-            }
-        }
+			while ((k--) + 1)
+			{
+				itemList.push(undefined);
+			}
+		}
 
-        //reorder items in array
-        itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
+		//reorder items in array
+		itemList.splice(newIndex, 0, itemList.splice(oldIndex, 1)[0]);
 
-        let counter = 1;
+		let counter = 1;
 
-        itemList.forEach(item =>
-        {
-            // update sortOrder
-            item[sortName] = counter++;
-            item.sortChanged = true;
-        });
+		itemList.forEach(item =>
+		{
+			// update sortOrder
+			item[sortName] = counter++;
+			item.sortChanged = true;
+		});
 
-        // resort using new sortOrders
-        itemList.sort((left: any, right: any) =>
-        {
-            return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
-        });
-    }
-	
+		// resort using new sortOrders
+		itemList.sort((left: any, right: any) =>
+		{
+			return left[sortName] === right[sortName] ? 0 : (left[sortName] < right[sortName] ? -1 : 1);
+		});
+	}
+
 	keywordSearch = () =>
 	{
 		//reset everything to unmatched.
@@ -873,7 +869,8 @@ export class NationalCatalogComponent implements OnInit
 
 	onKeywordUp()
 	{
-		if (!this.isDirty) {
+		if (!this.isDirty)
+		{
 			this.isDirty = true;
 		}
 	}

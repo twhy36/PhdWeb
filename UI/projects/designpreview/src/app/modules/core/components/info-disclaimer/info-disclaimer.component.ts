@@ -6,7 +6,7 @@ import { ModalContent } from 'phd-common';
 	selector: 'info-disclaimer',
 	templateUrl: './info-disclaimer.component.html',
 	styleUrls: ['./info-disclaimer.component.scss']
-})
+	})
 export class InfoDisclaimerComponent extends ModalContent
 {
 	constructor() { super() }

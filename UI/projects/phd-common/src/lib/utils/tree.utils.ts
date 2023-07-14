@@ -11,9 +11,13 @@ import
 		applyRules, MyFavoritesChoice, TreeService
 	} from 'phd-common';
 
-export function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrderChoice) => boolean
+export function isLocked(changeOrder: ChangeOrderGroup, includeChangedChoice: boolean = false): (choice: JobChoice | ChangeOrderChoice) => boolean
 {
-	return (choice: JobChoice | ChangeOrderChoice) => isJobChoice(choice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
+	return (choice: JobChoice | ChangeOrderChoice) => 
+	{
+		const isChangedChoice = _.flatMap(changeOrder?.jobChangeOrders?.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Change' && coc.divChoiceCatalogId === choice.divChoiceCatalogId);
+		return isJobChoice(choice) && (includeChangedChoice || !isChangedChoice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
+	}
 }
 
 export function isJobChoice(choice: JobChoice | ChangeOrderChoice): choice is JobChoice

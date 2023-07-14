@@ -5,7 +5,7 @@ import { Store, select } from '@ngrx/store';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
-import { UnsubscribeOnDestroy, ConfirmModalComponent, MyFavorite } from 'phd-common';
+import { UnsubscribeOnDestroy, ConfirmModalComponent, MyFavorite, Constants } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
@@ -15,14 +15,16 @@ import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as CommonActions from '../../../ngrx-store/actions';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'manage-favorites',
 	templateUrl: 'manage-favorites.component.html',
 	styleUrls: ['manage-favorites.component.scss']
-})
+	})
 export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	brandTheme: string;
 	favoriteForm: UntypedFormGroup;
 	favoriteNameInput: string = '';
 	favoriteList: MyFavorite[];
@@ -33,11 +35,13 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		private store: Store<fromRoot.State>,
 		private router: Router,
 		private toastr: ToastrService,
+		private brandService: BrandService,
 		private modalService: NgbModal,
 		private favoriteService: FavoriteService,
 		private adobeService: AdobeService)
 	{
 		super();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnInit() 
@@ -124,22 +128,23 @@ export class ManageFavoritesComponent extends UnsubscribeOnDestroy implements On
 		const ngbModalOptions: NgbModalOptions = {
 			centered: true,
 			backdrop: 'static',
-			keyboard: false
+			keyboard: false,
+			windowClass: this.brandTheme,
 		};
 
 		const msgBody = 'This will permanently delete your list.';
 
 		const confirm = this.modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = 'WARNING';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Continue';
+		confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 		this.adobeService.setAlertEvent(confirm.componentInstance.title + ' ' + confirm.componentInstance.body, 'Delete Favorite List Alert');
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				this.store.dispatch(new FavoriteActions.DeleteMyFavorite(fav));
 			}

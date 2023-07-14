@@ -6,14 +6,14 @@ import { IEnvironment } from './environment.model';
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment: IEnvironment = {
-    apiUrl: 'https://phdapi.qa.pulte.com/odata/',
-    authQueryParams: "domain_hint=pulte.com",
-    baseUrl: {
+	apiUrl: 'https://phdapi.qa.pulte.com/odata/',
+	authQueryParams: 'domain_hint=pulte.com',
+	baseUrl: {
 		colorManagement: 'https://phd.qa.pulte.com/colormanagement/',
-        buyerTracker: 'http://buyertracker.qa.pulte.com/',
-        choiceAdmin: 'https://phd.qa.pulte.com/choiceadmin/',
-        crm: 'https://pulteqa.crm.dynamics.com/Apps/uniquename/pulte_Sales',
-        salesAdmin: 'https://phd.qa.pulte.com/salesadmin/',
+		buyerTracker: 'http://buyertracker.qa.pulte.com/',
+		choiceAdmin: 'https://phd.qa.pulte.com/choiceadmin/',
+		crm: 'https://pulteqa.crm.dynamics.com/Apps/uniquename/pulte_Sales',
+		salesAdmin: 'https://phd.qa.pulte.com/salesadmin/',
 		designTool: 'https://phd.qa.pulte.com/designtool/',
 		designPreview: {
 			pulte: 'https://phd.qa.pulte.com/designpreview/',
@@ -34,15 +34,15 @@ export const environment: IEnvironment = {
 		reports: 'http://powerbi.qa.pulte.com/Reports/browse/IDEA/Sales/PHD',
 		homeSelections: 'https://homebuilder.qa.pulte.com/HomeSelections/',
 		salesTally: 'https://salesportal.qa.pulte.com/salesportal/salestally'
-    },
-    appInsights: {
-        instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d',
+	},
+	appInsights: {
+		connectionString: 'InstrumentationKey=59530951-22f6-449f-ac70-8dffc824b34d;IngestionEndpoint=https://eastus-5.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
-    },
+	},
 	production: false,
 	authConfig: {
-		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-		clientId: "90bf975f-6a55-42cb-9016-1103586c8f50",
+		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
+		clientId: '90bf975f-6a55-42cb-9016-1103586c8f50',
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
@@ -51,7 +51,7 @@ export const environment: IEnvironment = {
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
 	},
-    whatFix: {
-        scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
-    }
+	whatFix: {
+		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'
+	}
 };

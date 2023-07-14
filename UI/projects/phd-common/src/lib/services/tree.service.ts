@@ -34,7 +34,7 @@ export class TreeService
 	{
 		const communityFilterArray = communityIds.map(id => `dTree/plan/org/edhFinancialCommunityId eq ${id}`);
 		const communityFilter = communityFilterArray && communityFilterArray.length
-			? ` and (${communityFilterArray.join(" or ")})`
+			? ` and (${communityFilterArray.join(' or ')})`
 			: '';
 
 		const utcNow = getDateWithUtcOffset();
@@ -391,17 +391,17 @@ export class TreeService
 		return this.identityService.token.pipe(
 			switchMap((token: string) =>
 			{
-				let guid = newGuid();
+				const guid = newGuid();
 
-				let buildRequestUrl = (choices: Choice[]) =>
+				const buildRequestUrl = (choices: Choice[]) =>
 				{
-					let optFilter = (choice: Choice) => 
+					const optFilter = (choice: Choice) => 
 					{
-						let choiceId = choice.lockedInChoice ? choice.lockedInChoice.choice.dpChoiceId : choice.id;
+						const choiceId = choice?.lockedInChoice ? choice.lockedInChoice.choice.dpChoiceId : choice.id;
 
 						let filter = `(dpChoiceId eq ${choiceId}`;
 
-						if (choice.lockedInChoice && choice.lockedInChoice.choice.outForSignatureDate)
+						if (choice?.lockedInChoice?.choice.outForSignatureDate)
 						{
 							filter += ` and startDate le ${choice.lockedInChoice.choice.outForSignatureDate} and (endDate eq null or endDate gt ${choice.lockedInChoice.choice.outForSignatureDate})`;
 						}
@@ -413,25 +413,25 @@ export class TreeService
 						return filter + ')';
 					}
 
-					let filter = `${choices.map(choice => optFilter(choice)).join(' or ')}`;
-					let select = `dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
-					let orderBy = `sortKey`;
+					const filter = `${choices.map(choice => optFilter(choice)).join(' or ')}`;
+					const select = `dpChoiceImageAssocId, dpChoiceId, imageUrl, sortKey`;
+					const orderBy = `sortKey`;
 
 					return `${this.apiUrl}dPChoiceImageAssocs?${encodeURIComponent('$')}select=${select}&${encodeURIComponent('$')}filter=${filter}&${encodeURIComponent('$')}orderby=${orderBy}&${this._ds}count=true`;
 				}
 
 				const batchSize = 35;
-				let batchBundles: string[] = [];
+				const batchBundles: string[] = [];
 
 				// create a batch request with a max of 100 choices per request
 				for (var x = 0; x < choices.length; x = x + batchSize)
 				{
-					let optionList = choices.slice(x, x + batchSize);
+					const optionList = choices.slice(x, x + batchSize);
 
 					batchBundles.push(buildRequestUrl(optionList));
 				}
 
-				let requests = batchBundles.map(req => createBatchGet(req));
+				const requests = batchBundles.map(req => createBatchGet(req));
 
 				var headers = createBatchHeaders(guid, token);
 				var batch = createBatchBody(guid, requests);
@@ -440,7 +440,7 @@ export class TreeService
 			}),
 			map((response: any) =>
 			{
-				let bodies: any[] = response.responses.map(r => r.body);
+				const bodies: any[] = response.responses.map(r => r.body);
 
 				return _.flatten(bodies.map(body =>
 				{
@@ -784,16 +784,16 @@ export class TreeService
 				{
 					if (data.tree && data.tree.treeVersion)
 					{
-						let currentSubgroups = _.flatMap(data.tree.treeVersion.groups, g => g.subGroups);
-						let currentPoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
-						let currentChoices = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+						const currentSubgroups = _.flatMap(data.tree.treeVersion.groups, g => g.subGroups);
+						const currentPoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+						const currentChoices = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
 						if (choices)
 						{
 							let missingChoices = [];
 
 							//find previosly selected choices which are no longer in the tree
-							choices.filter(isLocked(changeOrder)).forEach(choice =>
+							choices.filter(isLocked(changeOrder, true)).forEach(choice =>
 							{
 								let existingChoice = currentChoices.find(c => c.divChoiceCatalogId === choice.divChoiceCatalogId);
 

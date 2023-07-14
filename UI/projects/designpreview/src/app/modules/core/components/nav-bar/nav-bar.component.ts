@@ -2,34 +2,37 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
+import { TreeVersion, UnsubscribeOnDestroy } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as ErrorActions from '../../../ngrx-store/error.action';
+import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { Brands, BrandService } from '../../services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
+import { withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'nav-bar',
 	templateUrl: 'nav-bar.component.html',
 	styleUrls: ['nav-bar.component.scss']
-})
+	})
 
 export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	currentRoute: string;
 	displayBrandedMenu: boolean = true;
 	isMenuCollapsed: boolean = true;
+	isDesignComplete: boolean = false;
 	showContractedOptionsLink: boolean = false;
-	showMyFavoritesLink: boolean = false;
 	showFloorplanLink: boolean = false;
-	showIncludedOptionsLink: boolean = false;
+	showIncludedOptionsLink: boolean = true;
 	buildMode: BuildMode;
 	welcomeText: string = 'Welcome To Your Home';
 	sessionStorage: Storage = sessionStorage;
+	includedTree: TreeVersion;
 
 	@HostListener('window:resize', ['$event'])
 	onResize(event)
@@ -87,6 +90,18 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
+			select(state => state.salesAgreement),
+			withLatestFrom(this.store.pipe(select(fromRoot.includedTree))),
+		).subscribe(([salesAgreement, tree]) =>
+		{
+			this.isDesignComplete = salesAgreement.isDesignComplete;
+			this.includedTree = tree;
+			const includedDecisionPoints = this.includedTree?.groups.flatMap(g => g.subGroups).flatMap(sg => sg.points);
+			this.showIncludedOptionsLink = !this.isDesignComplete || (!this.isDesignComplete && !!includedDecisionPoints?.find(dp => !dp.isPastCutOff));
+		});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
 			select(fromApp.getAppLatestError)
 		).subscribe(latestError =>
 		{
@@ -101,32 +116,26 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.buildMode = state.buildMode;
 			switch (state.buildMode)
 			{
-			case (BuildMode.Preview):
-				this.showContractedOptionsLink = false;
-				this.showFloorplanLink = true;
-				this.showIncludedOptionsLink = false;
-				this.showMyFavoritesLink = true;
-				break;
-			case (BuildMode.Presale):
-				this.showContractedOptionsLink = false;
-				this.showFloorplanLink = false;
-				this.showIncludedOptionsLink = true;
-				this.showMyFavoritesLink = true;
-				this.welcomeText = 'Welcome To Your Future Home';
-				break;
-			default:
-				this.showContractedOptionsLink = true;
-				this.showFloorplanLink = true;
-				this.showIncludedOptionsLink = false;
-				this.showMyFavoritesLink = true;
-				break;
+				case (BuildMode.Preview):
+					this.showContractedOptionsLink = false;
+					this.showFloorplanLink = true;
+					break;
+				case (BuildMode.Presale):
+					this.showContractedOptionsLink = false;
+					this.showFloorplanLink = false;
+					this.welcomeText = 'Welcome To Your Future Home';
+					break;
+				default:
+					this.showContractedOptionsLink = true;
+					this.showFloorplanLink = true;
+					break;
 			}
 		});
 	}
 
-	getBrandedMenuClass(isCollapsedMenu: boolean)
+	getBrandedMenuClass()
 	{
-		let menuClass = isCollapsedMenu ? 'phd-hamburger-menu' : 'phd-menu-options';
+		let menuClass = 'phd-hamburger-menu';
 
 		if (this.brandService.getBrandName() === Brands.JohnWieland)
 		{
@@ -140,15 +149,15 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
 		switch (this.buildMode)
 		{
-		case (BuildMode.Preview):
-			this.router.navigate(['/preview'], { queryParamsHandling: 'merge' });
-			break;
-		case (BuildMode.Presale):
-			this.router.navigate(['presale'], { queryParamsHandling: 'merge' });
-			break;
-		default:
-			this.router.navigate(['/home'], { queryParamsHandling: 'merge' });
-			break;
+			case (BuildMode.Preview):
+				this.router.navigate(['/preview'], { queryParamsHandling: 'merge' });
+				break;
+			case (BuildMode.Presale):
+				this.router.navigate(['presale'], { queryParamsHandling: 'merge' });
+				break;
+			default:
+				this.router.navigate(['/home'], { queryParamsHandling: 'merge' });
+				break;
 		}
 	}
 

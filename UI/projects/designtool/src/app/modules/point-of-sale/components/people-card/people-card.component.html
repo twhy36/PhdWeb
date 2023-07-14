@@ -1,9 +1,12 @@
-<div class="d-flex flex-column m-2 phd-buyer-box" *ngIf="person || trust || trustNA || realtor || realtorNA || coBuyerNA" [class.phd-info-required]="isMissingRequiredFields">
+<div class="d-flex flex-column m-2 phd-buyer-box"
+	*ngIf="person || trust || trustNA || realtor || realtorNA || coBuyerNA"
+	[class.phd-info-required]="isMissingRequiredFields">
 	<div class="pl-3 pt-2 pb-2 phd-buyer-box-title">
 		<ng-container [ngSwitch]="personType">
 			<ng-container *ngSwitchCase="'Buyer'">
 				Type: {{ !coBuyerNA && person.isPrimaryBuyer ? 'Buyer' : 'Co-Buyer'}}
-				<span class="badge badge-primary ml-1" *ngIf="!coBuyerNA && person.isPrimaryBuyer">PRIMARY</span>
+				<span class="badge badge-primary ml-1"
+					*ngIf="!coBuyerNA && person.isPrimaryBuyer">PRIMARY</span>
 			</ng-container>
 			<ng-container *ngSwitchCase="'Trust'">
 				Type: Trust
@@ -15,24 +18,31 @@
 	</div>
 
 	<ng-container [ngSwitch]="personType">
-		<div class="phd-people-card-body" *ngSwitchCase="'Buyer'" [ngClass]="coBuyerNA && !person ? 'text-center pt-5' : 'pl-3 pt-2'">
+		<div class="phd-people-card-body"
+			*ngSwitchCase="'Buyer'"
+			[ngClass]="coBuyerNA && !person ? 'text-center pt-5' : 'pl-3 pt-2'">
 			<ng-container *ngIf="!coBuyerNA || person">
 				<div>
 					<strong *ngIf="personContact">{{ personContact | contactfullname }}</strong>
 				</div>
 				<ng-container *ngIf="personContact?.addressAssocs?.length">
-					<people-card-address [address]="personContact.addressAssocs | contactaddress: true"></people-card-address>
+					<people-card-address
+						[address]="personContact.addressAssocs | contactaddress: true"></people-card-address>
 				</ng-container>
-				<div *ngIf="personContact?.emailAssocs?.length">{{personContact.emailAssocs | contactprimaryemail}}</div>
-				<div *ngIf="personContact?.phoneAssocs?.length">{{personContact.phoneAssocs | contactprimaryphone}}</div>
+				<div *ngIf="personContact?.emailAssocs?.length">{{personContact.emailAssocs | contactprimaryemail}}
+				</div>
+				<div *ngIf="personContact?.phoneAssocs?.length">{{personContact.phoneAssocs | contactprimaryphone}}
+				</div>
 			</ng-container>
 
 			<ng-container *ngIf="coBuyerNA && !person">
 				<div class="display-4">N/A</div>
 			</ng-container>
 		</div>
-		
-		<div class="phd-people-card-body pl-3 pt-2" *ngSwitchCase="'Trust'" [ngClass]="{'text-center pt-5' : trustNA, 'pl-3 pt-2' : trust}">
+
+		<div class="phd-people-card-body pl-3 pt-2"
+			*ngSwitchCase="'Trust'"
+			[ngClass]="{'text-center pt-5' : trustNA, 'pl-3 pt-2' : trust}">
 			<ng-container *ngIf="trust">
 				<div><strong>{{trust}}</strong></div>
 			</ng-container>
@@ -41,15 +51,20 @@
 			</ng-container>
 		</div>
 
-		<div class="phd-people-card-body" *ngSwitchCase="'Realtor'" [ngClass]="{'text-center pt-5' : realtorNA, 'pl-3 pt-2' : realtor}">
+		<div class="phd-people-card-body"
+			*ngSwitchCase="'Realtor'"
+			[ngClass]="{'text-center pt-5' : realtorNA, 'pl-3 pt-2' : realtor}">
 			<ng-container *ngIf="realtor">
 				<div><strong>{{realtor.brokerName}}</strong></div>
 				<div>{{realtor.contact | contactfullname}}</div>
 				<ng-container *ngIf="realtor.contact.addressAssocs.length">
-					<people-card-address [address]="realtor.contact.addressAssocs | contactaddress: false"></people-card-address>
+					<people-card-address
+						[address]="realtor.contact.addressAssocs | contactaddress: false"></people-card-address>
 				</ng-container>
-				<div *ngIf="realtor.contact.emailAssocs.length">{{realtor.contact.emailAssocs | contactprimaryemail}}</div>
-				<div *ngIf="realtor.contact.phoneAssocs.length">{{realtor.contact.phoneAssocs | contactprimaryphone}}</div>
+				<div *ngIf="realtor.contact.emailAssocs.length">{{realtor.contact.emailAssocs | contactprimaryemail}}
+				</div>
+				<div *ngIf="realtor.contact.phoneAssocs.length">{{realtor.contact.phoneAssocs | contactprimaryphone}}
+				</div>
 			</ng-container>
 			<ng-container *ngIf="realtorNA">
 				<div class="display-4">N/A</div>
@@ -57,48 +72,59 @@
 		</div>
 	</ng-container>
 
-	<div class="mt-auto pl-3 pb-2 pt-2 d-flex flex-no-wrap phd-buyer-box-footer" *ngIf="!isLockedIn">
-		<div *ngIf="(personType === 'Trust' && !trustNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Buyer' && !coBuyerNA && person && canEditBuyer())">
-			<a class="btn m-0 p-0" (click)="edit()">Edit</a>
+	<div class="mt-auto pl-3 pb-2 pt-2 d-flex flex-no-wrap phd-buyer-box-footer"
+		*ngIf="!isLockedIn">
+		<div *ngIf="canEditCard()">
+			<a class="btn m-0 p-0"
+				(click)="edit()">Edit</a>
 		</div>
 
 		<!-- only allow deleting a co-buyer (a sales agreement must have a primary buyer) -->
 		<!-- allow setting a co-buyer as the primary buyer -->
-		<ng-container *ngIf="personType === 'Buyer' && (!coBuyerNA || person) && !person?.isPrimaryBuyer && canEditAgreement">
+		<ng-container
+			*ngIf="personType === 'Buyer' && (!coBuyerNA || person) && !person?.isPrimaryBuyer && canEditAgreement">
 			<div>
 				&nbsp; | &nbsp;
 			</div>
 			<div *ngIf="!person.isOriginalSigner || (person.isOriginalSigner && originalSignersCount > 1)">
-				<a class="btn m-0 p-0" (click)="delete()">Delete</a> &nbsp; | &nbsp;
+				<a class="btn m-0 p-0"
+					(click)="delete()">Delete</a> &nbsp; | &nbsp;
 			</div>
 			<div>
-				<a class="btn m-0 p-0" (click)="setAsPrimaryBuyer()">Set as Primary Buyer</a>
+				<a class="btn m-0 p-0"
+					(click)="setAsPrimaryBuyer()">Set as Primary Buyer</a>
 			</div>
 		</ng-container>
 
 		<!-- allow setting Trust or Realtor to N/A -->
-		<ng-container *ngIf="personType === 'Trust' || personType === 'Realtor' || (personType === 'Buyer' && coBuyerNA && person == null)">
-			<ng-container *ngIf="(!trustNA && !coBuyerNA && !realtorNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Trust' && !trustNA && canEditAgreement)">
+		<ng-container
+			*ngIf="personType === 'Trust' || personType === 'Realtor' || (personType === 'Buyer' && coBuyerNA && person == null)">
+			<ng-container
+				*ngIf="(!trustNA && !coBuyerNA && !realtorNA && canEditAgreement) || (personType === 'Realtor' && !realtorNA) || (personType === 'Trust' && !trustNA && canEditAgreement)">
 				<div>
 					&nbsp; | &nbsp;
 				</div>
 				<div>
-					<a class="btn m-0 p-0" (click)="setAsNA()">Set as N/A</a>
+					<a class="btn m-0 p-0"
+						(click)="setAsNA()">Set as N/A</a>
 				</div>
 			</ng-container>
 			<ng-container *ngIf="coBuyerNA && canEditAgreement">
 				<div>
-					<a class="btn m-0 p-0" (click)="addCoBuyer()">Add Co-Buyer</a>
+					<a class="btn m-0 p-0"
+						(click)="addCoBuyer()">Add Co-Buyer</a>
 				</div>
 			</ng-container>
 			<ng-container *ngIf="trustNA && canEditAgreement">
 				<div>
-					<a class="btn m-0 p-0" (click)="addTrust()">Add Trust</a>
+					<a class="btn m-0 p-0"
+						(click)="addTrust()">Add Trust</a>
 				</div>
 			</ng-container>
-			<ng-container *ngIf="realtorNA">
+			<ng-container *ngIf="realtorNA && canEditAgreement">
 				<div>
-					<a class="btn m-0 p-0" (click)="addRealtor()">Add Realtor</a>
+					<a class="btn m-0 p-0"
+						(click)="addRealtor()">Add Realtor</a>
 				</div>
 			</ng-container>
 		</ng-container>
@@ -107,7 +133,7 @@
 
 <!--Loading card-->
 <add-card *ngIf="!person && !(trust || trustNA) && !(realtor || realtorNA) && !coBuyerNA"
-		  [label]="'Loading...'"
-		  [action]="''"
-		  [hasNA]="false"
-		  [hasPlus]="false"></add-card>
+	[label]="'Loading...'"
+	[action]="''"
+	[hasNA]="false"
+	[hasPlus]="false"></add-card>

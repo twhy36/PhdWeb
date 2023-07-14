@@ -1,5 +1,5 @@
 <div *ngIf="!isBlocked">
-    <input [min]="min" [ngModel]="currentQty" [ngModelOptions]="{ updateOn: 'blur' }" (focus)="$event.target.select()" (ngModelChange)="enforceMinMax($event)" type="number" class="form-control" #quantity [disabled]="!canEdit">
+    <input [min]="min" [ngModel]="currentQty" [ngModelOptions]="{ updateOn: 'blur' }" (focus)="$event.target.select()" (ngModelChange)="enforceMinMax($event)" (keyup.enter)="$event.target.blur();enforceMinMax($event.target.value);$event.preventDefault()" type="number" class="form-control" #quantity [disabled]="!canEdit">
 </div>
 <div *ngIf="isBlocked">
     <input [min]="min" [ngModel]="currentQty" (focus)="$event.target.select()" type="number" class="form-control" #quantity [disabled]="true" style="cursor: not-allowed">

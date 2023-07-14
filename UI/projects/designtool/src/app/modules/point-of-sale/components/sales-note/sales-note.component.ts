@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 
 import * as _ from 'lodash';
 
-import { Note, SalesAgreement, ModalService } from 'phd-common';
+import { Note, SalesAgreement, ModalService, Constants } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
@@ -26,7 +26,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	@Input() canEditInternalNotes: boolean;
 	@Input() canEditExternalNotes: boolean;
 	@Input() inChangeOrder: boolean;
-	
+
 	@Output() onRemove = new EventEmitter<number>();
 	@Output() checkChanges = new EventEmitter<boolean>();
 	@Output() onEdit = new EventEmitter<Note>();
@@ -65,12 +65,12 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 	get externalCategoryOptions()
 	{
 		// returns external sub categories excluding Terms & conditions. Future proofing more than anything since this will return nothing at this time.
-		return this.subCategoryOptions.filter(cat => !cat.internal && ((cat.id === 10 && (this.isTnC || this.agreement.status === 'Pending')) || cat.id !== 10));
+		return this.subCategoryOptions.filter(cat => !cat.internal && ((cat.id === 10 && (this.isTnC || this.agreement.status === Constants.AGREEMENT_STATUS_PENDING)) || cat.id !== 10));
 	}
 
 	get isPendingOrInChangeOrder()
 	{
-		return this.agreement.status === 'Pending' || this.inChangeOrder;
+		return this.agreement.status === Constants.AGREEMENT_STATUS_PENDING || this.inChangeOrder;
 	}
 
 	get subCategoryName()
@@ -145,7 +145,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 			type: 'salesAgreements'
 		};
 
-		if (saveNote.noteSubCategoryId === 10 && this.agreement.status !== 'Pending')
+		if (saveNote.noteSubCategoryId === 10 && this.agreement.status !== Constants.AGREEMENT_STATUS_PENDING)
 		{
 			const agreementNote = this.agreement.notes.some(note => note.id === saveNote.id);
 
@@ -172,7 +172,7 @@ export class SalesNoteComponent extends ComponentCanNavAway implements OnInit
 		{
 			if (result)
 			{
-				if (this.note.noteSubCategoryId == 10 && this.agreement.status !== 'Pending')
+				if (this.note.noteSubCategoryId == 10 && this.agreement.status !== Constants.AGREEMENT_STATUS_PENDING)
 				{
 					this.store.dispatch(new DeleteTermsAndConditions(this.note))
 				}

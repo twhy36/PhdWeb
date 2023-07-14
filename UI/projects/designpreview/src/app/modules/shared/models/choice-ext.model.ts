@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { Choice, DesignToolAttribute, ChoiceImageAssoc, MyFavoritesChoice } from 'phd-common'
+import { Choice, DesignToolAttribute, MyFavoritesChoice } from 'phd-common';
 
 export class ChoiceExt extends Choice
 {
@@ -15,6 +15,7 @@ export class ChoiceExt extends Choice
 		isPointStructural: boolean)
 	{
 		super(dto);
+
 		this.choiceStatus = status as 'Available' | 'Contracted' | 'ViewOnly';
 		this.isPointStructural = isPointStructural;
 		this.myFavoritesChoice = myFavoritesChoice;
@@ -28,6 +29,7 @@ export class ChoiceExt extends Choice
 	get favoriteAttributes(): DesignToolAttribute[]
 	{
 		let favoriteAttributes = [];
+
 		if (this.myFavoritesChoice) 
 		{
 			favoriteAttributes = this.myFavoritesChoice.myFavoritesChoiceLocations ? _.flatten(this.myFavoritesChoice.myFavoritesChoiceLocations.map(l => 
@@ -75,5 +77,4 @@ export class ChoiceExt extends Choice
 
 		return favoriteAttributes;
 	}
-
 }

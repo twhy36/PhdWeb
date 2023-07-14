@@ -164,6 +164,7 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 					//if previousJob was for PhdFull or no previous job but config was being filled out with PhdFull info
 					const needToDeletePhdFullData = (!!previousJob && previousJobWasPhdLite === false) || !!this.scenario.treeVersionId;
 
+					this.store.dispatch(new LiteActions.SetIsLiteQMIToggled(true));
 					this.store.dispatch(new CommonActions.LoadSpec(job));
 
 					combineLatest([
@@ -199,12 +200,14 @@ export class QuickMoveInComponent extends UnsubscribeOnDestroy implements OnInit
 						}
 						else
 						{
+							this.store.dispatch(new LiteActions.SetIsLiteQMIToggled(false));
 							this.navigateToSummary(true);						
 						}
 
 						this.actions.pipe(
 							ofType<LiteActions.ScenarioOptionsSaved>(LiteActionTypes.ScenarioOptionsSaved), take(1)).subscribe(() =>
 							{
+								this.store.dispatch(new LiteActions.SetIsLiteQMIToggled(false));
 								this.navigateToSummary(true);
 							});
 					});

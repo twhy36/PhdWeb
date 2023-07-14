@@ -24,12 +24,13 @@ import { ChoiceExt } from '../../models/choice-ext.model';
 import { AttributeLocationComponent } from '../attribute-location/attribute-location.component';
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'choice-card-detail',
 	templateUrl: 'choice-card-detail.component.html',
 	styleUrls: ['choice-card-detail.component.scss']
-})
+	})
 export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild('imageCarousel') imageCarousel: NgbCarousel;
@@ -45,6 +46,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	@Input() groupName: string;
 	@Input() subGroupName: string;
 	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = false;
 
 	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
 
@@ -73,7 +75,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		private toastr: ToastrService,
 		public modalService: ModalService,
 		private store: Store<fromRoot.State>,
-		private adobeService: AdobeService)
+		private adobeService: AdobeService,
+		private brandService: BrandService)
 	{
 		super();
 	}
@@ -158,7 +161,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				{
 					this.choice.quantity = updatedChoice.quantity;
 					this.choice.selectedAttributes = updatedChoice.selectedAttributes;
-					this.choice.myFavoritesChoice = favorite.myFavoritesChoice
+					this.choice.myFavoritesChoice = favorite?.myFavoritesChoice
 						? favorite.myFavoritesChoice.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId)
 						: null;
 				}
@@ -636,7 +639,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	openBlockedChoiceModal()
 	{
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandService.getBrandTheme()}` }, true);
 	}
 
 	onCloseClicked()

@@ -5,7 +5,7 @@ import { ReplaySubject } from 'rxjs';
 import 
 {
 	UnsubscribeOnDestroy, AttributeGroup, DesignToolAttribute, LocationGroup, Choice, ChoiceImageAssoc,
-	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation
+	OptionImage, ModalService, MyFavoritesChoiceAttribute, MyFavoritesChoiceLocation, Constants
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -441,7 +441,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		this.choice.selectedAttributes = selectedAttributes;
 
-		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: $event.overrideNote, quantity: $event.isOverride ? 1 : this.selectedMax, attributes: selectedAttributes }));
+		this.store.dispatch(new ScenarioActions.SelectChoices(true, { choiceId: this.choice.id, overrideNote: $event.overrideNote, quantity: this.selectedMax, attributes: selectedAttributes }));
 
 		// save change order
 		this.saveAttributes.emit();
@@ -537,30 +537,30 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		if (!this.overrideReason)
 		{
-			let body = 'This will override the ';
+			let body = '';
 
 			if (this.hasMonotonyConflict && this.isPastCutOff)
 			{
-				body += `Monotony Conflict and the Cut-off`;
+				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
 			}
 			else if (this.hasMonotonyConflict)
 			{
-				body += `Monotony Conflict`;
+				body = Constants.OVERRIDE_MONOTONY;
 			}
 			else
 			{
-				body += `Cut-off`;
+				body = Constants.OVERRIDE_CUT_OFF;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent, { backdropClass: 'phd-second-backdrop' });
 
-			confirm.componentInstance.title = 'Warning';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== 'Close')
+				if (result !== Constants.CLOSE)
 				{
 					this.store.dispatch(new ScenarioActions.SetOverrideReason(result));
 

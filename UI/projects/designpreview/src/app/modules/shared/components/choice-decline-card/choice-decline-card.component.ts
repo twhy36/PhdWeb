@@ -3,15 +3,20 @@ import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewC
 import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, MyFavoritesPointDeclined, ModalRef, ModalService } from 'phd-common';
 
 import * as _ from 'lodash';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as NavActions from '../../../ngrx-store/nav/actions';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
 	selector: 'choice-decline-card',
 	templateUrl: './choice-decline-card.component.html',
 	styleUrls: ['./choice-decline-card.component.scss'],
 	animations: [
-		flipOver3
+	flipOver3
 	]
-})
+	})
 export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentPoint: DecisionPoint;
@@ -20,6 +25,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = false;
 
 	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 
@@ -29,12 +35,16 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 	isDeclined: boolean = false;
 	blockedChoiceModalRef: ModalRef;
 	imageSrc: string = 'assets/nographicgrey-removebg-preview.png'
+	brandTheme: string;
 
 	constructor(
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService,
 		public modalService: ModalService
 	) 
 	{
 		super();
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	ngOnChanges(changes: SimpleChanges)
@@ -48,7 +58,7 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	getBodyHeight(): string
 	{
-		return this.isPresale ? '260px' : '285px';
+		return this.isPresalePricingEnabled ? '260px' : '285px';
 	}
 
 	/**
@@ -70,7 +80,10 @@ export class ChoiceDeclineCardComponent extends UnsubscribeOnDestroy implements 
 
 	openBlockedChoiceModal()
 	{
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
+
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandTheme}` }, true);
 	}
 
 	onCloseClicked()

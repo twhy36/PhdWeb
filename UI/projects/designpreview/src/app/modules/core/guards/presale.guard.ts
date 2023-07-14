@@ -9,9 +9,11 @@ export class PresaleGuard implements CanActivate
 
 	canActivate(route: ActivatedRouteSnapshot)
 	{
-		if (route.queryParams.plan)
+		const planGuid = route.queryParams.plan;
+		if (planGuid)
 		{
-			return this.authService.getIsPresaleAuthenticated(route.queryParams.plan, window.location.hostname);
+			return (sessionStorage.getItem('presale_guid') === planGuid)
+				|| this.authService.getIsPresaleAuthenticated(route.queryParams.plan, window.location.hostname);
 		}
 		else
 		{

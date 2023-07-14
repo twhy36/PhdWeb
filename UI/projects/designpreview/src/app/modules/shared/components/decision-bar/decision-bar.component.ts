@@ -2,16 +2,17 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import * as _ from 'lodash';
 
 import { UnsubscribeOnDestroy, flipOver2, slideOut, DecisionPoint } from 'phd-common';
+import { pointTrackBy } from '../../classes/utils.class';
 
 @Component({
 	selector: 'decision-bar',
 	templateUrl: './decision-bar.component.html',
 	styleUrls: ['./decision-bar.component.scss'],
 	animations: [
-		flipOver2,
-		slideOut
+	flipOver2,
+	slideOut
 	]
-})
+	})
 export class DecisionBarComponent extends UnsubscribeOnDestroy
 {
 	@Input() points: DecisionPoint[];
@@ -51,4 +52,6 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy
 	{
 		return `#point-card-${point.id?.toString()}`
 	}
+
+	pointTrackBy = pointTrackBy;
 }

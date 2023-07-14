@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Choice } from 'phd-common';
+import { Choice, DecisionPoint, Group, SubGroup } from 'phd-common';
 import { PresalePayload } from '../models/presale-payload.model';
 import { Buffer } from 'buffer';
 
@@ -8,7 +8,7 @@ export function isChoiceAttributesComplete(choice: Choice): boolean
 	let isComplete = true;
 
 	// if mapped attributes or locations attached to the choice has locations and/or attributes but nothing is selected then the choice isn't complete.
-	if ((choice.mappedAttributeGroups && choice.mappedAttributeGroups.length > 0 || choice.mappedLocationGroups && choice.mappedLocationGroups.length > 0) && !choice.selectedAttributes.length)
+	if ((choice.mappedAttributeGroups?.length > 0 || choice.mappedLocationGroups?.length > 0) && !choice.selectedAttributes.length)
 	{
 		isComplete = false;
 	}
@@ -78,7 +78,7 @@ function checkLocationAttributeSelections(choice: Choice, locationGroups: number
 }
 
 //take token from querystring and reset session with new token value when resetToken is true
-export function setPresaleToken(queryToken: string = '', resetToken = false)
+export function setPresaleSession(queryToken: string = '', resetToken = false, presaleGuid = '')
 {
 	let token = sessionStorage.getItem('presale_token') || queryToken;
 
@@ -106,6 +106,7 @@ export function setPresaleToken(queryToken: string = '', resetToken = false)
 			const tokenParts = token.split('.');
 			const payload = new PresalePayload(JSON.parse(Buffer.from(tokenParts[1], 'base64').toString('ascii')));
 
+			setSessionItem('presale_guid', presaleGuid);
 			setSessionItem('presale_token', token);
 			setSessionItem('authProvider', 'presale');
 			setSessionItem('presale_issuer', payload.iss);
@@ -153,5 +154,26 @@ export function ScrollTop()
 	if (scrollPosition > 0)
 	{
 		window.scrollTo(0, 0);
-	}	
+	}
+}
+
+// functions to return unique identifier for entities in an ngFor to track them, to only update DOM elements that have changed
+export function groupTrackBy(index: number, group: Group)
+{
+	return group.groupCatalogId;
+}
+	
+export function subGroupTrackBy(index: number, subGroup: SubGroup)
+{
+	return subGroup.subGroupCatalogId;
+}
+	
+export function pointTrackBy(index: number, point: DecisionPoint)
+{
+	return point.divPointCatalogId;
+}
+	
+export function choiceTrackBy(index: number, choice: Choice)
+{
+	return choice.divChoiceCatalogId;
 }

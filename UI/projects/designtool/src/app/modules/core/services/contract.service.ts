@@ -684,7 +684,6 @@ export class ContractService
 				lotAddress: lotAddress,
 				lotBlock: lot.lotBlock,
 				phase: lot.salesPhase ? lot.salesPhase.salesPhaseName : '',
-				unit: lot.unitNumber,
 				garage: lot.handings.map(h => h.name),
 				planName: planName,
 				planId: planId,
@@ -1017,7 +1016,6 @@ export class ContractService
 						lotAddress: lotAddress,
 						lotBlock: lot.lotBlock,
 						phase: lot.salesPhase ? lot.salesPhase.salesPhaseName : '',
-						unit: lot.unitNumber,
 						garage: lot.handings.map(h => h.name),
 						planName: planName,
 						planId: planId,
@@ -1208,7 +1206,7 @@ export class ContractService
 		let mappedPrograms = _.cloneDeep(programs) || [];
 		let clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved'))
 			.reverse();
-		
+
 		let coPrograms = _.flatten(clonedCOs.map(cog =>
 		{
 			return _.flatten(cog.jobChangeOrders.filter(co => co.jobSalesChangeOrderSalesPrograms && co.jobSalesChangeOrderSalesPrograms.length !== 0)
@@ -1252,7 +1250,7 @@ export class ContractService
 				{
 					arr.push(prog);
 				}
-				
+
 				return arr;
 			}, []);
 

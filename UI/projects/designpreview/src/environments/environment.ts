@@ -10,7 +10,7 @@ export const environment: IEnvironment = {
 	authConfigs: {
 		sitecoreSSO:
 		{
-			issuer: 'https://pultesso.dev.pulte.com',
+			issuer: 'https://pultessok.dev.pulte.com',
 			clientId: 'DesignPreview',
 			responseType: 'code',
 			clearHashAfterLogin: true,
@@ -21,8 +21,8 @@ export const environment: IEnvironment = {
 		},
 		azureAD:
 		{
-			issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
-			clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
+			issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
+			clientId: 'f9c9611d-6a23-4d2e-8dce-14da56bd8acc',
 			responseType: 'code',
 			clearHashAfterLogin: true,
 			requestAccessToken: true,
@@ -37,7 +37,7 @@ export const environment: IEnvironment = {
 	},
 	authQueryParams: 'domain_hint=pulte.com',
 	appInsights: {
-		instrumentationKey: '9016d3bb-da60-4861-b107-59c6d74c13d5',
+		connectionString: 'InstrumentationKey=08875504-9c0f-45a6-8cc5-8a819e51aff0;IngestionEndpoint=https://eastus-6.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: false,
 		disableExceptionTracking: false,
 		disableAjaxTracking: true

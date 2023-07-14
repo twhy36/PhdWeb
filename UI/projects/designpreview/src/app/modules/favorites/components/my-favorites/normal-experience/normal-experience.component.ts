@@ -4,18 +4,20 @@ import * as _ from 'lodash';
 
 import
 {
-	UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group, ChoiceImageAssoc,
+	UnsubscribeOnDestroy, flipOver, DecisionPoint, PickType, SubGroup, Choice, JobChoice, Group,
 	Tree, MyFavoritesChoice, MyFavoritesPointDeclined
 } from 'phd-common';
 
 import { ChoiceExt } from '../../../../shared/models/choice-ext.model';
+import { ViewportScroller } from '@angular/common';
+import { choiceTrackBy, pointTrackBy } from '../../../../shared/classes/utils.class';
 
 @Component({
 	selector: 'normal-experience',
 	templateUrl: './normal-experience.component.html',
 	styleUrls: ['./normal-experience.component.scss'],
 	animations: [flipOver]
-})
+	})
 export class NormalExperienceComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() groupName: string;
@@ -30,6 +32,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean = false;
+	@Input() isPresalePricingEnabled: boolean = true;
 	@Input() noVisibleGroups: boolean = false;
 	@Input() unfilteredPoints: DecisionPoint[] = [];
 
@@ -45,26 +48,34 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	choiceToggled: boolean = false;
 	viewCreated: boolean = false;
 
-	constructor() { super(); }
+	constructor(private scroller: ViewportScroller) 
+	{
+		super();
+		scroller.setOffset([0, 200]); // This offset accounts for nav-bar group-bar and grey space above choice cards
+	}
 
 	ngOnChanges(changes: SimpleChanges)
 	{
 		if (changes['currentSubgroup'])
 		{
 			const newSubGroup = (changes['currentSubgroup'].currentValue) as SubGroup;
+
 			if (this.choiceToggled)
 			{
 				// Prevent from reloading the page
 				const newChoices = _.flatMap(newSubGroup.points, pt => pt.choices);
 				const choices = _.flatMap(this.subGroup.points, pt => pt.choices);
+
 				newChoices.forEach(nc =>
 				{
 					const choice = choices.find(x => x.divChoiceCatalogId === nc.divChoiceCatalogId);
+
 					if (choice)
 					{
 						choice.quantity = nc.quantity;
 					}
 				});
+
 				this.choiceToggled = false;
 			}
 
@@ -75,6 +86,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		if (changes['decisionPointId'] || changes['myFavoritesChoices'] || changes['myFavoritesPointsDeclined'])
 		{
 			const pointId = changes['decisionPointId']?.currentValue;
+
 			if (pointId && pointId !== this.currentPointId
 				|| this.isInputChanged(changes['myFavoritesChoices'])
 				|| this.isInputChanged(changes['myFavoritesPointsDeclined']))
@@ -93,24 +105,24 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 			switch (point.pointPickTypeId)
 			{
-			case PickType.Pick1:
-				return isPreviouslyContracted
-					? 'Previously Contracted Option'
-					: 'Please select one of the choices below';
-			case PickType.Pick1ormore:
-				return isPreviouslyContracted
-					? 'Previously Contracted Options'
-					: 'Please select at least one of the Choices below';
-			case PickType.Pick0ormore:
-				return isPreviouslyContracted
-					? 'Previously Contracted Options'
-					: 'Please select at least one of the Choices below';
-			case PickType.Pick0or1:
-				return isPreviouslyContracted
-					? 'Previously Contracted Option'
-					: 'Please select one of the choices below';
-			default:
-				return '';
+				case PickType.Pick1:
+					return isPreviouslyContracted
+						? 'Pending & Contracted Options'
+						: 'Please select one of the choices below';
+				case PickType.Pick1ormore:
+					return isPreviouslyContracted
+						? 'Pending & Contracted Options'
+						: 'Please select at least one of the Choices below';
+				case PickType.Pick0ormore:
+					return isPreviouslyContracted
+						? 'Pending & Contracted Options'
+						: 'Please select at least one of the Choices below';
+				case PickType.Pick0or1:
+					return isPreviouslyContracted
+						? 'Pending & Contracted Options'
+						: 'Please select one of the choices below';
+				default:
+					return '';
 			}
 		}
 
@@ -124,10 +136,9 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 	selectDecisionPointHandler(pointId: number, interval?: number) 
 	{
-		if (pointId && !this.currentSubgroup.useInteractiveFloorplan)
+		if (pointId && !this.currentSubgroup?.useInteractiveFloorplan)
 		{
-			const firstPointId = this.points && this.points.length ? this.points[0].id : 0;
-			this.scrollPointIntoView(pointId, pointId === firstPointId);
+			this.scrollPointIntoView(pointId);
 
 			this.selectDecisionPoint.emit(pointId);
 		}
@@ -138,17 +149,21 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	declineDecisionPointHandler(point: DecisionPoint) 
 	{
 		this.currentPointId = point.id;
+
 		this.declineDecisionPoint.emit(point);
 	}
 
 	choiceToggleHandler(choice: ChoiceExt)
 	{
 		const point = this.points.find(p => p.choices.some(c => c.id === choice.id));
+
 		if (point && this.currentPointId != point.id)
 		{
 			this.currentPointId = point.id;
 		}
+
 		this.choiceToggled = true;
+
 		this.toggleChoice.emit(choice);
 	}
 
@@ -156,6 +171,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	{
 		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
+
 		if (point.isPastCutOff || this.salesChoices?.findIndex(c => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1)
 		{
 			choiceStatus = 'Contracted';
@@ -163,6 +179,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		else
 		{
 			const contractedChoices = unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
+
 			if (contractedChoices && contractedChoices.length &&
 				(point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1))
 			{
@@ -178,58 +195,32 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 	showDeclineCard(point: DecisionPoint): boolean 
 	{
 		const unfilteredPoint = this.unfilteredPoints.find(up => up.divPointCatalogId === point.divPointCatalogId);
+
 		return (unfilteredPoint.pointPickTypeId === 2 || unfilteredPoint.pointPickTypeId === 4)
 			&& (this.isPresale || !unfilteredPoint.isStructuralItem)
 			&& !unfilteredPoint.isPastCutOff
 			&& unfilteredPoint.choices.filter(c => this.salesChoices?.findIndex(x => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1)?.length === 0;
 	}
 
-	scrollPointIntoView(pointId: number, isFirstPoint: boolean)
+	scrollPointIntoView(pointId: number)
 	{
 		const pointCardElement = <HTMLElement>document.getElementById(`point-card-${pointId?.toString()}`);
 
 		if (pointCardElement && !this.subGroup.useInteractiveFloorplan)
 		{
-			if (isFirstPoint)
-			{
-				setTimeout(() =>
-				{
-					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'center', inline: 'nearest' });
-					this.viewCreated = true;
-				}, 250);
-			}
-			else
-			{
-				// Workaround to display the element moved under the nav bar
-				setTimeout(() =>
-				{
-					const pos = pointCardElement.style.position;
-					const top = pointCardElement.style.top;
-					pointCardElement.style.position = 'relative';
-					pointCardElement.style.top = '-200px';
-					pointCardElement.scrollIntoView({ behavior: (this.viewCreated ? 'smooth' : 'auto'), block: 'start' });
-					this.viewCreated = true;
-					pointCardElement.style.top = top;
-					pointCardElement.style.position = pos;
-				}, 250);
-			}
-		}
-
-		const decisionBarElement = <HTMLElement>document.getElementById('decision-bar-' + pointId?.toString());
-
-		if (decisionBarElement && !this.subGroup.useInteractiveFloorplan)
-		{
 			setTimeout(() => 
 			{
-				decisionBarElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-			}, 1000);
+				this.scroller.scrollToAnchor(`point-card-${pointId?.toString()}`);
+			}, 250)
 		}
 	}
 
 	viewChoiceDetailHandler(choice: ChoiceExt)
 	{
 		const pointId = this.points?.length ? this.points.find(p => p.choices.find(c => c.id === choice.id))?.id || this.points[0].id : 0;
+
 		this.selectDecisionPointHandler(pointId);
+
 		this.viewChoiceDetail.emit(choice);
 	}
 
@@ -243,18 +234,20 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		{
 			const choices = _.flatMap(point.choices);
 			let aChoiceExists = false;
+
 			choices.forEach(c =>
 			{
 				if (!c.isHiddenFromBuyerView)
 				{
 					aChoiceExists = true;
 				}
-			})
+			});
+
 			return aChoiceExists;
 		}
 	}
 
-	isInputChanged(input) : boolean
+	isInputChanged(input): boolean
 	{
 		let isValueChanged = false;
 
@@ -262,6 +255,7 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 		{
 			const currentDiff = _.differenceBy(input.currentValue, input.previousValue, 'id');
 			const prevDiff = _.differenceBy(input.previousValue, input.currentValue, 'id');
+
 			isValueChanged = input.currentValue?.length !== input.previousValue?.length
 				|| !!currentDiff?.length
 				|| !!prevDiff?.length;
@@ -269,4 +263,8 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 
 		return isValueChanged;
 	}
+
+	pointTrackBy = pointTrackBy;
+
+	choiceTrackBy = choiceTrackBy;
 }

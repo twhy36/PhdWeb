@@ -12,10 +12,10 @@ import { BuildMode } from '../../models/build-mode.model';
 	templateUrl: './decision-point-summary.component.html',
 	styleUrls: ['./decision-point-summary.component.scss'],
 	animations: [
-		flipOver2
+	flipOver2
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush
-})
+	})
 export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() decisionPoint: DecisionPoint;
@@ -28,6 +28,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	@Input() isPresale: boolean = false;
 	@Input() contractedOptionsPage: boolean = false;
 	@Input() favoritesId: number;
+	@Input() isPresalePricingEnabled: boolean = false;
 
 	@Output() viewFavorites = new EventEmitter<DecisionPoint>();
 	@Output() removeFavorites = new EventEmitter<Choice>();

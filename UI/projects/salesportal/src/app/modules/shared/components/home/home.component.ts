@@ -9,7 +9,8 @@ import { Observable, forkJoin } from 'rxjs';
 	styleUrls: ['./home.component.scss']
 })
 
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit
+{
 	Permission = Permission;
 	canAccessSalesAdmin: boolean = false;
 	canAccessReports: boolean = false;
@@ -28,8 +29,10 @@ export class HomeComponent implements OnInit {
 
 	constructor(private _identityService: IdentityService) { }
 
-	ngOnInit() {
-		this._identityService.getRoles().subscribe(roles => {
+	ngOnInit()
+	{
+		this._identityService.getRoles().subscribe(roles =>
+		{
 			this.roles = roles;
 			console.log("Roles: " + roles);
 		});
@@ -37,7 +40,8 @@ export class HomeComponent implements OnInit {
 		forkJoin(
 			this._identityService.getClaims() as Observable<Claims>,
 			this._identityService.hasClaimWithPermission('PhdReports', Permission.Read) as Observable<boolean>
-		).subscribe(([claims, reportAccess]) => {
+		).subscribe(([claims, reportAccess]) =>
+		{
 			this.canAccessSalesAdmin = !!claims.SalesAdmin || !!claims.AutoApproval;
 
 			this.canAccessReports = reportAccess;

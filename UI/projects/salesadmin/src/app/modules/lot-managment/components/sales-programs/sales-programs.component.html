@@ -85,7 +85,7 @@
 				</phd-column>
 				<phd-column header="THO Enabled">
 					<ng-template #body let-item>
-						<button *ngIf="canEdit && item.availability == 'Yes'"
+						<button *ngIf="canEdit && item.availability == 'Yes' && !checkSpecDiscountName(item.name)"
 							class="btn btn-sm btn-toggle btn-enabletho"
 							[ngClass]="{'active': !item.isWebSaleable, 'btn-success': item.isWebSaleable, 'btn-secondary': !item.isWebSaleable }"
 							(click)="toggleThoEnabled(item)">

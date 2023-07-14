@@ -12,7 +12,11 @@
 			<ng-container *ngIf="catalogItem.id != null">
 				<div class="form-group">
 					<label for="label">Label</label>
-					<input type="text" class="form-control" id="label" formControlName="label" maxlength="100" required>
+					<input type="text" class="form-control" id="label" formControlName="label" maxlength="100">
+
+					<span class="validation-error" *ngIf="catalogForm.controls.label && catalogForm.controls.label.invalid && catalogForm.controls.label.dirty && catalogForm.controls.label.errors.alreadyExist">
+						Choice already exists in this Decision Point.
+					</span>
 				</div>
 
 				<div class="form-check">
@@ -24,12 +28,12 @@
 					<label for="phd-design-preview-choices" class="phd-design-preview-label">Design Preview</label>
 					<div class="form-options">
 						<div class="form-check">
-							<input id="hide-from-buyer-check" class="form-check-input" type="checkbox" formControlName="isHiddenFromBuyerView" (click)="checkHiddenStatus()"/>
+							<input id="hide-from-buyer-check" class="form-check-input" type="checkbox" formControlName="isHiddenFromBuyerView" (click)="checkHiddenStatus()" />
 							<label for="hide-from-buyer-check" class="form-check-label">Hide Choice Card From Buyer View</label>
 							<i class="fa fa-eye-slash icon-spacing-left" aria-hidden="true" ngbTooltip="Hide Choice Card From Buyer View" container="body"></i>
 						</div>
 						<div class="form-check">
-							<input id="hide-price-from-buyer-check" class="form-check-input" type="checkbox" formControlName="priceHiddenFromBuyerView" (click)="checkHiddenStatus()"/>
+							<input id="hide-price-from-buyer-check" class="form-check-input" type="checkbox" formControlName="priceHiddenFromBuyerView" (click)="checkHiddenStatus()" />
 							<label for="hide-price-from-buyer-check" class="form-check-label">Hide Price From Buyer View</label>
 							<span class="fa-stack phd-fa-dollar-ban" ngbTooltip="Hide Price From Buyer View" container="body">
 								<i class="fa fa-ban"></i>
@@ -45,6 +49,10 @@
 					<div class="form-group" *ngFor="let control of labelArray.controls; let i = index">
 						<label>Label</label>
 						<input type="text" class="form-control" [formControlName]="i" (keydown.Tab)="onAddChoice(i)" />
+						
+						<span class="validation-error" *ngIf="labelArray.controls[i] && labelArray.controls[i].invalid && labelArray.controls[i].dirty && labelArray.controls[i].errors.alreadyExist">
+							Choice already exists in this Decision Point.
+						</span>
 					</div>
 				</div>
 

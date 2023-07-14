@@ -1,6 +1,6 @@
 import { Injectable, Injector, ErrorHandler } from '@angular/core';
 
-import { ApplicationInsights} from "@microsoft/applicationinsights-web";
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 @Injectable()
 export class LoggingService

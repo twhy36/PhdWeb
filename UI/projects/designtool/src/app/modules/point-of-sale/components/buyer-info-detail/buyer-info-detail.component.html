@@ -40,6 +40,7 @@
 					</div>
 					<div class="flex-fill">
 						<select class="form-control form-group" name="prefix" id="prefix" formControlName="prefix" [attr.disabled]="disabledInputs ? '' : null">
+							<option [ngValue]="''"></option>
 							<option [ngValue]="'Ms.'"> Ms. </option>
 							<option [ngValue]="'Miss'"> Miss </option>
 							<option [ngValue]="'Mrs.'"> Mrs. </option>
@@ -79,6 +80,7 @@
 					</div>
 					<div class="flex-fill">
 						<select class="form-control form-group" name="suffix" formControlName="suffix" id="suffix">
+							<option [ngValue]="''"></option>
 							<option [ngValue]="'Jr.'"> Jr. </option>
 							<option [ngValue]="'Sr.'"> Sr. </option>
 							<option [ngValue]="'I'"> I </option>

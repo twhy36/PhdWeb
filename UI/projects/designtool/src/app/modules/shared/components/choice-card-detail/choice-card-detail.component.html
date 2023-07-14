@@ -49,14 +49,14 @@
 							Qty
 							<quantity-input [min]="quantityMin" [max]="choice?.maxQuantity"
 								[quantity]="choice?.quantity" (quantityChange)="changeSelectedQuantity($event)"
-								[canEditAgreement]="canEditAgreement && (!isPastCutOff || overrideReason) && canConfigure && choice.enabled">
+								[canEditAgreement]="canEditAgreement && (!isPastCutOff || canOverride) && canConfigure && choice.enabled">
 							</quantity-input>
 							Max {{choice?.maxQuantity}}
 						</span>
 					</div>
 
 					<div *ngIf="choice?.mappedLocationGroups.length > 0" class="mt-auto align-self-center">
-						<span class="text-center">Selected Qty: {{totalQuantitySelected}} of {{choice?.quantity}}</span>
+						<span class="text-center">Selected Qty: {{totalQuantitySelected}} of {{choice?.maxQuantity}}</span>
 					</div>
 				</ng-container>
 

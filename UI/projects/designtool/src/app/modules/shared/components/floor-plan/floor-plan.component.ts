@@ -1,10 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild, TrackByFunction, Attribute } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild, TrackByFunction } from '@angular/core';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import * as _ from 'lodash';
-import { Choice, DecisionPoint, DesignToolAttribute, flipOver, FloorPlanImage, loadScript, ModalRef, ModalService, MyFavoritesChoice, PriceBreakdown, ScenarioStatusType, SubGroup, TreeFilter, unloadScript, UnsubscribeOnDestroy, DecisionPointFilterType } from 'phd-common';
-import { Subject, Subscription, timer } from 'rxjs';
-import { combineLatest, flatMap, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import
+{
+	Choice, DecisionPoint, DesignToolAttribute, flipOver, FloorPlanImage, loadScript, ModalRef, ModalService, MyFavoritesChoice, PriceBreakdown, ScenarioStatusType,
+	SubGroup, TreeFilter, unloadScript, UnsubscribeOnDestroy, DecisionPointFilterType, OptionRule, Constants
+} from 'phd-common';
+import { Subject, Subscription, timer, combineLatest } from 'rxjs';
+import { flatMap, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import { AttributeService } from '../../../core/services/attribute.service';
 import { JobService } from '../../../core/services/job.service';
@@ -77,6 +81,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	buildMode: string;
 	favoriteChoices: MyFavoritesChoice[];
 	isDesignComplete: boolean;
+	replaceRules: OptionRule[];
 
 	get fpFloors()
 	{
@@ -104,25 +109,28 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				take(1),
 				withLatestFrom(
 					this.store.pipe(select((state: fromRoot.State) => state.salesAgreement && state.salesAgreement.id)),
-					this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioId)),
+					this.store.pipe(select((state: fromRoot.State) => state.scenario)),
 					this.store.pipe(select(state => state.job.id))
 				)
-			).subscribe(([first, agreementId, scenarioId, jobId]) =>
+			).subscribe(([first, agreementId, scenario, jobId]) =>
 			{
 				this.jobId = jobId;
 				this.salesAgreementId = agreementId;
-				this.scenarioId = scenarioId;
+				this.scenarioId = scenario?.scenario?.scenarioId;
+
+				// Retrieve replace rules
+				this.replaceRules = scenario?.rules?.optionRules?.filter(rule => !!rule.replaceOptions?.length) || [];
 
 				if (!this.canEditAgreement && !this.fpLoaded)
 				{
-					if (!this.jobId)
+					if (!this.jobId && !!this.scenarioId)
 					{
 						this.scenarioService.getFloorPlanImages(this.scenarioId).subscribe(p =>
 						{
 							this.handleStaticImages(p);
 						});
 					}
-					else
+					else if (this.jobId)
 					{
 						this.jobService.getFloorPlanImages(this.jobId, false).subscribe(p =>
 						{
@@ -184,11 +192,11 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				this.salesAgreementId = salesAgreement.id;
 				this.primaryAction = 'Agreement Info';
 			}
-			else if (build === 'spec')
+			else if (build === Constants.BUILD_MODE_SPEC)
 			{
 				this.primaryAction = 'Create Spec';
 			}
-			else if (build === 'model')
+			else if (build === Constants.BUILD_MODE_MODEL)
 			{
 				this.primaryAction = 'Create Model';
 			}
@@ -196,37 +204,76 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.buildMode = build;
 		});
 
-		this.subGroup$.pipe(combineLatest(this.initialized$)).subscribe(([subGroup]) =>
-		{
-			const previousEnabled = [...this.enabledOptions];
-			this.enabledOptions = [];
+		combineLatest([
+			this.subGroup$,
+			this.initialized$,
+		])
+			.pipe(withLatestFrom(this.store.pipe(select((state: fromRoot.State) => state.scenario?.tree?.treeVersion))))
+			.subscribe(([[subGroup], treeVersion]) =>
+			{
+				const previousEnabled = [...this.enabledOptions];
+				this.enabledOptions = [];
 
-			_.flatMap(subGroup.points, p => p.choices)
-				.forEach(c =>
+				if (this.fp?.options?.length && treeVersion)
 				{
-					if (c.quantity)
+					// Selected choices outside of IFP
+					const selectedChoices = _.flatMap(treeVersion.groups, g => _.flatMap(g.subGroups.filter(sg => sg.id !== this.subGroup.id), sg => _.flatMap(sg.points, pt => pt.choices.filter(ch => ch.quantity > 0)))) || [];
+
+					// Options in the selected choices
+					const selectedOptionNumbers: string[] = [];
+					selectedChoices.forEach(ch => 
 					{
-						this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
-					}
+						const optionNumbers = _.uniq(_.flatMap(ch.options, opt => opt.financialOptionIntegrationKey)
+							|| _.flatMap(ch.lockedInOptions, opt => opt.optionId));
+
+						selectedOptionNumbers.push(...optionNumbers);
+					})
+
+					// Limit to replace options if they are mapped to the same element as the replaced options in Alpha Vision
+					selectedOptionNumbers.forEach(optionNum => 
+					{
+						// Find the mapped element in Alpha Vision IFP
+						const mappedOptionElement = this.fp.options.find(fpOption => fpOption.id.includes(optionNum));
+						if (mappedOptionElement)
+						{
+							const replaceRule = this.replaceRules.find(rule => rule.optionId === optionNum);
+							const replaceOption = replaceRule?.replaceOptions?.find(ro => mappedOptionElement.id.includes(ro));
+
+							if (replaceOption)
+							{
+								// Enable the option if it is mapped to the same element as the replaced option
+								this.enabledOptions.push(+replaceOption);
+							}
+						}
+					});
+				}
+
+				_.flatMap(subGroup.points, p => p.choices)
+					.forEach(c =>
+					{
+						if (c.quantity)
+						{
+							this.enabledOptions.push(...c.options.map(o => +o.financialOptionIntegrationKey));
+						}
+					});
+
+				_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
+				{
+					this.fp.disableOption(opt);
 				});
 
-			_.difference(previousEnabled, this.enabledOptions).forEach(opt =>
-			{
-				this.fp.disableOption(opt);
+				_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
+				{
+					this.fp.enableOption(opt);
+				});
+
+				if (this.selectedFloor && this.selectedFloor.id)
+				{
+					this.fp.setFloor(this.selectedFloor.id); //AlphaVision automatically changes the floor if you select an option on a different floor
+				}
+
+				this.saveFloorPlanImages();
 			});
-
-			_.difference(this.enabledOptions, previousEnabled).forEach(opt =>
-			{
-				this.fp.enableOption(opt);
-			});
-
-			if (this.selectedFloor && this.selectedFloor.id)
-			{
-				this.fp.setFloor(this.selectedFloor.id); //AlphaVision automatically changes the floor if you select an option on a different floor
-			}
-
-			this.saveFloorPlanImages();
-		});
 
 		if (this.subGroup)
 		{
@@ -250,16 +297,15 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.isDesignComplete = isDesignComplete;
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped),
-			combineLatest(
-				this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped))
-			)
-		).subscribe(([isAgreementFlipped, isScenarioFlipped]) =>
-		{
-			this.handleFlip(isAgreementFlipped, isScenarioFlipped);
-		});
+		combineLatest([
+			this.store.pipe(select(state => state.salesAgreement && state.salesAgreement.isFloorplanFlipped)),
+			this.store.pipe(select((state: fromRoot.State) => state.scenario && state.scenario.scenario && state.scenario.scenario.scenarioInfo && state.scenario.scenario.scenarioInfo.isFloorplanFlipped))
+		])
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([isAgreementFlipped, isScenarioFlipped]) =>
+			{
+				this.handleFlip(isAgreementFlipped, isScenarioFlipped);
+			});
 	}
 
 	setStaticImage(index: number)
@@ -371,7 +417,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.attributeService.getAttributeGroups(choice).subscribe(attributeGroups =>
 			{
 				attributeGroups.forEach(attributeGroup =>
-				{ 
+				{
 					//if attributeGroup only has 1 attribute, auto select that attribute to the choice
 					if (attributeGroup.attributes.length === 1)
 					{
@@ -474,7 +520,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 
 		// In Preview, Spec or Model
-		if (this.buildMode !== 'buyer')
+		if (this.buildMode !== Constants.BUILD_MODE_BUYER)
 		{
 			this.flipping = true;
 
@@ -508,7 +554,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	selectFloor(floor: any)
 	{
-		if (this.canEditAgreement || this.buildMode === 'spec' || this.buildMode === 'model')
+		if (this.canEditAgreement || this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
 		{
 			this.selectedFloor = floor;
 

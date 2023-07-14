@@ -1,16 +1,15 @@
 @import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../../phd-common/src/lib/scss/animations.scss";
 
-.choice-container {
+.phd-choice-container {
 	display: flex;
 	flex-direction: row;
 	font-size: 12px;
 	margin-top: 5px;
 	width: 100%;
 
-	.choice-label {
+	.phd-choice-label {
 		max-width: 150px;
-		color: var(--link-color);
 	}
 }
 
@@ -25,10 +24,6 @@
 
 	.fa-ban {
 		margin-right: 8.5px;
-	}
-
-	.phd-icon-selected {
-		color: var(--heart-icon-color);
 	}
 }
 

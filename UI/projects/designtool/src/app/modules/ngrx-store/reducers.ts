@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import
 {
 	isChoiceComplete, isChoiceAttributesComplete, ChangeTypeEnum, Lot, PointStatus,
-	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, DecisionPointFilterType, setSubgroupStatus, setPointStatus, setGroupStatus
+	isSalesChangeOrder, setPriceBreakdown, ScenarioStatusType, PriceBreakdown, PickType, TreeVersion, DecisionPointFilterType, setSubgroupStatus, setPointStatus, setGroupStatus, Constants
 } from 'phd-common';
 
 import * as fromScenario from './scenario/reducer';
@@ -68,7 +68,7 @@ export const title = createSelector(
 	fromOpp.oppPrimaryContact,
 	(scenario, sag, primaryBuyer, primaryOppContact) =>
 	{
-		if (scenario.buildMode === 'preview')
+		if (scenario.buildMode === Constants.BUILD_MODE_PREVIEW)
 		{
 			return 'Preview Home';
 		}
@@ -88,7 +88,7 @@ export const title = createSelector(
 				return `${contact ? contact.lastName || '' : ''} Home`;
 			}
 		}
-		else if (scenario.scenario && scenario.buildMode === 'buyer')
+		else if (scenario.scenario && scenario.buildMode === Constants.BUILD_MODE_BUYER)
 		{
 			return scenario.scenario.scenarioName;
 		}
@@ -106,8 +106,8 @@ export const canConfigure = createSelector(
 	fromUser.selectUser,
 	fromSalesAgreement.salesAgreementState,
 	fromChangeOrder.currentChangeOrder,
-	(scenario, market, user, sag, co) => scenario.buildMode === 'preview'
-		|| ((scenario.buildMode === 'model' || scenario.buildMode === 'spec') && !!market && user.canDesign && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+	(scenario, market, user, sag, co) => scenario.buildMode === Constants.BUILD_MODE_PREVIEW
+		|| ((scenario.buildMode === Constants.BUILD_MODE_MODEL || scenario.buildMode === Constants.BUILD_MODE_SPEC) && !!market && user.canDesign && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 		// if there is a sales agreement, user can make changes if (a) user can Create Sales Agreements or (b) user can create Job Change Orders
 		// if the change order hasn't been saved yet, the contact field on the change order will be null
 		|| ((sag && sag.id ? (user.canSell || (user.canDesign && !!co)) : user.canConfigure)
@@ -186,6 +186,16 @@ export const canCreateSpecOrModel = createSelector(
 	(market, user) => !!market && user.canCreateSpecOrModel && user.assignedMarkets.some(m => m.number === market.number)
 )
 
+export const canEditSpecInfo = createSelector(
+	fromScenario.selectScenario,
+	fromOrg.market,
+	fromUser.selectUser,
+	fromSalesAgreement.salesAgreementState,
+	(scenario, market, user, sag) =>
+		((scenario.buildMode === Constants.BUILD_MODE_MODEL || scenario.buildMode === Constants.BUILD_MODE_SPEC))
+		&& (user.canSelectAddenda && !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
+)
+
 export const canAddIncentive = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
@@ -207,13 +217,13 @@ export const canEditInternalNotes = createSelector(
 export const allowEstimates = createSelector(
 	fromSalesAgreement.salesAgreementState,
 	fromScenario.buildMode,
-	(sag, build) => build !== 'spec' && build !== 'model' && sag?.id === 0
+	(sag, build) => build !== Constants.BUILD_MODE_SPEC && build !== Constants.BUILD_MODE_MODEL && sag?.id === 0
 )
 
 export const isSpecOrModel = createSelector(
 	fromScenario.buildMode,
 	fromJob.jobState,
-	(build, job) => build === 'spec' || build === 'model' || job?.lot?.lotBuildTypeDesc === 'Spec'
+	(build, job) => build === Constants.BUILD_MODE_SPEC || build === Constants.BUILD_MODE_MODEL || job?.lot?.lotBuildTypeDesc === 'Spec'
 )
 
 export const monotonyConflict = createSelector(
@@ -344,7 +354,7 @@ export const hasSpecPlanId = createSelector(
 	fromChangeOrder.changeOrderState,
 	(buildMode, plan, changeOrder) =>
 	{
-		return (buildMode === 'spec' || buildMode === 'model') && changeOrder && changeOrder.isChangingOrder && changeOrder.changeInput && changeOrder.changeInput.type === ChangeTypeEnum.PLAN
+		return (buildMode === Constants.BUILD_MODE_SPEC || buildMode === Constants.BUILD_MODE_MODEL) && changeOrder && changeOrder.isChangingOrder && changeOrder.changeInput && changeOrder.changeInput.type === ChangeTypeEnum.PLAN
 			? !!plan.selectedPlan
 			: false;
 	}
@@ -365,9 +375,9 @@ export const isComplete = createSelector(
 
 		// #389805 Make sure this lot isn't already sold
 		let hasAvailableLot = true;
-		const inScenario = scenario.buildMode === 'buyer' && sag.id === 0;
+		const inScenario = scenario.buildMode === Constants.BUILD_MODE_BUYER && sag.id === 0;
 		if (hasLot && scenario?.scenario?.lotId && inScenario)
-		{	
+		{
 			let lot: Lot = lots?.lots?.find(l => l.id === scenario.scenario.lotId);
 
 			hasAvailableLot = lot && lot.lotStatusDescription === 'Available';
@@ -396,7 +406,7 @@ export const canEditAgreementOrSpec = createSelector(
 	fromScenario.scenarioHasSalesAgreement,
 	(buildMode, isPreview, salesAgreement, currentChangeOrder, job, scenarioHasSalesAgreement) =>
 	{
-		if (buildMode === 'spec' || buildMode === 'model')
+		if (buildMode === Constants.BUILD_MODE_SPEC || buildMode === Constants.BUILD_MODE_MODEL)
 		{
 			return job.id === 0 || (job.id > 0 && currentChangeOrder ? currentChangeOrder.salesStatusDescription === 'Pending' : false);
 		}
@@ -404,7 +414,7 @@ export const canEditAgreementOrSpec = createSelector(
 		{
 			return isPreview
 				|| (salesAgreement.id === 0 && !scenarioHasSalesAgreement)
-				|| salesAgreement.status === 'Pending'
+				|| salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING
 				|| (currentChangeOrder
 					? currentChangeOrder.salesStatusDescription === 'Pending'
 					: false
@@ -418,7 +428,7 @@ export const canEditCancelOrVoidAgreement = createSelector(
 	fromScenario.buildMode,
 	(salesAgreement, buildMode) =>
 	{
-		return ((salesAgreement.id === 0 && buildMode !== 'spec' && buildMode !== 'model') || salesAgreement.status === 'Cancel' || salesAgreement.status === 'Void' || salesAgreement.status === 'Closed');
+		return ((salesAgreement.id === 0 && buildMode !== Constants.BUILD_MODE_SPEC && buildMode !== Constants.BUILD_MODE_MODEL) || salesAgreement.status === Constants.AGREEMENT_STATUS_CANCEL || salesAgreement.status === Constants.AGREEMENT_STATUS_VOID || salesAgreement.status === Constants.AGREEMENT_STATUS_CLOSED);
 	}
 )
 
@@ -427,7 +437,7 @@ export const isSpecSalePending = createSelector(
 	fromJob.jobState,
 	(salesAgreement, job) =>
 	{
-		return job && job.lot && job.lot.lotBuildTypeDesc === 'Spec' && salesAgreement && (salesAgreement.status === 'Pending' || salesAgreement.status === 'Signed' || salesAgreement.status === 'OutforSignature');
+		return job && job.lot && job.lot.lotBuildTypeDesc === 'Spec' && salesAgreement && (salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING || salesAgreement.status === Constants.AGREEMENT_STATUS_SIGNED || salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE);
 	}
 )
 
@@ -541,33 +551,26 @@ export const salesAgreementStatus = createSelector(
 
 		switch (sa.status)
 		{
-			case 'Pending':
+			case Constants.AGREEMENT_STATUS_PENDING:
 				saStatus = 'Pending Sale';
-
 				break;
-			case 'Signed':
+			case Constants.AGREEMENT_STATUS_SIGNED:
 				saStatus = 'Signed';
-
 				break;
-			case 'Approved':
+			case Constants.AGREEMENT_STATUS_APPROVED:
 				saStatus = 'Approved';
-
 				break;
-			case 'Cancel':
+			case Constants.AGREEMENT_STATUS_CANCEL:
 				saStatus = 'Cancelled';
-
 				break;
-			case 'Void':
+			case Constants.AGREEMENT_STATUS_VOID:
 				saStatus = 'Voided';
-
 				break;
-			case 'Closed':
+			case Constants.AGREEMENT_STATUS_CLOSED:
 				saStatus = 'Closed';
-
 				break;
-			case 'OutforSignature':
+			case Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE:
 				saStatus = 'Out for Signature';
-
 				break;
 		}
 
@@ -594,7 +597,7 @@ export const selectedPlanPrice = createSelector(
 	{
 		let price = selectedPlan ? selectedPlan.price : 0;
 
-		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === 'Pending') || !salesAgreement?.id))
+		if (selectedPlan && selectedLot && selectedLot.salesPhase && selectedLot.salesPhase.salesPhasePlanPriceAssocs && ((salesAgreement && salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING) || !salesAgreement?.id))
 		{
 			const isPhaseEnabled = selectedLot.financialCommunity && selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === selectedPlan.id);
@@ -981,7 +984,7 @@ export const canCancelSpec = createSelector(
 	fromLite.liteState,
 	(job, buildMode, lite) =>
 	{
-		return buildMode === 'spec' &&
+		return buildMode === Constants.BUILD_MODE_SPEC &&
 			job.constructionStageName === 'Configured' &&
 			(lite.isPhdLite ? (job.jobTypeName === 'Spec' || job.jobTypeName === 'House') : job.jobTypeName === 'Spec') &&
 			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
@@ -993,7 +996,7 @@ export const canCancelModel = createSelector(
 	fromLite.liteState,
 	(job, buildMode, lite) =>
 	{
-		return buildMode === 'model' &&
+		return buildMode === Constants.BUILD_MODE_MODEL &&
 			job.constructionStageName === 'Configured' &&
 			(lite.isPhdLite ? (job.jobTypeName === 'Model' || job.jobTypeName === 'House') : job.jobTypeName === 'Model') &&
 			!(job.jobSalesAgreementAssocs && job.jobSalesAgreementAssocs.length > 0);
@@ -1159,9 +1162,9 @@ export const isLiteComplete = createSelector(
 
 			// #389805 Make sure this lot isn't already sold
 			let hasAvailableLot = true;
-			const inScenario = scenario.buildMode === 'buyer' && sag.id === 0;
+			const inScenario = scenario.buildMode === Constants.BUILD_MODE_BUYER && sag.id === 0;
 			if (hasLot && scenario?.scenario?.lotId && inScenario)
-			{	
+			{
 				let lot: Lot = lots?.lots?.find(l => l.id === scenario.scenario.lotId);
 
 				hasAvailableLot = lot && lot.lotStatusDescription === 'Available';

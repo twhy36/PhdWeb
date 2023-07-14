@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
-	SalesAgreement, DecisionPoint, Permission, ModalService
+	SalesAgreement, DecisionPoint, Permission, ModalService, Constants, Tree, TreeVersionRules
 } from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';
@@ -29,9 +29,13 @@ import { ChangeOrderService } from './../../../core/services/change-order.servic
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
 import * as JobActions from '../../../ngrx-store/job/actions';
 
+import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+
 // PHD Lite
 import { LiteService } from './../../../core/services/lite.service';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
+import { JobService } from '../../../core/services/job.service';
+import { checkElevationAndColorSelectionOptions } from '../../classes/tree.utils';
 
 @Component({
 	selector: 'action-bar',
@@ -98,28 +102,19 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isOutForESign: boolean;
 	canApprove: boolean;
 	salesAgreementId: number;
+	tree: Tree;
+	treeVersionRules: TreeVersionRules;
+	elevationDP: DecisionPoint;
+	colorSchemeDP: DecisionPoint;
 
 	// PHD Lite
 	isPhdLite: boolean;
 
 	setSummaryText()
 	{
-		let labelVal = 'View On Summary';
+		this.isFromSummary = this._navService.getPreviousUrl() === '/scenario-summary';
 
-		let prevUrl = this._navService.getPreviousUrl();
-
-		if (prevUrl == '/scenario-summary')
-		{
-			labelVal = 'Back to Summary';
-
-			this.isFromSummary = true;
-		}
-		else
-		{
-			this.isFromSummary = false;
-		}
-
-		this.summaryText = labelVal;
+		this.summaryText = this.isFromSummary ? 'Back to Summary' : 'View On Summary';
 	}
 
 	constructor(
@@ -130,6 +125,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		private store: Store<fromRoot.State>,
 		private _navService: NavigationService,
 		private modalService: ModalService,
+		private _jobService: JobService,
 		private _changeOrderService: ChangeOrderService,
 		private liteService: LiteService
 	) { super(); }
@@ -139,6 +135,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.canEditAgreement$ = this.store.select(fromRoot.canEditAgreementOrSpec);
 		this.canCancelSpec$ = this.store.select(fromRoot.canCancelSpec);
 		this.canCancelModel$ = this.store.select(fromRoot.canCancelModel);
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lot)
@@ -146,6 +143,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.lotStatus = lot.selectedLot ? lot.selectedLot.lotStatusDescription : ''
 		});
+
 		this.isTemplatesSelected$ = this.store.pipe(
 			select(state => state.contract),
 			map(contract =>
@@ -197,7 +195,12 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.scenario.overrideReason,
 						legacyColorScheme
 					))
-			).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
+		).subscribe(changeOrderIsEmpty =>
+		{
+			this.isChangeEmpty = changeOrderIsEmpty;
+		
+		});
+	
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -213,7 +216,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				cog = job.changeOrderGroups.reduce((r, a) => r.createdUtcDate > a.createdUtcDate ? r : a);
 
-				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn') > -1;
+				this.hasOpenChangeOrder = job.changeOrderGroups.findIndex(x => x.salesStatusDescription !== 'Approved' && x.salesStatusDescription !== 'Withdrawn' && x.salesStatusDescription !== 'Resolved') > -1;
 			}
 
 			if (cog)
@@ -269,6 +272,20 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			select(state => state.lite)
 		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
 
+		combineLatest([
+			this.store.pipe(select(fromScenario.selectScenario)),
+			this.store.pipe(select(fromScenario.elevationDP)),
+			this.store.pipe(select(fromScenario.colorSchemeDP))
+		])
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([scenario, elevationDP, colorSchemeDP]) =>
+			{
+				this.tree = scenario.tree;
+				this.treeVersionRules = _.cloneDeep(scenario.rules);
+				this.elevationDP = elevationDP;
+				this.colorSchemeDP = colorSchemeDP;
+			});
+
 		this.setSummaryText();
 	}
 
@@ -284,37 +301,37 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canSignAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "OutforSignature" && !this.inChangeOrder && ((!this.isEditingEnvelopeDraft && !this.isOutForESign) || this.canApprove);
+		return this.inPointOfSale && this.agreement.status === 'OutforSignature' && !this.inChangeOrder && ((!this.isEditingEnvelopeDraft && !this.isOutForESign) || this.canApprove);
 	}
 
 	get canApproveAgreement(): boolean
 	{
-		return this.inPointOfSale && this.agreement.status === "Signed" && !this.inChangeOrder && this.salesStatusDescription != 'Approved';
+		return this.inPointOfSale && this.agreement.status === 'Signed' && !this.inChangeOrder && this.salesStatusDescription != 'Approved';
 	}
 
 	get canVoidAgreement(): boolean
 	{
-		return this.canSell && this.inPointOfSale && (this.agreement.status === 'Pending' || this.agreement.status === 'OutforSignature' || this.agreement.status === 'Signed') && !this.inChangeOrder;
+		return this.canSell && this.inPointOfSale && (this.agreement.status === Constants.AGREEMENT_STATUS_PENDING || this.agreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE || this.agreement.status === Constants.AGREEMENT_STATUS_SIGNED) && !this.inChangeOrder;
 	}
 
 	get canCancelAgreement(): boolean
 	{
-		return this.canCancelSalesAgreement && this.inPointOfSale && this.agreement.status === "Approved" && !this.inChangeOrder && !this.agreement.isLockedIn;
+		return this.canCancelSalesAgreement && this.inPointOfSale && this.agreement.status === 'Approved' && !this.inChangeOrder && !this.agreement.isLockedIn;
 	}
 
 	get inAgreement(): boolean
 	{
-		return this.router.url.includes("point-of-sale/agreement");
+		return this.router.url.includes('point-of-sale/agreement');
 	}
 
 	get inPointOfSale(): boolean
 	{
-		return this.router.url.includes("point-of-sale");
+		return this.router.url.includes('point-of-sale');
 	}
 
 	get inSpec(): boolean
 	{
-		return this.router.url.includes('spec');
+		return this.router.url.includes(Constants.BUILD_MODE_SPEC);
 	}
 
 	get primaryActionText(): string
@@ -324,7 +341,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			return 'Next';
 		}
 
-		return this.inChangeOrder ? 'Save' : this.primaryAction;
+		return this.inChangeOrder ? Constants.SAVE : this.primaryAction;
 	}
 
 	get canTerminateAgreement(): boolean
@@ -334,7 +351,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canViewAddenda(): boolean
 	{
-		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== 'Void';
+		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== Constants.AGREEMENT_STATUS_VOID;
 	}
 
 	get allDepositsReconciled(): boolean
@@ -344,7 +361,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get showToggleSalesAgreementLock(): boolean
 	{
-		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
+		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === Constants.AGREEMENT_STATUS_APPROVED;
 	}
 
 	get toggleAgreementLockLabel(): string
@@ -443,47 +460,51 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelSpecOrModel(isSpec: boolean)
 	{
-		const allowedToCancelSpec = isSpec && this.job?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== 'Void' && x.salesAgreement?.status !== 'Cancel' && x.salesAgreement?.id !== 0) === -1;
 
-		if (isSpec && !allowedToCancelSpec)
+		this._jobService.checkIfJobHasSalesAgreementAssocs(this.job?.id).subscribe(async allowedToCancelSpec =>
 		{
-			const modalTitle = 'Cancel Spec';
-			const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec.<br/> You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';			
-			this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);			
-		}
 
-		if (allowedToCancelSpec)
-		{
-			const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
-				: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
-			const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
-			const confirmDefaultOption = 'Continue';
-			const primaryButton = { hide: false, text: 'Yes' };
-			const secondaryButton = { hide: false, text: 'No' };
-
-			if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
+			if (isSpec && !allowedToCancelSpec)
 			{
-				const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
+				const modalTitle = 'Cancel Spec';
+				const confirmCancelMessage = 'Cannot cancel Spec (internal), there is a current Sales Agreement on this Spec.<br/> You will need to Void or Cancel the Agreement first, then you will be able to cancel the Spec (internal).';
+				this.modalService.showOkOnlyModal(confirmCancelMessage, modalTitle, true);
+			}
 
-				if (currentChangeOrderGroup)
+			if (allowedToCancelSpec || !isSpec)
+			{
+				const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
+					: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
+				const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
+				const confirmDefaultOption = Constants.CONTINUE;
+				const primaryButton = { hide: false, text: 'Yes' };
+				const secondaryButton = { hide: false, text: 'No' };
+
+				if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton))
 				{
-					currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
+					const currentChangeOrderGroup = this._changeOrderService.getCurrentChangeOrder(this.job.changeOrderGroups);
 
-					this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders => {
-						this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
+					if (currentChangeOrderGroup)
+					{
+						currentChangeOrderGroup.salesStatusDescription = 'Withdrawn';
+
+						this._changeOrderService.updateJobChangeOrder([currentChangeOrderGroup]).subscribe(updatedChangeOrders =>
+						{
+							this.store.dispatch(new CommonActions.ChangeOrdersUpdated(updatedChangeOrders));
+							this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
+
+							this.router.navigateByUrl('/change-orders');
+						});
+					}
+					else
+					{
 						this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
 
 						this.router.navigateByUrl('/change-orders');
-					});
-				}
-				else
-				{
-					this.store.dispatch(new ChangeOrderActions.CreateCancellationChangeOrder());
-
-					this.router.navigateByUrl('/change-orders');
+					}
 				}
 			}
-		}
+		});
 	}
 
 	private async showConfirmModal(body: string, title: string, defaultButton: string, primaryButton: any = null, secondaryButton: any = null): Promise<boolean>
@@ -506,7 +527,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 
@@ -524,7 +545,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.callToAction.emit({ actionBarCallType: ActionBarCallType.PRIMARY_CALL_TO_ACTION });
 		}
-		else if (this.getActionBarStatus() === 'COMPLETE')
+		else if (this.getActionBarStatus() === 'COMPLETE' && this.validateElevationAndColorOptions())
 		{
 			this.modalReference = this.modalService.open(modal, { size: 'lg', windowClass: 'phd-change-order-note' });
 		}
@@ -569,9 +590,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelChange()
 	{
-		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you wish to continue?`;
-		const confirmTitle = `Warning!`;
-		const confirmDefaultOption = `Cancel`;
+		const confirmMessage = Constants.LOSE_CHANGES;
+		const confirmTitle = Constants.WARNING;
+		const confirmDefaultOption = Constants.CANCEL;
 
 		if (!this.isChangeDirty || await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -645,5 +666,29 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	isChangePartiallyComplete(): boolean
 	{
 		return this.changeType === ChangeTypeEnum.PLAN && this.skipSaving && this.actionBarStatus === 'COMPLETE';
+	}
+
+	validateElevationAndColorOptions(): boolean
+	{
+		let isValidElevationAndColorOptions = true;
+
+		if ((this.changeType === ChangeTypeEnum.CONSTRUCTION || this.changeType === ChangeTypeEnum.PLAN) && !this.isPhdLite)
+		{
+			// find selected elevation and color scheme choices
+			const elevationChoice = this.elevationDP?.choices.find(c => c.quantity > 0);
+			const colorSchemeChoice = this.colorSchemeDP?.choices.find(c => c.quantity > 0);
+
+			// check elevation and color scheme choices to make sure there is only one option assigned to each.
+			const message = checkElevationAndColorSelectionOptions(this.tree, this.treeVersionRules.optionRules, elevationChoice, colorSchemeChoice);
+
+			if (!!message)
+			{
+				isValidElevationAndColorOptions = false;
+
+				this.modalService.showOkOnlyModal(message, '', true);
+			}
+		}
+
+		return isValidElevationAndColorOptions;
 	}
 }

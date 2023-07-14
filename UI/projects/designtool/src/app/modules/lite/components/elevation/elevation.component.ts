@@ -8,7 +8,7 @@ import * as fromLite from '../../../ngrx-store/lite/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 
-import { UnsubscribeOnDestroy, flipOver, ScenarioOption, ModalService, ConfirmModalComponent } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver, ScenarioOption, ModalService, ConfirmModalComponent, Constants } from 'phd-common';
 import { LitePlanOption, Color, LitePlanOptionUI } from '../../../shared/models/lite.model';
 
 @Component({
@@ -36,20 +36,20 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromLite.elevationOptions),
-			distinctUntilChanged((x,y) => JSON.stringify(x) === JSON.stringify(y)),
+			distinctUntilChanged((x, y) => JSON.stringify(x) === JSON.stringify(y)),
 		).subscribe(elevations =>
 		{
 			this.elevationOptions = _.cloneDeep(elevations) as LitePlanOptionUI[];
 			this.mapPreviouslySelected();
-		});	
-		
+		});
+
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lite.scenarioOptions)
 		).subscribe(scenarioOptions =>
 		{
 			this.scenarioOptions = scenarioOptions;
-		});	
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -69,8 +69,10 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 		});
 	}
 
-	private mapPreviouslySelected() {
-		if (this.selectedElevation && this.elevationOptions) {
+	private mapPreviouslySelected()
+	{
+		if (this.selectedElevation && this.elevationOptions)
+		{
 			this.elevationOptions.map(e => e.previouslySelected = e.id === this.selectedElevation.id);
 		}
 	}
@@ -109,7 +111,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				// Deselect current selected elevation
 				const currentElevation = this.elevationOptions.find(option => this.scenarioOptions.find(opt => opt.edhPlanOptionId === option.id && opt.planOptionQuantity > 0));
-				
+
 				if (currentElevation)
 				{
 					// Confirm de-select an inactive elevation
@@ -122,7 +124,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 						}
 					}
 
-					const currentScenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === currentElevation.id);				
+					const currentScenarioOption = this.scenarioOptions.find(opt => opt.edhPlanOptionId === currentElevation.id);
 					selectedOptions.push({
 						scenarioOptionId: currentScenarioOption.scenarioOptionId,
 						scenarioId: currentScenarioOption.scenarioId,
@@ -152,7 +154,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const confirmTitle = 'This option is no longer active';
 		const confirmMessage = 'If unselected, you will not be able to select it again. Are you sure you want to deselect it?';
-		const confirmDefaultOption = 'Continue';
+		const confirmDefaultOption = Constants.CONTINUE;
 
 		return await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -167,7 +169,7 @@ export class ElevationComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 }

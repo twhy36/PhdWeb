@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable ,  ReplaySubject,  throwError as _throw } from 'rxjs';
+import { Observable, ReplaySubject, throwError as _throw } from 'rxjs';
 import { combineLatest, catchError, map } from 'rxjs/operators';
 
 import * as odataUtils from '../../shared/utils/odata.util';
@@ -33,106 +33,110 @@ export class HomeSiteService
 	* Gets the homesites for the specified financial community
 	* @param communityId {number} the community
 	*/
-	getCommunityHomeSites(communityId: number, topRows?: number, skipRows?: number, keywords?: string, statusFilter?: string[], handingFilter?: string[]): Observable<Array<HomeSiteDtos.ILotDto>>
+	getCommunityHomeSites(communityId: number, topRows?: number, skipRows?: number, keywords?: string, statusFilter?: string[], handingFilter?: string[], buildTypeFilter?: string[]): Observable<Array<HomeSiteDtos.ILotDto>>
 	{
 		let url = settings.apiUrl;
+		const applyFilter = (filters: any[]) =>
+		{
+			const filter = filters.join(' or ');
 
-		const expand = `jobs($select=id,jobTypeName),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs($expand=handing($select=id,name)), lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
+			return `(${filter}) and `;
+		};
+
+		const expand = `jobs($select=id,jobTypeName,createdBy),planAssociations($select=id,isActive;$expand=planCommunity($select=id, financialPlanIntegrationKey)), salesPhase($select=id, salesPhaseName), financialCommunity($select=id, number, marketId; $expand=market($select=id, number)), lotHandingAssocs($expand=handing($select=id,name)), lotViewAdjacencyAssocs($expand=viewAdjacency), lotPhysicalLotTypeAssocs($expand=physicalLotType)`;
 		let filter = ``;
 
 		if (keywords)
 		{
-			let filters = [];
-			let filterName = 'lotBlock';
-
+			const filters = [];
 			const keywordArray = keywords.toLowerCase().split(' ');
 
-			keywordArray.map(keyword => {
-				filters.push(`indexof(tolower(${filterName}), '${keyword}') gt -1`);
+			keywordArray.map(keyword =>
+			{
+				filters.push(`indexof(tolower(lotBlock), '${keyword}') gt -1`);
 			});
 
-			const keysfilter = filters.join(' or ');
-
-			filter += `(${keysfilter}) and `;
+			filter += applyFilter(filters);
 		}
 
-		if (statusFilter && statusFilter.length)
+		if (statusFilter?.length)
 		{
-			let filters = [];
-			let filterName = 'lotStatusDescription';
+			const filters = [];
 
 			statusFilter.map(status =>
 			{
-				if (status === 'Spec Unavailable')
-				{
-					filters.push(`${filterName} eq 'Unavailable' and lotBuildTypeDesc eq 'Spec' and jobs/any(j: j/jobTypeName ne 'Model')`);
-				}
-				else if (status === 'Spec')
-				{
-					filters.push(`lotBuildTypeDesc eq '${status}' and jobs/any(j: j/jobTypeName ne 'Model')`);
-				}
-				else if (status === 'Model')
-				{
-					filters.push(`(lotBuildTypeDesc eq '${status}' or lotBuildTypeDesc eq 'Spec') and jobs/any(j: j/jobTypeName eq '${status}')`);
-				}
-				else if (status === 'Pending Release')
-				{
-					filters.push(`${filterName} eq 'PendingRelease'`);
-				}
-				else if (status === 'Pending Sale')
-				{
-					filters.push(`${filterName} eq 'PendingSale'`);
-				}
-				else
-				{
-					filters.push(`${filterName} eq '${status}'`);
-				}
+				// replace spaces to handle Pending Release and Pending Sale
+				filters.push(`lotStatusDescription eq '${status.replace(' ', '') }'`);
 			});
 
-			const keyStatusFilter = filters.join(' or ');
-
-			filter += `(${keyStatusFilter}) and `;
+			filter += applyFilter(filters);
 		}
 
-		if (handingFilter && handingFilter.length)
+		if (handingFilter?.length)
 		{
-			let filters = [];
+			const filters = [];
 
 			handingFilter.map(handing =>
 			{
 				filters.push(`lotHandingAssocs/any(h: h/handing/name eq '${handing}')`);
 			});
 
-			const keyHandingFilter = filters.join(' or ');
+			filter += applyFilter(filters);
+		}
 
-			filter += `(${keyHandingFilter}) and `;
+		if (buildTypeFilter?.length)
+		{
+			const filters = [];
+
+			buildTypeFilter.map(buildType =>
+			{
+				let addon = '';
+
+				if (buildType === 'Dirt')
+				{
+					addon += ` or lotBuildTypeDesc eq null`;
+				}
+				else if (buildType === 'Model')
+				{
+					addon += ` or (lotBuildTypeDesc eq 'Spec' and jobs/any(j: j/jobTypeName eq 'Model'))`;
+				}
+				else if(buildType === 'Spec')
+				{
+					addon += ` and jobs/any(j: j/jobTypeName ne 'Model')`;
+				}
+
+				filters.push(`(lotBuildTypeDesc eq '${buildType}'${addon})`);
+			});
+
+			filter += applyFilter(filters);
 		}
 
 		filter += `financialCommunity/id eq ${communityId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
+
 		const orderBy = 'lotBlock';
 
-		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}orderBy=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}orderBy=${encodeURIComponent(orderBy)}`;
 
 		url += `lots?${qryStr}`;
 
 		if (topRows)
 		{
-			url += `&${encodeURIComponent("$")}top=${topRows}`;
+			url += `&${encodeURIComponent('$')}top=${topRows}`;
 		}
 
 		if (skipRows)
 		{
-			url += `&${encodeURIComponent("$")}skip=${skipRows}`;
+			url += `&${encodeURIComponent('$')}skip=${skipRows}`;
 		}
 
 		return (skipRows ? this._http : withSpinner(this._http)).get(url).pipe(
 			combineLatest(this.getViewAdjacencies(), this.getPhysicalLotTypes()),
 			map(([response, viewAdjacencies, lotTypes]: [any, HomeSiteDtos.ILabel[], HomeSiteDtos.ILabel[]]) =>
 			{
-				let retVal = response.value.map(data =>
+				const retVal = response.value.map(data =>
 				{
-					let lotDto = this.mapLotDto(data, viewAdjacencies, lotTypes);
-					
+					const lotDto = this.mapLotDto(data, viewAdjacencies, lotTypes);
+
 					return lotDto;
 				});
 
@@ -154,7 +158,7 @@ export class HomeSiteService
 			filter += `id eq ${id}`;
 		});
 
-		const qryStr = `${encodeURIComponent("$")}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const qryStr = `${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
 		url += `lots?${qryStr}`;
 
@@ -162,7 +166,7 @@ export class HomeSiteService
 			combineLatest(this.getViewAdjacencies(), this.getPhysicalLotTypes()),
 			map(([response, viewAdjacencies, lotTypes]: [any, HomeSiteDtos.ILabel[], HomeSiteDtos.ILabel[]]) =>
 			{
-				let retVal = response.value.map(data =>
+				const retVal = response.value.map(data =>
 				{
 					return this.mapLotDto(data, viewAdjacencies, lotTypes);
 				});
@@ -174,7 +178,7 @@ export class HomeSiteService
 
 	mapLotDto(data: any, viewAdjacencies: HomeSiteDtos.ILabel[], lotTypes: HomeSiteDtos.ILabel[]): HomeSiteDtos.ILotDto
 	{
-		let address = {
+		const address = {
 			streetAddress1: data.streetAddress1,
 			streetAddress2: data.streetAddress2,
 			city: data.city,
@@ -182,7 +186,7 @@ export class HomeSiteService
 			postalCode: data.postalCode
 		} as HomeSiteDtos.IAddress;
 
-		let plans = data.planAssociations.filter(p => p.isActive).map(d =>
+		const plans = data.planAssociations.filter(p => p.isActive).map(d =>
 		{
 			return d.planCommunity.id;
 		});
@@ -226,7 +230,7 @@ export class HomeSiteService
 	 */
 	savePlanLotAssignments(planId: number, lotblocks: Array<number>): Observable<Response>
 	{
-		let body = {
+		const body = {
 			'planId': planId,
 			'lotIds': lotblocks
 		};
@@ -249,7 +253,7 @@ export class HomeSiteService
 	 */
 	saveHomesite(commLbId: number, homesiteDto: HomeSiteDtos.ILotDto, lotBuildTypeUpdated: boolean): Observable<HomeSiteDtos.ILotDto>
 	{
-		let dto = {
+		const dto = {
 			id: homesiteDto.id,
 			premium: homesiteDto.premium,
 			lotStatusDescription: homesiteDto.lotStatusDescription.replace(' ', ''),
@@ -304,7 +308,7 @@ export class HomeSiteService
 		let url = settings.apiUrl;
 		const filter = `DivChoiceCatalog/DivDPointCatalog/Org/EdhMarketId eq ${marketId}`;
 		const select = `lotChoiceRuleAssocId, edhLotId, planId, divChoiceCatalogId, mustHave`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 		url += `lotChoiceRuleAssocs?${qryStr}`;
 
 		return withSpinner(this._http).get(url).pipe(
@@ -360,14 +364,14 @@ export class HomeSiteService
 
 		const filter = `lotId eq ${lotId} and isActive eq true`;
 
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
 		url += `monotonyRules?${qryStr}`;
 
 		return this._http.get(url).pipe(
 			map((response: any) =>
 			{
-				let returnVal = response.value.map(data =>
+				const returnVal = response.value.map(data =>
 				{
 					return {
 						monotonyRuleId: data.monotonyRuleId,
@@ -384,8 +388,8 @@ export class HomeSiteService
 	saveMonotonyRules(monotonyRules: Array<MonotonyRule>, lotId: number): Observable<Response>
 	{
 		const body = {
-			"lotId": lotId,
-			"monotonyRules": monotonyRules
+			'lotId': lotId,
+			'monotonyRules': monotonyRules
 		};
 
 		const action = 'SaveMonotonyRules';
@@ -400,40 +404,40 @@ export class HomeSiteService
 		);
 	}
 
-	getViewAdjacencies() : Observable<Array<HomeSiteDtos.ILabel>>
+	getViewAdjacencies(): Observable<Array<HomeSiteDtos.ILabel>>
 	{
-		let url = settings.apiUrl + 'viewAdjacencies';
+		const url = settings.apiUrl + 'viewAdjacencies';
 
 		return this._http.get(url).pipe(
 			map((response: any) =>
 			{
 				return response.value.map(data =>
-					{
-						return {
-							id: data.id,
-							label: data.description,
-							value: data.id as string
-						} as HomeSiteDtos.ILabel;
-					});
-			}), catchError(this.handleError));		
+				{
+					return {
+						id: data.id,
+						label: data.description,
+						value: data.id as string
+					} as HomeSiteDtos.ILabel;
+				});
+			}), catchError(this.handleError));
 	}
 
-	getPhysicalLotTypes() : Observable<Array<HomeSiteDtos.ILabel>>
+	getPhysicalLotTypes(): Observable<Array<HomeSiteDtos.ILabel>>
 	{
-		let url = settings.apiUrl + 'physicalLotTypes';
+		const url = settings.apiUrl + 'physicalLotTypes';
 
 		return this._http.get(url).pipe(
 			map((response: any) =>
 			{
 				return response.value.map(data =>
-					{
-						return {
-							id: data.id,
-							label: data.description,
-							value: data.id as string
-						} as HomeSiteDtos.ILabel;
-					});
-			}), catchError(this.handleError));		
+				{
+					return {
+						id: data.id,
+						label: data.description,
+						value: data.id as string
+					} as HomeSiteDtos.ILabel;
+				});
+			}), catchError(this.handleError));
 	}
 
 	private handleError(error: Response)
@@ -446,18 +450,19 @@ export class HomeSiteService
 
 	loadCommunityLots(commId: number)
 	{
-			let url = settings.apiUrl;
-			let filter = `financialCommunity/id eq ${commId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
-			const select = `id, lotBlock`;
-			const orderBy = 'lotBlock';
+		let url = settings.apiUrl;
+		const filter = `financialCommunity/id eq ${commId} and lotStatusDescription ne 'Deleted' and isMasterUnit eq false`;
+		const select = `id, lotBlock`;
+		const orderBy = 'lotBlock';
 
-			const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}&${encodeURIComponent("$")}orderBy=${encodeURIComponent(orderBy)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}&${encodeURIComponent('$')}orderBy=${encodeURIComponent(orderBy)}`;
 
-			url += `lots?${qryStr}`;
+		url += `lots?${qryStr}`;
 
-			return this._http.get(url).subscribe( (response: any) => {
-					this._communityLots.next(response.value);
-				}), catchError(this.handleError);
-		
+		return this._http.get(url).subscribe((response: any) =>
+		{
+			this._communityLots.next(response.value);
+		}), catchError(this.handleError);
+
 	}
 }

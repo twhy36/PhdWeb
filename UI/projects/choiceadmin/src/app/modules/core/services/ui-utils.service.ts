@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../components/confirm-modal/confirm-modal.component';
+import { Constants } from 'phd-common';
 
 @Injectable()
 export class UiUtilsService
@@ -60,25 +61,28 @@ export class UiUtilsService
 		}
 	}
 
-	confirmCancellation(): Promise<boolean> {
+	confirmCancellation(): Promise<boolean>
+	{
 		let message = `If you continue you will lose your changes.`;
 		return this.showConfirmation(message);
 	}
 
-	showConfirmation(message: string): Promise<boolean> {
-		let msgBody = message + `<br><br>`;
-		msgBody += `Do you wish to continue?`;
+	showConfirmation(message: string): Promise<boolean>
+	{
+		let msgBody = message + `<br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
 
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
-		return confirm.result.then((result) => {
-			return result === 'Continue';
-		}, (reason) => {
-				return false;
+		return confirm.result.then((result) =>
+		{
+			return result === Constants.CONTINUE;
+		}, (reason) =>
+		{
+			return false;
 		});
 	}
 }

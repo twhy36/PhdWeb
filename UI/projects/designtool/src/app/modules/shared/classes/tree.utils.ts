@@ -1,13 +1,13 @@
 import * as _ from 'lodash';
-import * as moment from "moment";
+import * as moment from 'moment';
 
 import
-	{
-		LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
-		ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
-		JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, ConstructionStageTypes, OptionRule, 
-		Tree, Choice, DecisionPoint, MappedAttributeGroup, MappedLocationGroup, MyFavoritesChoice, getMaxSortOrderChoice
-	} from 'phd-common';
+{
+	LocationGroup, Location, AttributeGroup, Attribute, DesignToolAttribute, AttributeCommunityImageAssoc,
+	ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
+	JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, PlanOption, ConstructionStageTypes, OptionRule,
+	Tree, Choice, DecisionPoint, MyFavoritesChoice, getMaxSortOrderChoice
+} from 'phd-common';
 
 import { AttributeService } from '../../core/services/attribute.service';
 
@@ -24,13 +24,6 @@ export function isJobPlanOption(option: JobPlanOption | ChangeOrderPlanOption): 
 export function isChangeOrderChoice(choice: JobChoice | ChangeOrderChoice | MyFavoritesChoice): choice is ChangeOrderChoice
 {
 	return (<any>choice).action !== undefined;
-}
-
-function getOptions(choice: JobChoice | ChangeOrderChoice, options: (JobPlanOption | ChangeOrderPlanOption)[]): (JobPlanOption | ChangeOrderPlanOption)[]
-{
-	return isJobChoice(choice)
-		? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)?.map(a => options.find(o => isJobPlanOption(o) && o.id === a.jobPlanOptionId))
-		: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)?.map(a => options.find(o => !isJobPlanOption(o) && o.id === a.jobChangeOrderPlanOptionId));
 }
 
 function mapLocation(loc: JobChoiceLocation | ChangeOrderChoiceLocation): DesignToolAttribute
@@ -77,7 +70,7 @@ function mapLocationAttribute(attr: JobChoiceAttribute | ChangeOrderChoiceAttrib
 
 export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<DesignToolAttribute>
 {
-	let result: Array<DesignToolAttribute> = [];
+	const result: Array<DesignToolAttribute> = [];
 	let locations: Array<JobChoiceLocation | ChangeOrderChoiceLocation>;
 	let attributes: Array<JobChoiceAttribute | ChangeOrderChoiceAttribute>;
 
@@ -94,7 +87,7 @@ export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<Desi
 
 	locations && locations.forEach(loc =>
 	{
-		let locationAttributes = loc instanceof JobChoiceLocation ? loc.jobChoiceLocationAttributes : loc.jobChangeOrderChoiceLocationAttributes;
+		const locationAttributes = loc instanceof JobChoiceLocation ? loc.jobChoiceLocationAttributes : loc.jobChangeOrderChoiceLocationAttributes;
 
 		if (locationAttributes && locationAttributes.length)
 		{
@@ -117,16 +110,6 @@ export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<Desi
 	return result;
 }
 
-export function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrderChoice) => boolean
-{
-	return (choice: JobChoice | ChangeOrderChoice) => isJobChoice(choice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
-}
-
-function isOptionLocked(changeOrder: ChangeOrderGroup): (option: JobPlanOption | ChangeOrderPlanOption) => boolean
-{
-	return (option: JobPlanOption | ChangeOrderPlanOption) => isJobPlanOption(option) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
-}
-
 export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule
 {
 	return <OptionRule>{
@@ -141,27 +124,6 @@ export function getDefaultOptionRule(optionNumber: string, choice: Choice): Opti
 	};
 }
 
-function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, treeChoices: Choice[], options: Array<JobPlanOption | ChangeOrderPlanOption>, changeOrder?: ChangeOrderGroup)
-{
-	choices.filter(isLocked(changeOrder)).forEach(choice =>
-	{
-		let treeChoice = treeChoices.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
-
-		if (treeChoice)
-		{
-			treeChoice.lockedInChoice = getLockedInChoice(choice, options);
-			treeChoice.mappedAttributeGroups = (isJobChoice(choice)
-				? _.uniq(choice.jobChoiceAttributes.map(jca => jca.attributeGroupCommunityId))
-				: _.uniq(choice.jobChangeOrderChoiceAttributes.map(coca => coca.attributeGroupCommunityId))
-			).map(att => new MappedAttributeGroup({ id: att }));
-			treeChoice.mappedLocationGroups = (isJobChoice(choice)
-				? _.uniq(choice.jobChoiceLocations.map(jcl => jcl.locationGroupCommunityId))
-				: _.uniq(choice.jobChangeOrderChoiceLocations.map(cocl => cocl.locationGroupCommunityId))
-			).map(loc => new MappedLocationGroup({ id: loc }));
-		}
-	});
-}
-
 /**
  * Checks to see if the point has passed it's cut-off period by checking the job Start Date or Construction Stage with the points Cut-off days or Stage
  * @param tree
@@ -169,10 +131,10 @@ function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice>, tree
  */
 export function setTreePointsPastCutOff(tree: Tree, job: Job)
 {
-	let points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+	const points = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
-	let jobStageId = job && job.constructionStageName != null ? ConstructionStageTypes[job.constructionStageName] : null;
-	let jobStartDate = job ? job.startDate : null; // example: jobStartDate = 02/20/2019
+	const jobStageId = job && job.constructionStageName != null ? ConstructionStageTypes[job.constructionStageName] : null;
+	const jobStartDate = job ? job.startDate : null; // example: jobStartDate = 02/20/2019
 
 	points.forEach(point =>
 	{
@@ -219,8 +181,8 @@ export function checkSelectedAttributes(choices: Choice[])
 		else if (choice.selectedAttributes.length > 0)
 		{
 			let selectedAttributes = [];
-			let attributeGroups = choice.mappedAttributeGroups;
-			let locationGroups = choice.mappedLocationGroups;
+			const attributeGroups = choice.mappedAttributeGroups;
+			const locationGroups = choice.mappedLocationGroups;
 
 			if (attributeGroups && attributeGroups.length > 0 || locationGroups && locationGroups.length > 0)
 			{
@@ -237,18 +199,18 @@ function getSelectedAttributes(locationGroups: number[], attributeGroups: number
 {
 	return selectedAttributes.map(sa =>
 	{
-		let hasAttribute = attributeGroups.length > 0 && attributeGroups.findIndex(x => x === sa.attributeGroupId) > -1;
-		let hasLocation = locationGroups.length > 0 && locationGroups.findIndex(x => x === sa.locationGroupId) > -1
+		const hasAttribute = attributeGroups.length > 0 && attributeGroups.findIndex(x => x === sa.attributeGroupId) > -1;
+		const hasLocation = locationGroups.length > 0 && locationGroups.findIndex(x => x === sa.locationGroupId) > -1
 
 		return hasAttribute || hasLocation ? sa : null;
 	});
 }
 
 export function mergeAttributes(
-		attributes: Array<any>, 
-		missingAttributes: Array<DesignToolAttribute>, 
-		attributeGroups: Array<AttributeGroup>,
-		selectedAttributes: DesignToolAttribute[])
+	attributes: Array<any>,
+	missingAttributes: Array<DesignToolAttribute>,
+	attributeGroups: Array<AttributeGroup>,
+	selectedAttributes: DesignToolAttribute[])
 {
 	const lastGroup = attributeGroups.length ? _.maxBy(attributeGroups, 'sortOrder') : null;
 	let sortOrder = lastGroup ? lastGroup.sortOrder + 1 : 0;
@@ -260,7 +222,7 @@ export function mergeAttributes(
 		if (choiceAttribute)
 		{
 			const newAttribute = att as Attribute;
-			let choiceAttributeGroup = attributeGroups.find(x => x.id === choiceAttribute.attributeGroupId);
+			const choiceAttributeGroup = attributeGroups.find(x => x.id === choiceAttribute.attributeGroupId);
 
 			if (choiceAttributeGroup)
 			{
@@ -275,12 +237,14 @@ export function mergeAttributes(
 			else if (att.attributeGroups)
 			{
 				// add the missing attribute and the attribute group
-				let newAttributeGroup = att.attributeGroups.find(x => x.id === choiceAttribute.attributeGroupId);
+				const newAttributeGroup = att.attributeGroups.find(x => x.id === choiceAttribute.attributeGroupId);
 
 				if (newAttributeGroup)
 				{
 					newAttributeGroup.sortOrder = sortOrder++;
+
 					newAttributeGroup.attributes.push(newAttribute);
+
 					attributeGroups.push(newAttributeGroup);
 				}
 			}
@@ -289,14 +253,19 @@ export function mergeAttributes(
 
 	// Check if any selected attributes are missing in the attribute groups	
 	const allAttributes = _.flatMap(attributeGroups, gp => _.flatMap(gp.attributes)) || [];
-	selectedAttributes.forEach(attr => {
+
+	selectedAttributes.forEach(attr =>
+	{
 		const selectedAttributeGroup = attributeGroups.find(group => group.id === attr.attributeGroupId);
+
 		if (selectedAttributeGroup)
 		{
 			const selectedAttribute = selectedAttributeGroup.attributes?.find(attribute => attribute.id === attr.attributeId);
+
 			if (!selectedAttribute)
 			{
 				const missingSelectedAttribute = allAttributes.find(attribute => attribute.id === attr.attributeId);
+
 				if (missingSelectedAttribute)
 				{
 					// add the missing attribute
@@ -305,7 +274,7 @@ export function mergeAttributes(
 						selectedAttributeGroup.attributes = [];
 					}
 
-					selectedAttributeGroup.attributes.push(missingSelectedAttribute);						
+					selectedAttributeGroup.attributes.push(missingSelectedAttribute);
 				}
 			}
 		}
@@ -341,7 +310,7 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 		if (choiceAttribute)
 		{
 			const newLocation = loc as Location;
-			let choiceLocationGroup = locationGroups.find(x => x.id === choiceAttribute.locationGroupId);
+			const choiceLocationGroup = locationGroups.find(x => x.id === choiceAttribute.locationGroupId);
 
 			if (choiceLocationGroup)
 			{
@@ -356,7 +325,7 @@ export function mergeLocations(locations: Array<any>, missingLocations: Array<De
 			else if (loc.locationGroups)
 			{
 				// add the missing location and the location group
-				let newLocationGroup = loc.locationGroups.find(x => x.id === choiceAttribute.locationGroupId);
+				const newLocationGroup = loc.locationGroups.find(x => x.id === choiceAttribute.locationGroupId);
 
 				if (newLocationGroup)
 				{
@@ -404,25 +373,29 @@ export function getJobOptionType(option: PlanOption, elevationDP: DecisionPoint,
 			}
 		}
 	}
-	
+
 	return optionType;
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: { 
-		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
-	}
+	:
+		{
+			choice: (JobChoice | ChangeOrderChoice),
+			optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
+		}
 {
-	return { choice, 
+	return {
+		choice,
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
+
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
 						};
@@ -433,20 +406,119 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					}
 				})
 			: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
+
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
-						};	
+						};
 					}
 					else
 					{
 						return null;
 					}
 				})
-			};
+	};
+}
+
+/**
+ * Check Elevation and Color Scheme for more than one option and create message to alert user of the issue
+ * @param tree
+ * @param optionRules
+ * @param elevationDP
+ * @param colorSchemeDP
+ * @returns
+ */
+export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: OptionRule[], elevationChoice: Choice, colorSchemeChoice: Choice): string
+{
+	// find all rules with replace options
+	const filteredOptionRules = optionRules?.filter(opt => opt.replaceOptions.length > 0);
+
+	// get all selected choices
+	const selectedChoices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)))?.filter(c => c.quantity > 0);
+
+	const replaceOption = (choiceId: number) =>
+	{
+		const optionList = [];
+		const getMaxSortOrderChoiceId = (optionRule: OptionRule) => !!optionRule ? getMaxSortOrderChoice(tree, optionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id)) : null;
+
+		filteredOptionRules.forEach(optionRule =>
+		{
+			// find the rules main choice
+			const parentChoiceId = getMaxSortOrderChoiceId(optionRule);
+
+			// make sure the choice has been selected before checking replace rules
+			if (!!selectedChoices.find(c => c.id === parentChoiceId))
+			{
+				const replacedOptionId = optionRule.replaceOptions.find(replaceOptionId =>
+				{
+					// find the rule the option getting replaced lives on
+					const replaceOptionRule = optionRules.find(r => r.optionId === replaceOptionId);
+					// find the replaced choice
+					const replacedChoiceId = getMaxSortOrderChoiceId(replaceOptionRule);
+					// see if we have a match
+					const hasReplacedOption = choiceId === replacedChoiceId;
+
+					return hasReplacedOption ? replaceOptionId : null;
+					
+				});
+
+				if (!!replacedOptionId)
+				{
+					optionList.push(replacedOptionId);
+				}
+			}
+		});
+
+		return optionList;
+	};
+
+	const getChoiceInfo = (label: string, choice: Choice, addBreak: boolean = false) =>
+	{
+		let msg = '';
+
+		// find any replace options that are missing from the choice
+		const replacedOptions = replaceOption(choice?.id);
+		// combine results
+		const optionCount = (choice?.options?.length || 0) + (replacedOptions?.length || 0);
+
+		const optionMessage = (integrationKey: string) => `<span class="phd-elevation-color-option">${integrationKey}</span></br>`;
+
+		// if more than one then we have an issue and need to alert the user
+		if (optionCount > 1)
+		{
+			// add break between choices if multiple
+			msg += addBreak ? '</br>' : '';
+
+			msg += `<b>${label} - ${choice.label}</b></br>`;
+
+			// list the options associated with each choice
+			choice.options.forEach(option => msg += optionMessage(option.financialOptionIntegrationKey));
+
+			// list the replaced options
+			replacedOptions.forEach(option => msg += optionMessage(option));
+		}
+
+		return msg;
+	};
+
+	let message: string;
+	let selectedChoiceLabels = getChoiceInfo('Elevation', elevationChoice);
+
+	selectedChoiceLabels += getChoiceInfo('Color Scheme', colorSchemeChoice, selectedChoiceLabels?.length > 0);
+
+	if (selectedChoiceLabels?.length > 0)
+	{
+		message = `Two or more options are mapped to your <b>Elevation</b> or <b>Color Scheme</b> choice.</br>`;
+		message += `Only <b>one</b> option is allowed at the Elevation and Color Scheme decision points.`;
+		message += `</br></br>${selectedChoiceLabels} </br>`;
+		message += `Please contact your Procurement team.`;
+	}
+
+	return message;
 }

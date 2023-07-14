@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { UnsubscribeOnDestroy, ModalRef, ModalService, ConfirmModalComponent, Elevations } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalRef, ModalService, ConfirmModalComponent, Elevations, Constants } from 'phd-common';
 import { IPlanCommunity, IOptionCommunity, IPlanOptionCommunityDto, IPlanOptionCommunity, IPlanOptionCommunityGridDto } from '../../../shared/models/community.model';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PlanOptionService } from '../../../core/services/plan-option.service';
-import { from, Observable, EMPTY } from 'rxjs';
+import { from, Observable, EMPTY, of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ColorService } from '../../../core/services/color.service';
 import { SettingsService } from '../../../core/services/settings.service';
@@ -384,11 +384,11 @@ export class ColorItemsSearchHeaderComponent
 
 					}
 					const expectedListLength = this.pageNumber * this.settings.infiniteScrollPageSize;
-					if (this.planOptionDtosList.length + planOptionGridList.length <= expectedListLength) 
+					if (this.planOptionDtosList.length + planOptionGridList.length <= expectedListLength || !isAllOption && this.planOptionDtosList.length === 0) 
 					{
 						this.planOptionDtosList = [...this.planOptionDtosList, ...planOptionGridList];
 					}
-					
+
 					if (this.planOptionDtosList.length < expectedListLength && !this.allDataLoaded && isAllOption && this.optionListIndex < (this.planOptionList.length - 1))
 					{
 						this.loadColorItemsGrid();
@@ -418,7 +418,12 @@ export class ColorItemsSearchHeaderComponent
 	getSalesagreementOrConfig(gridlist: IPlanOptionCommunityGridDto[])
 	{
 		gridlist.map(x => x.loadingDeleteIcon = true);
-		this._colorService.getSalesAgreementForGrid(gridlist, this.currentFinancialCommunityId).subscribe((result) =>
+
+		const getSalesAgreementForGrid = gridlist.length > 0
+			? this._colorService.getSalesAgreementForGrid(gridlist, this.currentFinancialCommunityId)
+			: of([]);
+
+		getSalesAgreementForGrid.subscribe((result) =>
 		{
 			result.map((item: IPlanOptionCommunityGridDto) =>
 			{
@@ -443,7 +448,8 @@ export class ColorItemsSearchHeaderComponent
 	}
 	onPanelScroll()
 	{
-		if (!this.allDataLoaded) {
+		if (!this.allDataLoaded)
+		{
 			this.pageNumber++;
 			this.loadColorItemsGrid();
 		}
@@ -469,7 +475,7 @@ export class ColorItemsSearchHeaderComponent
 	deleteSelectedColorItem(coloritemsDtoList: IColorItemDto[])
 	{
 		const message = 'Are you sure you want to delete this color item?';
-		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+		this.showConfirmModal(message, Constants.WARNING, Constants.CONTINUE).pipe(
 			switchMap(cancelDeletion =>
 			{
 				if (cancelDeletion)
@@ -557,7 +563,7 @@ export class ColorItemsSearchHeaderComponent
 		confirm.componentInstance.body = body;
 		confirm.componentInstance.defaultOption = defaultButton;
 
-		return from(confirm.result.then((result) => result !== 'Continue'));
+		return from(confirm.result.then((result) => result !== Constants.CONTINUE));
 	}
 
 	checkColorItemName(coloritemname: string, optionCommnunityId: number): Observable<IColorItemDto[]>
@@ -620,7 +626,7 @@ export class ColorItemsSearchHeaderComponent
 			if (planOptions.filter(x => x.colorItem[0].isActive)?.length > 0)
 			{
 				const message = 'There is already an active color item for this elevation option';
-				this._modalService.showOkOnlyModal(message, 'Warning', true);
+				this._modalService.showOkOnlyModal(message, Constants.WARNING, true);
 			}
 			else
 			{
@@ -699,7 +705,7 @@ export class ColorItemsSearchHeaderComponent
 		let cancelled = false;
 		let toast: IToastInfo;
 
-		this.showConfirmModal(message, 'Warning', 'Continue').pipe(
+		this.showConfirmModal(message, Constants.WARNING, Constants.CONTINUE).pipe(
 			switchMap(cancel =>
 			{
 				if (cancel)
@@ -775,7 +781,7 @@ export class ColorItemsSearchHeaderComponent
 
 	private showToast(successful: boolean, mode: CrudMode)
 	{
-		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : 'Save';
+		const messagePrefix = mode === CrudMode.Delete ? 'Delete' : Constants.SAVE;
 
 		const toast = {
 			severity: successful ? 'success' : 'error',

@@ -694,7 +694,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					const replaceRules = rules.optionRules.filter(o => o.replaceOptions.includes(financialOptionIntegrationKey));
 
 					// Find any choices with locked in options that still replace this option
-					const existingChoices = choices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
+					const existingChoices = treeChoices.filter(ch => ch.id !== choice.id && _.flatMap(ch.lockedInOptions, lio => lio.replaceOptions).includes(financialOptionIntegrationKey));
 
 					// If no rules currently replace this option, and no locked in options replace this option, then this choice has a removed option
 					return !replaceRules.length && !existingChoices.length;
@@ -756,7 +756,7 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 		}
 
 		//find choices that are locked in, with option mappings changed
-		if (choice.options && choice.lockedInChoice && (choice.lockedInOptions && choice.lockedInOptions.length && choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
+		if (choice.options && choice.lockedInChoice && choice.lockedInOptions && (choice.lockedInOptions.some(o => !choice.options.some(co => o && co.financialOptionIntegrationKey === o.optionId))
 			|| choice.options.some(co => !choice.lockedInOptions.some(o => o.optionId === co.financialOptionIntegrationKey))))
 		{
 			choice.options = choice.lockedInOptions.map(o => options.find(po => o && po.financialOptionIntegrationKey === o.optionId)).filter(o => !!o);
@@ -808,8 +808,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 			if (optionRules.some(or => or.replaceOptions.some(replaceOption =>
 			{
 				const origOptionRule = rules.optionRules.find(or2 => or2.optionId === replaceOption);
-				const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
-				return pointChoices.some(pc => pc === origChoice);
+				if (origOptionRule)
+				{
+					const origChoice = getMaxSortOrderChoice(tree, origOptionRule.choices.filter(ch => ch.mustHave).map(ch => ch.id));
+					return pointChoices.some(pc => pc === origChoice);
+				}
+
+				return false;
 			})))
 			{
 				choice.disabledByBadSetup = true;
@@ -853,7 +858,15 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 			choice.disabledByReplaceRules = _.flatten(unsatisfiedReplaceRules.map(rr => rr.replaceOptions))
 				.map(rr => rules.optionRules.find(or => or.optionId === rr))
-				.map(or => getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave && !find(ch.id).quantity).map(ch => ch.id)))
+				.map(or =>
+				{
+					if (or)
+					{
+						return getMaxSortOrderChoice(tree, or.choices.filter(ch => ch.mustHave && !find(ch.id).quantity).map(ch => ch.id));
+					}
+
+					return null;
+				})
 				.filter(ch => !!ch);
 
 			if (!choice.lockedInChoice && (choice.disabledByReplaceRules?.length || choice.disabledByBadSetup))

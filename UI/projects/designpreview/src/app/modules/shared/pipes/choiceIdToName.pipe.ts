@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 
 @Pipe({
 	name: 'choiceIdToName'
-})
+	})
 export class ChoiceIdToNamePipe implements PipeTransform
 {
 	constructor(private store: Store<fromRoot.State>) { }

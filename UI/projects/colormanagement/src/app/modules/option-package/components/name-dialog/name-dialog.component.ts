@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, TemplateRef, ViewChild } from '@angular/core';
 import { UntypedFormControl, Validators, UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import _ from 'lodash';
-import { ConfirmModalComponent, ModalRef, ModalService } from 'phd-common';
+import { ConfirmModalComponent, Constants, ModalRef, ModalService } from 'phd-common';
 import { from, Observable, throwError } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { OptionPackageService } from '../../../core/services/option-packages.service';
@@ -104,18 +104,18 @@ export class NameDialogComponent
 				: save$
 			)
 		)
-		.subscribe({
-			next: () =>
-			{
-				this.change.emit(this.optionPackage);
+			.subscribe({
+				next: () =>
+				{
+					this.change.emit(this.optionPackage);
 
-				this.modalRef.close();
-			},
-			error: (error) =>
-			{
-				this.name.setErrors(typeof error === 'string' ? { servererror: true } : error);
-			}
-		});
+					this.modalRef.close();
+				},
+				error: (error) =>
+				{
+					this.name.setErrors(typeof error === 'string' ? { servererror: true } : error);
+				}
+			});
 	}
 
 	cancel() 
@@ -139,11 +139,11 @@ export class NameDialogComponent
 		const confirm = this.modalService.open(ConfirmModalComponent, { centered: true, windowClass: "phd-modal-window" });
 
 		confirm.componentInstance.body = body;
-		confirm.componentInstance.title = 'Warning';
-		confirm.componentInstance.defaultOption = 'Continue';
+		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 		return from(confirm.result).pipe(
-			map(res => res === 'Continue')
+			map(res => res === Constants.CONTINUE)
 		);
 	}
 }

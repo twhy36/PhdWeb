@@ -14,6 +14,7 @@ import { PhdApiDto } from '../../../../shared/models/api-dtos.model';
 import { unionBy, cloneDeep, orderBy, maxBy } from "lodash";
 import { MessageService } from 'primeng/api';
 import { UiUtilsService } from '../../../../core/services/ui-utils.service';
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'associate-attribute-groups',
@@ -52,13 +53,13 @@ export class AssociateAttributeGroupComponent implements OnInit
 	}
 
 	addAssocButtons: Array<ActionButton> = [
-		{ text: 'Associate', class: 'btn btn-primary', action: this.saveAssociation.bind(this), disabled: true },
-		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelAssociation.bind(this), disabled: false }
+		{ text: Constants.ASSOCIATE, class: 'btn btn-primary', action: this.saveAssociation.bind(this), disabled: true },
+		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelAssociation.bind(this), disabled: false }
 	];
 
 	removeAssocButtons: Array<ActionButton> = [
-		{ text: 'Remove', class: 'btn btn-primary', action: this.removeAssociation.bind(this), disabled: true },
-		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelRemoveAssociation.bind(this), disabled: false }
+		{ text: Constants.REMOVE, class: 'btn btn-primary', action: this.removeAssociation.bind(this), disabled: true },
+		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelRemoveAssociation.bind(this), disabled: false }
 	];
 
 	constructor(private cd: ChangeDetectorRef, private _uiUtilsService: UiUtilsService, private _msgService: MessageService, private _attrService: AttributeService) { }
@@ -123,18 +124,18 @@ export class AssociateAttributeGroupComponent implements OnInit
 				this.isLoading.next(false);
 			}
 		},
-		error =>
-		{
-			this._msgService.add({
-				id: 'toast-attributes-choice',
-				key: 'toast-attributes-choice',
-				severity: 'danger',
-				summary: 'Error',
-				detail: `Unable to load associated attribute group(s).`
-			});
+			error =>
+			{
+				this._msgService.add({
+					id: 'toast-attributes-choice',
+					key: 'toast-attributes-choice',
+					severity: 'danger',
+					summary: 'Error',
+					detail: `Unable to load associated attribute group(s).`
+				});
 
-			this.isLoading.next(false);
-		});
+				this.isLoading.next(false);
+			});
 	}
 
 	getAssociatedGroups()
@@ -151,18 +152,18 @@ export class AssociateAttributeGroupComponent implements OnInit
 				this.isLoading.next(false);
 			}
 		},
-		error =>
-		{
-			this._msgService.add({
-				id: 'toast-attributes-choice',
-				key: 'toast-attributes-choice',
-				severity: 'danger',
-				summary: 'Error',
-				detail: `Unable to load associated attribute group(s).`
-			});
+			error =>
+			{
+				this._msgService.add({
+					id: 'toast-attributes-choice',
+					key: 'toast-attributes-choice',
+					severity: 'danger',
+					summary: 'Error',
+					detail: `Unable to load associated attribute group(s).`
+				});
 
-			this.isLoading.next(false);
-		});
+				this.isLoading.next(false);
+			});
 	}
 
 	saveAssociation()
@@ -201,17 +202,17 @@ export class AssociateAttributeGroupComponent implements OnInit
 
 				this.isLoading.next(false);
 			},
-			error =>
-			{
-				this._msgService.add({
-					id: 'toast-attributes-choice',
-					key: 'toast-attributes-choice',
-					severity: 'danger',
-					summary: 'Error',
-					detail: `Failed to associate attribute group(s).`
+				error =>
+				{
+					this._msgService.add({
+						id: 'toast-attributes-choice',
+						key: 'toast-attributes-choice',
+						severity: 'danger',
+						summary: 'Error',
+						detail: `Failed to associate attribute group(s).`
+					});
+					this.isLoading.next(false);
 				});
-				this.isLoading.next(false);
-			});
 	}
 
 	async cancelAssociation()
@@ -277,18 +278,18 @@ export class AssociateAttributeGroupComponent implements OnInit
 
 						this.isLoading.next(false);
 					},
-					error =>
-					{
-						this._msgService.add({
-							id: 'toast-attributes-choice',
-							key: 'toast-attributes-choice',
-							severity: 'danger',
-							summary: 'Error',
-							detail: `Failed to remove attribute group(s).`
-						});
+						error =>
+						{
+							this._msgService.add({
+								id: 'toast-attributes-choice',
+								key: 'toast-attributes-choice',
+								severity: 'danger',
+								summary: 'Error',
+								detail: `Failed to remove attribute group(s).`
+							});
 
-						this.isLoading.next(false);
-					});
+							this.isLoading.next(false);
+						});
 			}
 		}
 	}
@@ -319,30 +320,36 @@ export class AssociateAttributeGroupComponent implements OnInit
 			this._msgService.add({
 				id: 'toast-attributes-choice',
 				key: 'toast-attributes-choice',
-				severity: 'danger',
+				severity: 'error',
 				summary: 'Error',
 				detail: message
 			});
 		}
 	}
 
-	onChangeAssociatedGroupOrder(event: any) {
-		if (event.dragIndex !== event.dropIndex) {
+	onChangeAssociatedGroupOrder(event: any)
+	{
+		if (event.dragIndex !== event.dropIndex)
+		{
 			this.currentAssociatedGroups = orderBy(this.currentAssociatedGroups, ['sortOrder', 'groupName']);
 
 			let index = 0;
-			this.currentAssociatedGroups = this.currentAssociatedGroups.map<AttributeGroupCommunity>(g => {
+			this.currentAssociatedGroups = this.currentAssociatedGroups.map<AttributeGroupCommunity>(g =>
+			{
 				let newGroup = cloneDeep(g);
 
-				if (index === event.dragIndex) {
+				if (index === event.dragIndex)
+				{
 					newGroup.sortOrder = this.currentAssociatedGroups[event.dropIndex].sortOrder;
 				}
 
-				if (event.dragIndex > event.dropIndex && index >= event.dropIndex && index < event.dragIndex) {
+				if (event.dragIndex > event.dropIndex && index >= event.dropIndex && index < event.dragIndex)
+				{
 					newGroup.sortOrder = g.sortOrder + 1;
 				}
 
-				if (event.dragIndex < event.dropIndex && index > event.dragIndex && index <= event.dropIndex) {
+				if (event.dragIndex < event.dropIndex && index > event.dragIndex && index <= event.dropIndex)
+				{
 					newGroup.sortOrder = g.sortOrder - 1;
 				}
 
@@ -355,8 +362,10 @@ export class AssociateAttributeGroupComponent implements OnInit
 		}
 	}
 
-	updateChoiceGroupAssocs() {
-		let groupOrders = this.currentAssociatedGroups.map(g => {
+	updateChoiceGroupAssocs()
+	{
+		let groupOrders = this.currentAssociatedGroups.map(g =>
+		{
 			return {
 				attributeGroupId: g.id,
 				sortOrder: g.sortOrder

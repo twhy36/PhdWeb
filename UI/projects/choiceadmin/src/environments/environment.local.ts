@@ -22,7 +22,7 @@ export const environment: IEnvironment = {
 	authQueryParams: 'domain_hint=pulte.com',
 	pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
 	appInsights: {
-		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
+		connectionString: 'InstrumentationKey=08875504-9c0f-45a6-8cc5-8a819e51aff0;IngestionEndpoint=https://eastus-6.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
@@ -35,7 +35,7 @@ export const environment: IEnvironment = {
 		pulte: 'http://localhost:14769/',
 		delWebb: 'http://localhost:14769/',
 		americanWest: 'http://localhost:14769/',
-		diVosta: 'http://localhost:14769/',	
+		diVosta: 'http://localhost:14769/',
 		centex: 'http://localhost:14769/',
 		johnWieland: 'http://localhost:14769/',
 	},

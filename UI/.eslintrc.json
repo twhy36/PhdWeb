@@ -20,9 +20,10 @@
 			"rules": {
 				"brace-style": ["error", "allman", { "allowSingleLine": true }],
 				"camelcase": ["error", { "properties": "always" }],
-				"indent": ["error", "tab"],
+				"indent": ["error", "tab", { "SwitchCase": 1 }],
 				"prefer-const": "error",
-				"quotes": ["error", "single"],
+				"quotes": ["error", "single", { "allowTemplateLiterals": true }],
+				"curly": "error",
 				"@angular-eslint/component-selector": [
 					"error",
 					{

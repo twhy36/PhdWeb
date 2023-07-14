@@ -17,26 +17,26 @@ import { CommonEffects } from './effects';
 
 @NgModule({
 	imports: [
-		NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer] }),
-		environment.production ? [] : StoreDevtoolsModule.instrument({
-			name: 'PHD Design Preview Store DevTools',
-			logOnly: false
+	NgrxStoreModule.forRoot(reducers, { metaReducers: [sessionStateReducer] }),
+	environment.production ? [] : StoreDevtoolsModule.instrument({
+		name: 'PHD Design Preview Store DevTools',
+		logOnly: false
 		}),
 
-		EffectsModule.forRoot([
-			FavoriteEffects,
-			PlanEffects,
-			ScenarioEffects,
-			CommonEffects
+	EffectsModule.forRoot([
+		FavoriteEffects,
+		PlanEffects,
+		ScenarioEffects,
+		CommonEffects
 		])
 	],
 	providers: [
-		{
-			provide: META_REDUCERS,
-			deps: [Injector],
-			useFactory: stopwatchReducerFactory,
-			multi: true
-		}
+	{
+	provide: META_REDUCERS,
+	deps: [Injector],
+	useFactory: stopwatchReducerFactory,
+	multi: true
+	}
 	]
-})
+	})
 export class StoreModule { }

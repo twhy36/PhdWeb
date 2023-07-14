@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, TemplateRef, ElementRef, Renderer2 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { Observable, of } from 'rxjs';
-import { map, combineLatest, filter, switchMap, distinctUntilChanged, take, withLatestFrom } from 'rxjs/operators';
+import { Observable, of, combineLatest } from 'rxjs';
+import { map, filter, switchMap, distinctUntilChanged, take, withLatestFrom } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
@@ -16,9 +16,10 @@ import * as ContractActions from '../../../ngrx-store/contract/actions';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 
-import {
+import
+{
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
-	PriceBreakdown, PDFViewerComponent, ModalService
+	PriceBreakdown, PDFViewerComponent, ModalService, Constants
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -95,9 +96,14 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		super();
 	}
 
+	get mainTitle(): string
+	{
+		return this.salesAgreement?.status === Constants.AGREEMENT_STATUS_PENDING ? `Build It` : `Agreement Information`;
+	}
+
 	get subTitle(): string
 	{
-		return this.isChangingOrder ? '' : `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.`;
+		return this.salesAgreement?.status === Constants.AGREEMENT_STATUS_PENDING ? `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.` : '';
 	}
 
 	public onToggleCollapse(event): void
@@ -202,7 +208,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				let isSalesInfoComplete = true;
 
-				if (sa.status == 'Pending')
+				if (sa.status == Constants.AGREEMENT_STATUS_PENDING)
 				{
 					isSalesInfoComplete = this.isComplete(sa.notes, sa.isNoteNa) && this.isComplete(sa.programs, sa.isProgramNa) && this.isComplete(sa.contingencies, sa.isContingenciesNa) && this.isComplete(sa.lenderType) && this.isComplete(sa.propertyType) && this.isComplete(sa.deposits);
 				}
@@ -220,21 +226,25 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.isPeopleComplete$ = this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.salesAgreement),
-			combineLatest(this.store.select(fromRoot.isActivePrimaryBuyerComplete), this.store.select(fromRoot.activeCoBuyers)),
-			map(([sa, buyerComplete, coBuyers]) =>
-			{
-				let isPeopleComplete = true;
-
-				if (sa.status === 'Pending')
+		this.isPeopleComplete$ = combineLatest([
+			this.store.pipe(select(state => state.salesAgreement)),
+			this.store.select(fromRoot.isActivePrimaryBuyerComplete),
+			this.store.select(fromRoot.activeCoBuyers)
+		])
+			.pipe(
+				this.takeUntilDestroyed(),
+				map(([sa, buyerComplete, coBuyers]) =>
 				{
-					isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
-				}
+					let isPeopleComplete = true;
 
-				return isPeopleComplete;
-			}));
+					if (sa.status === Constants.AGREEMENT_STATUS_PENDING)
+					{
+						isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
+					}
+
+					return isPeopleComplete;
+				})
+			);
 
 		this.isAgreementInfoViewed$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -243,7 +253,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				let isInfoViewed = true;
 
-				if (sa.status == 'Pending')
+				if (sa.status == Constants.AGREEMENT_STATUS_PENDING)
 				{
 					isInfoViewed = sa.isAgreementInfoViewed;
 				}
@@ -252,30 +262,34 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			})
 		);
 
-		this.salesAgreementActionBarStatus$ = this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.contract),
-			combineLatest(this.isSalesInfoComplete$, this.isPeopleComplete$, this.isAgreementInfoViewed$, this.isElevationColorSchemeComplete$),
-			map(([contract, isSalesInfoComplete, isPeopleComplete, isAgreementInfoViewed, isElevationColorSchemeComplete]) =>
-			{
-				let status: ActionBarStatusType = 'INCOMPLETE';
-				const selectedTemplates = contract.selectedTemplates;
-
-				if ((selectedTemplates && selectedTemplates.length) && contract.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && isPeopleComplete && isSalesInfoComplete && isAgreementInfoViewed && isElevationColorSchemeComplete)
+		this.salesAgreementActionBarStatus$ = combineLatest([
+			this.store.pipe(select(state => state.contract)),
+			this.isSalesInfoComplete$,
+			this.isPeopleComplete$,
+			this.isAgreementInfoViewed$,
+			this.isElevationColorSchemeComplete$])
+			.pipe(
+				this.takeUntilDestroyed(),
+				map(([contract, isSalesInfoComplete, isPeopleComplete, isAgreementInfoViewed, isElevationColorSchemeComplete]) =>
 				{
-					status = 'COMPLETE';
-				}
+					let status: ActionBarStatusType = 'INCOMPLETE';
+					const selectedTemplates = contract.selectedTemplates;
 
-				return status;
-			})
-		);
+					if ((selectedTemplates && selectedTemplates.length) && contract.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && isPeopleComplete && isSalesInfoComplete && isAgreementInfoViewed && isElevationColorSchemeComplete)
+					{
+						status = 'COMPLETE';
+					}
+
+					return status;
+				})
+			);
 
 		this.salesChangeOrderActionBarStatus$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder),
 			map(changeOrder =>
 			{
-				return changeOrder.changeInput && changeOrder.changeInput.isDirty ? "COMPLETE" : "INCOMPLETE";
+				return changeOrder.changeInput && changeOrder.changeInput.isDirty ? 'COMPLETE' : 'INCOMPLETE';
 			})
 		);
 
@@ -353,7 +367,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 				break;
 			case (ActionBarCallType.PREVIEW_AGREEMENT):
-				this.showPDFViewerFooter = this.salesAgreement.status !== 'Pending';
+				this.showPDFViewerFooter = this.salesAgreement.status !== Constants.AGREEMENT_STATUS_PENDING;
 
 				this.isAddenda = this.showPDFViewerFooter;
 
@@ -407,7 +421,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme, planPrice);
 
-				return of({currentSnapshot, isPhdLite: store.lite.isPhdLite});
+				return of({ currentSnapshot, isPhdLite: store.lite.isPhdLite });
 			}),
 			switchMap((result: any) =>
 			{
@@ -425,7 +439,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			this.toastr.error(`There was an issue generating the PDF.`, 'Error - Print');
 		});
-    }
+	}
 
 	closeModal()
 	{
@@ -436,16 +450,17 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	envelopeSent(sent: boolean)
 	{
 		this.setOutForSignature(false, !sent);
+
 		if (sent)
 		{
-			this.closeModal();			
+			this.closeModal();
 		}
 	}
 
 	envelopeCancelled(envelopeId: string)
 	{
-		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement 
-			&& this.salesAgreement.status === 'OutforSignature'
+		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement
+			&& this.salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE
 			&& this.cogEnvelopeId === envelopeId)
 		{
 			// dispatch action to:
@@ -488,7 +503,9 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	cancel()
 	{
 		this.isAddenda = false;
+
 		this.pdfViewer.dismiss();
+
 		this.showPDFViewerFooter = true;
 		this.showPricingLockText = true;
 	}
@@ -545,7 +562,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const confirmMessage: string = 'Design Tool will now approve this Home Purchase Agreement.  Do you wish to  continue?';
 		const confirmTitle: string = 'Approve Home Purchase Agreement';
-		const confirmDefaultOption: string = 'Cancel';
+		const confirmDefaultOption: string = Constants.CANCEL;
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -555,7 +572,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	private setOutForSignature(isWetSign = false, isEdit = false)
 	{
-		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === 'Pending')
+		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING)
 		{
 			// dispatch action to:
 			// - set Agreement Status to Out for Signature
@@ -580,7 +597,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const confirmMessage: string = 'You have opted to cancel this Home Purchase Agreement. Confirming to do so will result in the loss of this agreement and corresponding home configuration, and the Homesite will become available for others to select.<br><br>Do you wish to proceed with the cancellation?';
 		const confirmTitle: string = 'Cancel Agreement';
-		const confirmDefaultOption: string = 'Cancel';
+		const confirmDefaultOption: string = Constants.CANCEL;
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };
 
@@ -596,7 +613,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const confirmMessage: string = 'You have opted to terminate this Home Purchase Agreement. <br><br>Do you wish to proceed with the termination?';
 		const confirmTitle: string = 'Termination Agreement';
-		const confirmDefaultOption: string = 'Cancel';
+		const confirmDefaultOption: string = Constants.CANCEL;
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };
 
@@ -608,11 +625,11 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	async voidAgreement() 
 	{
-		const confirmMessage: string = 'You are about to Void an agreement. Do you wish to continue?';
+		const confirmMessage: string = `You are about to Void an agreement. ${Constants.DO_YOU_WISH_TO_CONTINUE}`;
 		const confirmTitle: string = 'Void Home Purchase Agreement';
-		const confirmDefaultOption: string = 'Cancel';
-		const primaryButton = { hide: false, text: 'Continue' };
-		const secondaryButton = { hide: false, text: 'Cancel' };
+		const confirmDefaultOption: string = Constants.CANCEL;
+		const primaryButton = { hide: false, text: Constants.CONTINUE };
+		const secondaryButton = { hide: false, text: Constants.CANCEL };
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) 
 		{
@@ -627,7 +644,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const confirmMessage: string = `Are you sure you want to ${lockText} Sales Agreement?`;
 		const confirmTitle: string = 'Home Purchase Agreement';
-		const confirmDefaultOption: string = 'Cancel';
+		const confirmDefaultOption: string = Constants.CANCEL;
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -662,7 +679,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 

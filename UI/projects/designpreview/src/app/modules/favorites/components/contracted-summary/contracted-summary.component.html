@@ -1,6 +1,6 @@
-<main class="d-flex">
+<main class="d-flex flex-column">
 	<div class="phd-contracted-summary">
-		<h1>Contracted Options</h1>
+		<h1>Pending & Contracted Options</h1>
 
 		<ul class="phd-tree-view">
 			<ng-container *ngFor="let group of groups">
@@ -13,23 +13,25 @@
 							<h3>{{subGroup.label}}</h3>
 						</div>
 						<ng-container *ngFor="let dp of subGroup.points">
-							<decision-point-summary *ngIf="displayPoint(dp)"
-													[decisionPoint]="dp"
-													[subGroup]="subGroup"
-													[group]="group"
-													[salesChoices]="salesChoices"
-													[buildMode]="buildMode"
-													[isDesignComplete]="isDesignComplete"
-													[contractedOptionsPage]="true">
-							</decision-point-summary>
+							<div *ngIf="displayPoint(dp)" class="phd-decision-point-summary">
+								<decision-point-summary 
+									[decisionPoint]="dp"
+									[subGroup]="subGroup"
+									[group]="group"
+									[salesChoices]="salesChoices"
+									[buildMode]="buildMode"
+									[isDesignComplete]="isDesignComplete"
+									[contractedOptionsPage]="true">
+								</decision-point-summary>
+							</div>
 						</ng-container>
 					</ul>								
 				</div>
 			</ng-container>
 		</ul>
-		<div class="phd-footer-bar">
-			<footer-bar></footer-bar>
-		</div>
+	</div>
+	<div class="phd-footer-bar">
+		<footer-bar></footer-bar>
 	</div>
 </main>
 

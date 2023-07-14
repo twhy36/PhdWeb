@@ -10,6 +10,7 @@ export enum ScenarioActionTypes
 	SelectChoices = 'Select Choices',
 	SetTreeFilter = 'Set Tree filter',
 	SetStatusForPointsDeclined = 'Set Status For Points Declined',
+	SetPresalePricingEnabled = 'Set Presale Pricing Enabled',
 	TreeLoaded = 'Tree Loaded'
 }
 
@@ -61,6 +62,13 @@ export class TreeLoaded implements Action
 	constructor(public tree: Tree, public rules: TreeVersionRules, public options: PlanOption[], public optionImages: OptionImage[], public salesCommunity: SalesCommunity, public lot?: LotExt) { }
 }
 
+export class SetPresalePricingEnabled implements Action
+{
+	readonly type = ScenarioActionTypes.SetPresalePricingEnabled;
+
+	constructor(public isEnabled: boolean) { }
+}
+
 export type ScenarioActions =
 	LoadPreview |
 	LoadPresale |
@@ -69,6 +77,7 @@ export type ScenarioActions =
 	SetTreeFilter |
 	SalesAgreementLoaded |
 	SetStatusForPointsDeclined |
+	SetPresalePricingEnabled |
 	TreeLoaded |
 	MyFavoritesChoiceAttributesDeleted |
 	LoadError;

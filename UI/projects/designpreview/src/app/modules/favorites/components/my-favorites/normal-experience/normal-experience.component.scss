@@ -2,6 +2,12 @@
 
 $point-panel-width: 220px;
 
+ul {
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
 .phd-normal-experience {
 	display: flex;
 	flex-direction: row;
@@ -48,7 +54,7 @@ $point-panel-width: 220px;
 		margin-left: 5px;
 		background: none;
 		border: none;
-		padding: 0;	
+		padding: 0;
 	}
 
 	.phd-collapsed-icon-bg {

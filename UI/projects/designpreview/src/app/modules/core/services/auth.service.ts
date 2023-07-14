@@ -6,7 +6,7 @@ import { Subject, Observable, ReplaySubject, throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
-import { clearPresaleSessions, setPresaleToken } from '../../shared/classes/utils.class';
+import { clearPresaleSessions, setPresaleSession } from '../../shared/classes/utils.class';
 import { PresaleAuthToken, PresaleAuthTokenBody } from '../../shared/models/presale-payload.model';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AuthService
 {
 	private authConfig: Subject<AuthConfig> = new ReplaySubject<AuthConfig>(1);
 
-	constructor(private _http: HttpClient, private osvc: OAuthService) {}
+	constructor(private _http: HttpClient, private osvc: OAuthService) { }
 
 	public get salesAgreementNumber(): string 
 	{
@@ -34,16 +34,16 @@ export class AuthService
 	public getIsPresaleAuthenticated(planGuid: string, source: string): Observable<boolean>
 	{
 		const url = `${environment.apiUrl}token`;
-		const body = 
-		{
-			code: planGuid,
-			source: source
-		} as PresaleAuthTokenBody;
+		const body =
+			{
+				code: planGuid,
+				source: source
+			} as PresaleAuthTokenBody;
 
 		return withSpinner(this._http).post<PresaleAuthToken>(url, body).pipe(
 			map(response => 
 			{
-				setPresaleToken(response.token, true);
+				setPresaleSession(response.token, true, planGuid);
 				return true;
 			}),
 			catchError(error =>

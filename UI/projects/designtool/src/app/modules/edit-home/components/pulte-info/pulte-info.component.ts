@@ -2,7 +2,7 @@ import { ReplaySubject, Observable, of } from 'rxjs';
 import { map, distinctUntilChanged, combineLatest, switchMap } from 'rxjs/operators';
 
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -22,8 +22,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 {
     params$ = new ReplaySubject<{ jobId: number }>(1);
     job: Job;
-    jobId: number;
-    pulteInfoForm: UntypedFormGroup;
+	jobId: number;
+	pulteInfoForm: UntypedFormGroup;
 	pulteInfo = new SpecInformation();
 	qmiSalesProgram = new SalesProgram();
     loadingJob = false;
@@ -39,7 +39,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     minDate: Date = new Date();
     pulteInfoSet = false;
 	canSell$: Observable<boolean>;
-	canConfigure: boolean = false;
+	canEditSpecInfo: boolean = false;
 	canCreateSpecOrModel: boolean = false;
     priceBreakdown$: Observable<PriceBreakdown>;
     isChangingOrder$: Observable<boolean>;
@@ -52,12 +52,13 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get canEdit(): boolean
 	{
-		return this.canConfigure && this.canCreateSpecOrModel;
+		return !!this.canEditSpecInfo || !!this.canCreateSpecOrModel;
 	}
 
     constructor(
         private store: Store<fromRoot.State>,
 		private route: ActivatedRoute,
+		private cd: ChangeDetectorRef,
 		private salesInfoService: SalesInfoService,
 		private specDiscountService: SpecDiscountService) { super(); }
 
@@ -65,16 +66,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     {
         this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
-
-		this.store.pipe(select(fromRoot.canConfigure)).subscribe(canConfigure =>
-		{
-			this.canConfigure = canConfigure;
-		});
-
-		this.store.pipe(select(fromRoot.canCreateSpecOrModel)).subscribe(canCreateSpecOrModel =>
-		{
-			this.canCreateSpecOrModel = canCreateSpecOrModel;
-		});;
 
         this.isChangingOrder$ = this.store.pipe(
             this.takeUntilDestroyed(),
@@ -99,19 +90,23 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job),
-			combineLatest(this.params$, this.store.pipe(select(state => state.job.specInformation))),
-			switchMap(([job, params, pulteInfo]) =>
+			combineLatest(this.store.pipe(select(fromRoot.canEditSpecInfo)), this.store.pipe(select(fromRoot.canCreateSpecOrModel)),
+				this.params$, this.store.pipe(select(state => state.job.specInformation))),
+			switchMap(([job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo]) =>
 			{
 				const getSalesPrograms = !!job?.financialCommunityId ? this.salesInfoService.getSalesPrograms(job.financialCommunityId) : of([]);
 				return getSalesPrograms.pipe(
 					map(programs =>
 					{
-						return { job, params, pulteInfo, programs };
+						return { job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo, programs };
 					})
 				);
 			})
-		).subscribe(({ job, params, pulteInfo, programs }) =>
+		).subscribe(({ job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo, programs }) =>
 		{
+			this.canEditSpecInfo = canEditSpecInfo;
+			this.canCreateSpecOrModel = canCreateSpecOrModel;
+
 			if (job.plan)
 			{
 				this.job = job;
@@ -155,27 +150,49 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
     createForm()
     {
-        this.pulteInfoForm = new UntypedFormGroup({
-            'tagLines': new UntypedFormControl(this.pulteInfo.webSiteDescription),
+		this.pulteInfoForm = new UntypedFormGroup({
+			'tagLines': new UntypedFormControl(this.pulteInfo.webSiteDescription),
 			'displayOnPulte': new UntypedFormControl(this.pulteInfo.isPublishOnWebSite),
 			'discountAmount': new UntypedFormControl(this.pulteInfo.discountAmount, [Validators.min(0), Validators.max(this?.qmiSalesProgram?.maximumAmount)]),
-            'discountExpirationDate': new UntypedFormControl(this.pulteInfo.discountExpirationDate),
-            'hotHome': new UntypedFormControl(this.pulteInfo.isHotHomeActive),
-            'keySellingPoint1': new UntypedFormControl(this.pulteInfo.hotHomeBullet1),
-            'keySellingPoint2': new UntypedFormControl(this.pulteInfo.hotHomeBullet2),
-            'keySellingPoint3': new UntypedFormControl(this.pulteInfo.hotHomeBullet3),
-            'keySellingPoint4': new UntypedFormControl(this.pulteInfo.hotHomeBullet4),
-            'keySellingPoint5': new UntypedFormControl(this.pulteInfo.hotHomeBullet5),
-            'keySellingPoint6': new UntypedFormControl(this.pulteInfo.hotHomeBullet6),
-            'fullBaths': new UntypedFormControl(this.pulteInfo.numberFullBathOverride, [Validators.min(0), Validators.max(255)]),
-            'halfBaths': new UntypedFormControl(this.pulteInfo.numberHalfBathOverride, [Validators.min(0), Validators.max(255)]),
-            'bedrooms': new UntypedFormControl(this.pulteInfo.numberBedOverride, [Validators.min(0), Validators.max(255)]),
-            'squareFeet': new UntypedFormControl(this.pulteInfo.squareFeetOverride, [Validators.min(0), Validators.max(32000)]),
-            'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
+			'discountExpirationDate': new UntypedFormControl(this.pulteInfo.discountExpirationDate),
+			'hotHome': new UntypedFormControl(this.pulteInfo.isHotHomeActive),
+			'keySellingPoint1': new UntypedFormControl(this.pulteInfo.hotHomeBullet1),
+			'keySellingPoint2': new UntypedFormControl(this.pulteInfo.hotHomeBullet2),
+			'keySellingPoint3': new UntypedFormControl(this.pulteInfo.hotHomeBullet3),
+			'keySellingPoint4': new UntypedFormControl(this.pulteInfo.hotHomeBullet4),
+			'keySellingPoint5': new UntypedFormControl(this.pulteInfo.hotHomeBullet5),
+			'keySellingPoint6': new UntypedFormControl(this.pulteInfo.hotHomeBullet6),
+			'fullBaths': new UntypedFormControl(this.pulteInfo.numberFullBathOverride, [Validators.min(0), Validators.max(255)]),
+			'halfBaths': new UntypedFormControl(this.pulteInfo.numberHalfBathOverride, [Validators.min(0), Validators.max(255)]),
+			'bedrooms': new UntypedFormControl(this.pulteInfo.numberBedOverride, [Validators.min(0), Validators.max(255)]),
+			'squareFeet': new UntypedFormControl(this.pulteInfo.squareFeetOverride, [Validators.min(0), Validators.max(32000)]),
+			'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
 		});
 
 		this.pulteInfoForm.get('discountExpirationDate').disable();
-    }
+
+		this.toggleFormControls();
+	}
+
+	toggleFormControls()
+	{
+		this.cd.detectChanges();
+
+		for (let control in this.pulteInfoForm.controls)
+		{
+			if (control !== 'discountExpirationDate')
+			{
+				if (!this.canEdit)
+				{
+					this.pulteInfoForm.controls[control].disable();
+				}
+				else
+				{
+					this.pulteInfoForm.controls[control].enable();
+				}
+			}
+		}
+	}
 
     savePulteInformation()
     {
@@ -234,5 +251,5 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
     allowNavigation(): boolean
     {
         return !this.pulteInfoForm.dirty;
-    }
+	}
 }

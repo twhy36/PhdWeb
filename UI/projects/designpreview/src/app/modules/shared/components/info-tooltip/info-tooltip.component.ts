@@ -6,7 +6,7 @@ import { NgbTooltip, NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
 	templateUrl: './info-tooltip.component.html',
 	styleUrls: ['./info-tooltip.component.scss'],
 	encapsulation: ViewEncapsulation.None
-})
+	})
 
 export class InfoTooltipComponent implements OnInit, OnDestroy
 {

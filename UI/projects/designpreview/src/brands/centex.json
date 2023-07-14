@@ -10,31 +10,5 @@
 		"2": "assets/centex/banner/CTX Dark Wood.jpg",
 		"3": "assets/centex/banner/CTX Kitchen Living.jpg",
 		"4": "assets/centex/banner/CTX Faucet.jpg"
-	},
-	"styles": {
-		"font": "Apercu",
-		"primary-ribbon-background-color": "#CE4235",
-		"secondary-ribbon-background-color": "#ffffff",
-		"info-ribbon-background-color": "#CE4235",
-		"choice-detail-ribbon-color": "#1a1a1a",
-		"primary-button-color": "#257FA2",
-		"home-page-community-label": "#1a1a1a",
-		"home-text-color": "#1a1a1a",
-		"nav-bar-text-color": "white",
-		"info-bar-text-color": "white",
-		"group-bar-text-color": "#1a1a1a",
-		"group-bar-border-color": "#d4d4d4",
-		"group-bar-selected-color": "black",
-		"heart-icon-color": "#CE4235",
-		"primary-icon-color": "#1a1a1a",
-		"secondary-icon-color": "#1a1a1a",
-		"action-icon-color": "#1a1a1a",
-		"selected-border-color": "#CE4235",
-		"link-color": "#257FA2",
-		"popup-ribbon-background-color": "#CE4235",
-		"home-page-floorplan-background-color": "#eeeeee",
-		"logo-margin-top": "8px",
-		"logo-max-height": "34px",
-        "hamburger-menu-width": "315px"
 	}
 }

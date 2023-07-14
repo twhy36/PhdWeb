@@ -11,20 +11,21 @@ import { BuildMode } from '../../../shared/models/build-mode.model';
 	selector: 'welcome-modal',
 	templateUrl: './welcome-modal.component.html',
 	styleUrls: ['./welcome-modal.component.scss']
-})
+	})
 export class WelcomeModalComponent extends ModalContent implements OnInit 
 {
 	isPresale: boolean = false;
+	isPresalePricingEnabled: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>)
 	{
 		super();
 	}
 
-	get headerText(): string 
+	get headerText(): string
 	{
 		return this.isPresale ? 'Welcome and we hope you enjoy personalizing your future home!'
-			: 'Welcome and we hope you enjoy personalizing your home!'
+			: 'Welcome and we hope you enjoy personalizing your home!';
 	}
 
 	get subTextOne(): string
@@ -40,8 +41,12 @@ export class WelcomeModalComponent extends ModalContent implements OnInit
 
 	get messageDisclaimer(): string
 	{
-		return this.isPresale ? 'Options are subject to change until purchased via a signed agreement.'
-			: 'Options are subject to change until purchased. You may change your Favorites at any time prior to purchasing them via a signed agreement.'
+		if (this.isPresale)
+		{
+			return this.isPresalePricingEnabled ? 'Options and pricing are subject to change until purchased via a signed agreement.'
+				: 'Options are subject to change until purchased via a signed agreement.';
+		}
+		return 'Options are subject to change until purchased. You may change your Favorites at any time prior to purchasing them via a signed agreement.';
 	}
 
 	ngOnInit()
@@ -51,6 +56,7 @@ export class WelcomeModalComponent extends ModalContent implements OnInit
 			select(state => state.scenario),
 		).subscribe((state) => 
 		{
+			this.isPresalePricingEnabled = state.presalePricingEnabled;
 			if (state.buildMode === BuildMode.Presale) 
 			{
 				this.isPresale = true;

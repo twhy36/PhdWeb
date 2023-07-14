@@ -15,7 +15,7 @@ import * as NavActions from '../../../ngrx-store/nav/actions';
 	selector: 'blocked-choice-modal',
 	templateUrl: './blocked-choice-modal.component.html',
 	styleUrls: ['./blocked-choice-modal.component.scss']
-})
+	})
 export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() choice: ChoiceExt;
@@ -66,7 +66,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 			select(fromFavorite.currentMyFavorite),
 		).subscribe((fav =>
 		{
-			this.myFavoriteId = fav.id;
+			this.myFavoriteId = fav?.id;
 		}));
 
 		this.hasRequiredChoice = this.point?.choices.find(c => c.isRequired)?.isRequired ?? false;
@@ -188,7 +188,7 @@ export class BlockedChoiceModalComponent extends UnsubscribeOnDestroy implements
 	private handleBlockedItemClick(pointId: number)
 	{
 		this.blockedItemClick.emit(pointId);
-		if (!this.hiddenChoices.some(choice => choice.id === this.choice.id))
+		if (!this.hiddenChoices.some(choice => choice?.id === this.choice?.id))
 		{
 			const subGroup = this.subGroups.find(sg => !!sg.points.find(p => p.id === pointId))
 

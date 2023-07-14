@@ -7,9 +7,10 @@ import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
-import { 
-	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined, 
-	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService
+import
+{
+	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined,
+	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService, Constants
 } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
@@ -28,6 +29,7 @@ import { FavoriteService } from '../core/services/favorite.service';
 import { State, showSpinner } from './reducers';
 import { setTreePointsPastCutOff } from '../shared/classes/tree.utils';
 import { DesignPreviewError } from '../shared/models/error.model';
+import { LoadMyFavorite } from './favorite/actions';
 
 @Injectable()
 export class CommonEffects
@@ -209,8 +211,10 @@ export class CommonEffects
 									}),
 									this.treeService.mergeIntoTree(
 										[
-											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Delete' && coc.dpChoiceId === jc.dpChoiceId)),
-											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : [])
+											...result.job.jobChoices.filter(jc => !result.changeOrderGroup || !_.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => (coc.action === 'Delete' || coc.action === 'Change') && coc.dpChoiceId === jc.dpChoiceId)),
+											...(result.changeOrderGroup ? _.flatMap(result.changeOrderGroup.jobChangeOrders.map(co => co.jobChangeOrderChoices.filter(c => c.action === 'Add'))) : []),
+											// changed choices
+											...result.selectedChoices.filter(sc => _.flatMap(result.changeOrderGroup?.jobChangeOrders.map(co => co.jobChangeOrderChoices)).some(coc => coc.action === 'Change' && coc.divChoiceCatalogId === sc.divChoiceCatalogId))
 										],
 										[...result.job.jobPlanOptions, ...((result.changeOrderGroup && result.changeOrderGroup.salesStatusDescription !== 'Pending') ? result.changeOrderPlanOptions : [])],
 										result.changeOrderGroup),
@@ -254,6 +258,7 @@ export class CommonEffects
 				{
 					//get all choice images with hasImage flag true
 					const choiceIds = getChoiceIdsHasChoiceImages(result.tree, true);
+
 					return this.treeService.getChoiceImageAssoc(choiceIds).pipe(
 						map(data =>
 						{
@@ -273,7 +278,7 @@ export class CommonEffects
 					const baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
 
-					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
+					if ([Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED, Constants.AGREEMENT_STATUS_APPROVED].indexOf(result.salesAgreement.status) !== -1)
 					{
 						if (baseHouseOption)
 						{
@@ -293,7 +298,8 @@ export class CommonEffects
 
 					return <Observable<Action>>from([
 						new SalesAgreementLoaded(result.salesAgreement, result.salesAgreementInfo, result.job, result.sc, result.selectedChoices, result.selectedPlanId, result.selectedHanding, result.tree, result.rules, result.options, result.images, result.mappings, result.changeOrder, result.lot, result.myFavorites),
-						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice)
+						new LoadSelectedPlan(result.selectedPlanId, selectedPlanPrice),
+						new LoadMyFavorite()
 					]);
 				})
 			), LoadError, 'Error loading sales agreement!!', ErrorFrom.LoadSalesAgreement)
@@ -349,11 +355,11 @@ export class CommonEffects
 						ErrorFrom: errFrom
 					};
 
-					if(errFrom !== ErrorFrom.PageNotFound)
+					if (errFrom !== ErrorFrom.PageNotFound)
 					{
 						this.loggingService.logError((<ErrorAction>errorScan.err).error, properties);
 					}
-					
+
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})

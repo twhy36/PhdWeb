@@ -1,19 +1,5 @@
-@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
-@import "../../../../../scss/sizes.scss";
-
-.modal-header {
-	background: var(--popup-ribbon-background-color) !important;
-	border-top-left-radius: 0.2rem;
-	border-top-right-radius: 0.2rem;
-	color: white;
-}
-
 .modal-title {
-	font-size: $modal-title-size;
-}
-
-.modal-body {
-	text-align: center;
+	font-size: 0.997rem !important;
 }
 
 .phd-close-icon {
@@ -22,30 +8,9 @@
 	cursor: pointer;
 }
 
-.modal-footer {
-	justify-content: center;
-}
-
-.modal-button {
-	width: 25%;
-	text-align: center;
-
-	span {
-		font-size: $modal-button-text-size;
-	}
-}
-
-.btn-primary {
-	border-radius: 35px;
-	background: var(--primary-button-color) !important;
-	border-color: var(--primary-button-color) !important;
-}
-
 .phd-message {
-	font-size: 14px;
-
 	.phd-message-introduction {
-		color: var(--primary-button-color);
+		text-align: center;
 		margin-bottom: 0px;
 	}
 
@@ -53,8 +18,9 @@
 		text-align: left;
 		margin-bottom: 1rem;
 	}
+}
 
-	.phd-message-disclaimer {
-		font-size: 11px;
-	}
+.phd-message-disclaimer {
+	font-size: 11px;
+	text-align: center;
 }

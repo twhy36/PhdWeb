@@ -9,6 +9,7 @@ import { AttributeGroupActionPanelComponent } from '../../../../../shared/compon
 
 import { UiUtilsService } from '../../../../../core/services/ui-utils.service';
 import { remove } from "lodash";
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'locations-groups-tab',
@@ -37,13 +38,13 @@ export class LocationsGroupsTabComponent extends UnsubscribeOnDestroy implements
 	selectedGroups$: ReplaySubject<Array<LocationGroupMarket>>;
 
 	addAssocButtons: Array<ActionButton> = [
-		{ text: 'Associate', class: 'btn btn-primary', action: this.saveSelection.bind(this), disabled: true },
-		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelSelection.bind(this), disabled: false }
+		{ text: Constants.ASSOCIATE, class: 'btn btn-primary', action: this.saveSelection.bind(this), disabled: true },
+		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelSelection.bind(this), disabled: false }
 	];
 
 	removeAssocButtons: Array<ActionButton> = [
-		{ text: 'Remove', class: 'btn btn-primary', action: this.removeSelection.bind(this), disabled: true },
-		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelRemoveSelection.bind(this), disabled: false }
+		{ text: Constants.REMOVE, class: 'btn btn-primary', action: this.removeSelection.bind(this), disabled: true },
+		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelRemoveSelection.bind(this), disabled: false }
 	];
 
 	constructor(private _msgService: MessageService, private _uiUtilsService: UiUtilsService,)

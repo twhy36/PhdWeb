@@ -9,6 +9,7 @@ import { AttributeGroupActionPanelComponent } from '../../../../../shared/compon
 
 import { UiUtilsService } from '../../../../../core/services/ui-utils.service';
 import { remove } from "lodash";
+import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'attribute-groups-tab',
@@ -37,37 +38,43 @@ export class AttributeGroupsTabComponent extends UnsubscribeOnDestroy implements
 	selectedGroups$: ReplaySubject<Array<AttributeGroupMarket>>;
 
 	addAssocButtons: Array<ActionButton> = [
-		{ text: 'Associate', class: 'btn btn-primary', action: this.saveSelection.bind(this), disabled: true },
-		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelSelection.bind(this), disabled: false }
+		{ text: Constants.ASSOCIATE, class: 'btn btn-primary', action: this.saveSelection.bind(this), disabled: true },
+		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelSelection.bind(this), disabled: false }
 	];
 
 	removeAssocButtons: Array<ActionButton> = [
-		{ text: 'Remove', class: 'btn btn-primary', action: this.removeSelection.bind(this), disabled: true },
-		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelRemoveSelection.bind(this), disabled: false }
+		{ text: Constants.REMOVE, class: 'btn btn-primary', action: this.removeSelection.bind(this), disabled: true },
+		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelRemoveSelection.bind(this), disabled: false }
 	];
 
-	constructor(private _msgService: MessageService, private _uiUtilsService: UiUtilsService, ) {
-		 super();
+	constructor(private _msgService: MessageService, private _uiUtilsService: UiUtilsService,)
+	{
+		super();
 	}
 
-	ngOnInit() {
+	ngOnInit()
+	{
 		this.availableGroups$ = new BehaviorSubject<Array<AttributeGroupMarket>>(this.activeAttributeGroups);
 
 		this.selectedGroups$ = new ReplaySubject<Array<AttributeGroupMarket>>(1);
 		this.onGroupSelectionChange();
 	}
 
-	reset() {
-		if (this.addGroups) {
+	reset()
+	{
+		if (this.addGroups)
+		{
 			this.addGroups.reset();
 		}
 
-		if (this.removeGroups) {
+		if (this.removeGroups)
+		{
 			this.removeGroups.reset();
 		}
 	}
 
-	onGroupSelectionChange() {
+	onGroupSelectionChange()
+	{
 		this.selectedGroups$.next(this.selectedGroups);
 
 		const availableGroups = this.activeAttributeGroups.filter(group => this.selectedGroups.findIndex(g => g.id === group.id) === -1);
@@ -76,50 +83,64 @@ export class AttributeGroupsTabComponent extends UnsubscribeOnDestroy implements
 		this.groupSelectionChanged.emit();
 	}
 
-	saveSelection() {
+	saveSelection()
+	{
 		const newGroups = this.addGroups.selectedGroups as AttributeGroupMarket[];
 		this.selectedGroups.push(...newGroups);
 		this.onGroupSelectionChange();
 		this.addGroups.selectedGroups = [];
 	}
 
-	async cancelSelection() {
-		if (this.addGroups.selectedGroups.length > 0) {
-			if (!await this._uiUtilsService.confirmCancellation()) {
+	async cancelSelection()
+	{
+		if (this.addGroups.selectedGroups.length > 0)
+		{
+			if (!await this._uiUtilsService.confirmCancellation())
+			{
 				return;
 			}
-			else {
+			else
+			{
 				this.addGroups.reset();
 			}
 		}
-		else {
+		else
+		{
 			this.addGroups.reset();
 		}
 	}
 
-	async removeSelection() {
+	async removeSelection()
+	{
 		const removedGroups = this.removeGroups.selectedGroups as AttributeGroupMarket[];
 		remove(this.selectedGroups, g => removedGroups.findIndex(group => group.id === g.id) !== -1);
 		this.onGroupSelectionChange();
 		this.removeGroups.selectedGroups = [];
 	}
 
-	async cancelRemoveSelection() {
-		if (this.removeGroups.selectedGroups.length > 0) {
-			if (!await this._uiUtilsService.confirmCancellation()) {
+	async cancelRemoveSelection()
+	{
+		if (this.removeGroups.selectedGroups.length > 0)
+		{
+			if (!await this._uiUtilsService.confirmCancellation())
+			{
 				return;
 			}
-			else {
+			else
+			{
 				this.removeGroups.reset();
 			}
 		}
-		else {
+		else
+		{
 			this.removeGroups.reset();
 		}
 	}
 
-	displayErrorMessage(message: string) {
-		if (message) {
+	displayErrorMessage(message: string)
+	{
+		if (message)
+		{
 			this._msgService.add({ severity: 'error', summary: 'Attribute', detail: message });
 		}
 	}

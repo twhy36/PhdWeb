@@ -49,19 +49,19 @@ const moduleRoutes: Routes = [
 
 @NgModule({
 	exports: [
-		HomeComponent
+	HomeComponent
 	],
 	declarations: [
-		HomeComponent
+	HomeComponent
 	],
 	imports: [
-		CommonModule,
-		CloudinaryModule,
-		SharedModule,
-		CoreModule,
-		PhdCommonModule,
-		RouterModule.forChild(moduleRoutes),
+	CommonModule,
+	CloudinaryModule,
+	SharedModule,
+	CoreModule,
+	PhdCommonModule,
+	RouterModule.forChild(moduleRoutes),
 	],
 	providers: []
-})
+	})
 export class HomeModule { }

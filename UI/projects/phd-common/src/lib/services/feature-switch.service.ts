@@ -7,7 +7,7 @@ import { IFeatureSwitch, IFeatureSwitchOrgAssoc } from '../models/feature-switch
 import { IOrg } from '../models/org.model';
 import { API_URL } from '../injection-tokens';
 
-type Feature = 'Or Mapping' | 'Phd Lite' | 'Option Packages' | 'Design Preview Presale';
+type Feature = 'Or Mapping' | 'Phd Lite' | 'Option Packages' | 'Design Preview Presale' | 'Design Preview Presale Pricing';
 
 @Injectable()
 export class FeatureSwitchService
@@ -128,9 +128,9 @@ export class FeatureSwitchService
 		return _throw(error || 'Server error');
 	}
 
-	getFeatureSwitchForCommunities(name: string, financialCommunityIds: number[]): Observable<IFeatureSwitchOrgAssoc[]>
+	getFeatureSwitchForCommunities(name: string, financialCommunityIds: number[], edhMarketId: number = 0): Observable<IFeatureSwitchOrgAssoc[]>
 	{
-		if (!financialCommunityIds || financialCommunityIds.length === 0)
+		if ((!financialCommunityIds || financialCommunityIds.length === 0) && edhMarketId === 0)
 		{
 			return of([]);
 		}
@@ -139,8 +139,18 @@ export class FeatureSwitchService
 		const filter = `tolower(name) eq tolower('${name}')`;
 		const select = `featureSwitchId, name, state`;
 
-		const communityIds = financialCommunityIds.join(",");
-		let expandFilter = `org/edhFinancialCommunityId in (${communityIds})`;
+		let expandFilter: string = '';
+		if (edhMarketId > 0)
+		{
+			// Get feature switch for communities in a market
+			expandFilter = `org/edhMarketId eq ${edhMarketId} and org/edhFinancialCommunityId ne null`;
+		}
+		else
+		{
+			const communityIds = financialCommunityIds.join(",");
+			expandFilter = `org/edhFinancialCommunityId in (${communityIds})`;			
+		}
+
 		const expand = `featureSwitchOrgAssocs($select=orgId, state;$filter=${expandFilter};$expand=org($select=edhMarketId, edhFinancialCommunityId))`;
 
 		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}&${this._ds}select=${encodeURIComponent(select)}`;

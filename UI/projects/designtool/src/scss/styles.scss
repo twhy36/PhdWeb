@@ -247,15 +247,23 @@ ngb-carousel {
 	}
 
 	.carousel-control-prev-icon {
-		background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d3d3d3' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+		background: url('../assets/prev_arrow.svg') no-repeat -2px center;	
 	}
 
 	.carousel-control-next-icon {
-		background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23d3d3d3' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+		background: url('../assets/next_arrow.svg') no-repeat 4px center;	
+	}
+
+	.visually-hidden {
+		display: none;
 	}
 }
 
 ngb-modal-backdrop {
+	z-index: 1050 !important;
+}
+
+::ng-deep .modal-backdrop {
 	z-index: 1050 !important;
 }
 
@@ -528,4 +536,8 @@ edit-home > choice-card {
 	max-height: 75px;
 	overflow-y: auto;
 	margin-left: .5em;
+}
+
+.phd-elevation-color-option {
+	margin-left: 1em;
 }

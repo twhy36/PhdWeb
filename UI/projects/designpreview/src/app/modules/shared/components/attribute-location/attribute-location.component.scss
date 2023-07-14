@@ -59,13 +59,6 @@
 	padding: 2px 0px 10px 10px;
 }
 
-::ng-deep .modal-header {
-	background: var(--popup-ribbon-background-color) !important;
-	border-top-left-radius: 0.2rem;
-	border-top-right-radius: 0.2rem;
-	color: #fff;
-
-	button {
-		color: #fff;
-	}
+.modal-body {
+	text-align: left;
 }

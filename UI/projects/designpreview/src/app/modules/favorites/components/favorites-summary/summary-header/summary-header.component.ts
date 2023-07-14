@@ -12,7 +12,7 @@ import { BuildMode } from '../../../../shared/models/build-mode.model';
 	selector: 'summary-header',
 	templateUrl: './summary-header.component.html',
 	styleUrls: ['./summary-header.component.scss']
-})
+	})
 export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() summaryHeader: SummaryHeader;
@@ -28,6 +28,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	isSticky: boolean = false;
 	isPreview: boolean = false;
 	isPresale: boolean = false;
+	isPresalePricingEnabled: boolean = false;
 	headerTitle: string;
 	communityName: string;
 	planName: string;
@@ -80,19 +81,20 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			switch (state.buildMode)
 			{
-			case (BuildMode.Preview):
-				this.isPreview = true;
-				this.headerTitle = 'Preview Favorites';
-				break;
-			case (BuildMode.Presale):
-				this.isPresale = true;
-				this.headerTitle = 'My Favorites';
-				break;
-			default:
-				this.isPreview = false;
-				this.isPresale = false;
-				this.headerTitle = this.summaryHeader.favoritesListName;
-				break;
+				case (BuildMode.Preview):
+					this.isPreview = true;
+					this.headerTitle = 'Preview Favorites';
+					break;
+				case (BuildMode.Presale):
+					this.isPresale = true;
+					this.isPresalePricingEnabled = state.presalePricingEnabled;
+					this.headerTitle = 'My Favorites';
+					break;
+				default:
+					this.isPreview = false;
+					this.isPresale = false;
+					this.headerTitle = this.summaryHeader.favoritesListName;
+					break;
 			}
 		});
 	}
@@ -194,6 +196,22 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	onWindowAfterPrint()
 	{
 		this.titleService.setTitle('Design Preview');
+	}
+
+	getTotalPriceLabel()
+	{
+		if (this.isDesignComplete)
+		{
+			return 'Total Purchase Price:';
+		}
+		else if (this.isPresale && this.isPresalePricingEnabled)
+		{
+			return 'Estimated Total Price:';
+		}
+		else
+		{
+			return 'Estimated Total Purchase Price:';
+		}
 	}
 }
 

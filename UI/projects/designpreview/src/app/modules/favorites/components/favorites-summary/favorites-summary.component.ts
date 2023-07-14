@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement,
-	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite
+	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite, Constants
 } from 'phd-common';
 
 import { Store, select } from '@ngrx/store';
@@ -29,6 +29,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import { SummaryHeader, SummaryHeaderComponent } from './summary-header/summary-header.component';
 import { GroupExt } from '../../../shared/models/group-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
+import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -40,11 +41,12 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'favorites-summary',
 	templateUrl: './favorites-summary.component.html',
 	styleUrls: ['./favorites-summary.component.scss']
-})
+	})
 export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
 
+	brandTheme: string;
 	communityName: string = '';
 	planName: string = '';
 	groups: GroupExt[];
@@ -77,11 +79,13 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	isInitScrollTop: boolean = false;
 	welcomeModal: ModalRef;
 	showWelcomeModal: boolean = true;
+	isPresalePricingEnabled: boolean = false;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
 		private router: Router,
 		private cd: ChangeDetectorRef,
+		private brandService: BrandService,
 		private modalService: ModalService,
 		private location: Location,
 		private adobeService: AdobeService,
@@ -89,6 +93,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	)
 	{
 		super();
+
+		this.brandTheme = this.brandService.getBrandTheme();
 	}
 
 	get disclaimerText()
@@ -134,6 +140,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					return new Observable<never>();
 				}
 
+				this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
+				this.isPresale = scenarioState.buildMode === BuildMode.Presale;
+
 				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
 			}),
 			switchMap(() => combineLatest([
@@ -148,22 +157,15 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.isPreview = scenario.buildMode === BuildMode.Preview;
 			this.isPresale = scenario.buildMode === BuildMode.Presale;
+
 			if (this.isPresale)
 			{
 				this.showFloorplan = true
 			}
+
 			this.isDesignComplete = sag?.isDesignComplete || false;
 			this.buildMode = scenario.buildMode;
 			this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
-
-			if (this.isPreview || this.isPresale)
-			{
-				this.store.dispatch(new FavoriteActions.LoadDefaultFavorite());
-			}
-			else if (!fav.selectedFavoritesId)
-			{
-				this.store.dispatch(new FavoriteActions.LoadMyFavorite());
-			}
 		});
 
 		this.store.pipe(
@@ -271,9 +273,11 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			{
 				centered: true,
 				backdrop: 'static',
-				keyboard: false
+				keyboard: false,
+				windowClass: this.brandTheme,
 			};
-			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true)
+
+			this.welcomeModal = this.modalService.open(WelcomeModalComponent, ngbModalOptions, true);
 		}
 
 		// marketing plan Id for interactive floorplan
@@ -284,13 +288,16 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		).subscribe(([plan, scenario]) =>
 		{
 			this.noVisibleFP = false; // Default this value to false
+
 			if (plan && plan.marketingPlanId && plan.marketingPlanId.length)
 			{
 				if (scenario.tree && scenario.tree.treeVersion)
 				{
 					const subGroups = _.flatMap(scenario.tree.treeVersion.groups, g => g.subGroups) || [];
 					const fpSubGroup = subGroups.find(sg => sg.useInteractiveFloorplan);
+
 					this.IFPsubGroup = fpSubGroup;
+
 					if (fpSubGroup)
 					{
 						this.marketingPlanId.next(plan.marketingPlanId[0]);
@@ -334,6 +341,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			return false;
 		}
+
 		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
@@ -348,6 +356,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		const subGroups = _.flatMap(this.groups, g => _.flatMap(g.subGroups)) || [];
 		const selectedSubGroup = subGroups.find(sg => sg.id === id);
+
 		if (selectedSubGroup)
 		{
 			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, selectedSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
@@ -369,6 +378,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.isSticky = false;
 			this.isInitScrollTop = false;
+
 			return;
 		}
 
@@ -394,6 +404,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		if (subGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(point.subGroupId, point.id));
+
 			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, subGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 	}
@@ -405,20 +416,21 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			centered: true,
 			backdrop: true,
 			keyboard: false,
+			windowClass: this.brandTheme,
 		};
 
 		this.confirmModal = this.modalService.open(ConfirmModalComponent, ngbModalOptions, true);
 
 		this.confirmModal.componentInstance.title = 'Are You Sure?';
 		this.confirmModal.componentInstance.body = 'This will delete this item from your list';
-		this.confirmModal.componentInstance.defaultOption = 'Continue';
+		this.confirmModal.componentInstance.defaultOption = Constants.CONTINUE;
 
 		this.adobeService.setAlertEvent(this.confirmModal.componentInstance.title + ' ' + this.confirmModal.componentInstance.body, 'Remove Favorite Alert');
 
 		this.confirmModal.result.then((result) =>
 		{
 
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 
 				const removedChoices = [];
@@ -467,6 +479,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	checkForEmptyFavorites()
 	{
 		const favorites = _.flatMap(this.myFavorites, fav => fav.myFavoritesChoice);
+
 		this.isEmptyFavorites = favorites.length === 0;
 	}
 
@@ -476,19 +489,16 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		{
 			centered: true,
 			backdrop: true,
-			beforeDismiss: () => false
+			beforeDismiss: () => false,
+			windowClass: this.brandTheme,
 		};
-
 
 		this.emptyFavoritesModal = this.modalService.open(InfoModalComponent, ngbModalOptions, true);
 
 		this.emptyFavoritesModal.componentInstance.title = 'Oops. No options have been selected.';
-		this.emptyFavoritesModal.componentInstance.body = `
-			<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>
-		`;
+		this.emptyFavoritesModal.componentInstance.body = '<p>Select the <i class="fa fa-heart-o"></i> to add options to your favorites.</p>';
 		this.emptyFavoritesModal.componentInstance.buttonText = 'Back';
 		this.emptyFavoritesModal.componentInstance.defaultOption = 'Back';
-
 
 		this.adobeService.setAlertEvent(this.emptyFavoritesModal.componentInstance.title + ' ' + this.emptyFavoritesModal.componentInstance.body, 'Empty Favorites Alert');
 
@@ -530,6 +540,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	toggleCollapsed()
 	{
 		this.showFloorplan = !this.showFloorplan;
+
 		this.cd.detectChanges();
 	}
 }

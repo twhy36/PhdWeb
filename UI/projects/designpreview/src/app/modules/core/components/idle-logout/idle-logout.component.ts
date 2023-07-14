@@ -8,7 +8,7 @@ import { ModalContent } from 'phd-common';
 	selector: 'idle-logout',
 	templateUrl: './idle-logout.component.html',
 	styleUrls: ['./idle-logout.component.scss']
-})
+	})
 
 export class IdleLogoutComponent extends ModalContent
 {

@@ -4,7 +4,7 @@ import { combineLatest } from 'rxjs';
 import { delay, take } from 'rxjs/operators';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent } from 'phd-common';
+import { UnsubscribeOnDestroy, ModalService, ScenarioOption, PointStatus, ConfirmModalComponent, Constants } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
@@ -60,10 +60,10 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(fromRoot.canEditAgreementOrSpec)
 		)
-		.subscribe(canEditAgreementOrSpec =>
-		{
-			this.canEditAgreementOrSpec = canEditAgreementOrSpec;
-		});
+			.subscribe(canEditAgreementOrSpec =>
+			{
+				this.canEditAgreementOrSpec = canEditAgreementOrSpec;
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -227,12 +227,12 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.confirmOptionRelations(OptionRelationEnum.CantHave, cantHaveOptions.map(o => o.edhPlanOptionId))
 				.then((result) =>
 				{
-					if (result === 'Continue')
+					if (result === Constants.CONTINUE)
 					{
 						// Select the option while deselecting the cant have options
 						this.selectOption(option);
 
-						// If 'Continue' is selected from the first cant-have dialog,
+						// If Constants.CONTINUE is selected from the first cant-have dialog,
 						// then display the must-have dialog if it selects the checkbox
 						if (option.mustHavePlanOptionIds?.length && !option.isSelected)
 						{
@@ -309,7 +309,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 		this.confirmOptionRelations(OptionRelationEnum.MustHave, allMustHaveOptionIds)
 			.then((result) =>
 			{
-				if (result === 'Continue')
+				if (result === Constants.CONTINUE)
 				{
 					const mustHaveOptionIds = allMustHaveOptionIds.filter(id => !this.scenarioOptions.find(o => o.edhPlanOptionId === id));
 
@@ -332,7 +332,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 					this.store.dispatch(new LiteActions.SelectOptions(selectedOptions));
 				}
-				else if (result === 'Cancel')
+				else if (result === Constants.CANCEL)
 				{
 					this.deselectOption(option);
 				}
@@ -453,13 +453,13 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	async onOverride(option: LitePlanOptionUI): Promise<boolean>
 	{
 		const confirm = this.modalService.open(ModalOverrideSaveComponent);
-		confirm.componentInstance.title = 'Warning';
-		confirm.componentInstance.body = `This will override the Cut-off`;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.body = Constants.OVERRIDE_CUT_OFF;
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 		return confirm.result.then((result) =>
 		{
-			const overrideReasonWasProvided = result !== 'Close';
+			const overrideReasonWasProvided = result !== Constants.CLOSE;
 
 			if (overrideReasonWasProvided)
 			{
@@ -474,7 +474,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const confirmTitle = 'This option is no longer active';
 		const confirmMessage = 'If unselected, you will not be able to select it again. Are you sure you want to deselect it?';
-		const confirmDefaultOption = 'Continue';
+		const confirmDefaultOption = Constants.CONTINUE;
 
 		return await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -489,16 +489,16 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 
-	trackByOptionSubCategory: TrackByFunction<IOptionSubCategory> = function(_index, optionSubCategory)
+	trackByOptionSubCategory: TrackByFunction<IOptionSubCategory> = function (_index, optionSubCategory)
 	{
 		return optionSubCategory.id;
 	}
 
-	trackByPlanOptions: TrackByFunction<LitePlanOptionUI> = function(_index, planOption)
+	trackByPlanOptions: TrackByFunction<LitePlanOptionUI> = function (_index, planOption)
 	{
 		return planOption.optionSubCategoryId.toString() + planOption.isSelected;
 	}

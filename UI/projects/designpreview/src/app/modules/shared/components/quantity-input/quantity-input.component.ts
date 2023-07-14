@@ -4,7 +4,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild, E
 	selector: 'quantity-input',
 	templateUrl: './quantity-input.component.html',
 	styleUrls: ['./quantity-input.component.scss']
-})
+	})
 export class QuantityInputComponent
 {
 	@Input() max?: number;

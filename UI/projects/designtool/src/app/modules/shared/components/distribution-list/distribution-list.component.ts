@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, Inject, Input, HostListener } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Inject, Input, HostListener, OnDestroy } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
@@ -21,7 +21,7 @@ import { ToastrService } from 'ngx-toastr';
 	styleUrls: ['./distribution-list.component.scss'],
 	animations: [flipOver]
 })
-export class DistributionListComponent extends UnsubscribeOnDestroy implements OnInit
+export class DistributionListComponent extends UnsubscribeOnDestroy implements OnInit, OnDestroy
 {
 	@Output() close = new EventEmitter<void>();
 	@Output() onEnvelopeSent = new EventEmitter<boolean>();
@@ -39,6 +39,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	isSending: boolean = false;
 	isEditBefore: boolean = false;
 	docusignWindow: Window = null;
+	docusignTimer: any;
 
 	constructor(private store: Store<fromRoot.State>, private _contractService: ContractService, private _router: Router, @Inject(APP_BASE_HREF) private _baseHref: string, private _toastrService: ToastrService)
 	{
@@ -162,6 +163,14 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 		});
 	}
 
+	ngOnDestroy()
+	{
+		if (this.docusignTimer)
+		{
+			clearInterval(this.docusignTimer);
+		}
+	}
+
 	addToList(contact: Contact, role: ESignRecipientRoles, label: string)
 	{
 		const dListItem = new DistributionListItem(this.distributionList.length);
@@ -216,25 +225,40 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 				// This will set the agreement and/or change order to Out For Signature
 				this.onEnvelopeSent.emit(false);
 
-				if (typeof window !== 'undefined') {
+				if (typeof window !== 'undefined')
+				{
 					this.docusignWindow = window.open(url, '_blank');
-				} else {
+
+					// #326180 When the DocuSign window is closed, close the Distribution List
+					this.docusignTimer = setInterval(() =>
+					{
+						if (this.docusignWindow && this.docusignWindow.closed)
+						{
+							this.close.emit();
+						}
+					}, 250);
+				}
+				else
+				{
 					//this would only happen if this code isn't running in a browser
 					this.closeClicked();
 				}
 			},
-			error =>
-			{
-				this._toastrService.error("Error sending envelope!");
-			});
+				error =>
+				{
+					this._toastrService.error("Error sending envelope!");
+				});
 	}
 
 	@HostListener('window:message', ['$event'])
-	onDocusignResponse(event: any) {
-		if (event.data && event.data.sent) {
+	onDocusignResponse(event: any)
+	{
+		if (event.data && event.data.sent)
+		{
 			this.onEnvelopeSent.emit(true);
 			this.docusignWindow.close();
-		} else if (event.data && event.data.closed) {
+		} else if (event.data && event.data.closed)
+		{
 			if (event.data.cancel && event.data.queryString)
 			{
 				const urlParams = new URLSearchParams(event.data.queryString);
@@ -262,10 +286,10 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 			{
 				this.onEnvelopeSent.emit(true);
 			},
-			error =>
-			{
-				this._toastrService.error("Error sending envelope!");
-			});
+				error =>
+				{
+					this._toastrService.error("Error sending envelope!");
+				});
 	}
 
 	getRecipients(): IESignRecipient[]

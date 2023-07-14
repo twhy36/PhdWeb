@@ -983,8 +983,7 @@ export class SalesAgreementService
 		buildMode: string, 
 		baseHouseOption: PlanOption, 
 		optionRules: OptionRule[], 
-		pendingJobSummary: IPendingJobSummary,
-		skipSpinner: boolean = true
+		pendingJobSummary: IPendingJobSummary
 	): Observable<Job>
 	{
 		const action = `CreateJIOForSpec`;
@@ -1049,7 +1048,7 @@ export class SalesAgreementService
 			pendingJobSummary: pendingJobSummary
 		};
 
-		return (skipSpinner ? this._http : withSpinner(this._http)).post(url, data).pipe(
+		return (withSpinner(this._http)).post(url, data).pipe(
 			map((results: IJob) => new Job(results)),
 			catchError(error =>
 			{

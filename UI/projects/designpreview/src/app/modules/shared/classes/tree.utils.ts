@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import
 {
-	DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, ChangeOrderGroup, 
+	DesignToolAttribute, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, Job, 
 	ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, ChangeOrderChoiceLocation,
 	ConstructionStageTypes, Tree, Choice, DecisionPoint, AttributeGroup, AttributeCommunityImageAssoc, Location,
 	LocationGroup, ChoiceRules, PointRules, OptionRule, MyFavoritesChoice
@@ -108,11 +108,6 @@ export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<Desi
 	});
 
 	return result;
-}
-
-export function isLocked(changeOrder: ChangeOrderGroup): (choice: JobChoice | ChangeOrderChoice) => boolean
-{
-	return (choice: JobChoice | ChangeOrderChoice) => isJobChoice(choice) || (!!changeOrder && ['Pending', 'Withdrawn'].indexOf(changeOrder.salesStatusDescription) === -1);
 }
 
 export function getDefaultOptionRule(optionNumber: string, choice: Choice): OptionRule

@@ -8,7 +8,7 @@ import { ISalesPhase, ISalesPhasePlan, ILot } from '../../../shared/models/prici
 import { OrganizationService } from '../../../core/services/organization.service';
 import { PricingService } from '../../../core/services/pricing.service';
 
-import { ConfirmModalComponent, SidePanelComponent } from 'phd-common';
+import { ConfirmModalComponent, Constants, SidePanelComponent } from 'phd-common';
 
 @Component({
 	selector: 'phase-pricing-side-panel-component',
@@ -72,7 +72,7 @@ export class PhasePricingSidePanelComponent implements OnInit
 			{
 				let prevPhase = lastPhase.phasePlans.find(x => x.plan.id === pp.plan.id);
 
-				return <ISalesPhasePlan> {
+				return <ISalesPhasePlan>{
 					listPrice: prevPhase ? prevPhase.listPrice : pp.listPrice,
 					plan: {
 						id: pp.plan.id,
@@ -264,9 +264,9 @@ export class PhasePricingSidePanelComponent implements OnInit
 			}
 		});
 
-    this.selectedItems = soldItems;
-    
-    this.setSelectedLotValue();
+		this.selectedItems = soldItems;
+
+		this.setSelectedLotValue();
 	}
 
 	removeItem(tag: ILot)
@@ -306,13 +306,13 @@ export class PhasePricingSidePanelComponent implements OnInit
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				this.onSaveSalesPhase.emit({ newSalesPhase: this.salesPhase, oldSalesPhaseLotAssoc: this.oldLotsAssignedToPhase });
 			}

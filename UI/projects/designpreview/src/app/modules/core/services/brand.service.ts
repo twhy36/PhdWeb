@@ -8,13 +8,17 @@ import * as divosta from '../../../../brands/divosta.json';
 import * as centex from '../../../../brands/centex.json';
 import * as johnWieland from '../../../../brands/john-wieland.json';
 
-import { applyBrand, getBrandImageSrc, getBannerImageSrc } from 'phd-common';
+import { getBrandImageSrc, getBannerImageSrc } from 'phd-common';
 
 @Injectable()
 export class BrandService
 {
 	environment = environment;
 	brandMap = {};
+	brandLogout: string;
+	brandName: string;
+	brandTitle: string;
+	brandTheme: string;
 
 	constructor()
 	{
@@ -24,11 +28,57 @@ export class BrandService
 		this.brandMap[environment.brandMap.divosta] = divosta['default'];
 		this.brandMap[environment.brandMap.centex] = centex['default'];
 		this.brandMap[environment.brandMap.johnWieland] = johnWieland['default'];
+		this.initialize();
 	}
 
-	applyBrandStyles(): void
+	initialize(): void
 	{
-		applyBrand(this.brandMap);
+		const baseUrl = window.location.host;
+
+		switch (baseUrl) 
+		{
+			case (environment.brandMap.americanWest):
+				this.brandLogout = environment.brandLogoutMap.americanWest;
+				this.brandName = Brands.AmericanWest;
+				this.brandTheme = BrandThemes.AmericanWest;
+				this.brandTitle = BrandTitles.AmericanWest;
+				break;			
+			case (environment.brandMap.centex):
+				this.brandLogout = environment.brandLogoutMap.centex;
+				this.brandName = Brands.Centex;
+				this.brandTheme = BrandThemes.Centex;
+				this.brandTitle = BrandTitles.Centex;
+				break;			
+			case (environment.brandMap.delwebb):
+				this.brandLogout = environment.brandLogoutMap.delwebb;
+				this.brandName = Brands.DelWebb;
+				this.brandTheme = BrandThemes.DelWebb;
+				this.brandTitle = BrandTitles.DelWebb;
+				break;
+			case (environment.brandMap.divosta):
+				this.brandLogout = environment.brandLogoutMap.divosta;
+				this.brandName = Brands.Divosta;
+				this.brandTheme = BrandThemes.DiVosta;
+				this.brandTitle = BrandTitles.Divosta;
+				break;
+			case (environment.brandMap.johnWieland):
+				this.brandLogout = environment.brandLogoutMap.johnWieland;
+				this.brandName = Brands.JohnWieland;
+				this.brandTheme = BrandThemes.JohnWieland;
+				this.brandTitle = BrandTitles.JohnWieland;
+				break;
+			case (environment.brandMap.pulte):
+				this.brandLogout = environment.brandLogoutMap.pulte;
+				this.brandName = Brands.Pulte;
+				this.brandTheme = BrandThemes.Pulte;
+				this.brandTitle = BrandTitles.JohnWieland;
+				break;
+		}
+	}
+
+	getBrandTheme(): string
+	{
+		return this.brandTheme;
 	}
 
 	getBrandImage(imageProperty: string): string
@@ -48,38 +98,15 @@ export class BrandService
 			return '';
 		}
 
-		let brandName = '';
-		const baseUrl = window.location.host;
-
-		switch (baseUrl) 
+		switch(displayMode)
 		{
-		case (environment.brandMap.americanWest):
-			brandName = displayMode===BrandDisplayMode.Title ? BrandTitles.AmericanWest : 
-				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.americanWest : Brands.AmericanWest);
-			break;			
-		case (environment.brandMap.centex):
-			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Centex : 
-				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.centex : Brands.Centex);
-			break;			
-		case (environment.brandMap.delwebb):
-			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.DelWebb : 
-				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.delwebb : Brands.DelWebb);
-			break;
-		case (environment.brandMap.divosta):
-			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Divosta : 
-				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.divosta : Brands.Divosta);
-			break;
-		case (environment.brandMap.johnWieland):
-			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.JohnWieland : 
-				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.johnWieland : Brands.JohnWieland);
-			break;
-		case (environment.brandMap.pulte):
-			brandName = displayMode === BrandDisplayMode.Title ? BrandTitles.Pulte : 
-				(displayMode === BrandDisplayMode.LogoutUrl ? environment.brandLogoutMap.pulte : Brands.Pulte);
-			break;
+			case(BrandDisplayMode.Title):
+				return this.brandTitle;
+			case(BrandDisplayMode.LogoutUrl):
+				return this.brandLogout;
+			default:
+				return this.brandName;
 		}
-
-		return brandName;
 	}
 
 	//read host only with https from config logoutUrl
@@ -111,6 +138,16 @@ export enum Brands
 	Centex = 'centex',
 	Divosta = 'divosta',
 	JohnWieland = 'johnWieland'
+}
+
+export enum BrandThemes
+{
+	Pulte = 'ph-theme',
+	DelWebb = 'dw-theme',
+	AmericanWest = 'aw-theme',
+	Centex = 'ch-theme',
+	DiVosta = 'dv-theme',
+	JohnWieland = 'jw-theme'
 }
 
 export enum BrandTitles

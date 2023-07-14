@@ -18,10 +18,11 @@
 						<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="choiceImages?.length > 1" (slide)="onSlide($event)">
 							<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index;" id="{{currentIndex}}">
 								<!--eslint-disable-next-line @angular-eslint/template/eqeqeq-->
-								<cl-image public-id="{{image.imageURL}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)"
+								<cl-image *ngIf="activeIndex?.current == currentIndex" public-id="{{image.imageURL}}"
+									(onLoad)="onLoadImage()" (onError)="onLoadImageError($event)"
 									type="fetch" background="#ffffff" crop="lpad" class="phd-image-content" alt="" role="group"
 									attr.aria-label="{{'Slide ' + (currentIndex + 1) + ' of ' + choiceImages.length}}"
-									*ngIf="activeIndex?.current == currentIndex"></cl-image>
+									></cl-image>
 							</ng-template>
 						</ngb-carousel>
 					</section>
@@ -51,22 +52,24 @@
 				</ng-container>
 			</div>
 		</div>
-		<div class="phd-price" [ngClass]="{'phd-price-right-justified' : isPresale}">
-			<ng-container *ngIf="choice.priceHiddenFromBuyerView && !isPresale">
-				<span>
-					<strong class="phd-price-label">Pricing Varies</strong>
-					<info-tooltip-component [template]="infoContent"></info-tooltip-component>
-				</span>
-			</ng-container>
-			<ng-container *ngIf="!choice.priceHiddenFromBuyerView && !isPresale">
-				<div class="d-flex flex-row align-items-center">
-					<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
-					<span class="phd-price-disclaimer">*Pricing Subject to change</span>
-				</div>
+		<div class="phd-price" [ngClass]="{'phd-price-right-justified' : !isPresalePricingEnabled && isPresale}">
+			<ng-container *ngIf="!isPresale || (isPresale && isPresalePricingEnabled)">
+				<ng-container *ngIf="choice.priceHiddenFromBuyerView">
+					<span>
+						<strong class="phd-price-label">Pricing Varies</strong>
+						<info-tooltip-component [template]="infoContent"></info-tooltip-component>
+					</span>
+				</ng-container>
+				<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
+					<div class="d-flex flex-row align-items-center">
+						<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+						<span class="phd-price-disclaimer">*Pricing Subject to change</span>
+					</div>
+				</ng-container>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Contracted'">
 				<button class="phd-favorite-selector">
-					<i class="fa fa-check phd-icon-selected "></i>
+					<i class="fa fa-check phd-icon-selected"></i>
 				</button>
 			</ng-container>
 			<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
@@ -96,7 +99,7 @@
 			</h2>
 
 			<div class="phd-attr-loc-group-container" *ngIf="!optionDisabled && (locationGroups?.length || (!locationGroups?.length && attributeGroups?.length))">
-				<div *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
+				<ul *ngIf="locationGroups?.length" class="d-flex flex-column w-100">
 					<ng-container *ngFor="let group of locationGroups">
 						<div *ngFor="let attributeLocation of group.locations" class="phd-attribute-location-body">
 							<attribute-location [currentChoice]="choice"
@@ -114,9 +117,9 @@
 							</attribute-location>
 						</div>
 					</ng-container>
-				</div>
+				</ul>
 
-				<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
+				<ul *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
 					<div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
 						<attribute-group [attributeGroup]="attributeGroup"
 										[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
@@ -127,7 +130,7 @@
 										(toggleAttribute)="toggleAttribute($event)">
 						</attribute-group>
 					</div>
-				</div>
+				</ul>
 			</div>
 		</div>
 		<div class="phd-descriptive-text">{{ disclaimerText }}</div>

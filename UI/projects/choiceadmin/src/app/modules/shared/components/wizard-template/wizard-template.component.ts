@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterOutlet, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
+import { Constants } from 'phd-common';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class WizardTemplateComponent implements OnInit
 	headerTemplate: TemplateRef<any>;
 	buttonTemplate: TemplateRef<any>;
 	completed: boolean = false;
-	
+
 	constructor(private route: ActivatedRoute, private router: Router, private modalService: NgbModal) { }
 
 	get showBackBtn(): boolean
@@ -131,10 +132,10 @@ export class WizardTemplateComponent implements OnInit
 
 					this.router.navigate([this.route.routeConfig.children.filter(c => !!c.path)[this.step].path], { relativeTo: this.route });
 				},
-				error =>
-				{
-					this.onError.emit(error);
-				});
+					error =>
+					{
+						this.onError.emit(error);
+					});
 			}
 		}
 		else
@@ -152,18 +153,15 @@ export class WizardTemplateComponent implements OnInit
 
 	showNavAway()
 	{
-		let msgBody = `If you continue you will lose your changes.<br><br> `;
-		msgBody += `Do you wish to continue?`;
-
 		let confirm = this.modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = 'Warning!';
-		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = 'Cancel';
+		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.body = Constants.LOSE_CHANGES;
+		confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 		confirm.result.then((result) =>
 		{
-			if (result == 'Continue')
+			if (result == Constants.CONTINUE)
 			{
 				this.onCancel.emit();
 			}

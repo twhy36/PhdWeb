@@ -10,29 +10,29 @@ export interface State {
 	welcomeAcknowledged: boolean;
 }
 
-export const initialState: State = { latestError: null, pageNotFound: false, showWelcomeModal: false, welcomeAcknowledged: false };
+export const initialState: State = { latestError: null, pageNotFound: false, showWelcomeModal: true, welcomeAcknowledged: false };
 
 export function reducer(state: State = initialState, action: AppActions): State 
 {
 	switch (action.type) 
 	{
-	case CommonActionTypes.ClearLatestError:
-		return { ...state, latestError: null, pageNotFound: false };
+		case CommonActionTypes.ClearLatestError:
+			return { ...state, latestError: null, pageNotFound: false };
 
-	case CommonActionTypes.SetLatestError:
-		return { ...state, latestError: action.error }
+		case CommonActionTypes.SetLatestError:
+			return { ...state, latestError: action.error }
 
-	case CommonActionTypes.PageNotFound:
-		return { ...state, pageNotFound: true };
+		case CommonActionTypes.PageNotFound:
+			return { ...state, pageNotFound: true };
 
-	case AppActionTypes.AcknowledgeWelcome:
-		return { ...state, welcomeAcknowledged: action.acknowledgeWelcome }
+		case AppActionTypes.AcknowledgeWelcome:
+			return { ...state, welcomeAcknowledged: action.acknowledgeWelcome }
 		
-	case AppActionTypes.ShowWelcomeModal:
-		return { ...state, showWelcomeModal: action.showWelcomeModal }
+		case AppActionTypes.ShowWelcomeModal:
+			return { ...state, showWelcomeModal: action.showWelcomeModal }
 
-	default:
-		return state;
+		default:
+			return state;
 	}
 }
 

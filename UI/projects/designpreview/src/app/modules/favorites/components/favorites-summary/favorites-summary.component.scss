@@ -77,8 +77,8 @@
 				background-color: $sub-group-bg;
 			}
 
-			::ng-deep decision-point-summary:not(:last-child) .phd-point {
-				border-bottom: 1px solid #d4d4d4;
+			.phd-decision-point-summary:not(:last-child) {
+				border-bottom: 1px solid $mid-gray;
 			}
 		}
 	}
@@ -95,20 +95,6 @@
 	font-weight: bold;
 	font-size: 10px;
 	margin-top: 6px;
-}
-
-::ng-deep .modal-header {
-	background: var(--popup-ribbon-background-color) !important;
-}
-
-::ng-deep .btn-primary {
-	background: var(--primary-button-color) !important;
-	border-color: var(--primary-button-color) !important;
-	border-radius: 35px;
-}
-
-::ng-deep .btn-secondary {
-	border-radius: 35px;
 }
 
 .phd-show-on-print {

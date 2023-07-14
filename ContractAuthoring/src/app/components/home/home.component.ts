@@ -142,7 +142,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
         this.isLoading = true;
         OfficeExtension.config.extendedErrorLogging = true;
         let me = this;
-
         this.contractService.getTemplateBase64(template.templateId).subscribe(async base64String =>
         {
             return Word.run(async context =>

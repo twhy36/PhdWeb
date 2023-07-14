@@ -6,7 +6,7 @@ import { Store, select } from '@ngrx/store';
 import { map, distinctUntilChanged, filter, combineLatest, withLatestFrom } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
-import { Group } from 'phd-common';
+import { Group, Constants } from 'phd-common';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
@@ -46,7 +46,7 @@ export class NavigationComponent implements OnInit
 				&& x.groups.every((g, i) => g.id === y.groups[i].id && g.subGroups.length === y.groups[i].subGroups.length
 					&& g.subGroups.every((sg, j) => sg.id === y.groups[i].subGroups[j].id && sg.points.length === y.groups[i].subGroups[j].points.length
 						&& sg.points.every((pt, k) => pt.id === y.groups[i].subGroups[j].points[k].id && pt.choices.length === y.groups[i].subGroups[j].points[k].choices.length
-			)))),
+						)))),
 			map(tree => tree ? tree.groups.map(g =>
 			{
 				return this.store.pipe(
@@ -84,20 +84,24 @@ export class NavigationComponent implements OnInit
 			select(state => state.opportunity.opportunityContactAssoc),
 			combineLatest(this.buildMode$,
 				this.store.pipe(select(fromChangeOrder.currentChangeOrder))),
-			map(([oppContact, buildMode, currentCO]) => {
-				if (buildMode === 'spec' || buildMode === 'model') {
+			map(([oppContact, buildMode, currentCO]) =>
+			{
+				if (buildMode === Constants.BUILD_MODE_SPEC || buildMode === Constants.BUILD_MODE_MODEL)
+				{
 					return buildMode;
 				}
-				else if (currentCO && currentCO.jobChangeOrders && currentCO.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'BuyerChangeOrder')) {
+				else if (currentCO && currentCO.jobChangeOrders && currentCO.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'BuyerChangeOrder'))
+				{
 					let jobChangeOrder = currentCO.jobChangeOrders.find(t => t.jobChangeOrderTypeDescription === 'BuyerChangeOrder');
 					let salesChangeOrderBuyer = jobChangeOrder.jobSalesChangeOrderBuyers.find(t => t.isPrimaryBuyer === true && t.action === 'Add');
 					return salesChangeOrderBuyer ? `${salesChangeOrderBuyer.opportunityContactAssoc.contact.firstName || ''} ${salesChangeOrderBuyer.opportunityContactAssoc.contact.lastName || ''} ${salesChangeOrderBuyer.opportunityContactAssoc.contact.suffix || ''}` : null;
 				}
-				else if (oppContact && oppContact.contact) {
+				else if (oppContact && oppContact.contact)
+				{
 					return `${oppContact.contact.firstName || ''} ${oppContact.contact.lastName || ''} ${oppContact.contact.suffix || ''}`;
 				}
 			}),
-            filter(contact => !!contact)
+			filter(contact => !!contact)
 		);
 		this.salesAgreementId$ = this.store.pipe(
 			select(state => state.salesAgreement),

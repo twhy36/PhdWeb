@@ -8,7 +8,7 @@ import
 {
 	UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeOrderHanding, Job, Lot, ViewAdjacency, Handing,
 	PhysicalLotType, PlanAssociation, MonotonyRuleLot, SalesPhase, Plan, Scenario, Choice, ModalService, LotChoiceRules,
-	ConfirmModalComponent, ChoiceRules, PointRules, ScenarioOptionColor
+	ConfirmModalComponent, ChoiceRules, PointRules, ScenarioOptionColor, Constants
 } from 'phd-common';
 
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -177,12 +177,12 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.store.pipe(select(fromScenario.elevationConflictOverride)),
 			this.store.pipe(select(fromScenario.colorSchemeConflictOverride))
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([elevationOverride, colorSchemeOverride]) =>
-		{
-			this.colorSchemeConflictOverride = colorSchemeOverride;
-			this.elevationConflictOverride = elevationOverride;
-		});
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([elevationOverride, colorSchemeOverride]) =>
+			{
+				this.colorSchemeConflictOverride = colorSchemeOverride;
+				this.elevationConflictOverride = elevationOverride;
+			});
 
 		combineLatest([
 			this.store.pipe(
@@ -231,20 +231,20 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.store.pipe(select(state => state.lot.selectedHanding)),
 			this.selectedFilterBy$
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([lots, selectedLot, financialCommunities, selectedHanding, selectedFilter]) =>
-		{
-			this.financialCommunities = financialCommunities;
-			this.lots = lots.map(l => new LotComponentLot(l, selectedLot, selectedHanding));
-			this.filteredLots = this.lots;
-
-			if (this.lots && selectedFilter !== 0)
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([lots, selectedLot, financialCommunities, selectedHanding, selectedFilter]) =>
 			{
-				this.filteredLots = this.lots.filter(lot => lot.financialCommunityId === selectedFilter)
-			}
+				this.financialCommunities = financialCommunities;
+				this.lots = lots.map(l => new LotComponentLot(l, selectedLot, selectedHanding));
+				this.filteredLots = this.lots;
 
-			this.getLotsMontonyConflictMessage();
-		});
+				if (this.lots && selectedFilter !== 0)
+				{
+					this.filteredLots = this.lots.filter(lot => lot.financialCommunityId === selectedFilter)
+				}
+
+				this.getLotsMontonyConflictMessage();
+			});
 
 		this.selectedLot$ = this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -321,13 +321,13 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			this.store.pipe(select(fromLite.selectedColorScheme)),
 			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-		.pipe(this.takeUntilDestroyed())
-		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
-		{
-			this.liteElevationOption = elevation;
-			this.liteColorScheme = colorScheme;
-			this.legacyColorScheme = legacyColorScheme;
-		});
+			.pipe(this.takeUntilDestroyed())
+			.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
+			{
+				this.liteElevationOption = elevation;
+				this.liteColorScheme = colorScheme;
+				this.legacyColorScheme = legacyColorScheme;
+			});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -376,7 +376,7 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 					{
 						const colorItem = this.liteElevationOption.colorItems?.find(item => item.colorItemId === this.liteColorScheme.colorItemId);
 						const color = colorItem?.color?.find(c => c.colorId === this.liteColorScheme.colorId);
-						
+
 						colorName = color?.name;
 					}
 
@@ -477,11 +477,11 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 
 						confirm.componentInstance.title = 'Attention!';
 						confirm.componentInstance.body = body;
-						confirm.componentInstance.defaultOption = 'Continue';
+						confirm.componentInstance.defaultOption = Constants.CONTINUE;
 
 						return confirm.result.then((result) =>
 						{
-							if (result !== 'Close')
+							if (result !== Constants.CLOSE)
 							{
 								this.toggleLot(lot, selected);
 
@@ -724,13 +724,13 @@ export class LotComponent extends UnsubscribeOnDestroy implements OnInit, OnDest
 			const body = `This will override the Monotony Conflict`;
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
-			confirm.componentInstance.title = 'Warning';
+			confirm.componentInstance.title = Constants.WARNING;
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = 'Cancel';
+			confirm.componentInstance.defaultOption = Constants.CANCEL;
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== 'Close')
+				if (result !== Constants.CLOSE)
 				{
 					if (!this.isPhdLite)
 					{

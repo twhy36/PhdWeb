@@ -8,7 +8,7 @@ import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
 	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice, ManagerName,
-	IPendingJobSummary
+	IPendingJobSummary, Constants
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -30,9 +30,9 @@ export class JobService
 		const expandJobOptions = `jobPlanOptions($select=id,planOptionId,listPrice,optionSalesName,optionDescription,optionQty,jobOptionTypeName;$expand=jobPlanOptionAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,sku),jobPlanOptionLocations($select=id,locationGroupCommunityId,locationCommunityId,quantity,locationName,locationGroupLabel;$expand=jobPlanOptionLocationAttributes($select=id,attributeGroupCommunityId,attributeCommunityId,attributeName,attributeGroupLabel,manufacturer,sku)),planOptionCommunity($select=id;$expand=optionCommunity($select=id;$expand=option($select=financialOptionIntegrationKey))))`;
 		const expandLot = `lot($expand=lotPhysicalLotTypeAssocs($select=lotId;$expand=physicalLotType),fieldManagerLotAssocs($select=lotId;$expand=fieldManager($select=firstname,lastname)),customerCareManagerLotAssocs($select=lotId,contactId),salesPhase($select=id,salesPhaseName),lotHandingAssocs($select=lotId;$expand=handing);$select=id,lotBlock,premium,lotStatusDescription,streetAddress1,streetAddress2,city,stateProvince,postalCode,foundationType,lotBuildTypeDesc,unitNumber,salesBldgNbr,alternateLotBlock,constructionPhaseNbr,county)`;
 
-		let expand = `jobSalesAgreementAssocs($expand=salesAgreement($select=id,status);$select=jobId;$filter=isActive eq true),${expandLot},planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
-		let filter = `id eq ${jobId}`;
-		let select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName,createdBy`;
+		const expand = `jobSalesAgreementAssocs($expand=salesAgreement($select=id,status);$select=jobId;$filter=isActive eq true),${expandLot},planCommunity($select=bedrooms,financialCommunityId,financialPlanIntegrationKey,footPrintDepth,footPrintWidth,foundation,fullBaths,garageConfiguration,halfBaths,id,isActive,isCommonPlan,masterBedLocation,masterPlanNumber,npcNumber,planSalesDescription,planSalesName,productConfiguration,productType,revisionNumber,specLevel,squareFeet,tcg,versionNumber),${expandJobChoices},${expandJobOptions},jobNonStandardOptions($select=id,name,description,financialOptionNumber,quantity,unitPrice),pendingConstructionStages($select=id,constructionStageName,constructionStageStartDate),jobConstructionStageHistories($select=id,constructionStageId,constructionStageStartDate), projectedDates($select=jobId,projectedStartDate,projectedFrameDate,projectedSecondDate,projectedFinalDate)`;
+		const filter = `id eq ${jobId}`;
+		const select = `id,financialCommunityId,constructionStageName,lotId,planId,handing,warrantyTypeDesc,startDate,projectedFinalDate,jobTypeName,createdBy`;
 
 		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent('$')}select=${encodeURIComponent(select)}`;
 
@@ -41,8 +41,8 @@ export class JobService
 			switchMap(response => this.getTimeOfSaleOptionPricesForJob(response)),
 			switchMap(response =>
 			{
-				let job = new Job(response);
-				let contactId = job.lot?.customerCareManagerLotAssocs?.length > 0 ? job.lot.customerCareManagerLotAssocs[0].contactId : 0;
+				const job = new Job(response);
+				const contactId = job.lot?.customerCareManagerLotAssocs?.length > 0 ? job.lot.customerCareManagerLotAssocs[0].contactId : 0;
 
 				return contactId !== 0 ? this.contactService.getContact(contactId).pipe(
 					map(contact =>
@@ -64,6 +64,31 @@ export class JobService
 				console.error(error);
 
 				return _throw(error);
+			})
+		);
+	}
+
+	checkIfJobHasSalesAgreementAssocs(jobId: number): Observable<boolean>
+	{
+		const filter = `id eq ${jobId}`;
+		const select = `id`;
+		let expand = `jobSalesAgreementAssocs($expand=salesAgreement($select=id,status);$select=jobId;$filter=isActive eq true)`;
+		const url = `${environment.apiUrl}jobs?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${encodeURIComponent('$')}expand=${encodeURIComponent(expand)}&${encodeURIComponent("$")}select=${encodeURIComponent(select)}`;
+
+		return withSpinner(this._http).get<any>(url).pipe(
+			map(response =>
+			{
+
+				const jobs = response['value'] as Array<Job>;
+
+				if (jobs?.length > 0)
+				{
+					return jobs[0]?.jobSalesAgreementAssocs?.findIndex(x => x.salesAgreement?.status !== Constants.AGREEMENT_STATUS_VOID && x.salesAgreement?.status !== Constants.AGREEMENT_STATUS_CANCEL && x.salesAgreement?.id !== 0) === -1;
+				}
+				else
+				{
+					return true;
+				}
 			})
 		);
 	}
@@ -459,8 +484,9 @@ export class JobService
 	{
 		let changeOrderGroupIds: Array<number> = jobDto.changeOrderGroups.map(t => t.id);
 		const filter = `edhChangeOrderGroupId in (${changeOrderGroupIds}) and eSignStatusId ne 4`;
+		const expand = 'eSignRecipientEnvelopeEvents'
 
-		const url = `${environment.apiUrl}eSignEnvelopes?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
+		const url = `${environment.apiUrl}eSignEnvelopes?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		return this._http.get<any>(url).pipe(
 			map(response =>
@@ -614,5 +640,5 @@ export class JobService
 		return this._http.patch(url, pendingJobSummary).pipe(
 			map(resp => resp as IPendingJobSummary)
 		);
-	}	
+	}
 }

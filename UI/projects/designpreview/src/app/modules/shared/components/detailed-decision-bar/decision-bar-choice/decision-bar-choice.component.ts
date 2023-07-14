@@ -1,13 +1,19 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DecisionPoint, Group, ModalRef, ModalService, Tree } from 'phd-common';
 import { ChoiceExt } from '../../../models/choice-ext.model';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from '../../../../ngrx-store/reducers';
+import * as NavActions from '../../../../ngrx-store/nav/actions';
+import _ from 'lodash';
+import { BrandService } from '../../../../core/services/brand.service';
 
 @Component({
 	selector: 'decision-bar-choice',
 	templateUrl: './decision-bar-choice.component.html',
 	styleUrls: ['./decision-bar-choice.component.scss']
-})
-export class DecisionBarChoiceComponent 
+	})
+export class DecisionBarChoiceComponent
 {
 	@Input() choice: ChoiceExt;
 	@Input() point: DecisionPoint;
@@ -15,6 +21,7 @@ export class DecisionBarChoiceComponent
 	@Input() tree: Tree;
 	@Input() isReadonly: boolean;
 	@Input() isPresale: boolean;
+	@Input() isPresalePricingEnabled: boolean;
 
 	@Output() toggleChoice = new EventEmitter<ChoiceExt>();
 	@Output() viewChoiceDetail = new EventEmitter<ChoiceExt>();
@@ -26,6 +33,8 @@ export class DecisionBarChoiceComponent
 	blockedChoiceModalRef: ModalRef;
 
 	constructor(
+		private store: Store<fromRoot.State>,
+		private brandService: BrandService,
 		public modalService: ModalService
 	) { }
 
@@ -42,9 +51,13 @@ export class DecisionBarChoiceComponent
 		this.viewChoiceDetail.emit(this.choice);
 	}
 
-	openBlockedChoiceModal() 
+	openBlockedChoiceModal()
 	{
-		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: 'phd-blocked-choice-modal' }, true);
+		const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.point.id === p.id)) || null;
+
+		this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.point.id, null));
+
+		this.blockedChoiceModalRef = this.modalService.open(this.blockedChoiceModal, { backdrop: true, windowClass: `phd-blocked-choice-modal ${this.brandService.getBrandTheme()}` }, true);
 	}
 
 	onCloseClicked() 

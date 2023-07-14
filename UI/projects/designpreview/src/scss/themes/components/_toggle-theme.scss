@@ -1,0 +1,135 @@
+@use 'sass:map';
+@use "sass:math" as math;
+@use '@angular/material' as mat;
+
+@mixin color($theme) {
+	$color-config: mat.get-color-config($theme);
+
+	$primary-palette: map.get($color-config, 'primary');
+	$accent-palette: map.get($color-config, 'accent');
+
+	border-color: mat.get-color-from-palette($primary-palette, 'A400');
+
+	>.handle {
+		background: mat.get-color-from-palette($primary-palette, 400);
+	}
+
+	&.btn-sm {
+		color: mat.get-color-from-palette($primary-palette, 'A400');
+	}
+}
+
+// Mixin for Default Switch Styles
+@mixin theme($theme, $size-width: 3.5rem, $size: 1.5rem, $margin: 4rem, $font-size: .75rem, $content-before: 'Must Not Have', $content-after: 'Must Have') {
+	$color-config: mat.get-color-config($theme);
+	@if $color-config != null {
+		@include color($theme);
+	}
+
+	margin: 0 $margin;
+	padding: 0;
+	position: relative;
+	height: $size;
+	width: $size-width * 1.25;
+	border-radius: $size;
+
+	&:focus,
+	&.focus {
+
+		&,
+		&.active {
+			outline: none;
+		}
+	}
+
+	&:before,
+	&:after {
+		line-height: $size;
+		width: $margin;
+		text-align: center;
+		font-weight: 600;
+		font-size: $font-size;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		position: absolute;
+		bottom: 0;
+		transition: opacity .25s;
+	}
+
+	&:before {
+		content: $content-before;
+		left: -$margin;
+	}
+
+	&:after {
+		content: $content-after;
+		right: -$margin;
+		opacity: .5;
+	}
+
+	>.handle {
+		position: absolute;
+		top: math.div($size * .18, 2);
+		left: math.div($size * .30, 2);
+		width: $size * .75;
+		height: $size * .75;
+		border-radius: $size * .75;
+		transition: left .25s;
+	}
+
+	&.active {
+		transition: background-color .25s;
+
+		>.handle {
+			left: ($size-width * 1.25) - 1.5;
+			transition: left .25s;
+		}
+
+		&:before {
+			opacity: .5;
+		}
+
+		&:after {
+			opacity: 1;
+		}
+	}
+
+	&.btn-sm {
+
+		&:before,
+		&:after {
+			line-height: $size - .125rem;
+			letter-spacing: .75px;
+			left: $size-width * .1;
+			width: $size-width * 1;
+		}
+
+		&:before {
+			text-align: right;
+		}
+
+		&:after {
+			text-align: left;
+			opacity: 0;
+			color: #fff;
+		}
+
+		&.active {
+			&:before {
+				opacity: 0;
+			}
+
+			&:after {
+				opacity: 1;
+			}
+		}
+	}
+
+	&.btn-secondary {
+
+		&:after,
+		&:before {
+			color: #fff;
+		}
+	}
+}

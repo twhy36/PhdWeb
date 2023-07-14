@@ -15,6 +15,8 @@ import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { MyFavoritesComponent } from './my-favorites.component';
 import { ModalService, NavigationService, PointStatus, TreeService } from 'phd-common';
+import { BrandService } from '../../../core/services/brand.service';
+import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 
 describe('MyFavoritesComponent', () =>
 {
@@ -38,6 +40,8 @@ describe('MyFavoritesComponent', () =>
 	const mockTreeService = mock(TreeService);
 	const mockModalService = mock(ModalService);
 	const mockNavService = mock(NavigationService);
+	const mockBrandService = mock(BrandService);
+	let instanceModalService;
 
 	beforeEach(fakeAsync(() =>
 	{
@@ -45,8 +49,8 @@ describe('MyFavoritesComponent', () =>
 			declarations: [
 				MyFavoritesComponent,
 				MockComponent({ selector: 'group-bar', inputs: ['communityName', 'planName', 'groups', 'selectedSubGroupId'], outputs: ['onSubgroupSelected', 'onSetTreeFilter'] }),
-				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'myFavoritesPointsDeclined', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'tree', 'choiceImages', 'isReadonly', 'isPresale', 'noVisibleGroups', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint'] }),
-				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped', 'noVisibleFP', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint'] }),
+				MockComponent({ selector: 'normal-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'myFavoritesPointsDeclined', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'groups', 'tree', 'choiceImages', 'isReadonly', 'isPresale', 'isPresalePricingEnabled', 'noVisibleGroups', 'unfilteredPoints'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint', 'onDeclineDecisionPoint'] }),
+				MockComponent({ selector: 'floor-plan-experience', inputs: ['groupName', 'currentSubgroup', 'errorMessage', 'myFavoritesChoices', 'decisionPointId', 'includeContractedOptions', 'salesChoices', 'marketingPlanId', 'isFloorplanFlipped', 'noVisibleFP', 'unfilteredPoints', 'isDesignComplete', 'noVisibleGroups', 'isPreview', 'isReadonly', 'isPresale', 'isPresalePricingEnabled', 'tree', 'groups', 'myFavoritesPointsDeclined'], outputs: ['onToggleChoice', 'onToggleContractedOptions', 'onViewChoiceDetail', 'onSelectDecisionPoint'] }),
 				MockComponent({ selector: 'choice-card-detail', inputs: ['choice', 'path', 'myFavoritesPointsDeclined'], outputs: ['onBack', 'onToggleChoice'] }),
 				MockComponent({ selector: 'action-bar', inputs: ['scrollListener', 'primaryAction', 'price', 'favoritesPrice', 'showPrint', 'showFavorites', 'includeContractedOptions', 'isDesignComplete', 'isPreview', 'isPresale', 'hideContractedToggle', 'isFixedWidth'], outputs: ['callToAction', 'onToggleContractedOptions'] })
 			],
@@ -58,11 +62,13 @@ describe('MyFavoritesComponent', () =>
 				{ provide: TreeService, useFactory: () => instance(mockTreeService) },
 				{ provide: ModalService, useFactory: () => instance(mockModalService) },
 				{ provide: NavigationService, useFactory: () => instance(mockNavService) },
+				{ provide: BrandService, useFactory: () => instance(mockBrandService)},
 			]
 		})
 			.compileComponents();
 
 		mockStore = TestBed.inject(MockStore);
+		instanceModalService = TestBed.inject(ModalService)
 	}));
 
 	beforeEach(() =>
@@ -183,6 +189,42 @@ describe('MyFavoritesComponent', () =>
 				expect(component.selectedPointId).toEqual(11);
 				expect(onStoreSpy).toHaveBeenCalled();
 			});
+		});
+	});
+
+	describe('welcome popup', () => 
+	{
+		it('should call modalService.open when showWelcomeModal = true', () => 
+		{
+			const newState = {
+				...initialState,
+				app: { showWelcomeModal: true },
+			};
+			mockStore.setState(newState);
+			spyOn(instanceModalService, 'open').and.callThrough();
+			component.ngOnInit();
+			expect(instanceModalService.open).toHaveBeenCalled();
+			expect(instanceModalService.open).toHaveBeenCalledWith(
+				WelcomeModalComponent,
+				{
+					centered: true,
+					backdrop: 'static',
+					keyboard: false,
+					windowClass: null,
+				}
+				, true);
+		});
+
+		it('should not call modalService.open when showWelcomeModal = false', () => 
+		{
+			const newState = {
+				...initialState,
+				app: { showWelcomeModal: false },
+			};
+			mockStore.setState(newState);
+			spyOn(instanceModalService, 'open').and.callThrough();
+			component.ngOnInit();
+			expect(instanceModalService.open).not.toHaveBeenCalled();
 		});
 	});
 });

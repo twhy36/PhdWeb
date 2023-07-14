@@ -4,6 +4,7 @@
 	padding-bottom: 70px;
 	margin-top: 10px;
 	width: 100%;
+	min-height: calc(100vh);
 
 	h1 {
 		font-size: 28px;
@@ -11,10 +12,10 @@
 		margin: 0;
 		font-weight: bold;
 	}
+}
 
-	.phd-footer-bar {
-		margin-top: 130px;
-	}
+.phd-footer-bar {
+	margin-bottom: 70px;
 }
 
 .phd-tree-view {
@@ -71,8 +72,8 @@
 				background-color: $sub-group-bg;
 			}
 
-			::ng-deep decision-point-summary:not(:last-child) .phd-point {
-				border-bottom: 1px solid #d4d4d4;
+			.phd-decision-point-summary:not(:last-child) {
+				border-bottom: 1px solid $mid-gray;
 			}
 		}
 	}

@@ -10,31 +10,5 @@
 		"2": "assets/del-webb/banner/DW Light Floor.jpg",
 		"3": "assets/del-webb/banner/DW Kitchen Room.jpg",
 		"4": "assets/del-webb/banner/DW Blue Cabinet Detail.jpg"
-	},
-	"styles": {
-		"font": "Museo Sans",
-		"primary-ribbon-background-color": "#40b9da",
-		"secondary-ribbon-background-color": "#0a5165",
-		"info-ribbon-background-color": "#40b9da",
-		"choice-detail-ribbon-color": "#0a5165",
-		"primary-button-color": "#0273A6",
-		"home-page-community-label": "#5b6470",
-		"nav-bar-text-color": "white",
-		"info-bar-text-color": "white",
-		"group-bar-text-color": "#E9F3F8",
-		"group-bar-border-color": "#0a5165",
-		"group-bar-selected-color": "white",
-		"home-text-color": "#000000",
-		"heart-icon-color": "#0a5165",
-		"primary-icon-color": "#0a5165",
-		"secondary-icon-color": "#0a5165",
-		"action-icon-color": "#044465",
-		"selected-border-color": "#0a5165",
-		"link-color": "#0a5165",
-		"popup-ribbon-background-color": "#40b9da",
-		"home-page-floorplan-background-color": "#e4e5e4",
-		"logo-margin-top": "8px",
-		"logo-max-height": "40px",
-        "hamburger-menu-width": "315px"
 	}
 }

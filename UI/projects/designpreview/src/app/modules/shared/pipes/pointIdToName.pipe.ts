@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 
 @Pipe({
 	name: 'pointIdToName'
-})
+	})
 export class PointIdToNamePipe implements PipeTransform
 {
 	constructor(private store: Store<fromRoot.State>) { }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable, BehaviorSubject, Subscription ,  from as fromPromise } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription, from as fromPromise } from 'rxjs';
 import { combineLatest, switchMap, distinctUntilChanged, flatMap, skipWhile, finalize } from 'rxjs/operators';
 
 import * as moment from 'moment';
@@ -22,7 +22,7 @@ import { OrganizationService } from '../../../core/services/organization.service
 import { PlanService } from '../../../core/services/plan.service';
 import { TreeService } from '../../../core/services/tree.service';
 import { SettingsService } from '../../../core/services/settings.service';
-import { IdentityService, Permission } from 'phd-common';
+import { Constants, IdentityService, Permission } from 'phd-common';
 
 import { TreeOptionsContainerComponent } from './';
 
@@ -245,7 +245,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 		}
 
 		// if changes then confirm
-		return this.confirm('Discard changes?', 'Warning!', 'Cancel');
+		return this.confirm('Discard changes?', Constants.WARNING, Constants.CANCEL);
 	}
 
 	private confirm(msg: string, title: string, defaultOption: string): Observable<boolean>
@@ -387,7 +387,7 @@ export class ManageTreeOptionsComponent extends ComponentCanNavAway implements O
 
 		return confirm.result.then((result) =>
 		{
-			return result === 'Continue';
+			return result === Constants.CONTINUE;
 		});
 	}
 }

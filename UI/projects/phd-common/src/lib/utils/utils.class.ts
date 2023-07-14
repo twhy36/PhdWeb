@@ -23,7 +23,7 @@ export function isChoiceAttributesComplete(choice: Choice): boolean
 	let isComplete = true;
 
 	// if mapped attributes or locations attached to the choice has locations and/or attributes but nothing is selected then the choice isn't complete.
-	if ((choice.mappedAttributeGroups && choice.mappedAttributeGroups.length > 0 || choice.mappedLocationGroups && choice.mappedLocationGroups.length > 0) && !choice.selectedAttributes.length)
+	if ((choice.mappedAttributeGroups?.length > 0 || choice.mappedLocationGroups?.length > 0) && !choice.selectedAttributes.length)
 	{
 		isComplete = false;
 	}
@@ -226,7 +226,8 @@ export function mergeTreeChoiceImages(choiceImages: Array<ChoiceImageAssoc>, tre
 export function getChoiceImage(choice: Choice): string
 {
 	const options = choice ? choice.options : null;
-	if (options && options.length) 
+
+	if (options?.length) 
 	{
 		return options.find(x => x.optionImages && x.optionImages.length)?.optionImages[0]?.imageURL;
 	}
@@ -240,8 +241,9 @@ export function getChoiceImage(choice: Choice): string
 export function getChoiceImageList(choice: Choice): OptionImage[]
 {
 	const options = choice ? choice.options : null;
-	let images: OptionImage[] = [];
-	if (options && options.length) 
+	const images: OptionImage[] = [];
+
+	if (options?.length) 
 	{
 		options.forEach(option =>
 		{
@@ -262,26 +264,16 @@ export function getChoiceImageList(choice: Choice): OptionImage[]
 	return images;
 }
 
-export function getChoiceIdsHasChoiceImages(tree: Tree, hasAgreement: boolean): Array<number>
+export function getChoiceIdsHasChoiceImages(tree: Tree, hasAgreement: boolean): Array<Choice>
 {
-	return hasAgreement ?
-		(_.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [])
-			.filter(c => c.hasImage)
-			.map(c =>
-			{
-				//display contracted choice images only
-				if (c.lockedInChoice?.choice)
-				{
-					return c.lockedInChoice.choice.dpChoiceId;
-				}
-				else
-				{
-					return c.id;
-				}
-			})
-		:
-		(_.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [])
-			.filter(c => c.hasImage)
-			.map(c => c.id)
-		;
+	const choices = _.flatMap(tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
+	const filteredChoices = choices.filter(c => c.hasImage);
+
+	return filteredChoices.map(c =>
+	{
+		// hasAgreement and lockedInChoice - display contracted choice images only
+		const id = hasAgreement && c.lockedInChoice?.choice ? c.lockedInChoice.choice.dpChoiceId : c.id;
+
+		return new Choice({ id: id } as Choice);
+	});
 }

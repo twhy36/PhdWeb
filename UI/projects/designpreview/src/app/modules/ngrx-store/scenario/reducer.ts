@@ -38,6 +38,7 @@ export interface State
 	hiddenChoiceIds: number[];
 	hiddenPointIds: number[];
 	floorPlanImages: FloorPlanImage[];
+	presalePricingEnabled: boolean;
 }
 
 export const initialState: State = {
@@ -45,7 +46,7 @@ export const initialState: State = {
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: BuildMode.Buyer,
 	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null,
-	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: []
+	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: [], presalePricingEnabled: false,
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -87,7 +88,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 						if (c)
 						{
-							// get locations
+						// get locations
 							const selectedAttributes = choice.jobChoiceLocations ? _.flatten(choice.jobChoiceLocations.map(l =>
 							{
 								return l.jobChoiceLocationAttributes && l.jobChoiceLocationAttributes.length ? l.jobChoiceLocationAttributes.map(a =>
@@ -143,14 +144,14 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (newState.options)
 			{
-				// apply images to options
+			// apply images to options
 				newState.options.forEach(option =>
 				{
 					const images = action.optionImages.filter(x => x.integrationKey === option.financialOptionIntegrationKey);
 
 					if (images.length)
 					{
-						// make sure they're sorted properly
+					// make sure they're sorted properly
 						option.optionImages = images.sort((a, b) => a.sortKey < b.sortKey ? -1 : 1);
 					}
 				});
@@ -168,7 +169,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				if (action.type === CommonActionTypes.SalesAgreementLoaded && action.info?.isDesignComplete)
 				{
-					// When it is design complete, all points and subgroups should be in complete status
+				// When it is design complete, all points and subgroups should be in complete status
 					points.forEach(pt =>
 					{
 						pt.status = PointStatus.COMPLETED;
@@ -183,7 +184,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 					if (action.type === CommonActionTypes.SalesAgreementLoaded)
 					{
-						// For each point, if the user cannot select the DP in this tool, then the status should be complete
+					// For each point, if the user cannot select the DP in this tool, then the status should be complete
 						points.filter(pt => pt.isStructuralItem || pt.isPastCutOff || pt.isHiddenFromBuyerView)
 							.forEach(pt => pt.status = PointStatus.COMPLETED);
 					}
@@ -220,10 +221,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			points = _.flatMap(subGroups, sg => sg.points);
 			choices = _.flatMap(points, p => p.choices);
 
-			const hiddenAlert: HTMLElement = document.getElementById("hiddenAlert");
+			const hiddenAlert: HTMLElement = document.getElementById('hiddenAlert');
 
-			if (hiddenAlert) {
-				hiddenAlert.innerHTML = "";
+			if (hiddenAlert) 
+			{
+				hiddenAlert.innerHTML = '';
 			}
 
 			for (const choice of action.choices)
@@ -231,10 +233,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				const c = choices.find(ch => ch.id === choice.choiceId || ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 				if (c)
 				{
-					//selection changed from attribute or attributes cleared by un-favorite
+				//selection changed from attribute or attributes cleared by un-favorite
 					if (choice.attributes?.length && ((!c.quantity && choice.quantity) || (c.quantity && !choice.quantity)))
 					{
-						if (hiddenAlert) {
+						if (hiddenAlert) 
+						{
 							hiddenAlert.innerHTML = 'Updating this element will cause content on the page to be updated.';
 						}
 					}
@@ -288,8 +291,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				}
 			}
 
-			if (hiddenAlert) {
-				hiddenAlert.innerHTML = "";
+			if (hiddenAlert) 
+			{
+				hiddenAlert.innerHTML = '';
 			}
 			points.forEach(point =>
 			{
@@ -299,7 +303,8 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				//related point updated per select choice, raise aria warning
 				if (initPointCompleted !== point.completed)
 				{
-					if (hiddenAlert) {
+					if (hiddenAlert) 
+					{
 						hiddenAlert.innerHTML = 'Updating this element will cause content on the page to be updated.';
 					}
 				}
@@ -311,7 +316,7 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 			if (action.isDesignComplete)
 			{
-				// When it is design complete, all points and subgroups should be in complete status
+			// When it is design complete, all points and subgroups should be in complete status
 				points.forEach(pt =>
 				{
 					pt.status = PointStatus.COMPLETED;
@@ -387,32 +392,37 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 			return { ...state, buildMode: newBuildMode };
 
 		case CommonActionTypes.MyFavoritesChoiceAttributesDeleted:
-			{
-				newTree = _.cloneDeep(state.tree);
-				choices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-				const choice = choices?.find(c => c.divChoiceCatalogId === action.myFavoritesChoice?.divChoiceCatalogId);
+		{
+			newTree = _.cloneDeep(state.tree);
+			choices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+			const choice = choices?.find(c => c.divChoiceCatalogId === action.myFavoritesChoice?.divChoiceCatalogId);
 
-				if (choice)
+			if (choice)
+			{
+				const deletedAttributes = [...action.attributes, ...action.locations];
+				deletedAttributes?.forEach(att =>
 				{
-					const deletedAttributes = [...action.attributes, ...action.locations];
-					deletedAttributes?.forEach(att =>
-					{
-						const attributeIndex = choice.selectedAttributes?.findIndex(selAtt =>
-							att.locationGroupId === selAtt.locationGroupId
+					const attributeIndex = choice.selectedAttributes?.findIndex(selAtt =>
+						att.locationGroupId === selAtt.locationGroupId
 							&& att.locationId === selAtt.locationId
 							&& att.attributeGroupId === selAtt.attributeGroupId
 							&& att.attributeId === selAtt.attributeId
-						);
+					);
 
-						if (attributeIndex > -1)
-						{
-							choice.selectedAttributes.splice(attributeIndex, 1);
-						}
-					});
-				}
-
-				return { ...state, tree: newTree };
+					if (attributeIndex > -1)
+					{
+						choice.selectedAttributes.splice(attributeIndex, 1);
+					}
+				});
 			}
+
+			return { ...state, tree: newTree };
+		}
+
+		case ScenarioActionTypes.SetPresalePricingEnabled:
+		{
+			return { ...state, presalePricingEnabled: action.isEnabled };
+		}
 
 		default:
 			return state;
@@ -997,4 +1007,9 @@ export const choicePriceRanges = createSelector(
 export const floorPlanImages = createSelector(
 	selectScenario,
 	(state) => state.floorPlanImages
+);
+
+export const presalePricingEnabled = createSelector(
+	selectScenario,
+	(state) => state.presalePricingEnabled
 );

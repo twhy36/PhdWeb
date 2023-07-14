@@ -9,7 +9,7 @@ import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, de
 import * as _ from 'lodash';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
-import { Plan, DtoScenarioInfo, TreeService } from 'phd-common';
+import { Plan, DtoScenarioInfo, TreeService, Constants } from 'phd-common';
 
 import { CommonActionTypes, JobLoaded, SalesAgreementLoaded, ScenarioLoaded } from './../actions';
 import { OptionService } from '../../core/services/option.service';
@@ -18,11 +18,11 @@ import { PlanService } from '../../core/services/plan.service';
 import { ScenarioService } from '../../core/services/scenario.service';
 
 import
-	{
-		ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
-		SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed,
-		LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob, SelectRequiredChoiceAttributes
-	} from './actions';
+{
+	ScenarioActionTypes, SaveScenario, ScenarioSaved, SaveError, SetChoicePriceRanges,
+	SetScenarioPlan, SetScenarioLot, SetScenarioLotHanding, TreeLoaded, LoadError, SetPointViewed,
+	LoadPreview, SaveScenarioInfo, ScenarioInfoSaved, LoadTree, SelectChoices, SetIsFloorplanFlippedScenario, IsFloorplanFlippedScenario, TreeLoadedFromJob, SelectRequiredChoiceAttributes
+} from './actions';
 import { SaveChangeOrderScenario, SavePendingJio } from '../change-order/actions';
 import { SetWebPlanMapping, PlansLoaded, SelectPlan } from '../plan/actions';
 import * as fromRoot from '../reducers';
@@ -45,7 +45,7 @@ export class ScenarioEffects
 				{
 					return of(new SaveChangeOrderScenario());
 				}
-				else if (!store.changeOrder || !store.changeOrder.isChangingOrder && store.scenario.buildMode === 'buyer')
+				else if (!store.changeOrder || !store.changeOrder.isChangingOrder && store.scenario.buildMode === Constants.BUILD_MODE_BUYER)
 				{
 					return of(new SaveScenario());
 				}
@@ -120,7 +120,7 @@ export class ScenarioEffects
 							);
 					}
 				})
-			), LoadError, "Error loading tree!!"),
+			), LoadError, 'Error loading tree!!'),
 			share()
 		);
 	});
@@ -137,17 +137,17 @@ export class ScenarioEffects
 				const savingScenario = !store.salesAgreement.id &&
 					store.scenario.isUnsaved &&
 					!store.scenario.savingScenario &&
-					store.scenario.buildMode === 'buyer';
+					store.scenario.buildMode === Constants.BUILD_MODE_BUYER;
 
 				const savingPendingJio = store.salesAgreement.id
-					&& store.salesAgreement.status === 'Pending'
-					&& store.scenario.buildMode !== 'preview';
+					&& store.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING
+					&& store.scenario.buildMode !== Constants.BUILD_MODE_PREVIEW;
 
 				const savingChangeOrder = !!store.changeOrder &&
 					store.changeOrder.currentChangeOrder &&
 					(!!store.changeOrder.currentChangeOrder.id ||
 						store.changeOrder.currentChangeOrder.salesStatusDescription === 'Pending')
-					&& store.scenario.buildMode !== 'preview';
+					&& store.scenario.buildMode !== Constants.BUILD_MODE_PREVIEW;
 
 				const timeOfSaleOptionPricesToSave = _.flatMap((action as SelectChoices).choices.filter(c => c.quantity !== 0), c => c.timeOfSaleOptionPrices || []);
 
@@ -185,7 +185,7 @@ export class ScenarioEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
-					if (store.scenario.buildMode === 'buyer')
+					if (store.scenario.buildMode === Constants.BUILD_MODE_BUYER)
 					{
 						return of<[Action, fromRoot.State]>([action, store]);
 					}
@@ -199,7 +199,7 @@ export class ScenarioEffects
 				take(1),
 				switchMap(store => this.scenarioService.saveScenario(store.scenario.scenario, store.scenario.tree, store.job ? store.job.jobChoices : null)),
 				map(scenario => new ScenarioSaved(scenario))
-			), SaveError, "Error saving scenario!!", MapFunction.concatMap)
+			), SaveError, 'Error saving scenario!!', MapFunction.concatMap)
 		);
 	});
 
@@ -209,7 +209,7 @@ export class ScenarioEffects
 			withLatestFrom(this.store),
 			flatMap(([action, store]) =>
 			{
-				let point = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
+				const point = _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points))
 					.find(p => p.id === action.pointId);
 
 				if (point && store.scenario.scenario && !!store.scenario.scenario.scenarioId)
@@ -247,7 +247,7 @@ export class ScenarioEffects
 					return of(info);
 				}),
 				switchMap(results => of(new IsFloorplanFlippedScenario(results.isFloorplanFlipped)))
-			), SaveError, "Error saving floorplan flipped!!")
+			), SaveError, 'Error saving floorplan flipped!!')
 		);
 	});
 
@@ -318,7 +318,7 @@ export class ScenarioEffects
 						map(() => new ScenarioInfoSaved(action.scenarioInfo)
 						));
 				})
-			), SaveError, "Error saving scenario info!!")
+			), SaveError, 'Error saving scenario info!!')
 		);
 	});
 

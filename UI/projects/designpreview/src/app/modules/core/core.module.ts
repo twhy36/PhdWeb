@@ -32,46 +32,46 @@ import { InfoDisclaimerComponent } from './components/info-disclaimer/info-discl
 import { LoggingService, PhdErrorHandler } from 'phd-common';
 @NgModule({
 	exports: [
-		NavBarComponent,
-		IdleLogoutComponent,
-		ClickDirective,
-		BannerComponent
+	NavBarComponent,
+	IdleLogoutComponent,
+	ClickDirective,
+	BannerComponent
 	],
 	declarations: [
-		NavBarComponent,
-		IdleLogoutComponent,
-		ClickDirective,
-		DefaultErrorComponent,
-		BannerComponent,
-		WelcomeModalComponent,
-		InfoDisclaimerComponent
+	NavBarComponent,
+	IdleLogoutComponent,
+	ClickDirective,
+	DefaultErrorComponent,
+	BannerComponent,
+	WelcomeModalComponent,
+	InfoDisclaimerComponent
 	],
 	imports: [
-		CommonModule,
-		HttpClientModule,
-		RouterModule,
-		SharedModule
+	CommonModule,
+	HttpClientModule,
+	RouterModule,
+	SharedModule
 	],
 	providers: [
-		ChangeOrderService,
-		FavoriteService,
-		JobService,
-		LotService,
-		OptionService,
-		OrganizationService,
-		PlanService,
-		SalesAgreementService,
-		AttributeService,
-		AuthService,
-		ReportsService,
-		BrandService,
-		AdobeService,
-		LoggingService,
-		LoggedInGuard,
-		InternalGuard,
-		ExternalGuard,
-		PresaleGuard,
-		{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
+	ChangeOrderService,
+	FavoriteService,
+	JobService,
+	LotService,
+	OptionService,
+	OrganizationService,
+	PlanService,
+	SalesAgreementService,
+	AttributeService,
+	AuthService,
+	ReportsService,
+	BrandService,
+	AdobeService,
+	LoggingService,
+	LoggedInGuard,
+	InternalGuard,
+	ExternalGuard,
+	PresaleGuard,
+	{ provide: ErrorHandler, useClass: PhdErrorHandler, deps: [LoggingService] }
 	]
-})
+	})
 export class CoreModule { }

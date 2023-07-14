@@ -1,4 +1,3 @@
-@import "../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 @import "../../../../../../../phd-common/src/lib/scss/animations.scss";
 
 ul {
@@ -44,7 +43,6 @@ ul {
 			width: 25px;
 
 			.fa-check {
-				color: var(--primary-icon-color);
 				-webkit-text-stroke: 1px white;
 			}
 		}
