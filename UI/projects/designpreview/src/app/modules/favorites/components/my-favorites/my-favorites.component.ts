@@ -221,19 +221,13 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (filteredTree && params.subGroupCatalogId > 0)
 			{
-				let groups = filteredTree.groups;
+				//read full tree group if detail page requested
+				let groups = params.divChoiceCatalogId ? scenarioState.tree.treeVersion.groups : filteredTree.groups;
 				let sg;
 
 				if (groups.length)
 				{
 					sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
-
-					//when choice is requested for detail and subgroup not in filtered tree, find subgroup in original tree
-					if (!sg && params.divChoiceCatalogId)
-					{
-						groups = scenarioState.tree.treeVersion.groups;
-						sg = _.flatMap(groups, g => g.subGroups).find(sg => sg.subGroupCatalogId === params.subGroupCatalogId);
-					}
 
 					if (!sg)
 					{
