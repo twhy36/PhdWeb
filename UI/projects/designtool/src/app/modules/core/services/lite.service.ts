@@ -17,7 +17,7 @@ import
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
 	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes,
 	ScenarioOption, ScenarioOptionColor, Scenario, IJob, FeatureSwitchService, PriceBreakdown,
-	IPendingJobSummary, Constants
+	IPendingJobSummary
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -809,8 +809,8 @@ export class LiteService
 	{
 		const title = 'Generate Home Purchase Agreement';
 		const body = 'This House Configuration has Options selected that require a color.  Either some colors were not selected or some colors you selected have been set to inactive.  Click Continue to generate this sales agreement now, or click Cancel to select the colors for options.';
-		const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
 		this.showConfirmModal(body, title, primaryButton, secondaryButton).subscribe(result =>
 		{
@@ -1694,26 +1694,26 @@ export class LiteService
 		});
 	}
 
-	mapPendingJobSummaryLite(jobId: number, priceBreakdown: PriceBreakdown, selectedOptions: ScenarioOption[], options: LitePlanOption[]): IPendingJobSummary
+	mapPendingJobSummaryLite(jobId: number, priceBreakdown: PriceBreakdown, selectedOptions: ScenarioOption[], options: LitePlanOption[]) : IPendingJobSummary
 	{
 		const elevationOption = options?.find(option => selectedOptions?.find(selectedOption => selectedOption.edhPlanOptionId === option.id)
 			&& (option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached));
 
 		return {
-			jobId: jobId,
-			planPrice: priceBreakdown.baseHouse,
-			elevationPlanOptionId: elevationOption?.id,
-			elevationPrice: elevationOption?.listPrice,
-			totalOptionsPrice: priceBreakdown.selections,
-			salesProgramAmount: priceBreakdown.salesProgram,
-			totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
-			totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
-			totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
-			totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
-			netHousePrice: priceBreakdown.totalPrice
+            jobId: jobId,
+            planPrice: priceBreakdown.baseHouse,
+            elevationPlanOptionId: elevationOption?.id,
+            elevationPrice: elevationOption?.listPrice,
+            totalOptionsPrice: priceBreakdown.selections,
+            salesProgramAmount: priceBreakdown.salesProgram,
+            totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
+            totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
+            totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
+            totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
+            netHousePrice: priceBreakdown.totalPrice			
 		} as IPendingJobSummary;
 	}
-
+	
 	addJobColors(jobId: number)
 	{
 		const endpoint = environment.apiUrl + `AddJobColors(${jobId})`;
@@ -1724,27 +1724,24 @@ export class LiteService
 				return response;
 			}),
 			catchError(this.handleError)
-		);
+		);		
 	}
 
-	hasUnMappedJobColors(missingColorItemsAndColors: any, colorItems: ColorItem[]): boolean
+	hasUnMappedJobColors(missingColorItemsAndColors : any, colorItems: ColorItem[]) : boolean
 	{
-		const hasUnMappedColorItems = !missingColorItemsAndColors.missingColorItems.some(mci =>
-		{
+		const hasUnMappedColorItems = !missingColorItemsAndColors.missingColorItems.some(mci => {
 			return colorItems.some(ci => mci.planOptionId === ci.edhPlanOptionId && mci.name === ci.name);
 		});
-
+		
 		const colors = _.flatMap(colorItems, ci => ci.color);
-		const hasUnMappedColors = !missingColorItemsAndColors.missingColors.some(mc =>
-		{
+		const hasUnMappedColors = !missingColorItemsAndColors.missingColors.some(mc => {
 			return colors.some(cl => mc.optionSubCategoryId === cl.edhOptionSubcategoryId && mc.name === cl.name);
 		});
 
-		const hasUnMappedColorItemColorAssoc = !missingColorItemsAndColors.missingColorItems.some(mci =>
-		{
-			return colorItems.some(ci => mci.planOptionId === ci.edhPlanOptionId
-				&& mci.name === ci.name
-				&& colors.some(cl => mci.optionSubCategoryId === cl.edhOptionSubcategoryId && mci.name === cl.name));
+		const hasUnMappedColorItemColorAssoc = !missingColorItemsAndColors.missingColorItems.some(mci => {
+			return colorItems.some(ci => mci.planOptionId === ci.edhPlanOptionId 
+										&& mci.name === ci.name 
+										&& colors.some(cl => mci.optionSubCategoryId === cl.edhOptionSubcategoryId && mci.name === cl.name));
 		});
 
 		return hasUnMappedColorItems || hasUnMappedColors || hasUnMappedColorItemColorAssoc;

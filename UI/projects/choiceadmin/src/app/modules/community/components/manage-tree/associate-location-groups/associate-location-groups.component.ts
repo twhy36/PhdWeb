@@ -15,7 +15,6 @@ import { AttributeGroupActionPanelComponent } from '../../../../shared/component
 
 import { LocationService } from '../../../../core/services/location.service';
 import { UiUtilsService } from '../../../../core/services/ui-utils.service';
-import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'associate-location-groups',
@@ -50,13 +49,13 @@ export class AssociateLocationGroupComponent implements OnInit
 	}
 
 	addAssocButtons: Array<ActionButton> = [
-		{ text: Constants.ASSOCIATE, class: 'btn btn-primary', action: this.saveAssociation.bind(this), disabled: true },
-		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelAssociation.bind(this), disabled: false }
+		{ text: 'Associate', class: 'btn btn-primary', action: this.saveAssociation.bind(this), disabled: true },
+		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelAssociation.bind(this), disabled: false }
 	];
 
 	removeAssocButtons: Array<ActionButton> = [
-		{ text: Constants.REMOVE, class: 'btn btn-primary', action: this.removeAssociation.bind(this), disabled: true },
-		{ text: Constants.CANCEL, class: 'btn btn-secondary', action: this.cancelRemoveAssociation.bind(this), disabled: false }
+		{ text: 'Remove', class: 'btn btn-primary', action: this.removeAssociation.bind(this), disabled: true },
+		{ text: 'Cancel', class: 'btn btn-secondary', action: this.cancelRemoveAssociation.bind(this), disabled: false }
 	];
 
 	constructor(private cd: ChangeDetectorRef, private _uiUtilsService: UiUtilsService, private _msgService: MessageService, private _locService: LocationService) { }
@@ -120,18 +119,18 @@ export class AssociateLocationGroupComponent implements OnInit
 				this.isLoading.next(false);
 			}
 		},
-			error =>
-			{
-				this._msgService.add({
-					id: 'toast-locations-choice',
-					key: 'toast-locations-choice',
-					severity: 'danger',
-					summary: 'Error',
-					detail: `Unable to load associated location group(s).`
-				});
-
-				this.isLoading.next(false);
+		error =>
+		{
+			this._msgService.add({
+				id: 'toast-locations-choice',
+				key: 'toast-locations-choice',
+				severity: 'danger',
+				summary: 'Error',
+				detail: `Unable to load associated location group(s).`
 			});
+
+			this.isLoading.next(false);
+		});
 	}
 
 	getAssociatedGroups()
@@ -148,18 +147,18 @@ export class AssociateLocationGroupComponent implements OnInit
 				this.isLoading.next(false);
 			}
 		},
-			error =>
-			{
-				this._msgService.add({
-					id: 'toast-locations-choice',
-					key: 'toast-locations-choice',
-					severity: 'danger',
-					summary: 'Error',
-					detail: `Unable to load associated location group(s).`
-				});
-
-				this.isLoading.next(false);
+		error =>
+		{
+			this._msgService.add({
+				id: 'toast-locations-choice',
+				key: 'toast-locations-choice',
+				severity: 'danger',
+				summary: 'Error',
+				detail: `Unable to load associated location group(s).`
 			});
+
+			this.isLoading.next(false);
+		});
 	}
 
 	saveAssociation()
@@ -194,18 +193,18 @@ export class AssociateLocationGroupComponent implements OnInit
 
 				this.isLoading.next(false);
 			},
-				error =>
-				{
-					this._msgService.add({
-						id: 'toast-locations-choice',
-						key: 'toast-locations-choice',
-						severity: 'danger',
-						summary: 'Error',
-						detail: `Failed to associate location group(s).`
-					});
-
-					this.isLoading.next(false);
+			error =>
+			{
+				this._msgService.add({
+					id: 'toast-locations-choice',
+					key: 'toast-locations-choice',
+					severity: 'danger',
+					summary: 'Error',
+					detail: `Failed to associate location group(s).`
 				});
+
+				this.isLoading.next(false);
+			});
 	}
 
 	async cancelAssociation()
@@ -269,18 +268,18 @@ export class AssociateLocationGroupComponent implements OnInit
 
 						this.isLoading.next(false);
 					},
-						error =>
-						{
-							this._msgService.add({
-								id: 'toast-locations-choice',
-								key: 'toast-locations-choice',
-								severity: 'danger',
-								summary: 'Error',
-								detail: `Failed to remove location group(s).`
-							});
-
-							this.isLoading.next(false);
+					error =>
+					{
+						this._msgService.add({
+							id: 'toast-locations-choice',
+							key: 'toast-locations-choice',
+							severity: 'danger',
+							summary: 'Error',
+							detail: `Failed to remove location group(s).`
 						});
+
+						this.isLoading.next(false);
+					});
 			}
 		}
 	}

@@ -7,10 +7,9 @@ import { combineLatest, Observable, of, forkJoin, from } from 'rxjs';;
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
 
-import
-{
-	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined,
-	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService, Constants, SalesAgreementStatuses
+import { 
+	SpinnerService, ChangeOrderChoice, ChangeOrderGroup, SalesAgreementInfo, MyFavoritesPointDeclined, 
+	mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, LoggingService, TreeService
 } from 'phd-common';
 
 import { CommonActionTypes, LoadError, LoadSalesAgreement, SalesAgreementLoaded } from './actions';
@@ -277,7 +276,7 @@ export class CommonEffects
 					const baseHouseOption = result.job.jobPlanOptions.find(o => o.jobOptionTypeName === 'BaseHouse');
 					let selectedPlanPrice: number = 0;
 
-					if (result.salesAgreement.status === SalesAgreementStatuses.OutForSignature || result.salesAgreement.status === SalesAgreementStatuses.Signed || result.salesAgreement.status === SalesAgreementStatuses.Approved)
+					if (['OutforSignature', 'Signed', 'Approved'].indexOf(result.salesAgreement.status) !== -1)
 					{
 						if (baseHouseOption)
 						{
@@ -354,11 +353,11 @@ export class CommonEffects
 						ErrorFrom: errFrom
 					};
 
-					if (errFrom !== ErrorFrom.PageNotFound)
+					if(errFrom !== ErrorFrom.PageNotFound)
 					{
 						this.loggingService.logError((<ErrorAction>errorScan.err).error, properties);
 					}
-
+					
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})

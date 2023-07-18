@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { UnsubscribeOnDestroy, PriceBreakdown, ScenarioStatusType, SummaryReportType, DecisionPointFilterType, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, PriceBreakdown, ScenarioStatusType, SummaryReportType, DecisionPointFilterType } from 'phd-common';
 
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { Store, select } from '@ngrx/store';
@@ -50,11 +50,11 @@ export class SummaryActionBarComponent extends UnsubscribeOnDestroy implements O
 				this.salesAgreementId = salesAgreement.id;
 				this.primaryAction = 'Agreement Info';
 			}
-			else if (build === Constants.BUILD_MODE_SPEC)
+			else if (build === 'spec')
 			{
 				this.primaryAction = 'Create Spec';
 			}
-			else if (build === Constants.BUILD_MODE_MODEL)
+			else if (build === 'model')
 			{
 				this.primaryAction = 'Create Model';
 			}

@@ -31,12 +31,11 @@ export class SearchResult
 	activeChangeOrderText: string;
 	buildTypeDisplayName: string;
 
-	get buyerString(): string
-	{
+	get buyerString(): string {
 		return this.buyers && this.buyers.length > 0 ? this.buyers.map(fm => fm.firstName + ' ' + fm.lastName).join(', ') : '';
 	}
 	constructor(dto: ISearchResult)
-	{
+    {
 		this.buildType = dto.lotBuildTypeDesc || 'Dirt';
 		this.buildTypeDisplayName = dto.lotBuildTypeDesc || 'Dirt';
 		this.city = dto.city || null;
@@ -48,18 +47,15 @@ export class SearchResult
 			dto.lotPhysicalLotTypeAssocs.length > 0 &&
 			dto.lotPhysicalLotTypeAssocs[0].physicalLotType ? dto.lotPhysicalLotTypeAssocs[0].physicalLotType.description : null;
 		this.id = dto.id || null;
-		this.lotStatusDescription = dto.lotStatusDescription || null;
-		if ((dto.lotStatusDescription === 'Sold' || dto.lotStatusDescription === 'PendingSale' || (dto.lotBuildTypeDesc === 'Spec' && dto.lotStatusDescription === 'Available')) && dto.jobs.length > 0)
-		{
+        this.lotStatusDescription = dto.lotStatusDescription || null;
+        if ((dto.lotStatusDescription === 'Sold' || dto.lotStatusDescription === 'PendingSale' || (dto.lotBuildTypeDesc === 'Spec' && dto.lotStatusDescription === 'Available')) && dto.jobs.length > 0) {
 			const item: SearchResultItem = new SearchResultItem();
 			item.name = dto.jobs[0].planCommunity && dto.jobs[0].planCommunity.planSalesName || null;
 			item.id = dto.jobs[0].planCommunity && dto.jobs[0].planCommunity.id || null;
 			this.plans = [item];
 		}
-		else
-		{
-			this.plans = dto.planAssociations && dto.planAssociations.filter(p => p.isActive).map(p =>
-			{
+		else {
+			this.plans = dto.planAssociations && dto.planAssociations.filter(p => p.isActive).map(p => {
 				const item: SearchResultItem = new SearchResultItem();
 				item.name = p.planCommunity && p.planCommunity.planSalesName || null;
 				item.id = p.planCommunity && p.planCommunity.id || null;
@@ -96,9 +92,8 @@ export class SearchResult
 
 			job.jobSalesAgreementAssocs.map(jsa =>
 			{
-				if (jsa.salesAgreement && jsa.salesAgreement.id)
-				{
-					jsa.salesAgreement.isOnFinalLot = !jsa.salesAgreement.jobSalesAgreementAssocs
+				if (jsa.salesAgreement && jsa.salesAgreement.id) {
+					jsa.salesAgreement.isOnFinalLot = !jsa.salesAgreement.jobSalesAgreementAssocs 
 						|| !jsa.salesAgreement.jobSalesAgreementAssocs.length
 						|| this.jobId === jsa.salesAgreement.jobSalesAgreementAssocs[0].jobId;
 
@@ -122,7 +117,7 @@ export class SearchResult
 					}
 					for (let i = job.jobChangeOrderGroups.length - 1; i > -1; i--)
 					{
-
+						
 						if (!job.jobChangeOrderGroups[i].changeOrderGroupSequence || (job.jobChangeOrderGroups[i].changeOrderGroupSequence === 0 && i !== 0))
 						{
 							job.jobChangeOrderGroups[i].changeOrderGroupSequence = ++lastSequence;
@@ -146,8 +141,8 @@ export class SearchResult
 						SalesAgreementId: activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].salesAgreementId : null
 					};
 					this.activeChangeOrderText = 'CO# ' +
-						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString()
-							: activeCOG.changeOrderGroupSequence ? activeCOG.changeOrderGroupSequence.toString() : '0') +
+						(activeCOG.jobChangeOrderGroupSalesAgreementAssocs.length > 0 ? (activeCOG.jobChangeOrderGroupSalesAgreementAssocs[0].changeOrderGroupSequence || '').toString() 
+						: activeCOG.changeOrderGroupSequence ? activeCOG.changeOrderGroupSequence.toString() : '0') +
 						' - ' + activeCOG.salesStatusDescription + ' - ' + activeCOG.jobChangeOrderGroupDescription;
 				}
 			}
@@ -303,38 +298,33 @@ export interface IFilterItem
 	value: string | number
 }
 
-export class Buyer
-{
+export class Buyer {
 	firstName: string;
 	lastName: string;
 	sortKey?: number;
 	isPrimaryBuyer?: boolean;
 }
 
-export class ActiveChangeOrder
-{
+export class ActiveChangeOrder {
 	changeOrderNumber: string;
 	changeOrderStatus: string;
 	changeOrderDescription: string;
 	SalesAgreementId: number;
 }
 
-export class ChangeOrderGroupSalesAgreementAssoc
-{
+export class ChangeOrderGroupSalesAgreementAssoc {
 	changeOrderGroupSequence: number;
 	salesAgreementId: number;
 }
 
-export class JobChangeOrder
-{
+export class JobChangeOrder {
 	id: number;
 	jobChangeOrderGroupId: number;
 	jobChangeOrderTypeDescription: string;
 	jobSalesChangeOrderBuyers: Array<JobSalesChangeOrderBuyers>;
 }
 
-export class JobSalesChangeOrderBuyers
-{
+export class JobSalesChangeOrderBuyers {
 	id: number;
 	jobChangeOrderId: number;
 	firstName: string;

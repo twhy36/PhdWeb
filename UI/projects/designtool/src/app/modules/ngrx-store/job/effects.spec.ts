@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { of, from } from 'rxjs';
 import { SalesAgreementLoaded, ScenarioLoaded } from '../actions';
 import { SetPermissions } from '../user/actions';
-import { SalesAgreement, JobPlanOption, Constants, SalesAgreementStatuses } from 'phd-common';
+import { SalesAgreement, JobPlanOption } from 'phd-common';
 import { JobEffects } from './effects';
 import { mock } from 'ts-mockito';
 import { JobService } from '../../core/services/job.service';
@@ -79,7 +79,7 @@ describe('JobEffects', () =>
 			const store = of(state) as Store<State>;
 			const actions = new Actions(
 				from([
-					new SalesAgreementLoaded(<SalesAgreement>{ status: SalesAgreementStatuses.OutForSignature }, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
+					new SalesAgreementLoaded(<SalesAgreement>{ status: 'OutforSignature' }, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
 					new SetPermissions(null, [], 1)
 				])
 			);
@@ -163,7 +163,7 @@ describe('JobEffects', () =>
 			const store = of(state) as Store<State>;
 			const actions = new Actions(
 				from([
-					new SalesAgreementLoaded(<SalesAgreement>{ status: SalesAgreementStatuses.Pending }, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
+					new SalesAgreementLoaded(<SalesAgreement>{ status: 'Pending' }, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
 					new SetPermissions(null, [], 1)
 				])
 			);

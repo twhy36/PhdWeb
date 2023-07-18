@@ -8,7 +8,7 @@ import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { NgbDateNativeAdapter } from '../../../shared/classes/ngbDatePicker/ngbDateNativeAdapter.class';
-import { ModalContent, Constants } from 'phd-common';
+import { ModalContent } from 'phd-common';
 
 @Component({
 	selector: 'sign-agreement-component',
@@ -42,7 +42,7 @@ export class SignAgreementComponent extends ModalContent implements OnInit
 		this.customerName$ = this.store.pipe(
 			select(state => state.opportunity.opportunityContactAssoc.contact),
 			combineLatest(this.buildMode$),
-			map(([contact, buildMode]) => (buildMode === Constants.BUILD_MODE_SPEC || buildMode === Constants.BUILD_MODE_MODEL) ? buildMode : contact ? `${contact.firstName || ''} ${contact.lastName || ''} ${contact.suffix || ''}` : null),
+			map(([contact, buildMode]) => (buildMode === 'spec' || buildMode === 'model') ? buildMode : contact ? `${contact.firstName || ''} ${contact.lastName || ''} ${contact.suffix || ''}` : null),
 			filter(contact => !!contact)
 		);
 

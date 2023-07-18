@@ -4,7 +4,7 @@ import { ReplaySubject } from 'rxjs';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption, Constants } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, ModalService, ScenarioOption, CutOffOverride } from 'phd-common';
 import { LitePlanOption, Color, LitePlanOptionUI } from '../../../shared/models/lite.model';
 import { MonotonyConflict } from '../../../shared/models/monotony-conflict.model';
 import { ModalOverrideSaveComponent } from '../../../core/components/modal-override-save/modal-override-save.component';
@@ -135,7 +135,7 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 	{
 		if (!this.canEditAgreementOrSpec)
 		{
-			return this.isSelected ? 'selected' : this.buildMode === Constants.BUILD_MODE_SPEC ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
+			return this.isSelected ? 'selected' : this.buildMode === 'spec' ? 'SPEC LOCKED' : 'AGREEMENT LOCKED';
 		}
 
 		return this.isSelected ? 'Unselect' : 'CHOOSE';
@@ -171,26 +171,26 @@ export class ExteriorCardComponent extends UnsubscribeOnDestroy implements OnIni
 
 			if (this.monotonyConflict.monotonyConflict && this.option.isPastCutOff)
 			{
-				body = Constants.OVERRIDE_MONOTONY_AND_CUT_OFF;
+				body = `This will override the Monotony Conflict and the Cut-off`;
 			}
 			else if (this.monotonyConflict.monotonyConflict)
 			{
-				body = Constants.OVERRIDE_MONOTONY;
+				body = `This will override the Monotony Conflict`;
 			}
 			else
 			{
-				body = Constants.OVERRIDE_CUT_OFF;
+				body = CutOffOverride.Message;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
 
-			confirm.componentInstance.title = Constants.WARNING;
+			confirm.componentInstance.title = 'Warning';
 			confirm.componentInstance.body = body;
-			confirm.componentInstance.defaultOption = Constants.CANCEL;
+			confirm.componentInstance.defaultOption = 'Cancel';
 
 			return confirm.result.then((result) =>
 			{
-				if (result !== Constants.CLOSE)
+				if (result !== 'Close')
 				{
 					this.addOverrideReason(result);
 				}

@@ -3,24 +3,23 @@ import { Component, Input, TemplateRef, Output, EventEmitter } from '@angular/co
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmModalComponent } from '../../../core/components/confirm-modal/confirm-modal.component';
-import { Constants } from 'phd-common';
 
 @Component({
-	selector: 'side-panel-component',
-	templateUrl: './side-panel.component.html',
+    selector: 'side-panel-component',
+    templateUrl: './side-panel.component.html',
 	styleUrls: ['./side-panel.component.scss']
 })
 export class SidePanelComponent
 {
-	@Output() onSidePanelClose = new EventEmitter<boolean>();
-	@Input() sidePanelOpen: boolean = false;
-	@Input() customClasses: string = '';
+    @Output() onSidePanelClose = new EventEmitter<boolean>();
+    @Input() sidePanelOpen: boolean = false;
+    @Input() customClasses: string = '';
 
-	@Input() headerTemplate: TemplateRef<any>;
-	@Input() subheaderTemplate: TemplateRef<any>;
-	@Input() bodyTemplate: TemplateRef<any>;
+    @Input() headerTemplate: TemplateRef<any>;
+    @Input() subheaderTemplate: TemplateRef<any>;
+    @Input() bodyTemplate: TemplateRef<any>;
 	@Input() footerTemplate: TemplateRef<any>;
-
+	
 	private _isDirty: boolean = false;
 
 	get isDirty(): boolean
@@ -54,15 +53,18 @@ export class SidePanelComponent
 
 	showNavAway()
 	{
+		let msgBody = `If you continue you will lose your changes.<br><br> `;
+		msgBody += `Do you wish to continue?`;
+
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
-		confirm.componentInstance.body = Constants.LOSE_CHANGES;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = msgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.onSidePanelClose.emit(!this.sidePanelOpen);
 			}

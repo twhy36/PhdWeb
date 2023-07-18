@@ -5,7 +5,7 @@ import { SalesAgreementActions, SalesAgreementActionTypes } from './actions';
 
 import { RehydrateMap } from '../sessionStorage';
 
-import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram, Constants } from 'phd-common';
+import { Buyer, Note, SalesAgreement, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency, ISalesProgram } from 'phd-common';
 import { CommonActionTypes } from '../actions';
 
 export interface State extends SalesAgreement
@@ -142,8 +142,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 		case SalesAgreementActionTypes.BuyersSwapped:
 			const buyersAfterSwap = state.buyers.map<Buyer>(b =>
 			{
-				if (b.sortKey === 0)
-				{
+				if (b.sortKey === 0) {
 					return action.newPrimaryBuyer;
 				}
 
@@ -319,7 +318,7 @@ export function reducer(state: State = initialState, action: SalesAgreementActio
 			// by the time the API call returns. There seems to be a delay, but the record does get updated properly
 			const lastModifiedDate = new Date(new Date().toUTCString());
 
-			return { ...state, status: Constants.CANCEL, statusUtcDate: lastModifiedDate, savingSalesAgreement: false, saveError: false, isUnsaved: false };
+			return { ...state, status: 'Cancel', statusUtcDate: lastModifiedDate, savingSalesAgreement: false, saveError: false, isUnsaved: false };
 		case SalesAgreementActionTypes.LoadConsultants:
 			return { ...state, loadError: false };
 		case SalesAgreementActionTypes.ConsultantsLoaded:

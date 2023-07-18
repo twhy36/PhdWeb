@@ -8,7 +8,7 @@ import { ofType } from '@ngrx/effects';
 import { Observable, throwError as _throw, of } from 'rxjs';
 import { combineLatest, map, catchError, withLatestFrom, take, switchMap } from 'rxjs/operators';
 
-import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint, LotChoiceRuleAssoc, Constants } from 'phd-common';
+import { defaultOnNotFound, withSpinner, Lot, MonotonyRule, LotExt, DecisionPoint, LotChoiceRuleAssoc } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
 
@@ -136,7 +136,7 @@ export class LotService
 		);
 	}
 
-	getLotReleaseDate(lotId: number): Observable<string>
+	getLotReleaseDate(lotId: number):Observable<string>
 	{
 		const filter = `Release_LotAssoc/any(c: c/EDHLotId eq ${lotId})`
 		const url = `${environment.apiUrl}releases?${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
@@ -182,11 +182,11 @@ export class LotService
 			take(1)
 		).subscribe(([sag, co, scenario, lite]) =>
 		{
-			if (!sag.id || co || (scenario.buildMode === Constants.BUILD_MODE_SPEC || scenario.buildMode === Constants.BUILD_MODE_MODEL))
+			if (!sag.id || co || (scenario.buildMode === 'spec' || scenario.buildMode === 'model'))
 			{
 				const scenarioId = scenario.scenario.scenarioId;
 
-				if (scenario.buildMode === Constants.BUILD_MODE_SPEC || scenario.buildMode === Constants.BUILD_MODE_MODEL)
+				if (scenario.buildMode === 'spec' || scenario.buildMode === 'model')
 				{
 					if (lite.isPhdLite)
 					{

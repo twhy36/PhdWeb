@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ModalOptions, ModalRef, IModalOptions } from '../utils/modal.class';
-import { Constants } from '../utils/constants.class';
+import { ModalMessages } from '../utils/constants.class';
 import { ModalComponent } from '../components/modal/modal.component';
 import { PopStateEvent } from '@angular/common';
 
@@ -37,7 +37,7 @@ export class ModalService
 
 		options.content = message;
 		options.type = 'normal';
-		options.header = title.length ? title : Constants.WARNING;
+		options.header = title.length ? title : 'Warning';
 		options.buttons = [{ 'text': 'Ok', 'cssClass': ['btn-primary'], 'result': true }];
 		options.headerRemoveMargin = headerRemoveMargin;
 		const result = this.startModal(options, true);
@@ -64,16 +64,14 @@ export class ModalService
 			this.modalRef.componentInstance.modalRef = this.modalRef;
 		}
 
-		if (closeOnBack)
-		{
+		if (closeOnBack) {
 			window.addEventListener('popstate', this.popStateHandler.bind(this));
 		}
 
 		return this.modalRef;
 	}
 
-	popStateHandler(e: PopStateEvent)
-	{
+	popStateHandler(e: PopStateEvent) {
 		this.modalRef?.close();
 		window.removeEventListener('popstate', this.popStateHandler)
 	}
@@ -84,7 +82,7 @@ export class ModalService
 
 		options.content = content;
 		options.type = 'normal';
-		options.header = Constants.WARNING;
+		options.header = 'Warning';
 		options.buttons = [{ 'text': 'Okay', 'cssClass': ['btn-primary'], 'result': true }];
 
 		return this.showModal(options);
@@ -97,10 +95,10 @@ export class ModalService
 		options.content = content;
 		options.needsInput = true;
 		options.type = 'normal';
-		options.header = Constants.WARNING;
+		options.header = 'Warning';
 		options.buttons = [
-			{ 'text': Constants.SAVE, 'cssClass': ['btn-primary'], 'result': 'textInput', 'disable': true },
-			{ 'text': Constants.CANCEL, 'cssClass': ['btn-primary'], 'result': Constants.CLOSE }
+			{ 'text': 'Save', 'cssClass': ['btn-primary'], 'result': 'textInput', 'disable': true },
+			{ 'text': 'Cancel', 'cssClass': ['btn-primary'], 'result': 'Close' }
 		];
 		options.inputLabel = 'Override Reason';
 
@@ -113,7 +111,7 @@ export class ModalService
 
 		options.content = content;
 		options.type = 'confirmation';
-		options.header = Constants.WARNING;
+		options.header = 'Warning';
 		options.buttons = [
 			{ 'text': 'No', 'cssClass': ['btn-light'], 'result': false },
 			{ 'text': 'Yes', 'cssClass': ['btn-secondary'], 'result': true }
@@ -126,7 +124,7 @@ export class ModalService
 	{
 		const options = new ModalOptions<any>();
 
-		options.content = Constants.MODAL_SUCCESS;
+		options.content = ModalMessages.Success;
 		options.type = 'success';
 
 		return this.showModal(options);
@@ -142,7 +140,7 @@ export class ModalService
 		}
 		else
 		{
-			options.content = Constants.MODAL_ERROR;
+			options.content = ModalMessages.Error;
 		}
 
 		options.type = 'normal';
@@ -156,9 +154,9 @@ export class ModalService
 	{
 		const options = new ModalOptions<boolean>();
 
-		options.content = Constants.MODAL_UNSAVED;
+		options.content = ModalMessages.Unsaved;
 		options.type = 'confirmation';
-		options.header = Constants.WARNING;
+		options.header = 'Warning';
 		options.buttons = [
 			{ 'text': 'No', 'cssClass': ['btn-light'], 'result': false },
 			{ 'text': 'Yes', 'cssClass': ['btn-secondary'], 'result': true }
@@ -170,7 +168,7 @@ export class ModalService
 	private startModal<TResult>(options: ModalOptions<TResult>, useCompactStyle: boolean = false)
 	{
 		this.modalObs.next(options);
-		const defaultOptions = { ...this.defaultModalOptions };
+		const defaultOptions = {...this.defaultModalOptions};
 
 		if (useCompactStyle)
 		{
@@ -187,7 +185,7 @@ export class ModalService
 		confirm.componentInstance.header = options.header;
 		confirm.componentInstance.needsInput = options.needsInput;
 		confirm.componentInstance.headerRemoveMargin = options.headerRemoveMargin;
-
+		
 		return from(confirm.result).pipe(
 			map(res => res as TResult)
 		);

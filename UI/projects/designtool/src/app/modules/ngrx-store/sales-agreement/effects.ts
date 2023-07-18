@@ -33,10 +33,10 @@ import * as fromRoot from '../reducers';
 import * as fromSalesAgreement from './reducer';
 
 import
-{
-	Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
-	SalesAgreementContingency, SalesAgreement, SpinnerService, SpecDiscountService, Constants, SalesAgreementStatuses
-} from 'phd-common';
+	{
+		Buyer, ESignEnvelope, ESignStatusEnum, ESignTypeEnum, SalesStatusEnum, Job, SalesAgreementInfo, SalesAgreementProgram,
+		SalesAgreementContingency, SalesAgreement, SpinnerService, SpecDiscountService
+	} from 'phd-common';
 
 import { tryCatch } from '../error.action';
 import { SalesAgreementCancelled, LoadSpec } from '../actions';
@@ -199,7 +199,7 @@ export class SalesAgreementEffects
 				{
 					const sa = new SalesAgreement(action.salesAgreement);
 
-					if (sa.status == SalesAgreementStatuses.Pending || sa.status == SalesAgreementStatuses.OutForSignature)
+					if (sa.status == 'Pending' || sa.status == 'OutforSignature')
 					{
 						sa.salePrice = priceBreakdown.totalPrice;
 					}
@@ -430,7 +430,7 @@ export class SalesAgreementEffects
 					coBuyer.sortKey = sortKey;
 					coBuyer.opportunityContactAssoc.opportunity.salesCommunityId = salesCommunityId;
 					coBuyer.opportunityContactAssoc.opportunity.dynamicsOpportunityId = opportunityGuid;
-					coBuyer.isOriginalSigner = store.salesAgreement.status === SalesAgreementStatuses.Pending ? true : false;
+					coBuyer.isOriginalSigner = store.salesAgreement.status === 'Pending' ? true : false;
 
 					return forkJoin(of(store.salesAgreement.id), this.salesAgreementService.addUpdateSalesAgreementBuyer(store.salesAgreement.id, coBuyer));
 				}),
@@ -811,7 +811,7 @@ export class SalesAgreementEffects
 						}
 					}
 
-					return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, SalesAgreementStatuses.OutForSignature).pipe(
+					return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, 'OutforSignature').pipe(
 						combineLatest(
 							!eSignEnvelope ? of<ESignEnvelope>(null) : eSignEnvelope
 						), map(([salesAgreement, eSignEnvelope]) =>
@@ -877,7 +877,7 @@ export class SalesAgreementEffects
 					const draftESignEnvelope = co.eSignEnvelopes?.find(e => e.eSignStatusId === ESignStatusEnum.Created);
 					const deleteESignEnvelope = draftESignEnvelope ? this.changeOrderService.deleteESignEnvelope(draftESignEnvelope.eSignEnvelopeId) : of([]);
 
-					return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, SalesAgreementStatuses.Pending).pipe(
+					return this.salesAgreementService.setSalesAgreementStatus(store.salesAgreement.id || null, 'Pending').pipe(
 						combineLatest(
 							deleteESignEnvelope,
 							this.contractService.deleteSnapshot(co.jobId, co.id)

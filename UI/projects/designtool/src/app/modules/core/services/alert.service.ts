@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, from as fromPromise } from 'rxjs';
-import { Constants, ModalRef, ModalService } from 'phd-common';
+import { ModalRef, ModalService } from 'phd-common';
 import { ConfirmModalComponent } from '../components/confirm-modal/confirm-modal.component';
 
 @Injectable()
@@ -14,11 +14,11 @@ export class AlertService
 	{
 		this.modal = this.modalService.open(ConfirmModalComponent);
 
-		this.modal.componentInstance.title = Constants.WARNING;
-		this.modal.componentInstance.body = Constants.LOSE_CHANGES;
-		this.modal.componentInstance.defaultOption = Constants.CANCEL;
+		this.modal.componentInstance.title = 'Warning!';
+		this.modal.componentInstance.body = 'If you continue you will lose your changes.<br/><br/>Do you wish to continue?';
+		this.modal.componentInstance.defaultOption = 'Cancel';
 
-		return fromPromise(this.modal.result.then((result) => result == Constants.CONTINUE ? true : false).catch(() => false));
+		return fromPromise(this.modal.result.then((result) => result == 'Continue' ? true : false).catch(() => false));
 	}
 
 	public close()

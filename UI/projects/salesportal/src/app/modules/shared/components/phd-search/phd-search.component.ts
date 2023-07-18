@@ -6,7 +6,7 @@ import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
 import { IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
-import { FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants, SalesAgreementStatuses } from 'phd-common';
+import { FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -66,13 +66,13 @@ export class PHDSearchComponent
 	];
 
 	salesAgreementStatusOptions: Array<SelectItem> = [
-		{ label: 'Pending', value: SalesAgreementStatuses.Pending },
-		{ label: 'Out For Signature', value: SalesAgreementStatuses.OutForSignature },
-		{ label: 'Signed', value: SalesAgreementStatuses.Signed },
-		{ label: 'Approved', value: SalesAgreementStatuses.Approved },
-		{ label: 'Closed', value: SalesAgreementStatuses.Closed },
-		{ label: 'Void', value: SalesAgreementStatuses.Void },
-		{ label: 'Cancel', value: SalesAgreementStatuses.Cancel }
+		{ label: 'Pending', value: 'Pending' },
+		{ label: 'Out For Signature', value: 'OutforSignature' },
+		{ label: 'Signed', value: 'Signed' },
+		{ label: 'Approved', value: 'Approved' },
+		{ label: 'Closed', value: 'Closed' },
+		{ label: 'Void', value: 'Void' },
+		{ label: 'Cancel', value: 'Cancel' }
 	];
 
 	homesiteTypeOptions: Array<SelectItem> = [
@@ -129,7 +129,7 @@ export class PHDSearchComponent
 	search()
 	{
 		const filters: Array<IFilterItems> = [];
-
+		
 		this.searchError = null;
 		this.searchResults = null;
 		this.optionsShown = false;
@@ -138,7 +138,7 @@ export class PHDSearchComponent
 		{
 			filters.push({ items: [{ name: 'lotBlock', value: this.homesiteNumber }] });
 		}
-
+		
 		if (this.pendingLotBlocks.length > 0)
 		{
 			let lotBlocks = [];
@@ -202,7 +202,7 @@ export class PHDSearchComponent
 			if (filteredLots && results && results.length > 0)
 			{
 				results.map(result =>
-				{
+				{					
 					// filter the results for a sales agreement id that contains the sales agreement # string if needed
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
 					{
@@ -213,7 +213,7 @@ export class PHDSearchComponent
 							// if the salesAgreement number is truthy OR if found in the list of selected sales agreement statuses OR if selected Ready To Close check status of approved and isLockedIn
 							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) ||
 								(this.selectedSalesAgreementStatus.length > 0 &&
-									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === SalesAgreementStatuses.Approved && agreement.isLockedIn)))
+									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === 'Approved' && agreement.isLockedIn)))
 							{
 								// flag the lot as able to be added to the filtered lots
 								addLot = true;
@@ -313,7 +313,7 @@ export class PHDSearchComponent
 	{
 		this.clear();
 
-		this.selectedSalesAgreementStatus = [SalesAgreementStatuses.Pending, SalesAgreementStatuses.OutForSignature, SalesAgreementStatuses.Signed];
+		this.selectedSalesAgreementStatus = ['Pending', 'OutforSignature', 'Signed'];
 
 		setTimeout(t =>
 		{
@@ -327,14 +327,14 @@ export class PHDSearchComponent
 
 		this.searchActiveOnly = true;
 		const filters: Array<IFilterItems> = [];
-		this.selectedSalesAgreementStatus = [SalesAgreementStatuses.Approved];
+		this.selectedSalesAgreementStatus = ['Approved'];
 		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
 		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
 		this.search_button_label = this.SEARCH_STATUS.SEARCHING;
 
 		this._searchService.searchHomeSites(filters, financialCommunityString, salesCommunityString, this.featureSwitchOrgAssoc).subscribe(results =>
-		{
+		{			
 			let filteredLots = [];
 
 			if (results?.length > 0)
@@ -346,18 +346,18 @@ export class PHDSearchComponent
 					{
 						result.salesAgreements.map(agreement =>
 						{
-
+							
 							// if the agreement.status is 'Approved' and agreement.isLockedIn is true
-							if (agreement.status === SalesAgreementStatuses.Approved && agreement.isLockedIn)
-							{
+							if (agreement.status === 'Approved' && agreement.isLockedIn)
+							{	
 								filteredLots.push(result);
 							}
 						});
 					}
 				});
 			}
-
-			this.searchResults = filteredLots.length > 0 ? filteredLots : results;
+			
+			this.searchResults = filteredLots.length > 0 ? filteredLots : results;			
 		});
 	}
 
@@ -622,11 +622,11 @@ export class PHDSearchComponent
 		return lot.isPhdLiteEnabled ? lotCheck : !this.isHslMigrated(lot.jobCreatedBy) && lotCheck;
 	}
 
-	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement): boolean
+	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement) : boolean
 	{
-		return agreement
-			&& agreement.salesAgreementNumber
-			&& agreement.isOnFinalLot
-			&& (!!lot.buyers?.length || agreement.status === SalesAgreementStatuses.Cancel || agreement.status === SalesAgreementStatuses.Void);
+		return agreement 
+			&& agreement.salesAgreementNumber 
+			&& agreement.isOnFinalLot 
+			&& (!!lot.buyers?.length || agreement.status === 'Cancel' || agreement.status === 'Void');
 	}
 }

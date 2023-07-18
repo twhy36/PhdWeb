@@ -1,6 +1,6 @@
 /// <reference types="jasmine" />
 
-import { ScenarioStatusType, TreeVersion, Constants, SalesAgreementStatuses } from 'phd-common';
+import { ScenarioStatusType, TreeVersion } from 'phd-common';
 import
 {
 	State,
@@ -41,7 +41,7 @@ describe('Common reducer', function ()
 	{
 		let state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_PREVIEW
+				buildMode: 'preview'
 			},
 			opportunity: {},
 			salesAgreement: {}
@@ -55,7 +55,7 @@ describe('Common reducer', function ()
 	{
 		let state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_BUYER
+				buildMode: 'buyer'
 			},
 			salesAgreement: {
 				salesAgreementName: 'Jones Home',
@@ -101,7 +101,7 @@ describe('Common reducer', function ()
 				scenario: {
 					scenarioName: 'Johnson Home'
 				},
-				buildMode: Constants.BUILD_MODE_BUYER
+				buildMode: 'buyer'
 			},
 			salesAgreement: {},
 			opportunity: {
@@ -121,7 +121,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_MODEL
+				buildMode: 'model'
 			},
 			user: {
 				canDesign: true,
@@ -146,7 +146,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			user: {
 				canDesign: true,
@@ -171,7 +171,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_PREVIEW
+				buildMode: 'preview'
 			},
 			user: {},
 			org: {
@@ -191,7 +191,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			user: {
 				canSell: true,
@@ -220,7 +220,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			user: {
 				canSell: false,
@@ -252,7 +252,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			user: {
 				canSell: true,
@@ -284,7 +284,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			user: {
 				canSell: true,
@@ -1001,7 +1001,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			plan: {
 				selectedPlan: 12345
@@ -1022,7 +1022,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_MODEL
+				buildMode: 'model'
 			},
 			plan: {
 				selectedPlan: 12345
@@ -1043,7 +1043,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			plan: {
 				selectedPlan: 12345
@@ -1064,7 +1064,7 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			plan: {
 			},
@@ -1685,7 +1685,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			},
 			changeOrder: {
 				isChangingOrder: true,
@@ -1709,7 +1709,7 @@ describe('Common reducer', function ()
 				id: 0
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC,
+				buildMode: 'spec',
 				isPreview: false,
 				monotonyAdvisementShown: false
 			},
@@ -1739,7 +1739,7 @@ describe('Common reducer', function ()
 				id: 0
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC,
+				buildMode: 'spec',
 				isPreview: false,
 				monotonyAdvisementShown: false
 			},
@@ -1769,13 +1769,13 @@ describe('Common reducer', function ()
 				id: 5
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC,
+				buildMode: 'spec',
 				isPreview: false,
 				monotonyAdvisementShown: false
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			},
 			changeOrder: {
 				isChangingOrder: true,
@@ -1805,7 +1805,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			},
 			changeOrder: {
 				isChangingOrder: true,
@@ -1835,7 +1835,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Approved
+				status: 'Approved'
 			},
 			changeOrder: {
 				isChangingOrder: true,
@@ -1862,7 +1862,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 0,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			}
 		};
 
@@ -1874,13 +1874,13 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC,
+				buildMode: 'spec',
 				isPreview: false,
 				monotonyAdvisementShown: false
 			},
 			salesAgreement: {
 				id: 0,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			}
 		};
 
@@ -1892,13 +1892,13 @@ describe('Common reducer', function ()
 	{
 		const state: State = <any>{
 			scenario: {
-				buildMode: Constants.BUILD_MODE_MODEL,
+				buildMode: 'model',
 				isPreview: false,
 				monotonyAdvisementShown: false
 			},
 			salesAgreement: {
 				id: 0,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			}
 		};
 
@@ -1916,7 +1916,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: Constants.CANCEL
+				status: 'Cancel'
 			}
 		};
 
@@ -1934,7 +1934,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Void
+				status: 'Void'
 			}
 		};
 
@@ -1952,7 +1952,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Closed
+				status: 'Closed'
 			}
 		};
 
@@ -1970,7 +1970,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.OutForSignature
+				status: 'OutforSignature'
 			}
 		};
 
@@ -1989,7 +1989,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.OutForSignature
+				status: 'OutforSignature'
 			}
 		};
 
@@ -2008,7 +2008,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			}
 		};
 
@@ -2027,7 +2027,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed
+				status: 'Signed'
 			}
 		};
 
@@ -2046,7 +2046,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.OutForSignature
+				status: 'OutforSignature'
 			}
 		};
 
@@ -2065,7 +2065,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Approved
+				status: 'Approved'
 			}
 		};
 
@@ -2084,7 +2084,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2121,7 +2121,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2160,7 +2160,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2222,7 +2222,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2283,7 +2283,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2344,7 +2344,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2405,7 +2405,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed
+				status: 'Signed'
 			},
 			changeOrder: {
 				changeInput: {
@@ -2459,7 +2459,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed
+				status: 'Signed'
 			},
 			changeOrder: {
 				changeInput: {
@@ -2512,7 +2512,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed
+				status: 'Signed'
 			},
 			changeOrder: {
 				changeInput: {
@@ -2565,7 +2565,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed
+				status: 'Signed'
 			},
 			changeOrder: {
 				changeInput: {
@@ -2619,7 +2619,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -2664,7 +2664,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 4,
-				status: SalesAgreementStatuses.Signed,
+				status: 'Signed',
 				buyers: [{
 					isPrimaryBuyer: true,
 					opportunityContactAssoc: {
@@ -3034,7 +3034,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			}
 		};
 
@@ -3060,12 +3060,12 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Signed
+				status: 'Signed'
 			}
 		};
 
 		const result = salesAgreementStatus(state);
-		expect(result).toBe(SalesAgreementStatuses.Signed);
+		expect(result).toBe('Signed');
 	});
 
 	it('salesAgreementStatus is Approved if salesagreement status is Approved and there are no active change orders', () =>
@@ -3086,12 +3086,12 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Approved
+				status: 'Approved'
 			}
 		};
 
 		const result = salesAgreementStatus(state);
-		expect(result).toBe(SalesAgreementStatuses.Approved);
+		expect(result).toBe('Approved');
 	});
 
 	it('salesAgreementStatus is Cancelled if salesagreement status is Cancel and there are no active change orders', () =>
@@ -3112,7 +3112,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: Constants.CANCEL
+				status: 'Cancel'
 			}
 		};
 
@@ -3138,7 +3138,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Void
+				status: 'Void'
 			}
 		};
 
@@ -3164,12 +3164,12 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Closed
+				status: 'Closed'
 			}
 		};
 
 		const result = salesAgreementStatus(state);
-		expect(result).toBe(SalesAgreementStatuses.Closed);
+		expect(result).toBe('Closed');
 	});
 
 	it('salesAgreementStatus is Out for Signature if salesagreement status is OutforSignature and there are no active change orders', () =>
@@ -3190,7 +3190,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.OutForSignature
+				status: 'OutforSignature'
 			}
 		};
 
@@ -3216,7 +3216,7 @@ describe('Common reducer', function ()
 			},
 			salesAgreement: {
 				id: 12345,
-				status: SalesAgreementStatuses.Pending
+				status: 'Pending'
 			}
 		};
 
@@ -4798,7 +4798,7 @@ describe('Common reducer', function ()
 				jobSalesAgreementAssocs: null
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			lite: {
 				isPhdLite: false
@@ -4820,7 +4820,7 @@ describe('Common reducer', function ()
 				jobSalesAgreementAssocs: null
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			lite: {
 				isPhdLite: false
@@ -4842,7 +4842,7 @@ describe('Common reducer', function ()
 				jobSalesAgreementAssocs: null
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			lite: {
 				isPhdLite: false
@@ -4865,7 +4865,7 @@ describe('Common reducer', function ()
 			},
 			scenario:
 			{
-				buildMode: Constants.BUILD_MODE_SPEC
+				buildMode: 'spec'
 			},
 			lite: {
 				isPhdLite: false
@@ -4885,7 +4885,7 @@ describe('Common reducer', function ()
 				jobSalesAgreementAssocs: null
 			},
 			scenario: {
-				buildMode: Constants.BUILD_MODE_BUYER
+				buildMode: 'buyer'
 			},
 			lite: {
 				isPhdLite: false

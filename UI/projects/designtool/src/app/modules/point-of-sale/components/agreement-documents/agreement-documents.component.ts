@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as ContractActions from '../../../ngrx-store/contract/actions';
 
-import { UnsubscribeOnDestroy, ESignTypeEnum, Constants, SalesAgreementStatuses } from 'phd-common';
+import { UnsubscribeOnDestroy, ESignTypeEnum } from 'phd-common';
 import { Template, TemplateTypeEnum } from '../../../shared/models/template.model';
 import { combineLatest } from 'rxjs/operators';
 
@@ -49,7 +49,7 @@ export class AgreementDocumentsComponent extends UnsubscribeOnDestroy implements
 			this.terminationAgreementTemplate = cancelForm ? new AgreementTemplate(cancelForm, selectedTemplates) : null;
 
 			this.contractTemplates = templates
-				.filter(t => t.templateTypeId !== TemplateTypeEnum['Cancel Form'] || (salesAgreementStatus !== SalesAgreementStatuses.Pending && t.templateTypeId == TemplateTypeEnum['JIO Form']))
+				.filter(t => t.templateTypeId !== TemplateTypeEnum['Cancel Form'] || (salesAgreementStatus !== 'Pending' && t.templateTypeId == TemplateTypeEnum['JIO Form']))
 				.map(t => new AgreementTemplate(t, selectedTemplates))
 				.sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0);
 

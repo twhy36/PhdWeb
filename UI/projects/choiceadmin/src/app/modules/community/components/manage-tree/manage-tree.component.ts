@@ -35,7 +35,7 @@ import
 	ITreeSortList
 } from '../../../shared/models/tree.model';
 import { PhdApiDto, PhdEntityDto } from '../../../shared/models/api-dtos.model';
-import { Permission, IdentityService, BrandService, FinancialBrand, getBrandUrl, Constants } from 'phd-common';
+import { Permission, IdentityService, BrandService, FinancialBrand, getBrandUrl } from 'phd-common';
 import { IDPointPickType } from '../../../shared/models/point.model';
 
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -268,8 +268,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 					// set brand
 					let financialBrandId = this.selectedCommunity.financialBrandId;
 
-					this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand =>
-					{
+					this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
 						this.financialBrand = brand;
 					});
 
@@ -483,7 +482,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		}
 
 		// if changes then confirm
-		return this.confirm('Discard changes?', Constants.WARNING, Constants.CANCEL);
+		return this.confirm('Discard changes?', 'Warning!', 'Cancel');
 	}
 
 	private confirm(msg: string, title: string, defaultOption: string): Observable<boolean>
@@ -517,9 +516,9 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	async onCancelSortClick()
 	{
-		const confirmMessage = Constants.LOSE_CHANGES;
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you wish to continue?`;
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
 
 		if (!this.dragHasChanged || await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -631,11 +630,10 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		// set brand
 		let financialBrandId = this.selectedCommunity.financialBrandId;
 
-		this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand =>
-		{
+		this._brandService.getFinancialBrand(financialBrandId, this.environment.apiUrl).subscribe(brand => {
 			this.financialBrand = brand;
 		});
-
+		
 		// set local storage
 		this._orgService.currentFinancialCommunity = this.selectedCommunity;
 
@@ -716,8 +714,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 		if (!this.isReadOnly)
 		{
 			const confirmMessage = 'Are you sure you want to permanently delete this draft?';
-			const confirmTitle = Constants.WARNING;
-			const confirmDefaultOption = Constants.CANCEL;
+			const confirmTitle = 'Warning!';
+			const confirmDefaultOption = 'Cancel';
 
 			if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 			{
@@ -925,7 +923,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 					this.noVersions = false;
 					this.dragEnable = false;
 
-					this.updateUrl(versionId);
+					this.updateUrl(versionId);					
 				}
 				else
 				{
@@ -981,8 +979,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	async deleteChoice(choice: DTChoice, hasReassignments: boolean = false)
 	{
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmTitle = 'Warning!';
+		const confirmDefaultOption = 'Cancel';
 		let confirmMessage = `You are about to <span class="font-weight-bold text-danger">delete</span> the Choice:<br><br><span class="font-weight-bold">${choice.label}</span>`;
 
 		if (hasReassignments)
@@ -991,7 +989,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			confirmMessage += `<span class="ml-3 font-weight-bold"> - Attribute Reassignments</span>`;
 		}
 
-		confirmMessage += `<br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+		confirmMessage += `<br><br>Do you wish to continue?`;
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -1039,8 +1037,8 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 	async deletePoint(point: DTPoint, hasReassignments: boolean = false)
 	{
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmTitle = 'Warning!';
+		const confirmDefaultOption = 'Cancel';
 		let confirmMessage = `You are about to <span class="font-weight-bold text-danger">delete</span> the following Decision Point and its related Choices:<br><br><span class="font-weight-bold">${point.label}</span>`;
 
 		if (hasReassignments)
@@ -1049,7 +1047,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 			confirmMessage += `<span class="ml-3 font-weight-bold"> - Attribute Reassignments</span>`;
 		}
 
-		confirmMessage += `<br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+		confirmMessage += `<br><br>Do you wish to continue?`;
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -1696,7 +1694,7 @@ export class ManageTreeComponent extends ComponentCanNavAway implements OnInit, 
 
 		return confirm.result.then((result) =>
 		{
-			return result === Constants.CONTINUE;
+			return result === 'Continue';
 		});
 	}
 

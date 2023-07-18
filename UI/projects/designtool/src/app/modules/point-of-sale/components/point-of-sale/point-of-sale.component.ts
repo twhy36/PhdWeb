@@ -16,10 +16,9 @@ import * as ContractActions from '../../../ngrx-store/contract/actions';
 import * as SalesAgreementActions from '../../../ngrx-store/sales-agreement/actions';
 import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 
-import
-{
+import {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
-	PriceBreakdown, PDFViewerComponent, ModalService, Constants, SalesAgreementStatuses
+	PriceBreakdown, PDFViewerComponent, ModalService
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -98,12 +97,12 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get mainTitle(): string
 	{
-		return this.salesAgreement?.status === SalesAgreementStatuses.Pending ? `Build It` : `Agreement Information`;
+		return this.salesAgreement?.status === 'Pending' ? `Build It` : `Agreement Information`;
 	}
 
 	get subTitle(): string
 	{
-		return this.salesAgreement?.status === SalesAgreementStatuses.Pending ? `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.` : '';
+		return this.salesAgreement?.status === 'Pending' ? `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.` : '';
 	}
 
 	public onToggleCollapse(event): void
@@ -208,7 +207,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				let isSalesInfoComplete = true;
 
-				if (sa.status == SalesAgreementStatuses.Pending)
+				if (sa.status == 'Pending')
 				{
 					isSalesInfoComplete = this.isComplete(sa.notes, sa.isNoteNa) && this.isComplete(sa.programs, sa.isProgramNa) && this.isComplete(sa.contingencies, sa.isContingenciesNa) && this.isComplete(sa.lenderType) && this.isComplete(sa.propertyType) && this.isComplete(sa.deposits);
 				}
@@ -237,7 +236,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					let isPeopleComplete = true;
 
-				if (sa.status === SalesAgreementStatuses.Pending)
+				if (sa.status === 'Pending')
 				{
 					isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
 				}
@@ -253,7 +252,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				let isInfoViewed = true;
 
-				if (sa.status == SalesAgreementStatuses.Pending)
+				if (sa.status == 'Pending')
 				{
 					isInfoViewed = sa.isAgreementInfoViewed;
 				}
@@ -367,7 +366,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 				break;
 			case (ActionBarCallType.PREVIEW_AGREEMENT):
-				this.showPDFViewerFooter = this.salesAgreement.status !== SalesAgreementStatuses.Pending;
+				this.showPDFViewerFooter = this.salesAgreement.status !== 'Pending';
 
 				this.isAddenda = this.showPDFViewerFooter;
 
@@ -421,7 +420,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				var currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme, planPrice);
 
-				return of({ currentSnapshot, isPhdLite: store.lite.isPhdLite });
+				return of({currentSnapshot, isPhdLite: store.lite.isPhdLite});
 			}),
 			switchMap((result: any) =>
 			{
@@ -453,14 +452,14 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (sent)
 		{
-			this.closeModal();
+			this.closeModal();			
 		}
 	}
 
 	envelopeCancelled(envelopeId: string)
 	{
-		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement
-			&& this.salesAgreement.status === SalesAgreementStatuses.OutForSignature
+		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement 
+			&& this.salesAgreement.status === 'OutforSignature'
 			&& this.cogEnvelopeId === envelopeId)
 		{
 			// dispatch action to:
@@ -562,7 +561,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const confirmMessage: string = 'Design Tool will now approve this Home Purchase Agreement.  Do you wish to  continue?';
 		const confirmTitle: string = 'Approve Home Purchase Agreement';
-		const confirmDefaultOption: string = Constants.CANCEL;
+		const confirmDefaultOption: string = 'Cancel';
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -572,7 +571,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	private setOutForSignature(isWetSign = false, isEdit = false)
 	{
-		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === SalesAgreementStatuses.Pending)
+		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === 'Pending')
 		{
 			// dispatch action to:
 			// - set Agreement Status to Out for Signature
@@ -597,7 +596,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const confirmMessage: string = 'You have opted to cancel this Home Purchase Agreement. Confirming to do so will result in the loss of this agreement and corresponding home configuration, and the Homesite will become available for others to select.<br><br>Do you wish to proceed with the cancellation?';
 		const confirmTitle: string = 'Cancel Agreement';
-		const confirmDefaultOption: string = Constants.CANCEL;
+		const confirmDefaultOption: string = 'Cancel';
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };
 
@@ -613,7 +612,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const confirmMessage: string = 'You have opted to terminate this Home Purchase Agreement. <br><br>Do you wish to proceed with the termination?';
 		const confirmTitle: string = 'Termination Agreement';
-		const confirmDefaultOption: string = Constants.CANCEL;
+		const confirmDefaultOption: string = 'Cancel';
 		const primaryButton = { hide: false, text: 'Yes' };
 		const secondaryButton = { hide: false, text: 'No' };
 
@@ -625,11 +624,11 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	async voidAgreement() 
 	{
-		const confirmMessage: string = `You are about to Void an agreement. ${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+		const confirmMessage: string = 'You are about to Void an agreement. Do you wish to continue?';
 		const confirmTitle: string = 'Void Home Purchase Agreement';
-		const confirmDefaultOption: string = Constants.CANCEL;
-		const primaryButton = { hide: false, text: Constants.CONTINUE };
-		const secondaryButton = { hide: false, text: Constants.CANCEL };
+		const confirmDefaultOption: string = 'Cancel';
+		const primaryButton = { hide: false, text: 'Continue' };
+		const secondaryButton = { hide: false, text: 'Cancel' };
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption, primaryButton, secondaryButton)) 
 		{
@@ -644,7 +643,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		const confirmMessage: string = `Are you sure you want to ${lockText} Sales Agreement?`;
 		const confirmTitle: string = 'Home Purchase Agreement';
-		const confirmDefaultOption: string = Constants.CANCEL;
+		const confirmDefaultOption: string = 'Cancel';
 
 		if (await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{
@@ -679,7 +678,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === Constants.CONTINUE;
+			return result === 'Continue';
 		});
 	}
 

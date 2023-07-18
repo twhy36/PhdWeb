@@ -3,7 +3,6 @@ import { Component, Input, TemplateRef, Output, EventEmitter, OnDestroy, OnChang
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-import { Constants } from '../../utils/constants.class';
 
 @Component({
 	selector: 'phd-side-panel-component',
@@ -31,8 +30,7 @@ export class SidePanelComponent implements OnChanges, OnDestroy
 		this.createOverlay();
 	}
 
-	ngOnChanges()
-	{
+	ngOnChanges() {
 		this.createDisabledOverlay ? this.createOverlay() : this.removeOverlay();
 	}
 
@@ -50,7 +48,7 @@ export class SidePanelComponent implements OnChanges, OnDestroy
 		else
 		{
 			this.onSidePanelClose.emit(!this.sidePanelOpen);
-
+			
 		}
 	}
 
@@ -74,22 +72,25 @@ export class SidePanelComponent implements OnChanges, OnDestroy
 		var overlayDiv = document.getElementById('phd-side-panel-overlay');
 
 		if (overlayDiv)
-		{
+		{ 
 			overlayDiv.remove();
 		}
 	}
 
 	showNavAway()
 	{
+		let msgBody = `If you continue you will lose your changes.<br><br> `;
+		msgBody += `Do you wish to continue?`;
+
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
-		confirm.componentInstance.body = Constants.LOSE_CHANGES;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = msgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.onSidePanelClose.emit(!this.sidePanelOpen);
 			}
@@ -102,11 +103,11 @@ export class SidePanelComponent implements OnChanges, OnDestroy
 
 		confirm.componentInstance.title = 'Attention!';
 		confirm.componentInstance.body = this.customMsgBody;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.onSidePanelConfirmed.emit(!this.sidePanelOpen);
 			}

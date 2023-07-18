@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ConfirmModalComponent, ModalService, IColor, Constants } from 'phd-common';
+import { ConfirmModalComponent, ModalService, IColor } from 'phd-common';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ColorService } from '../../../core/services/color.service';
 import { IColorItemDto } from '../../../shared/models/colorItem.model';
@@ -71,7 +71,7 @@ export class EditColorItemDialogComponent implements OnInit
 		}
 
 		const msg = 'Do you want to cancel without saving? If so, the data entered will be lost.';
-		const closeWithoutSavingData = await this.showConfirmModal(msg, Constants.WARNING, Constants.CONTINUE);
+		const closeWithoutSavingData = await this.showConfirmModal(msg, 'Warning', 'Continue');
 
 		if (closeWithoutSavingData)
 		{
@@ -117,18 +117,18 @@ export class EditColorItemDialogComponent implements OnInit
 					this.colorItemWasEdited.emit();
 				}
 			},
-				error =>
-				{
-					toast = {
-						severity: 'error',
-						summary: 'Updated Color Item',
-						detail: 'Color Item update failed. Please try again.'
-					} as IToastInfo;
+			error =>
+			{
+				toast = {
+					severity: 'error',
+					summary: 'Updated Color Item',
+					detail: 'Color Item update failed. Please try again.'
+				} as IToastInfo;
 
-					this._msgService.add(toast);
+				this._msgService.add(toast);
 
-					this.dialogWasCanceled.emit();
-				});
+				this.dialogWasCanceled.emit();
+			});
 		}
 	}
 
@@ -148,11 +148,9 @@ export class EditColorItemDialogComponent implements OnInit
 		//2) then search thru all color items (excluding the color item that is being edited) and compare the names
 		this.isDuplicateName = this.optionsWithColorItemInfo
 			.find(o => o.optionCommunityId === this.selectedOption.id)
-			.colorItem.some(ci =>
-			{
+			.colorItem.some(ci => {
 				let result = false;
-				this.selectedColorItems.forEach(sci =>
-				{
+				this.selectedColorItems.forEach(sci => {
 					if (ci.edhPlanOptionId === sci.edhPlanOptionId && ci.colorItemId !== sci.colorItemId && ci.name.toLowerCase() === colorItemName)
 					{
 						result = true;
@@ -181,7 +179,7 @@ export class EditColorItemDialogComponent implements OnInit
 
 		const response = await confirm.result;
 
-		return response === Constants.CONTINUE;
+		return response === 'Continue';
 	}
 
 	onMoveColorToSource()

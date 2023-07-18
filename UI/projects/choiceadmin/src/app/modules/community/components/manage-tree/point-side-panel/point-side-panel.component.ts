@@ -19,7 +19,6 @@ import { DTPoint, DTSubGroup } from '../../../../shared/models/tree.model';
 import { IRule, IRuleItem, RuleType } from '../../../../shared/models/rule.model';
 import { PhdApiDto } from '../../../../shared/models/api-dtos.model';
 import { IDPointPickType } from '../../../../shared/models/point.model';
-import { Constants } from 'phd-common';
 
 @Component({
 	selector: 'point-side-panel',
@@ -559,9 +558,9 @@ export class PointSidePanelComponent implements OnInit
 
 	private confirmNavAway(): Promise<boolean>
 	{
-		const confirmMessage = Constants.LOSE_CHANGES;
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you want to continue?`;
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -570,8 +569,8 @@ export class PointSidePanelComponent implements OnInit
 	{
 		let labels = labelList.map(l => `${l}`).join('<br>');
 		const confirmMessage = `You are about to delete the Attribute Group Re-Assignment:<br><br>${labels}<br><br>Do you want to continue?`;
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
 
 		return this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption);
 	}
@@ -586,7 +585,7 @@ export class PointSidePanelComponent implements OnInit
 
 		return confirm.result.then((result) =>
 		{
-			return result === Constants.CONTINUE;
+			return result === 'Continue';
 		});
 	}
 }

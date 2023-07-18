@@ -23,7 +23,7 @@ import
 	UnsubscribeOnDestroy, ChangeTypeEnum, TreeVersionRules, ScenarioStatusType, PriceBreakdown,
 	TreeFilter, Tree, SubGroup, Group, DecisionPoint, Choice, getDependentChoices, LotExt, getChoiceToDeselect,
 	PlanOption, ModalService, Plan, TimeOfSaleOptionPrice, ITimeOfSaleOptionPrice, getChoicesWithNewPricing,
-	findChoice, DecisionPointFilterType, ModalRef, Constants
+	findChoice, DecisionPointFilterType, ModalRef
 } from 'phd-common';
 
 import { LotService } from '../../../core/services/lot.service';
@@ -355,8 +355,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					{
 						this.lotcheckModalDisplayed = true;
 
-						const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-						const secondaryButton = { text: Constants.CANCEL, result: true, cssClass: 'btn-secondary' };
+					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
 
 						this.showConfirmModal(this.lotConflictModal, 'Attention!', primaryButton, secondaryButton).subscribe(result =>
 						{
@@ -788,7 +788,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					this.store.dispatch(new ChangeOrderActions.SetChangeOrderOverrideNote(choice.overrideNote));
 				}
 
-				if (saveNow && this.buildMode === Constants.BUILD_MODE_BUYER)
+				if (saveNow && this.buildMode === 'buyer')
 				{
 					if (this.isChangingOrder)
 					{
@@ -805,7 +805,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	saveScenario(event: any)
 	{
-		if (this.buildMode === Constants.BUILD_MODE_BUYER && this.isChangingOrder)
+		if (this.buildMode === 'buyer' && this.isChangingOrder)
 		{
 			this.store.dispatch(new ChangeOrderActions.SaveChangeOrderScenario());
 		}
@@ -826,8 +826,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
 
-		const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
 		return this.showConfirmModal(this.impactedChoicesModal, 'Impact', primaryButton, secondaryButton);
 	}
@@ -836,30 +836,30 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
 
-		const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
-		return this.showConfirmModal(this.optionMappingChangedModal, Constants.WARNING, primaryButton, secondaryButton);
+		return this.showConfirmModal(this.optionMappingChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
 	private showOptionPriceChangedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
 
-		const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
-		return this.showConfirmModal(this.optionPriceChangedModal, Constants.WARNING, primaryButton, secondaryButton);
+		return this.showConfirmModal(this.optionPriceChangedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
 	private showOptionMappingAdjustedModal(choices: Array<Choice>): Observable<boolean>
 	{
 		this.impactedChoices = choices.map(c => c.label).sort().join(', ');
 
-		const primaryButton = { text: Constants.CONTINUE, result: true, cssClass: 'btn-primary' };
-		const secondaryButton = { text: Constants.CANCEL, result: false, cssClass: 'btn-secondary' };
+		const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+		const secondaryButton = { text: 'Cancel', result: false, cssClass: 'btn-secondary' };
 
-		return this.showConfirmModal(this.optionMappingAdjustedModal, Constants.WARNING, primaryButton, secondaryButton);
+		return this.showConfirmModal(this.optionMappingAdjustedModal, 'Warning', primaryButton, secondaryButton);
 	}
 
 	loadPhdLite()

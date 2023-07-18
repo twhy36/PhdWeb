@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { Observable, of } from 'rxjs';
+import { Observable ,  of } from 'rxjs';
 import { flatMap, tap, map, finalize } from 'rxjs/operators';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,7 @@ import { DivDChoice, IDivCatalogChoiceDto } from '../../../shared/models/choice.
 import { DivDPoint, IDivCatalogPointDto } from '../../../shared/models/point.model';
 import { DivDSubGroup } from '../../../shared/models/subgroup.model';
 import { PhdEntityDto } from '../../../shared/models/api-dtos.model';
-import { Constants, Permission } from 'phd-common';
+import { Permission } from 'phd-common';
 import { PointSidePanelComponent } from './point-side-panel/point-side-panel.component';
 import { TreeToggleComponent } from '../../../shared/components/tree-toggle/tree-toggle.component';
 import { Router } from '@angular/router';
@@ -203,7 +203,7 @@ export class DivisionalCatalogComponent implements OnInit
 				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
 
 				console.log(error);
-			});
+			});		
 	}
 
 	addItem(event: any, parent: DivDPoint)
@@ -603,24 +603,25 @@ export class DivisionalCatalogComponent implements OnInit
 		this.msgModal = newMessage;
 
 		let msgBody = `You are about to <span class="font-weight-bold text-danger">${newMessage.msgAction}</span> the ${newMessage.msgResult}<br><br> `;
-		msgBody += `<span class="font-weight-bold">${newMessage.msgSubject}</span><br><br>${Constants.DO_YOU_WISH_TO_CONTINUE}`;
+		msgBody += `<span class="font-weight-bold">${newMessage.msgSubject}</span><br><br>`;
+		msgBody += `Do you wish to continue?`;
 
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CONTINUE;
+		confirm.componentInstance.defaultOption = 'Continue';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this.deleteCatalogItem(item, isInUse);
 			}
 		}, (reason) =>
-		{
+			{
 
-		});
+			});
 	}
 
 	deleteCatalogItem(item: DivDPoint | DivDChoice, isInUse: boolean)
@@ -879,15 +880,18 @@ export class DivisionalCatalogComponent implements OnInit
 
 	async cancelSortNavAway(): Promise<boolean>
 	{
+		let msgBody = `If you continue you will lose your changes.<br><br> `;
+		msgBody += `Do you wish to continue?`;
+
 		let confirm = this._modalService.open(ConfirmModalComponent, { centered: true });
 
-		confirm.componentInstance.title = Constants.WARNING;
-		confirm.componentInstance.body = Constants.LOSE_CHANGES;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.title = 'Warning!';
+		confirm.componentInstance.body = msgBody;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		let canCancel = await confirm.result.then((result) =>
 		{
-			return result == Constants.CONTINUE;
+			return result == 'Continue';
 		});
 
 		return canCancel;

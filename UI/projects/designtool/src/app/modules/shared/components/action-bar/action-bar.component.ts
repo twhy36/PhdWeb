@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
-	SalesAgreement, DecisionPoint, Permission, ModalService, Constants, SalesAgreementStatuses, Tree, TreeVersionRules
+	SalesAgreement, DecisionPoint, Permission, ModalService, SalesAgreementStatuses, Tree, TreeVersionRules
 } from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';
@@ -306,7 +306,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canVoidAgreement(): boolean
 	{
-		return this.canSell && this.inPointOfSale && (this.agreement.status === SalesAgreementStatuses.Pending || this.agreement.status === SalesAgreementStatuses.OutForSignature || this.agreement.status === SalesAgreementStatuses.Signed) && !this.inChangeOrder;
+		return this.canSell && this.inPointOfSale && (this.agreement.status === 'Pending' || this.agreement.status === 'OutforSignature' || this.agreement.status === 'Signed') && !this.inChangeOrder;
 	}
 
 	get canCancelAgreement(): boolean
@@ -326,7 +326,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get inSpec(): boolean
 	{
-		return this.router.url.includes(Constants.BUILD_MODE_SPEC);
+		return this.router.url.includes('spec');
 	}
 
 	get primaryActionText(): string
@@ -336,7 +336,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			return 'Next';
 		}
 
-		return this.inChangeOrder ? Constants.SAVE : this.primaryAction;
+		return this.inChangeOrder ? 'Save' : this.primaryAction;
 	}
 
 	get canTerminateAgreement(): boolean
@@ -346,7 +346,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get canViewAddenda(): boolean
 	{
-		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== SalesAgreementStatuses.Void;
+		return !this.canTerminateAgreement && this.agreement && this.agreement.status !== 'Void';
 	}
 
 	get allDepositsReconciled(): boolean
@@ -356,7 +356,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	get showToggleSalesAgreementLock(): boolean
 	{
-		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === SalesAgreementStatuses.Approved;
+		return (!this.inChangeOrder || !this.canSell) && this.canLockSalesAgreement && this.agreement?.status === 'Approved';
 	}
 
 	get toggleAgreementLockLabel(): string
@@ -471,7 +471,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 				const confirmMessage = isSpec ? 'You have opted to return this spec to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/> Do you wish to proceed with the cancellation?'
 					: 'You have opted to return this model to dirt. Confirming to do so will result in the loss of the corresponding home configuration and the lot will return to dirt.<br/><br/>The lot status will remain ' + this.lotStatus + '. <br/><br/>Do you wish to proceed with the cancellation?';
 				const confirmTitle = isSpec ? 'Cancel Spec' : 'Cancel Model';
-				const confirmDefaultOption = Constants.CONTINUE;
+				const confirmDefaultOption = 'Continue';
 				const primaryButton = { hide: false, text: 'Yes' };
 				const secondaryButton = { hide: false, text: 'No' };
 
@@ -522,7 +522,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 		return confirm.result.then((result) =>
 		{
-			return result === Constants.CONTINUE;
+			return result === 'Continue';
 		});
 	}
 
@@ -585,9 +585,9 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	async onCancelChange()
 	{
-		const confirmMessage = Constants.LOSE_CHANGES;
-		const confirmTitle = Constants.WARNING;
-		const confirmDefaultOption = Constants.CANCEL;
+		const confirmMessage = `If you continue you will lose your changes.<br><br>Do you wish to continue?`;
+		const confirmTitle = `Warning!`;
+		const confirmDefaultOption = `Cancel`;
 
 		if (!this.isChangeDirty || await this.showConfirmModal(confirmMessage, confirmTitle, confirmDefaultOption))
 		{

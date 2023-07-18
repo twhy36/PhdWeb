@@ -1,7 +1,7 @@
 import { Action, createSelector, createFeatureSelector } from '@ngrx/store';
 import * as _ from 'lodash';
 
-import { ChangeOrderGroup, isSalesChangeOrder, Buyer, mergeSalesChangeOrderBuyers, Constants, SalesAgreementStatuses } from 'phd-common';
+import { ChangeOrderGroup, isSalesChangeOrder, Buyer, mergeSalesChangeOrderBuyers } from 'phd-common';
 import { CommonActionTypes, SalesAgreementLoaded } from '../actions';
 
 export interface State
@@ -30,10 +30,8 @@ export function reducer(state: State = initialState, action: Action): State
 			const saAction = action as SalesAgreementLoaded;
 			let isPendingChangeOrder = saAction.changeOrder && saAction.changeOrder.salesStatusDescription === 'Pending'
 					// change orders don't apply unless sales agreement is approved
-					&& (saAction.salesAgreement &&
-						(saAction.salesAgreement.status === SalesAgreementStatuses.Pending || saAction.salesAgreement.status === SalesAgreementStatuses.OutForSignature || saAction.salesAgreement.status === SalesAgreementStatuses.Signed)
-					);
-				const newCurrentChangeOrder = _.cloneDeep(saAction.changeOrder);
+					&& (saAction.salesAgreement && ['Pending', 'OutforSignature', 'Signed'].indexOf(saAction.salesAgreement.status) === -1);
+		const newCurrentChangeOrder = _.cloneDeep(saAction.changeOrder);
 
 			if (!isSalesChangeOrder(saAction.changeOrder))
 			{
@@ -44,8 +42,8 @@ export function reducer(state: State = initialState, action: Action): State
 				isPendingChangeOrder = isPendingChangeOrder && nonSalesChangeOrders && nonSalesChangeOrders.length
 						&& nonSalesChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO';
 
-				}
-				const newBuyers = saAction.salesAgreement.status !== SalesAgreementStatuses.Approved || isPendingChangeOrder ? mergeSalesChangeOrderBuyers(saAction.salesAgreement.buyers, newCurrentChangeOrder) : [];
+		}
+		const newBuyers = saAction.salesAgreement.status !== 'Approved' || isPendingChangeOrder ? mergeSalesChangeOrderBuyers(saAction.salesAgreement.buyers, newCurrentChangeOrder) : [];
 
 			const newChangeOrder = {
 				...state,
@@ -59,8 +57,8 @@ export function reducer(state: State = initialState, action: Action): State
 			return newChangeOrder;
 		}
 
-		default:
-			return state;
+	default:
+		return state;
 	}
 }
 

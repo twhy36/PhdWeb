@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { ModalService, PointStatus, UnsubscribeOnDestroy, ScenarioOption, Constants } from 'phd-common';
+import { ModalService, PointStatus, UnsubscribeOnDestroy, ScenarioOption, CutOffOverride } from 'phd-common';
 import { ColorItem, IOptionCategory, IOptionSubCategory, LitePlanOptionUI, ScenarioOptionColorDto } from '../../../shared/models/lite.model';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
@@ -114,16 +114,14 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 					.filter(option => this.scenarioOptions.some(so => so.edhPlanOptionId === option.id)
 						&& option.id !== selectedElevationOption?.id
 						&& option.colorItems.length > 0
-						&& option.colorItems.some(ci =>
-						{
+						&& option.colorItems.some(ci => {
 							const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === option.id);
 							const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === ci.name);
 							const isScenarioColorItem = scenarioOptions.some(so => so.edhPlanOptionId === option.id && so.scenarioOptionColors.some(soc => soc.colorItemId === ci.colorItemId));
 
-							return (ci.isActive || isJobColorItem || isScenarioColorItem)
-								&& ci.color.length > 0
-								&& ci.color.some(c =>
-								{
+							return (ci.isActive || isJobColorItem || isScenarioColorItem) 
+								&& ci.color.length > 0 
+								&& ci.color.some(c => {
 									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
 									const isScenarioColor = scenarioOptions.some(so => so.edhPlanOptionId === option.id && so.scenarioOptionColors.some(soc => soc.colorId === c.colorId));
 
@@ -171,8 +169,8 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.select(state => state.job.jobPlanOptions),
 			this.store.select(state => state.lite.scenarioOptions)
 		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([selectedItem, jobPlanOptions, scenarioOptions]) =>			
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([selectedItem, jobPlanOptions, scenarioOptions]) =>			
 			{
 				this.selectedColorIds = {};
 				this.selectedCategory = this.categories.find(x => x.id === selectedItem);
@@ -198,15 +196,13 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 						//only keep color items that are active and has one or more active colors associated with it
 						// Keep inactive color items if they are in the job or in a saved scenario
 						po.colorItems = po.colorItems
-							.filter(ci =>
-							{
+							.filter(ci => {
 								const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === ci.name);
 								const isScenarioColorItem = scenarioOptions.some(so => so.edhPlanOptionId === po.id && so.scenarioOptionColors.some(soc => soc.colorItemId === ci.colorItemId));
 
-								return (ci.isActive || isJobColorItem || isScenarioColorItem)
-									&& ci.color.length > 0
-									&& ci.color.some(c =>
-									{
+								return (ci.isActive || isJobColorItem || isScenarioColorItem) 
+									&& ci.color.length > 0 
+									&& ci.color.some(c => {
 										const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
 										const isScenarioColor = scenarioOptions.some(so => so.edhPlanOptionId === po.id && so.scenarioOptionColors.some(soc => soc.colorId === c.colorId));
 
@@ -220,8 +216,7 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 						po.colorItems.forEach(ci =>
 						{
 							ci.color = ci.color
-								.filter(c =>
-								{
+								.filter(c => {
 									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === c.name);
 									const isScenarioColor = scenarioOptions.some(so => so.edhPlanOptionId === po.id && so.scenarioOptionColors.some(soc => soc.colorId === c.colorId));
 									return c.isActive || isJobColor || isScenarioColor;
@@ -332,13 +327,13 @@ export class ColorsComponent extends UnsubscribeOnDestroy implements OnInit
 	async onOverride(option: LitePlanOptionUI): Promise<boolean>
 	{
 		const confirm = this.modalService.open(ModalOverrideSaveComponent);
-		confirm.componentInstance.title = Constants.WARNING;
-		confirm.componentInstance.body = Constants.OVERRIDE_CUT_OFF;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.title = 'Warning';
+		confirm.componentInstance.body = CutOffOverride.Message;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		return confirm.result.then((result) =>
 		{
-			const overrideReasonWasProvided = result !== Constants.CLOSE;
+			const overrideReasonWasProvided = result !== 'Close';
 
 			if (overrideReasonWasProvided)
 			{

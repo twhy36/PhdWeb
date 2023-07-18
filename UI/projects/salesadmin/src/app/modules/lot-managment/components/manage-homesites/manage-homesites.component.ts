@@ -6,7 +6,7 @@ import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService, SelectItem } from 'primeng/api';
 
-import { PhdTableComponent, ConfirmModalComponent, FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants } from 'phd-common';
+import { PhdTableComponent, ConfirmModalComponent, FeatureSwitchService, IFeatureSwitchOrgAssoc } from 'phd-common';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { ReleasesService } from '../../../core/services/releases.service';
@@ -542,12 +542,12 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 		confirm.componentInstance.title = 'Release Homesite';
 		confirm.componentInstance.body = 'Click Continue to release this lot.';
-		confirm.componentInstance.defaultOption = Constants.CONTINUE;
+		confirm.componentInstance.defaultOption = 'Continue';
 		confirm.componentInstance.primaryButtonText = 'Release';
 
 		confirm.result.then((result) =>
 		{
-			if (result === Constants.CONTINUE)
+			if (result === 'Continue')
 			{
 				this.saving = true;
 
@@ -669,7 +669,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 
 				const toggleResultText = !!dto.isHiddenInTho ? 'Hidden in THO!' : 'Available in THO!';
 
-				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock + ' ' + toggleResultText}` });
+				this._msgService.add({ severity: 'success', summary: 'Homesite', detail: `${lot.lotBlock + ' ' + toggleResultText }` });
 			},
 			error =>
 			{

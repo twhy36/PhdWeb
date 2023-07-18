@@ -11,7 +11,7 @@ import { ESignField } from '../../../shared/models/eSignFields.model';
 import { FinancialMarket } from '../../../shared/models/financialMarket.model';
 import { FinancialCommunity } from '../../../shared/models/financialCommunity.model';
 import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
-import { ConfirmModalComponent, CanComponentDeactivate, PhdTableComponent, Constants } from 'phd-common';
+import { ConfirmModalComponent, CanComponentDeactivate, PhdTableComponent } from 'phd-common';
 import { MergeFieldsSidePanelComponent } from '../../../contracts/components/merge-fields-side-panel/merge-fields-side-panel.component';
 import { SignFieldsComponent } from '../sign-fields/sign-fields.component';
 
@@ -168,15 +168,16 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 					keyboard: false
 				};
 
+				let msgBody = `If you continue you will lose your changes.<br><br>Do you wish to continue?`;
 				let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-				confirm.componentInstance.title = Constants.WARNING;
-				confirm.componentInstance.body = Constants.LOSE_CHANGES;
-				confirm.componentInstance.defaultOption = Constants.CANCEL;
+				confirm.componentInstance.title = 'Warning!';
+				confirm.componentInstance.body = msgBody;
+				confirm.componentInstance.defaultOption = 'Cancel';
 
 				confirm.result.then((result) =>
 				{
-					if (result == Constants.CONTINUE)
+					if (result == 'Continue')
 					{
 						this.selectedTab = selectedTab;
 					}
@@ -238,13 +239,13 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				const communityFieldsToBeReset = [...this.communityMergeFields.filter(t => t.fieldValue !== t.marketFieldValue).map(f =>
 				{
@@ -281,13 +282,13 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this._contractService.deleteCommunityMergeField([communityFieldDto])
 					.subscribe(result =>
@@ -436,13 +437,13 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
-		confirm.componentInstance.title = Constants.WARNING;
+		confirm.componentInstance.title = 'Warning!';
 		confirm.componentInstance.body = msgBody;
-		confirm.componentInstance.defaultOption = Constants.CANCEL;
+		confirm.componentInstance.defaultOption = 'Cancel';
 
 		confirm.result.then((result) =>
 		{
-			if (result == Constants.CONTINUE)
+			if (result == 'Continue')
 			{
 				this._contractService.deleteMergeField(mergeFieldDto)
 					.subscribe(data =>

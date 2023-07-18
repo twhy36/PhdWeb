@@ -7,7 +7,7 @@ import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { select, Store } from '@ngrx/store';
 
-import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService, Constants } from 'phd-common';
+import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService } from 'phd-common';
 import { distinctUntilChanged, withLatestFrom } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
@@ -237,7 +237,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		this.browserModal.componentInstance.body = `
 			<p>The browser version you are currently using is not supported. Please use a recent version of Safari, Chrome or Edge for the best experience.</p>
 		`;
-		this.browserModal.componentInstance.buttonText = Constants.CONTINUE;
+		this.browserModal.componentInstance.buttonText = 'Continue';
 		this.browserModal.componentInstance.isCloseable = true;
 		this.browserModal.componentInstance.isTitleCentered = true;
 

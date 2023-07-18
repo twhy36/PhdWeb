@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import
 {
 	Buyer, ESignStatusEnum, ChangeOrderGroup, ChangeInput, ChangeTypeEnum, ChangeOrder, ChangeOrderLot,
-	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder, Constants, SalesAgreementStatuses
+	SalesStatusEnum, ChangeOrderGroupSalesStatusHistory, SalesNotesChangeOrders, Note, isSalesChangeOrder
 } from 'phd-common';
 
 import { ChangeOrderActions, ChangeOrderActionTypes } from './actions';
@@ -125,8 +125,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 					// change orders don't apply unless sales agreement is approved
 					&& (action.type === ChangeOrderActionTypes.CurrentChangeOrderLoaded
 						|| !action.salesAgreement		// check pending CO in spec/model
-						|| (action.salesAgreement &&
-							(action.salesAgreement.status === SalesAgreementStatuses.Pending || action.salesAgreement.status === SalesAgreementStatuses.OutForSignature || action.salesAgreement.status === SalesAgreementStatuses.Signed))
+						|| (action.salesAgreement && ['Pending', 'OutforSignature', 'Signed'].indexOf(action.salesAgreement.status) === -1)
 					);
 				let newInput = state.changeInput === null ? new ChangeInput() : _.cloneDeep(state.changeInput);
 				let newCurrentChangeOrder = _.cloneDeep(action.changeOrder);
@@ -810,7 +809,7 @@ export function reducer(state: State = initialState, action: ChangeOrderActions)
 							}
 
 							break;
-						case SalesAgreementStatuses.Approved:
+						case 'Approved':
 							changeOrder.constructionStatusDescription = updatedChangeOrder.constructionStatusDescription;
 
 							break;

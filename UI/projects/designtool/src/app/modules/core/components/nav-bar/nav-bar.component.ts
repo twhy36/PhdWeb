@@ -4,10 +4,9 @@ import { Store, select } from '@ngrx/store';
 import { Observable, combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-import
-{
+import {
 	UnsubscribeOnDestroy, IdentityService, ChangeTypeEnum, Job, Lot, PointStatus,
-	Group, DecisionPoint, BrowserService, BrandService, FinancialBrand, getBrandUrl, Constants, SalesAgreementStatuses
+	Group, DecisionPoint, BrowserService, BrandService, FinancialBrand, getBrandUrl
 } from 'phd-common';
 
 import * as fromLot from '../../../ngrx-store/lot/reducer';
@@ -115,7 +114,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.salesAgreement)
 		).subscribe(sag =>
 		{
-			this.salesAgreementStatus = sag.status === SalesAgreementStatuses.OutForSignature ? 'OutForSignature' : sag.status;
+			this.salesAgreementStatus = sag.status === 'OutforSignature' ? 'OutForSignature' : sag.status;
 			this.salesAgreementNumber = sag && sag.salesAgreementNumber;
 			this.salesAgreementId = sag && sag.id;
 
@@ -164,7 +163,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					currentChangeOrder.jobChangeOrders.length &&
 					currentChangeOrder.jobChangeOrders[0].id > 0 &&
 					currentChangeOrder.jobChangeOrders[0].jobChangeOrderTypeDescription !== 'SalesJIO' &&
-					(this.salesAgreementStatus === SalesAgreementStatuses.Pending || this.salesAgreementStatus === SalesAgreementStatuses.OutForSignature || this.salesAgreementStatus === SalesAgreementStatuses.Signed);
+					['Pending', 'OutforSignature', 'Signed'].indexOf(this.salesAgreementStatus) === -1;
 
 				this.currentChangeOrderSalesStatus = currentChangeOrder.salesStatusDescription;
 				this.setVisibilityOfOptionsAndColorsMenu();
@@ -180,8 +179,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				// Find plan/lot/qmi based on id and label to avoid id conflicts
 				let plan = navItems.find(x => x.id === PhdSubMenu.ChoosePlan && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChoosePlan).label);
-				let lot = navItems.find(x => x.id === PhdSubMenu.ChooseLot && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChooseLot).label);
-				let qmi = navItems.find(x => x.id === PhdSubMenu.QuickMoveIns && x.label === SubNavItems.find(item => item.id === PhdSubMenu.QuickMoveIns).label);
+				let lot = navItems.find(x => x.id === PhdSubMenu.ChooseLot  && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChooseLot).label);
+				let qmi = navItems.find(x => x.id === PhdSubMenu.QuickMoveIns  && x.label === SubNavItems.find(item => item.id === PhdSubMenu.QuickMoveIns).label);
 
 				if (plan || lot || qmi)
 				{
@@ -217,8 +216,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					? this.brandService.getFinancialBrand(financialBrandId, environment.apiUrl)
 					: of(null);
 			})
-		).subscribe(brand =>
-		{
+		).subscribe(brand => {
 			if (brand)
 			{
 				this.financialBrand = brand;
@@ -230,67 +228,65 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.store.pipe(select(fromLite.selectedColorScheme)),
 			this.store.pipe(select(fromRoot.legacyColorScheme))
 		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
-			{
-				const isColorSchemeCompleted = !!colorScheme || legacyColorScheme?.isSelected;
+		.pipe(this.takeUntilDestroyed())
+		.subscribe(([elevation, colorScheme, legacyColorScheme]) =>
+		{
+			const isColorSchemeCompleted = !!colorScheme || legacyColorScheme?.isSelected;
 
-				if (!!elevation && isColorSchemeCompleted)
-				{
-					this.exteriorStatus = PointStatus.COMPLETED;
-				}
-				else if (!!elevation || isColorSchemeCompleted)
-				{
-					this.exteriorStatus = PointStatus.PARTIALLY_COMPLETED;
-				}
-				else
-				{
-					this.exteriorStatus = PointStatus.REQUIRED;
-				}
-			});
+			if (!!elevation && isColorSchemeCompleted)
+			{
+				this.exteriorStatus = PointStatus.COMPLETED;
+			}
+			else if (!!elevation || isColorSchemeCompleted)
+			{
+				this.exteriorStatus = PointStatus.PARTIALLY_COMPLETED;
+			}
+			else
+			{
+				this.exteriorStatus = PointStatus.REQUIRED;
+			}
+		});
 
 		combineLatest([
 			this.store.pipe(select(fromLite.liteState)),
 			this.store.pipe(select(state => state.job.jobPlanOptions))
 		])
-			.pipe(this.takeUntilDestroyed())
-			.subscribe(([liteState, jobPlanOptions]) =>
+		.pipe(this.takeUntilDestroyed())		
+		.subscribe(([liteState, jobPlanOptions]) =>
+		{
+			if (liteState.isPhdLite)
 			{
-				if (liteState.isPhdLite)
+				const elevationCategory = liteState.categories.find(c => c.name.toLowerCase() === 'elevations');
+
+				if (elevationCategory)
 				{
-					const elevationCategory = liteState.categories.find(c => c.name.toLowerCase() === 'elevations');
+					const selectedOptions =
+						liteState.options.filter(o => liteState.scenarioOptions.some(so =>
+							so.edhPlanOptionId === o.id && o.optionCategoryId !== elevationCategory.id));
 
-					if (elevationCategory)
-					{
-						const selectedOptions =
-							liteState.options.filter(o => liteState.scenarioOptions.some(so =>
-								so.edhPlanOptionId === o.id && o.optionCategoryId !== elevationCategory.id));
+					this.colorMenuIsDisabled = selectedOptions.every(selectedOption => {
+						// Keep inactive color items and colors if they are in the job
+						const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === selectedOption.id);
 
-						this.colorMenuIsDisabled = selectedOptions.every(selectedOption =>
+						const hasColors = selectedOption.colorItems?.some(colorItem =>
 						{
-							// Keep inactive color items and colors if they are in the job
-							const jobPlanOption = jobPlanOptions?.find(jpo => jpo.planOptionId === selectedOption.id);
+							const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === colorItem.name);
+							const isScenarioColorItem = liteState.scenarioOptions.some(so => so.edhPlanOptionId === selectedOption.id && so.scenarioOptionColors.some(soc => soc.colorItemId === colorItem.colorItemId));
 
-							const hasColors = selectedOption.colorItems?.some(colorItem =>
-							{
-								const isJobColorItem = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeGroupLabel === colorItem.name);
-								const isScenarioColorItem = liteState.scenarioOptions.some(so => so.edhPlanOptionId === selectedOption.id && so.scenarioOptionColors.some(soc => soc.colorItemId === colorItem.colorItemId));
+							return (colorItem.isActive || isJobColorItem || isScenarioColorItem)
+								&& colorItem.color?.some(color => {
+									const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === colorItem.name);
+									const isScenarioColor = liteState.scenarioOptions.some(so => so.edhPlanOptionId === selectedOption.id && so.scenarioOptionColors.some(soc => soc.colorId === color.colorId));
 
-								return (colorItem.isActive || isJobColorItem || isScenarioColorItem)
-									&& colorItem.color?.some(color =>
-									{
-										const isJobColor = !!jobPlanOption?.jobPlanOptionAttributes?.find(jpoa => jpoa.attributeName === colorItem.name);
-										const isScenarioColor = liteState.scenarioOptions.some(so => so.edhPlanOptionId === selectedOption.id && so.scenarioOptionColors.some(soc => soc.colorId === color.colorId));
-
-										return color.isActive || isJobColor || isScenarioColor;
-									});
-							});
-
-							return !hasColors;
+									return color.isActive || isJobColor || isScenarioColor;
+								});							
 						});
-					}
+
+						return !hasColors;
+					});
 				}
-			});
+			}
+		});
 	}
 
 	setVisibilityOfOptionsAndColorsMenu()
@@ -313,7 +309,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	navigate(path: any[], group?: Group)
 	{
-		if ((this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL) && path[0] !== '/scenario-summary' && !this.isPhdLite)
+		if ((this.buildMode === 'spec' || this.buildMode === 'model') && path[0] !== '/scenario-summary' && !this.isPhdLite)
 		{
 			path[1] = 0;
 		}
@@ -355,7 +351,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (newPath.join('/').includes("new-home"))
 			{
-				if ((this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL))
+				if ((this.buildMode === 'spec' || this.buildMode === 'model'))
 				{
 					this.store.dispatch(new NavActions.SetSelectedSubNavItem(3));
 
@@ -417,7 +413,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get isSalesAgreementCancelledOrVoided(): boolean
 	{
-		return this.salesAgreementStatus === SalesAgreementStatuses.Void || this.salesAgreementStatus === SalesAgreementStatuses.Cancel;
+		return this.salesAgreementStatus == 'Void' || this.salesAgreementStatus == 'Cancel';
 	}
 
 	getChangeOrderMenuItemLabel()
@@ -437,7 +433,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	isActiveModelOrSpec()
 	{
-		return this.job.id !== 0 && (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL);
+		return this.job.id !== 0 && (this.buildMode === 'spec' || this.buildMode === 'model');
 	}
 
 	onChangeOrderMenuItem()

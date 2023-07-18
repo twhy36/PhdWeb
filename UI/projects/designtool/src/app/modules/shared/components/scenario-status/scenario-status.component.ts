@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import * as fromRoot from '../../../ngrx-store/reducers';
 
-import { ScenarioStatusType, UnsubscribeOnDestroy, Constants, SalesAgreementStatuses } from 'phd-common';
+import { ScenarioStatusType, UnsubscribeOnDestroy } from 'phd-common';
 import { select, Store } from '@ngrx/store';
 
 @Component({
@@ -29,8 +29,7 @@ export class ScenarioStatusComponent extends UnsubscribeOnDestroy implements OnI
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.salesAgreement)
-		).subscribe(sag =>
-		{
+		).subscribe(sag => {
 			this.approvedStatus = sag.status;
 		});
 
@@ -56,13 +55,13 @@ export class ScenarioStatusComponent extends UnsubscribeOnDestroy implements OnI
 
 				break;
 			case (ScenarioStatusType.READY_FOR_STRUCTURAL):
-				this.statusText = this.approvedStatus === SalesAgreementStatuses.Approved ? 'Ready To Close' : 'Ready for Sales';
-				this.statusClass = this.approvedStatus === SalesAgreementStatuses.Approved ? 'phd-ready-to-close' : 'phd-structural';
-
+				this.statusText = this.approvedStatus === 'Approved' ? 'Ready To Close' : 'Ready for Sales';
+				this.statusClass = this.approvedStatus === 'Approved' ? 'phd-ready-to-close' : 'phd-structural';
+			
 				break;
 			case (ScenarioStatusType.READY_FOR_DESIGN):
-				this.statusText = this.approvedStatus === SalesAgreementStatuses.Approved ? 'Ready To Close' : 'Ready for Design';
-				this.statusClass = this.approvedStatus === SalesAgreementStatuses.Approved ? 'phd-ready-to-close' : 'phd-design';
+				this.statusText = this.approvedStatus === 'Approved' ? 'Ready To Close' : 'Ready for Design';
+				this.statusClass = this.approvedStatus === 'Approved' ? 'phd-ready-to-close' : 'phd-design';			
 
 				break;
 			case (ScenarioStatusType.READY_TO_BUILD):

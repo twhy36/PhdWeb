@@ -10,7 +10,7 @@ import * as fromScenario from '../../../../ngrx-store/scenario/reducer';
 import
 {
 	UnsubscribeOnDestroy, flipOver, Scenario, ScenarioStatusType, PriceBreakdown, TreeFilter, DecisionPoint,
-	PickType, SubGroup, Choice, DecisionPointFilterType, Constants
+	PickType, SubGroup, Choice, DecisionPointFilterType
 } from 'phd-common';
 
 import { ScenarioService } from '../../../../core/services/scenario.service';
@@ -78,11 +78,11 @@ export class NormalExperienceComponent extends UnsubscribeOnDestroy implements O
 				this.salesAgreementId = salesAgreement.id;
 				this.primaryAction = 'Agreement Info';
 			}
-			else if (build === Constants.BUILD_MODE_SPEC)
+			else if (build === 'spec')
 			{
 				this.primaryAction = 'Create Spec';
 			}
-			else if (build === Constants.BUILD_MODE_MODEL)
+			else if (build === 'model')
 			{
 				this.primaryAction = 'Create Model';
 			}
