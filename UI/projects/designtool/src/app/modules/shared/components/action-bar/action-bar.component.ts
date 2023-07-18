@@ -16,7 +16,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, ESignStatusEnum, ChangeTypeEnum, ChangeOrderGroup, Job,
-	SalesAgreement, DecisionPoint, Permission, ModalService, SalesAgreementStatuses, Tree, TreeVersionRules
+	SalesAgreement, DecisionPoint, Permission, ModalService, Tree, TreeVersionRules
 } from 'phd-common';
 
 import { SaveStatusType, ActionBarCallType } from '../../classes/constants.class';

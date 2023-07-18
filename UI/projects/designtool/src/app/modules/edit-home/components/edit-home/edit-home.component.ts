@@ -224,7 +224,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 							this.router.navigateByUrl(`edit-home/0/${filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId}`);
 						}
 					}
-					else if ((!scenarioState.scenario || params.scenarioId !== scenarioState.scenario.scenarioId) && !sag.id && this.buildMode === Constants.BUILD_MODE_BUYER)
+					else if ((!scenarioState.scenario || params.scenarioId !== scenarioState.scenario.scenarioId) && !sag.id && this.buildMode === 'buyer')
 					{
 						this.store.dispatch(new CommonActions.LoadScenario(params.scenarioId));
 					}
@@ -355,8 +355,8 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					{
 						this.lotcheckModalDisplayed = true;
 
-					const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
-					const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
+						const primaryButton = { text: 'Continue', result: true, cssClass: 'btn-primary' };
+						const secondaryButton = { text: 'Cancel', result: true, cssClass: 'btn-secondary' };
 
 						this.showConfirmModal(this.lotConflictModal, 'Attention!', primaryButton, secondaryButton).subscribe(result =>
 						{
@@ -672,7 +672,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 
 	toggleChoice({ choice: choice, saveNow: saveNow, quantity: quantity }: { choice: Choice, saveNow: boolean, quantity?: number })
 	{
-		if (this.salesAgreementStatus === Constants.AGREEMENT_STATUS_PENDING && choice.quantity === 0)
+		if (this.salesAgreementStatus === 'Pending' && choice.quantity === 0)
 		{
 			const elevationChoice: Choice = this.elevationDP.choices.find(c => c.id === choice.id);
 			const colorSchemeChoice: Choice = this.colorSchemeDP.choices.find(c => c.id === choice.id);
