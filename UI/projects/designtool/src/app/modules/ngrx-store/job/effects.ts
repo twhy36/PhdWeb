@@ -5,7 +5,7 @@ import { switchMap, withLatestFrom, exhaustMap, map, take, scan, skipWhile } fro
 import { NEVER, Observable, of, from, forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
-import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, FeatureSwitchService, IFeatureSwitchOrgAssoc, Job, TimeOfSaleOptionPrice, Constants } from 'phd-common';
+import { ESignEnvelope, ESignStatusEnum, ESignTypeEnum, FeatureSwitchService, IFeatureSwitchOrgAssoc, Job, TimeOfSaleOptionPrice, Constants, SalesAgreementStatuses } from 'phd-common';
 
 import { JobActionTypes, CreateChangeOrderEnvelope, EnvelopeError, LoadSpecs, SpecsLoaded, LoadJobForJob, JobLoadedByJobId, LoadPulteInfo, PulteInfoLoaded, SavePulteInfo, PulteInfoSaved, JobPlanOptionsUpdated, SaveReplaceOptionPrice, ReplaceOptionPriceSaved, DeleteReplaceOptionPrice, ReplaceOptionPriceDeleted, SaveError, UpdateReplaceOptionPrice, ReplaceOptionPriceUpdated } from './actions';
 import { ContractService } from '../../core/services/contract.service';
@@ -231,7 +231,7 @@ export class JobEffects
 						{
 							return NEVER;
 						}
-						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== Constants.AGREEMENT_STATUS_PENDING)
+						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== SalesAgreementStatuses.Pending)
 						{
 							return NEVER;
 						}

@@ -19,7 +19,7 @@ import * as ChangeOrderActions from '../../../ngrx-store/change-order/actions';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignTypeEnum, PointStatus, SalesAgreement, Consultant,
-	PriceBreakdown, PDFViewerComponent, ModalService, Constants
+	PriceBreakdown, PDFViewerComponent, ModalService, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { environment } from '../../../../../environments/environment';
@@ -98,12 +98,12 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get mainTitle(): string
 	{
-		return this.salesAgreement?.status === Constants.AGREEMENT_STATUS_PENDING ? `Build It` : `Agreement Information`;
+		return this.salesAgreement?.status === SalesAgreementStatuses.Pending ? `Build It` : `Agreement Information`;
 	}
 
 	get subTitle(): string
 	{
-		return this.salesAgreement?.status === Constants.AGREEMENT_STATUS_PENDING ? `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.` : '';
+		return this.salesAgreement?.status === SalesAgreementStatuses.Pending ? `Congratulations! The process is almost complete. With just a little more information we'll have an Agreement ready for you to sign soon.` : '';
 	}
 
 	public onToggleCollapse(event): void
@@ -208,7 +208,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				let isSalesInfoComplete = true;
 
-				if (sa.status == Constants.AGREEMENT_STATUS_PENDING)
+				if (sa.status == SalesAgreementStatuses.Pending)
 				{
 					isSalesInfoComplete = this.isComplete(sa.notes, sa.isNoteNa) && this.isComplete(sa.programs, sa.isProgramNa) && this.isComplete(sa.contingencies, sa.isContingenciesNa) && this.isComplete(sa.lenderType) && this.isComplete(sa.propertyType) && this.isComplete(sa.deposits);
 				}
@@ -237,10 +237,10 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					let isPeopleComplete = true;
 
-					if (sa.status === Constants.AGREEMENT_STATUS_PENDING)
-					{
-						isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
-					}
+				if (sa.status === SalesAgreementStatuses.Pending)
+				{
+					isPeopleComplete = buyerComplete && this.isComplete(sa.realtors, sa.isRealtorNa) && this.isComplete(sa.trustName, sa.isTrustNa) && this.isComplete(coBuyers, sa.isCoBuyerNa);
+				}
 
 					return isPeopleComplete;
 				})
@@ -253,7 +253,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				let isInfoViewed = true;
 
-				if (sa.status == Constants.AGREEMENT_STATUS_PENDING)
+				if (sa.status == SalesAgreementStatuses.Pending)
 				{
 					isInfoViewed = sa.isAgreementInfoViewed;
 				}
@@ -367,7 +367,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 				break;
 			case (ActionBarCallType.PREVIEW_AGREEMENT):
-				this.showPDFViewerFooter = this.salesAgreement.status !== Constants.AGREEMENT_STATUS_PENDING;
+				this.showPDFViewerFooter = this.salesAgreement.status !== SalesAgreementStatuses.Pending;
 
 				this.isAddenda = this.showPDFViewerFooter;
 
@@ -460,7 +460,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 	envelopeCancelled(envelopeId: string)
 	{
 		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement
-			&& this.salesAgreement.status === Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE
+			&& this.salesAgreement.status === SalesAgreementStatuses.OutForSignature
 			&& this.cogEnvelopeId === envelopeId)
 		{
 			// dispatch action to:
@@ -572,7 +572,7 @@ export class PointOfSaleComponent extends UnsubscribeOnDestroy implements OnInit
 
 	private setOutForSignature(isWetSign = false, isEdit = false)
 	{
-		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === Constants.AGREEMENT_STATUS_PENDING)
+		if (this.selectedAgreementType !== ESignTypeEnum.TerminationAgreement && this.salesAgreement.status === SalesAgreementStatuses.Pending)
 		{
 			// dispatch action to:
 			// - set Agreement Status to Out for Signature

@@ -25,7 +25,7 @@ import * as fromJob from '../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum,
-	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants, SalesAgreementStatuses
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -375,10 +375,10 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				? this.changeOrders[this.changeOrders.length - 1].changeOrderGroupSequence
 				: 0;
 
-			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === Constants.AGREEMENT_STATUS_APPROVED && t.constructionStatusDescription !== 'Approved'));
+			this.activeChangeOrders = this.changeOrders.filter(t => ['Pending', 'Out For Signature', 'Signed', 'Rejected'].indexOf(t.salesStatus) !== -1).concat(this.changeOrders.filter(t => t.salesStatus === SalesAgreementStatuses.Approved && t.constructionStatusDescription !== 'Approved'));
 			this.activeChangeOrders.forEach(co => co.isActiveChangeOrder = true);
 
-			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === Constants.AGREEMENT_STATUS_APPROVED && t.constructionStatusDescription === 'Approved'));
+			this.pastChangeOrders = this.changeOrders.filter(t => t.salesStatus === 'Withdrawn' || t.salesStatus === 'Resolved' || (t.salesStatus === SalesAgreementStatuses.Approved && t.constructionStatusDescription === 'Approved'));
 
 			if (this.activeChangeOrders.length > 1)
 			{
@@ -1142,7 +1142,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 			});
 		}
-		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === Constants.AGREEMENT_STATUS_APPROVED) || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === Constants.AGREEMENT_STATUS_APPROVED))
+		else if ((changeOrder.changeOrderTypeDescription === 'SalesJIO' && changeOrder.salesStatus === SalesAgreementStatuses.Approved) || (changeOrder.changeOrderTypeDescription === 'SpecJIO' && changeOrder.salesStatus === 'Approved') || (changeOrder.id === this.changeOrders[0].id && changeOrder.salesStatus === SalesAgreementStatuses.Approved))
 		{
 			this._contractService.getEnvelope(this.jobId, changeOrder.id, this.approvedDate, this.signedDate, this.isPhdLite).subscribe(() =>
 			{

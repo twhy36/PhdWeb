@@ -6,7 +6,7 @@ import { LinkAction } from '../../models/action.model';
 import { SearchResult, IFilterItem, IFilterItems, ISearchResultAgreement } from '../../models/search.model';
 import { SearchService } from '../../../core/services/search.service';
 import { IFinancialCommunity, ISalesCommunity } from '../../models/community.model';
-import { FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants } from 'phd-common';
+import { FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants, SalesAgreementStatuses } from 'phd-common';
 
 @Component({
 	encapsulation: ViewEncapsulation.None,
@@ -66,13 +66,13 @@ export class PHDSearchComponent
 	];
 
 	salesAgreementStatusOptions: Array<SelectItem> = [
-		{ label: 'Pending', value: Constants.AGREEMENT_STATUS_PENDING },
-		{ label: 'Out For Signature', value: Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE },
-		{ label: 'Signed', value: Constants.AGREEMENT_STATUS_SIGNED },
-		{ label: 'Approved', value: Constants.AGREEMENT_STATUS_APPROVED },
-		{ label: 'Closed', value: Constants.AGREEMENT_STATUS_CLOSED },
-		{ label: 'Void', value: Constants.AGREEMENT_STATUS_VOID },
-		{ label: 'Cancel', value: Constants.AGREEMENT_STATUS_CANCEL }
+		{ label: 'Pending', value: SalesAgreementStatuses.Pending },
+		{ label: 'Out For Signature', value: SalesAgreementStatuses.OutForSignature },
+		{ label: 'Signed', value: SalesAgreementStatuses.Signed },
+		{ label: 'Approved', value: SalesAgreementStatuses.Approved },
+		{ label: 'Closed', value: SalesAgreementStatuses.Closed },
+		{ label: 'Void', value: SalesAgreementStatuses.Void },
+		{ label: 'Cancel', value: SalesAgreementStatuses.Cancel }
 	];
 
 	homesiteTypeOptions: Array<SelectItem> = [
@@ -213,7 +213,7 @@ export class PHDSearchComponent
 							// if the salesAgreement number is truthy OR if found in the list of selected sales agreement statuses OR if selected Ready To Close check status of approved and isLockedIn
 							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) ||
 								(this.selectedSalesAgreementStatus.length > 0 &&
-									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === Constants.AGREEMENT_STATUS_APPROVED && agreement.isLockedIn)))
+									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === SalesAgreementStatuses.Approved && agreement.isLockedIn)))
 							{
 								// flag the lot as able to be added to the filtered lots
 								addLot = true;
@@ -313,7 +313,7 @@ export class PHDSearchComponent
 	{
 		this.clear();
 
-		this.selectedSalesAgreementStatus = [Constants.AGREEMENT_STATUS_PENDING, Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED];
+		this.selectedSalesAgreementStatus = [SalesAgreementStatuses.Pending, SalesAgreementStatuses.OutForSignature, SalesAgreementStatuses.Signed];
 
 		setTimeout(t =>
 		{
@@ -327,7 +327,7 @@ export class PHDSearchComponent
 
 		this.searchActiveOnly = true;
 		const filters: Array<IFilterItems> = [];
-		this.selectedSalesAgreementStatus = [Constants.AGREEMENT_STATUS_APPROVED];
+		this.selectedSalesAgreementStatus = [SalesAgreementStatuses.Approved];
 		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
 		const salesCommunityString = this.selectedCommunity && this.selectedCommunity.id.toString();
 
@@ -348,7 +348,7 @@ export class PHDSearchComponent
 						{
 
 							// if the agreement.status is 'Approved' and agreement.isLockedIn is true
-							if (agreement.status === Constants.AGREEMENT_STATUS_APPROVED && agreement.isLockedIn)
+							if (agreement.status === SalesAgreementStatuses.Approved && agreement.isLockedIn)
 							{
 								filteredLots.push(result);
 							}
@@ -627,6 +627,6 @@ export class PHDSearchComponent
 		return agreement
 			&& agreement.salesAgreementNumber
 			&& agreement.isOnFinalLot
-			&& (!!lot.buyers?.length || agreement.status === Constants.AGREEMENT_STATUS_CANCEL || agreement.status === Constants.AGREEMENT_STATUS_VOID);
+			&& (!!lot.buyers?.length || agreement.status === SalesAgreementStatuses.Cancel || agreement.status === SalesAgreementStatuses.Void);
 	}
 }
