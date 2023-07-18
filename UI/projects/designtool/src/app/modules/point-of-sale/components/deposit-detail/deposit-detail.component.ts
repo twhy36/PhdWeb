@@ -194,7 +194,6 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 		{
 			this.remove();
 		}
-
 		this.onEdit.emit(null);
 	}
 

@@ -68,7 +68,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	optionsAndColorsMenuAreVisible: boolean;
 	currentChangeOrderSalesStatus: string;
 	colorMenuIsDisabled: boolean;
-	isChangeEmpty: boolean = true;
+	isChangeOrderComplete: boolean = false;
 
 	constructor(
 		private identityService: IdentityService,
@@ -156,7 +156,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			this.inChangeOrder = changeOrder && changeOrder.isChangingOrder;
 			this.changeOrderType = changeOrder && changeOrder.changeInput ? changeOrder.changeInput.type : null;
 			this.changeOrderPlanId = changeOrder && changeOrder.changeInput ? changeOrder.changeInput.changeOrderPlanId : null;
-			this.isChangeEmpty = changeOrder?.isChangeOrderEmpty;
+			this.isChangeOrderComplete = changeOrder?.isChangeOrderComplete;
 
 			const currentChangeOrder = changeOrder && changeOrder.currentChangeOrder;
 
@@ -408,8 +408,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	}
 
 	get disableChangeOrders()
-	{		
-		return this.inChangeOrder && (!this.hasActiveChangeOrder || !this.isChangeEmpty);
+	{
+		return this.inChangeOrder && (!this.hasActiveChangeOrder || this.isChangeOrderComplete);		
 	}
 
 	get isSalesOnlyChangeOrder()

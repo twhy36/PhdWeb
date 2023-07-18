@@ -136,7 +136,6 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 		}
 
 		this.onEdit.emit(null);
-
 		this.form.reset();
 	}
 
@@ -155,7 +154,6 @@ export class PriceAdjustmentDetailComponent extends ComponentCanNavAway implemen
 			if (result)
 			{
 				this.onDeletePriceAdjustment.emit();
-
 				this.form.reset();
 			}
 		});
