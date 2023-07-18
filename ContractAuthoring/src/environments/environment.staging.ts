@@ -7,8 +7,8 @@ export const environment = {
     production: false,
     apiUrl: 'https://phdapi.staging.pulte.com/odata/',
     authConfig: {
-        issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
-        clientId: '7d88528c-ab8d-4757-8b17-e7bc1b84ca15',
+        issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+        clientId: "7d88528c-ab8d-4757-8b17-e7bc1b84ca15",
         responseType: 'code',
         clearHashAfterLogin: false,
         requestAccessToken: true,
@@ -18,6 +18,6 @@ export const environment = {
         strictDiscoveryDocumentValidation: false
     },
     appInsights: {
-        connectionString: 'InstrumentationKey=858d9527-b103-4d11-86b2-4d3db2e630c1;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/'
+        instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0'
     },
 };

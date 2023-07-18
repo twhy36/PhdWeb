@@ -229,7 +229,7 @@ stages:
                       "AzureAD/ClientId": "$(azureAD:clientID)",
                       "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
-                      "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                      "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: Transformer@2
               displayName: Config Transform - Change Order Expiration
@@ -247,7 +247,7 @@ stages:
                       "AzureAD/ClientId": "$(azureAD:clientID)",
                       "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
-                      "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                      "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: Transformer@2
               displayName: Config Transform - Attribute Cleanup
@@ -265,7 +265,7 @@ stages:
                       "AzureAD/ClientId": "$(azureAD:clientID)",
                       "AzureAD/Secret": "$(azureAD:secret)",
                       "AzureDocumentStorage": "$(storageAccessKey)",
-                      "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                      "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: AzureRmWebAppDeployment@4
               displayName: Deploy Lot Release
@@ -355,7 +355,7 @@ stages:
                     "AzureAD/ClientId": "$(azureAD:clientID)",
                     "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
-                    "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                    "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: Transformer@2
               displayName: Config Transform - Change Order Expiration
@@ -373,7 +373,7 @@ stages:
                     "AzureAD/ClientId": "$(azureAD:clientID)",
                     "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
-                    "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                    "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: Transformer@2
               displayName: Config Transform - Attribute Cleanup
@@ -391,7 +391,7 @@ stages:
                     "AzureAD/ClientId": "$(azureAD:clientID)",
                     "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
-                    "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                    "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: AzureRmWebAppDeployment@4
               displayName: Deploy Lot Release
@@ -522,7 +522,7 @@ stages:
                     "AzureAD/ClientId": "$(azureAD:clientID)",
                     "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
-                    "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                    "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: Transformer@2
               displayName: Config Transform - Change Order Expiration
@@ -540,7 +540,7 @@ stages:
                     "AzureAD/ClientId": "$(azureAD:clientID)",
                     "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
-                    "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                    "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: Transformer@2
               displayName: Config Transform - Attribute Cleanup
@@ -558,7 +558,7 @@ stages:
                     "AzureAD/ClientId": "$(azureAD:clientID)",
                     "AzureAD/Secret": "$(azureAD:secret)",
                     "AzureDocumentStorage": "$(storageAccessKey)",
-                    "ApplicationInsights/ConnectionString": "$(appInsights:connectionString)"
+                    "ApplicationInsights/InstrumentationKey": "$(appInsights:instrumentationKey)"
                   }
             - task: AzureRmWebAppDeployment@4
               displayName: Deploy Lot Release

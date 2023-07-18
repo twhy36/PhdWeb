@@ -22,8 +22,8 @@ export const environment: IEnvironment = {
 	tenant: 'pulte.onmicrosoft.com',
 	clientId: '9d498056-e6cd-4e53-b89b-cf2f5e60adf7',
 	authConfig: {
-		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
-		clientId: 'd6079aab-8c1d-40e7-81fb-78bda38faea2',
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "d6079aab-8c1d-40e7-81fb-78bda38faea2",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
@@ -34,7 +34,7 @@ export const environment: IEnvironment = {
 	},	
 	authQueryParams: 'domain_hint=pulte.com',
 	appInsights: {
-		connectionString: 'InstrumentationKey=08875504-9c0f-45a6-8cc5-8a819e51aff0;IngestionEndpoint=https://eastus-6.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
+		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
 		enableAutoRouteTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },

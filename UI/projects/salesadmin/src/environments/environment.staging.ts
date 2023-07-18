@@ -4,15 +4,15 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-	production: false,
+    production: false,
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
-	tenant: 'pulte.onmicrosoft.com/',
-	clientId: 'd6e4e999-c413-4d1d-b0fb-618759cb69e5',
+    tenant: "pulte.onmicrosoft.com/",
+	clientId: "d6e4e999-c413-4d1d-b0fb-618759cb69e5",
 	authConfig: {
-		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
-		clientId: '7d88528c-ab8d-4757-8b17-e7bc1b84ca15',
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "7d88528c-ab8d-4757-8b17-e7bc1b84ca15",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
@@ -21,8 +21,8 @@ export const environment = {
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
 	},
-	appInsights: {
-		connectionString: 'InstrumentationKey=858d9527-b103-4d11-86b2-4d3db2e630c1;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/',
+    appInsights: {
+        instrumentationKey: 'cf19cbb8-e39b-4e28-8199-3d06eaf051f0',
 		enableAutoRouteTracking: true
 	},
 	whatFix: {

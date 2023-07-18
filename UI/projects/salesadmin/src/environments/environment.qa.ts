@@ -8,11 +8,11 @@ export const environment = {
 	apiUrl: 'https://phdapi.qa.pulte.com/odata/',
 	hubUrl: 'https://phdhub.qa.pulte.com/hub',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
-	tenant: 'pulte.onmicrosoft.com',
-	clientId: '9d433c6a-9bfc-4d5e-917b-3bfe08942b6e',
+	tenant: "pulte.onmicrosoft.com",
+	clientId: "9d433c6a-9bfc-4d5e-917b-3bfe08942b6e",
 	authConfig: {
-		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
-		clientId: '90bf975f-6a55-42cb-9016-1103586c8f50',
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "90bf975f-6a55-42cb-9016-1103586c8f50",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
@@ -21,8 +21,8 @@ export const environment = {
 		skipIssuerCheck: false,
 		strictDiscoveryDocumentValidation: false
 	},
-	appInsights: {
-		connectionString: 'InstrumentationKey=59530951-22f6-449f-ac70-8dffc824b34d;IngestionEndpoint=https://eastus-5.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
+    appInsights: {
+    instrumentationKey: '59530951-22f6-449f-ac70-8dffc824b34d',
 		enableAutoRouteTracking: true
 	},
 	whatFix: {

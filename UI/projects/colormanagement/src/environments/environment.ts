@@ -7,15 +7,16 @@ import { IEnvironment } from './environment.model';
 
 export const environment: IEnvironment = {
 	apiUrl: 'https://phdapi.dev.pulte.com/odata/',
-	authQueryParams: 'domain_hint=pulte.com',
+	authQueryParams: "domain_hint=pulte.com",
 	appInsights: {
-		connectionString: 'InstrumentationKey=08875504-9c0f-45a6-8cc5-8a819e51aff0;IngestionEndpoint=https://eastus-6.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
+		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
 		enableAutoRouteTracking: true
-	},	
+	},
+	
 	production: false,
 	authConfig: {
-		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
-		clientId: 'f9c9611d-6a23-4d2e-8dce-14da56bd8acc',
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "f9c9611d-6a23-4d2e-8dce-14da56bd8acc",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,

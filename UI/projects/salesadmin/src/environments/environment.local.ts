@@ -8,11 +8,11 @@ export const environment = {
 	apiUrl: 'http://localhost:2845/odata/',
 	hubUrl: 'http://localhost:5000/hub',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
-	tenant: 'pulte.onmicrosoft.com',
-	clientId: '9d498056-e6cd-4e53-b89b-cf2f5e60adf7',
+	tenant: "pulte.onmicrosoft.com",
+	clientId: "9d498056-e6cd-4e53-b89b-cf2f5e60adf7",
 	authConfig: {
-		issuer: 'https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0',
-		clientId: 'd6079aab-8c1d-40e7-81fb-78bda38faea2',
+		issuer: "https://login.microsoftonline.com/1a9277a3-ef66-41f6-96b5-c5390ee468a7/v2.0",
+		clientId: "d6079aab-8c1d-40e7-81fb-78bda38faea2",
 		responseType: 'code',
 		clearHashAfterLogin: true,
 		requestAccessToken: true,
@@ -22,7 +22,7 @@ export const environment = {
 		strictDiscoveryDocumentValidation: false
 	},
 	appInsights: {
-		connectionString: 'InstrumentationKey=08875504-9c0f-45a6-8cc5-8a819e51aff0;IngestionEndpoint=https://eastus-6.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
+		instrumentationKey: '08875504-9c0f-45a6-8cc5-8a819e51aff0',
 		enableAutoRouteTracking: true
 	},
 	whatFix: {
