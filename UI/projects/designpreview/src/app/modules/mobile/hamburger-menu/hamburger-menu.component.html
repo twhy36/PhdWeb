@@ -1,0 +1,88 @@
+<nav>
+	<mat-accordion multi>
+		<ul class="p-0">
+			<div class="phd-hamburger-header sticky-top">
+				<div class="d-flex flex-row-reverse" (click)="closeClicked.emit()">
+					<button mat-icon-button class="d-flex pl-4 pr-0 py-0">
+						<mat-icon>close</mat-icon>
+					</button>
+				</div>
+				<hr class="mt-n2"/>
+			</div>
+			<li>
+				<mat-expansion-panel #viewOptionsPanel hideToggle>
+					<mat-expansion-panel-header class="phd-hamburger-menu-item">
+						<mat-panel-title>
+							<span class="d-flex" aria-hidden="true">
+								<mat-icon>checklist</mat-icon>
+							</span>
+							<a id="viewOptionsLink" class="pl-2">
+								View Options
+							</a>
+						</mat-panel-title>
+						<mat-panel-description class="d-flex justify-content-end mr-0">
+							<button mat-icon-button class="d-flex pl-4 pr-0">
+								<mat-icon *ngIf="!viewOptionsPanel.expanded">add</mat-icon>
+								<mat-icon *ngIf="viewOptionsPanel.expanded">remove</mat-icon>
+							</button>
+						</mat-panel-description>
+					</mat-expansion-panel-header>
+					<ul class="pl-2">
+						<li *ngFor="let group of groups" class="py-2">
+							<a>{{ group.label }}</a>
+						</li>
+					</ul>
+				</mat-expansion-panel>
+			</li>
+			<li class="phd-hamburger-menu-item d-flex align-items-center">
+				<span class="d-flex" aria-hidden="true">
+					<mat-icon>favorite</mat-icon>
+				</span>
+				<a id="myFavoritesLink" class="d-flex pl-2">
+					My Favorites
+				</a>
+			</li>
+			<li>
+				<mat-expansion-panel #resourcesPanel hideToggle>
+					<mat-expansion-panel-header class="phd-hamburger-menu-item">
+						<mat-panel-title>
+							<span class="d-flex" aria-hidden="true">
+								<mat-icon>collections_bookmark</mat-icon>
+							</span>
+							<a id="viewOptionsLink" class="pl-2">
+								Resources
+							</a>
+						</mat-panel-title>
+						<mat-panel-description class="d-flex justify-content-end mr-0">
+							<button mat-icon-button class="d-flex pl-4 pr-0">
+								<mat-icon *ngIf="!resourcesPanel.expanded">add</mat-icon>
+								<mat-icon *ngIf="resourcesPanel.expanded">remove</mat-icon>
+							</button>
+						</mat-panel-description>
+					</mat-expansion-panel-header>
+					<ul class="pl-2">
+						<li *ngIf="showFloorplanLink" id="floorplanLink" class="py-2">
+							<a>Floorplan</a>
+						</li>
+						<li *ngIf="showIncludedOptionsLink" id="includedOptionsLink" class="py-2">
+							<a>Included Options</a>
+						</li>
+						<li *ngIf="showPendingAndContractedOptionsLink" id="pendingAndContractedOptionsLink" class="py-2">
+							<a>Pending & Contracted Options</a>
+						</li>
+					</ul>
+				</mat-expansion-panel>
+			</li>
+			<hr/>
+			<li class="phd-hamburger-menu-item d-flex align-items-center">
+				<a id="termsOfUseLink" href="{{termsUrl}}" target="_blank">Terms of Use</a>
+			</li>
+			<li class="phd-hamburger-menu-item d-flex align-items-center">
+				<a id="privacyPolicyLink" href="{{policyUrl}}" target="_blank">Privacy Policy</a>
+			</li>
+			<li class="phd-hamburger-menu-item d-flex align-items-center">
+				<a id="disclaimerLink" (click)="disclaimerClicked()">Disclaimer</a>
+			</li>
+		</ul>
+	</mat-accordion>
+</nav>

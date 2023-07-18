@@ -1,20 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule, Routes } from '@angular/router';
-
-// Mobile Module
-import { MobileComponent } from './mobile.component';
-import { LandingComponent } from './landing/landing.component';
 
 // External Modules
 import { BuildMode } from '../shared/models/build-mode.model';
 import { ExternalGuard } from '../core/guards/external.guard';
 import { InternalGuard } from '../core/guards/internal.guard';
 import { PresaleGuard } from '../core/guards/presale.guard';
+
+// Mobile Module
+import { MobileComponent } from './mobile.component';
+import { GlobalHeaderComponent } from './global-header/global-header.component';
+import { HamburgerMenuComponent } from './hamburger-menu/hamburger-menu.component';
+import { LandingComponent } from './landing/landing.component';
+import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -63,12 +68,17 @@ const moduleRoutes: Routes = [
 	LandingComponent
 	],
 	declarations: [
+	MobileComponent,
+	GlobalHeaderComponent,
+	HamburgerMenuComponent,
 	LandingComponent,
-	MobileComponent
+	ConfirmDialogComponent
 	],
 	imports: [
 	CommonModule,
 	MatButtonModule,
+	MatDialogModule,
+	MatExpansionModule,
 	MatIconModule,
 	MatMenuModule,
 	MatSidenavModule,

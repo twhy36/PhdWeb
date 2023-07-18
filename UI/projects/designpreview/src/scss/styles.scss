@@ -37,6 +37,7 @@
 
 	@include mat.menu-theme($theme);
 	@include mat.button-theme($theme);
+	@include mat.dialog-theme($theme);
 	@include mat.typography-hierarchy($typography-config);
 
 	@include action-bar.theme($theme);
@@ -155,6 +156,16 @@
 			}
 		}
 	}
+
+	// Global Style for Dialog (Modal)
+	.phd-dialog-header {
+		background-color: mat.get-color-from-palette($primary-palette, 500);
+		color: mat.get-color-from-palette($primary-palette, '500-contrast') !important;
+
+		.phd-dialog-header-text {
+			color: mat.get-color-from-palette($primary-palette, '500-contrast') !important;
+		}
+	}
 }
 
 .aw-theme {
@@ -263,12 +274,27 @@ a:focus {
 	transition: all 0.5s;
 }
 
-// ngb-modal has an inline style bug. see more here: https://github.com/ng-bootstrap/ng-bootstrap/issues/2686
-ngb-modal-backdrop {
-	z-index: 1050 !important;
+ul {
+	list-style-type: none;
 }
 
-::ng-deep .modal-backdrop {
+// Angular Material Style Overrides
+// We use custom icons so this gets rid of the margin on the default icon
+.mat-content.mat-content-hide-toggle {
+	margin-right: 0px !important;
+}
+
+// Sets our disabled backdrop color
+.mat-drawer-backdrop {
+	background-color: #9D9A9AA7;
+}
+
+.mat-expansion-panel-body {
+	padding-bottom: 6px !important;
+}
+
+// ngb-modal has an inline style bug. see more here: https://github.com/ng-bootstrap/ng-bootstrap/issues/2686
+ngb-modal-backdrop {
 	z-index: 1050 !important;
 }
 
