@@ -56,8 +56,7 @@ export enum ChangeOrderActionTypes
 	SetChangeOrderPlanId = 'Set Change Order Plan Id',
 	SetSalesChangeOrderTermsAndConditions = 'Set change order Terms and Conditions',
 	SalesChangeOrderTermsAndConditionsSaved = 'Sales Change Order Terms And Conditions Saved',
-	DeleteTermsAndConditions = 'Delete Terms and Conditons',
-	SetIsChangeOrderEmpty = 'Set Is Change Order Empty'
+	DeleteTermsAndConditions = 'Delete Terms and Conditons'
 }
 
 @Log(true)
@@ -446,14 +445,6 @@ export class DeleteTermsAndConditions implements Action
 	constructor(public termsAndConditionsNote: Note) { }
 }
 
-@Log(true)
-export class SetIsChangeOrderEmpty implements Action
-{
-	readonly type = ChangeOrderActionTypes.SetIsChangeOrderEmpty;
-
-	constructor(public isChangeOrderEmpty: boolean) { }
-}
-
 export type ChangeOrderActions =
 	AddChangeOrderCoBuyer |
 	CancelJobChangeOrder |
@@ -507,5 +498,4 @@ export type ChangeOrderActions =
 	SetChangeOrderPlanId |
 	SetSalesChangeOrderTermsAndConditions |
 	SalesChangeOrderTermsAndConditionsSaved |
-	DeleteTermsAndConditions |
-	SetIsChangeOrderEmpty;
+	DeleteTermsAndConditions;

@@ -195,12 +195,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 						state.scenario.overrideReason,
 						legacyColorScheme
 					))
-		).subscribe(changeOrderIsEmpty =>
-		{
-			this.isChangeEmpty = changeOrderIsEmpty;
-		
-		});
-	
+			).subscribe(changeOrderIsEmpty => this.isChangeEmpty = changeOrderIsEmpty);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),

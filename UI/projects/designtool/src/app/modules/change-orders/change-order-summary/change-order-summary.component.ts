@@ -573,7 +573,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				this.createForm(changeOrder, this.ACTION_TYPES.WITHDRAW);
 
 				this.openModal(this.updateChangeOrderModal);
-				this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(true));
+
 				break;
 			case this.ACTION_TYPES.REJECT:
 				this.createForm(changeOrder, this.ACTION_TYPES.REJECT);
@@ -600,7 +600,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				break;
 			case this.ACTION_TYPES.PRINT_FOR_SIGNATURE:
 
-				this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(true));
 				this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(currentSnapshot =>
 				{
 					if (currentSnapshot)
@@ -624,7 +623,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			case this.ACTION_TYPES.CANCEL_SIGNATURE:
 				// First CO on the table - SalesJIO/ Spec Customer
 				this.isSaving = true;
-				this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(false));
 
 				if (changeOrder.id === this.changeOrders[0].id)
 				{
@@ -661,8 +659,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 				break;
 			case this.ACTION_TYPES.E_SIGN:
-
-				this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(true));
 
 				this._contractService.createSnapShot(changeOrder).subscribe(snapshot =>
 				{
@@ -710,7 +706,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				// Compare snapshots for spec approval
 				if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
 				{
-					this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(true));
 					this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(currentSnapshot =>
 					{
 						if (currentSnapshot)
@@ -739,7 +734,6 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				if (changeOrder)
 				{
 					this.resubmitChangeOrder(changeOrder);
-					this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(false));
 				}
 
 				break;
@@ -1288,7 +1282,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				break;
 			case 'Construction Change':
 				this.store.dispatch(new ChangeOrderActions.SetChangingOrder(true, new ChangeInput(ChangeTypeEnum.CONSTRUCTION), null, null, nextGroupSequence));
-				this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderEmpty(false));
+
 				this.router.navigateByUrl(this.isPhdLite ? '/lite-summary' : '/scenario-summary');
 
 				break;
