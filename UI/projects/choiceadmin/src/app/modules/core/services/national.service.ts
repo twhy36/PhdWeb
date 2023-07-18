@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Observable ,  throwError as _throw } from 'rxjs';
+import { Observable, throwError as _throw } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { createBatchPatch } from '../../shared/classes/odata-utils.class';
 import { newGuid } from '../../shared/classes/guid.class';
 
-import { IdentityService, withSpinner } from 'phd-common';
+import { IdentityService, LoggingService, withSpinner } from 'phd-common';
 import { SettingsService } from './settings.service';
-import { LoggingService } from './logging.service';
 import { CatalogService } from '../../core/services/catalog.service';
 
 import { DGroup, ICatalogGroupDto } from '../../shared/models/group.model';
@@ -32,32 +31,32 @@ export class NationalService
 		return this._canEdit;
 	}
 
-    constructor(private _http: HttpClient, private _identityService: IdentityService, private _loggingService: LoggingService, private _catService: CatalogService) { }
+	constructor(private _http: HttpClient, private _identityService: IdentityService, private _loggingService: LoggingService, private _catService: CatalogService) { }
 
 	/**
 	 * Gets the National Catalog
 	 */
 	getNationalCatalog(): Observable<NationalCatalog>
-    {
+	{
 		let url = settings.apiUrl;
 
 		url += 'GetNationalCatalog';
 
 		return withSpinner(this._http).get(url).pipe(
 			map(response =>
-				{
-					let dto = response as INationalCatalogDto;
+			{
+				let dto = response as INationalCatalogDto;
 
-					let groups = this.filterGroups(dto.groups);
+				let groups = this.filterGroups(dto.groups);
 
-					let nationalCatalog = new NationalCatalog();
+				let nationalCatalog = new NationalCatalog();
 
-					nationalCatalog.groups = groups;
-					nationalCatalog.hasInactiveGroups = dto.hasInactiveGroups;
+				nationalCatalog.groups = groups;
+				nationalCatalog.hasInactiveGroups = dto.hasInactiveGroups;
 
-					return nationalCatalog;
+				return nationalCatalog;
 
-				}),
+			}),
 			catchError(this.handleError));
 	}
 
@@ -78,17 +77,17 @@ export class NationalService
 
 		return this._http.get(url).pipe(
 			map(response =>
+			{
+				let dtos = response['value'] as Array<INationalCatalogGroupDto>;
+
+				let groups = dtos.map(x =>
 				{
-					let dtos = response['value'] as Array<INationalCatalogGroupDto>;
+					return new DGroup(x);
+				});
 
-					let groups = dtos.map(x =>
-					{
-						return new DGroup(x);
-					});
+				return groups;
 
-					return groups;
-
-				}),
+			}),
 			catchError(this.handleError));
 	}
 
@@ -110,17 +109,17 @@ export class NationalService
 
 		return this._http.get(url).pipe(
 			map(response =>
+			{
+				let dtos = response['value'] as Array<INationalCatalogSubGroupDto>;
+
+				let subGroups = dtos.map(x =>
 				{
-					let dtos = response['value'] as Array<INationalCatalogSubGroupDto>;
+					return new DSubGroup(x);
+				});
 
-					let subGroups = dtos.map(x =>
-					{
-						return new DSubGroup(x);
-					});
+				return subGroups;
 
-					return subGroups;
-
-				}),
+			}),
 			catchError(this.handleError));
 	}
 
@@ -142,16 +141,16 @@ export class NationalService
 
 		return this._http.get(url).pipe(
 			map(response =>
+			{
+				let dtos = response['value'] as Array<INationalCatalogPointDto>;
+
+				let points = dtos.map(x =>
 				{
-					let dtos = response['value'] as Array<INationalCatalogPointDto>;
+					return new DPoint(x);
+				});
 
-					let points = dtos.map(x =>
-					{
-						return new DPoint(x);
-					});
-
-					return points;
-				}),
+				return points;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -192,11 +191,11 @@ export class NationalService
 
 		return this._http.post(url, dto).pipe(
 			map(response =>
-				{
-					let retVal = response as ICatalogGroupDto;
+			{
+				let retVal = response as ICatalogGroupDto;
 
-					return retVal;
-				}),
+				return retVal;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -212,11 +211,11 @@ export class NationalService
 
 		return this._http.patch(url, dto).pipe(
 			map(response =>
-				{
-					let retVal = response as ICatalogGroupDto;
+			{
+				let retVal = response as ICatalogGroupDto;
 
-					return retVal;
-				}),
+				return retVal;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -232,11 +231,11 @@ export class NationalService
 
 		return this._http.post(url, dto).pipe(
 			map(response =>
-				{
-					let retVal = response as ICatalogSubGroupDto;
+			{
+				let retVal = response as ICatalogSubGroupDto;
 
-					return retVal;
-				}),
+				return retVal;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -252,11 +251,11 @@ export class NationalService
 
 		return this._http.patch(url, dto).pipe(
 			map(response =>
-				{
-					let retVal = response as ICatalogSubGroupDto;
+			{
+				let retVal = response as ICatalogSubGroupDto;
 
-					return retVal;
-				}),
+				return retVal;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -272,11 +271,11 @@ export class NationalService
 
 		return this._http.post(url, dto).pipe(
 			map(response =>
-				{
-					let retVal = response as ICatalogPointDto;
+			{
+				let retVal = response as ICatalogPointDto;
 
-					return retVal;
-				}),
+				return retVal;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -292,11 +291,11 @@ export class NationalService
 
 		return this._http.patch(url, dto).pipe(
 			map(response =>
-				{
-					let retVal = response as ICatalogPointDto;
+			{
+				let retVal = response as ICatalogPointDto;
 
-					return retVal;
-				}),
+				return retVal;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -313,9 +312,9 @@ export class NationalService
 
 		return this._http.delete(url).pipe(
 			map(response =>
-				{
-					return response;
-				}),
+			{
+				return response;
+			}),
 			catchError(this.handleError));
 	}
 
@@ -448,8 +447,10 @@ export class NationalService
 
 		const batchGuid = newGuid();
 
-		batchRequests.forEach(b => {
-			if (b.length > 0) {
+		batchRequests.forEach(b =>
+		{
+			if (b.length > 0)
+			{
 				body.push(`--batch_${batchGuid}`);
 				body.push(...b);
 			}
@@ -476,43 +477,43 @@ export class NationalService
 			catchError(this.handleError));
 	}
 
-    saveNationalCatalogSortOrder(groups: Array<DGroup>): Observable<void>
-    {
-        const mappedSubGroups: ICatalogSubGroupDto[] = [];
-        const mappedGroups: ICatalogGroupDto[] = [];
+	saveNationalCatalogSortOrder(groups: Array<DGroup>): Observable<void>
+	{
+		const mappedSubGroups: ICatalogSubGroupDto[] = [];
+		const mappedGroups: ICatalogGroupDto[] = [];
 
-        groups.forEach(g =>
-        {
-            if (g.sortChanged)
-            {
-                mappedGroups.push({
-                    dGroupCatalogID: g.id,
-                    dGroupSortOrder: g.sortOrder
-                } as ICatalogGroupDto);
-            }
+		groups.forEach(g =>
+		{
+			if (g.sortChanged)
+			{
+				mappedGroups.push({
+					dGroupCatalogID: g.id,
+					dGroupSortOrder: g.sortOrder
+				} as ICatalogGroupDto);
+			}
 
-            if (g.subGroups.length > 0)
-            {
-                g.subGroups.forEach(sg =>
-                {
-                    if (sg.sortChanged)
-                    {
-                        mappedSubGroups.push({
-                            dSubGroupCatalogID: sg.id,
-                            dSubGroupSortOrder: sg.sortOrder
-                        } as ICatalogSubGroupDto);
-                    }
-                });
-            }
-        });
+			if (g.subGroups.length > 0)
+			{
+				g.subGroups.forEach(sg =>
+				{
+					if (sg.sortChanged)
+					{
+						mappedSubGroups.push({
+							dSubGroupCatalogID: sg.id,
+							dSubGroupSortOrder: sg.sortOrder
+						} as ICatalogSubGroupDto);
+					}
+				});
+			}
+		});
 
-        const batchGroupRequests = createBatchPatch<ICatalogGroupDto>(mappedGroups, 'dGroupCatalogID', 'dGroupCatalogs', 'dGroupSortOrder');
-        const batchSubGroupRequests = createBatchPatch<ICatalogSubGroupDto>(mappedSubGroups, 'dSubGroupCatalogID', 'dSubGroupCatalogs', 'dSubGroupSortOrder');
+		const batchGroupRequests = createBatchPatch<ICatalogGroupDto>(mappedGroups, 'dGroupCatalogID', 'dGroupCatalogs', 'dGroupSortOrder');
+		const batchSubGroupRequests = createBatchPatch<ICatalogSubGroupDto>(mappedSubGroups, 'dSubGroupCatalogID', 'dSubGroupCatalogs', 'dSubGroupSortOrder');
 
-        const results = this.batchUpdate([batchGroupRequests, batchSubGroupRequests]);
+		const results = this.batchUpdate([batchGroupRequests, batchSubGroupRequests]);
 
-        return results;
-    }
+		return results;
+	}
 
 	/**
 	 * Checks to see if the label already exists
@@ -520,25 +521,25 @@ export class NationalService
 	 * @param label
 	 * @param parentId
 	 */
-    doesLabelExist(itemType: CatalogItemType, label: string, parentId: number): Observable<boolean>
-    {
-        let obs: Observable<boolean>;
+	doesLabelExist(itemType: CatalogItemType, label: string, parentId: number): Observable<boolean>
+	{
+		let obs: Observable<boolean>;
 
-        if (itemType == 'Group')
-        {
-            obs = this._catService.getLabelExistCount('dGroupCatalogs', 'dGroupLabel', label);
-        }
-        else if (itemType == 'SubGroup')
-        {
+		if (itemType == 'Group')
+		{
+			obs = this._catService.getLabelExistCount('dGroupCatalogs', 'dGroupLabel', label);
+		}
+		else if (itemType == 'SubGroup')
+		{
 			obs = this._catService.getLabelExistCount('dSubGroupCatalogs', 'dSubGroupLabel', label, `and dGroupCatalogID eq ${parentId}`);
-        }
-        else if (itemType == 'Point')
-        {
+		}
+		else if (itemType == 'Point')
+		{
 			obs = this._catService.getLabelExistCount('dPointCatalogs', 'dPointLabel', label, `and dSubGroupCatalogID eq ${parentId}`);
-        }
+		}
 
-        return obs;
-    }
+		return obs;
+	}
 
 	/**
 	 * Builds the correct call to find out if the passed in item type is in use or not.
@@ -550,15 +551,15 @@ export class NationalService
 
 		if (item instanceof DGroup)
 		{
-            obs = this._catService.getCatItemCount('dGroups', 'dGroupCatalogID', 'dGroupCatalogID', item.id);
+			obs = this._catService.getCatItemCount('dGroups', 'dGroupCatalogID', 'dGroupCatalogID', item.id);
 		}
 		else if (item instanceof DSubGroup)
 		{
-            obs = this._catService.getCatItemCount('dSubGroups', 'dSubGroupCatalogID', 'dSubGroupCatalogID', item.id);
+			obs = this._catService.getCatItemCount('dSubGroups', 'dSubGroupCatalogID', 'dSubGroupCatalogID', item.id);
 		}
 		else if (item instanceof DPoint)
 		{
-            obs = this._catService.getCatItemCount('dPoints', 'divDPointCatalog/dPointCatalogID', 'dPointID', item.id);
+			obs = this._catService.getCatItemCount('dPoints', 'divDPointCatalog/dPointCatalogID', 'dPointID', item.id);
 		}
 
 		return obs;
@@ -568,7 +569,7 @@ export class NationalService
 	{
 		let catGroups = null;
 
-		catGroups =	groups.map(g =>
+		catGroups = groups.map(g =>
 		{
 			const group = new DGroup(g);
 

@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 
-import { PhdCommonModule } from 'phd-common';
+import { LoggingService, PhdCommonModule, PhdErrorHandler } from 'phd-common';
 import { SharedModule } from '../shared/shared.module';
 
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
@@ -29,7 +29,6 @@ import { AttributeService } from './services/attribute.service';
 import { LotService } from './services/lot.service';
 import { SalesAgreementService } from './services/sales-agreement.service';
 import { ContactService } from './services/contact.service';
-import { LoggingService, PhdErrorHandler } from './services/logging.service';
 import { NavigationService } from './services/navigation.service';
 import { JobService } from './services/job.service';
 import { ChangeOrderService } from './services/change-order.service';

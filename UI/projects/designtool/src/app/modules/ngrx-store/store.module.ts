@@ -5,7 +5,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { reducers } from './reducers';
 
 // meta-reducers
-import { LoggingEffects } from 'phd-common';
+import { LoggingEffects, LoggingService } from 'phd-common';
 import { sessionStateReducer } from './sessionStorage';
 import { stateReset } from './state-reset';
 import { exceptionHandlerFactory } from './exceptionHandler';
@@ -25,7 +25,6 @@ import { CommonEffects } from './effects';
 import { UserEffects } from './user/effects';
 import { FavoriteEffects } from './favorite/effects';
 import { LiteEffects } from './lite/effects';
-import { LoggingService } from '../core/services/logging.service';
 
 @NgModule({
 	imports: [

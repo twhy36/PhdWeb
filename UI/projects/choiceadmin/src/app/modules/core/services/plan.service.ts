@@ -4,12 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
 
 import { IPlan } from '../../shared/models/plan.model';
 import { Settings } from '../../shared/models/settings.model';
+import { LoggingService } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 
