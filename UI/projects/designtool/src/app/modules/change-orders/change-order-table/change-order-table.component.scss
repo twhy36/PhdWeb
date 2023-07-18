@@ -1,138 +1,105 @@
 @import "../../../../scss/color-pallet.scss";
 @import "../../../../scss/sizes.scss";
 
+.phd-table-changeOrders {
+	background-color: white;
+	border-collapse: unset;
+}
+
 .phd-change-order-table {
-    background-color: white;
-    border-collapse: unset;
-    font-size: 88%;
+	font-size: 88%;
 
-    th, td {
-        width: 10%;
-        max-width: 152px;
-        font-weight: normal;
-        text-align: center;
+	th, td {
+		width: 10%;
+		max-width: 152px;
+		font-weight: normal;
+		text-align: center;
 
-        &:nth-child(3),
-        &:nth-child(5) {
-            text-align: left;
-            overflow: visible;
-        }
-    }
+		&:nth-child(3),
+		&:nth-child(5) {
+			text-align: left;
+			overflow: visible;
+		}
+	}
 
-    th {
-        text-transform: uppercase;
-        position: sticky;
-        top: 0px;
-    }
+	th {
+		text-transform: uppercase;
+		position: sticky;
+		top: 0px;
+	}
 
-    .phd-index {
-        margin-left: -10px;
-    }
+	.phd-index {
+		margin-left: -10px;
+	}
 
-    .phd-change-order-index {
-        margin-left: -30px;
-        margin-top: -5px;
-    }
+	.phd-change-order-index {
+		margin-left: -30px;
+		margin-top: -5px;
+	}
+}
+
+.phd-line {
+	width: 100%;
 }
 
 .phd-orderId-header {
-    margin-left: 25px;
+	margin-left: 25px;
 }
 
 .phd-change-order-description {
-    word-wrap: break-word;
+	word-wrap: break-word;
 }
 
 .phd-sales-status {
-    a,
-    a:hover,
-    a:focus {
-        color: $link-blue;
-        text-decoration: underline;
-        font-size: 16px;
-        line-height: 1.43;
-        transition: all .05s;
-        cursor: pointer;
+	a,
+	a:hover,
+	a:focus {
+		color: $link-blue;
+		text-decoration: underline;
+		font-size: 16px;
+		line-height: 1.43;
+		transition: all .05s;
+		cursor: pointer;
 
-        &.error {
-            color: $darkish-pink;
-        }
+		&.error {
+			color: $darkish-pink;
+		}
 
-        &.loading,
-        &.disabled {
-            color: lightgray;
-            pointer-events: none;
-            cursor: default;
-            font-weight: normal;
-        }
-    }
+		&.loading,
+		&.disabled {
+			color: lightgray;
+			pointer-events: none;
+			cursor: default;
+			font-weight: normal;
+		}
+	}
 }
 
 .phd-margin-top {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .phd-button {
-    margin-top: -5px;
-}
-
-::ng-deep .phd-tooltip-table {
-    font-size: 88%;
-
-    th, td {
-        font-weight: normal;
-        white-space: nowrap;
-        text-align-last: center;
-    }
-
-    th {
-        text-transform: uppercase;
-        position: sticky;
-        top: 0px;
-        max-width: 0;
-    }
-
-    td {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .tooltip-inner {
-        background-color: white !important;
-        color: black !important;
-        max-width: 360px !important;
-        border: solid !important;
-        border-color: #DEE2E6 !important;
-        padding: 0px 0px 0px 0px !important;
-    }
-
-    .tooltip-arrow {
-        margin-left: 1px;
-        bottom: 0 !important;
-        border-width: 0 5px 5px !important;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid #000 !important;
-    }
+	margin-top: -5px;
 }
 
 @media(max-width:$tablet-max-width) {
 
-    :host {
-        th {
-            font-size: 8px;
-        }
+	:host {
+		th {
+			font-size: 8px;
+		}
 
-        td {
-            font-size: 8px;
-        }
+		td {
+			font-size: 8px;
+		}
 
-        .phd-amount-margin {
-            margin-left: 0px;
-        }
+		.phd-amount-margin {
+			margin-left: 0px;
+		}
 
-        .phd-button {
-            font-size: 10px;
-        }
-    }
+		.phd-button {
+			font-size: 10px;
+		}
+	}
 }
