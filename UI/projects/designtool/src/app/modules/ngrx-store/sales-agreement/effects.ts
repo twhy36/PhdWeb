@@ -190,13 +190,9 @@ export class SalesAgreementEffects
 	{
 		return this.actions$.pipe(
 			ofType<UpdateSalesAgreement>(SalesAgreementActionTypes.UpdateSalesAgreement),
-			withLatestFrom(
-				this.store,
-				this.store.pipe(select(fromRoot.priceBreakdown))
-			),
+			withLatestFrom(this.store.pipe(select(fromRoot.priceBreakdown))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
-				{
+				switchMap(([action, priceBreakdown]) => {
 					const sa = new SalesAgreement(action.salesAgreement);
 
 					if (sa.status == 'Pending' || sa.status == 'OutforSignature')
@@ -204,17 +200,9 @@ export class SalesAgreementEffects
 						sa.salePrice = priceBreakdown.totalPrice;
 					}
 
-					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
-					const pendingJobSummary = isPhdLite
-						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
-
-					return forkJoin([
-						this.salesAgreementService.updateSalesAgreement(sa),
-						this.jobService.updatePendingJobSummary(pendingJobSummary)
-					]);
+					return this.salesAgreementService.updateSalesAgreement(sa);
 				}),
-				switchMap(([salesAgreement]) => of(new SalesAgreementSaved(salesAgreement)))
+				switchMap(salesAgreement => of(new SalesAgreementSaved(salesAgreement)))
 			), SaveError, 'Error updating sales agreement!!')
 		);
 	});
