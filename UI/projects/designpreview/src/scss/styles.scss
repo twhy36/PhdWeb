@@ -79,16 +79,6 @@
 		}
 	}
 
-	.btn { 
-		border-radius: 35px;
-
-		&:hover,
-		&:focus {
-			background-color: mat.get-color-from-palette($primary-palette, 600);
-			box-shadow: none !important;
-		}
-	} 
-
 	// This has to be outside the component because the mat menu is part of the overlay container
 	.fa-check {
 		color: mat.get-color-from-palette($accent-palette, 'A200') !important;
@@ -140,10 +130,10 @@
 
 	.btn-toggle {
 		@include toggle.theme($theme);
-
+	
 		&.btn-sm {
 			@include toggle.theme($theme, $font-size: .55rem, $margin: .5rem);
-
+	
 			&.btn-auto-approval {
 				@include toggle.theme($theme, $font-size: .55rem, $margin: .5rem, $content-after: 'On', $content-before: 'Off')
 			}
@@ -161,7 +151,8 @@
 		}
 	}
 
-	.phd-collapsable-menu {
+	.phd-collapsable-menu
+	{
 		width: 315px;
 	}
 }
@@ -176,7 +167,8 @@
 		}
 	}
 
-	.phd-collapsable-menu {
+	.phd-collapsable-menu
+	{
 		width: 315px;
 	}
 }
@@ -191,7 +183,8 @@
 		}
 	}
 
-	.phd-collapsable-menu {
+	.phd-collapsable-menu
+	{
 		width: 315px;
 	}
 }
@@ -206,7 +199,8 @@
 		}
 	}
 
-	.phd-collapsable-menu {
+	.phd-collapsable-menu
+	{
 		width: 315px;
 	}
 }
@@ -221,7 +215,8 @@
 		}
 	}
 
-	.phd-collapsable-menu {
+	.phd-collapsable-menu
+	{
 		width: 335px;
 	}
 }
@@ -236,13 +231,15 @@
 		}
 	}
 
-	.phd-collapsable-menu {
+	.phd-collapsable-menu
+	{
 		width: 315px;
 	}
 }
 
 html,
-body {
+body
+{
 	color: #4a4a4a;
 	margin: 0;
 	padding: 0;
@@ -259,11 +256,21 @@ a:focus {
 
 // ngb-modal has an inline style bug. see more here: https://github.com/ng-bootstrap/ng-bootstrap/issues/2686
 ngb-modal-backdrop {
-	z-index: 1050 !important;
+    z-index: 1050 !important;
 }
 
 ::ng-deep .modal-backdrop {
 	z-index: 1050 !important;
+}
+
+.btn {
+	border-radius: 35px;
+
+	&:hover,
+	&:focus {
+		background-color: none !important;
+		box-shadow: none !important;
+	}
 }
 
 .fa-check {
@@ -310,8 +317,7 @@ ngb-modal-backdrop {
 		border: solid 4px;
 	}
 
-	.phd-image-is-inactive,
-	&.disabled {
+	.phd-image-is-inactive, &.disabled {
 		cursor: no-drop;
 		opacity: .65;
 	}
@@ -337,7 +343,7 @@ ngb-modal-backdrop {
 	.phd-choice-image {
 		border: 2px solid #ccc;
 		cursor: pointer;
-
+	
 		.phd-choice-image-selected {
 			border: solid 4px;
 			// border: solid 4px #1e81b3;
