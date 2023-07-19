@@ -78,54 +78,54 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				const urlBuildMode = routeData['buildMode'];
 				switch (urlBuildMode)
 				{
-					case BuildMode.Preview:
+				case BuildMode.Preview:
 					//set current buildmode to preview for Preview URL path
-						this.isPreview = true;
+					this.isPreview = true;
 
-						const treeVersionId = +params.get('treeVersionId');
+					const treeVersionId = +params.get('treeVersionId');
 
-						if (!scenarioState.tree ||
+					if (!scenarioState.tree ||
 								scenarioState.tree.treeVersion.id !== treeVersionId
 								|| scenarioState.buildMode != BuildMode.Preview)
-						{
-							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
-							return new Observable<never>();
-						}
-						break;
-					case BuildMode.Presale:
+					{
+						this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
+						return new Observable<never>();
+					}
+					break;
+				case BuildMode.Presale:
 					//set current buildmode to presale for presale URL path
-						this.isPresale = true;
+					this.isPresale = true;
 
-						const planCommunityId = Number(sessionStorage.getItem('presale_plan_community_id'));
+					const planCommunityId = Number(sessionStorage.getItem('presale_plan_community_id'));
 
-						if (planCommunityId === 0)
-						{
-							this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
-						}
+					if (planCommunityId === 0)
+					{
+						this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
+					}
 
-						//plan not loaded before, or plan changed, or build mode changed 
-						if (!planState.selectedPlan || planState.selectedPlan !== planCommunityId || scenarioState.buildMode !== BuildMode.Presale)
-						{
-							this.store.dispatch(new ScenarioActions.LoadPresale(planCommunityId));
+					//plan not loaded before, or plan changed, or build mode changed 
+					if (!planState.selectedPlan || planState.selectedPlan !== planCommunityId || scenarioState.buildMode !== BuildMode.Presale)
+					{
+						this.store.dispatch(new ScenarioActions.LoadPresale(planCommunityId));
 
-							return new Observable<never>();
-						}
-						break;
-					default:
+						return new Observable<never>();
+					}
+					break;
+				default:
 					// PostContract ID changes or store BuildMode is not PostContract
 					// reload SA and update buildmode to Buyer
-						const salesAgreementId = +params.get('salesAgreementId');
+					const salesAgreementId = +params.get('salesAgreementId');
 
-						if (salesAgreementId > 0 &&
+					if (salesAgreementId > 0 &&
 								(salesAgreementState.id !== salesAgreementId
 									|| scenarioState.buildMode !== BuildMode.Buyer)
-						)
-						{
+					)
+					{
 						//load store data in Buyer mode with pass querystring ID
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
-							return new Observable<never>();
-						}
-						break;
+						this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
+						return new Observable<never>();
+					}
+					break;
 				}
 
 				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));

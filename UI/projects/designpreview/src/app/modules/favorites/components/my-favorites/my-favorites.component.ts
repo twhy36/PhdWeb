@@ -53,7 +53,7 @@ import { BrandService } from '../../../core/services/brand.service';
 	selector: 'my-favorites',
 	templateUrl: 'my-favorites.component.html',
 	styleUrls: ['my-favorites.component.scss']
-	})
+})
 export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(GroupBarComponent) private groupBar: GroupBarComponent;

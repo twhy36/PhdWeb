@@ -81,20 +81,20 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			switch (state.buildMode)
 			{
-				case (BuildMode.Preview):
-					this.isPreview = true;
-					this.headerTitle = 'Preview Favorites';
-					break;
-				case (BuildMode.Presale):
-					this.isPresale = true;
-					this.isPresalePricingEnabled = state.presalePricingEnabled;
-					this.headerTitle = 'My Favorites';
-					break;
-				default:
-					this.isPreview = false;
-					this.isPresale = false;
-					this.headerTitle = this.summaryHeader.favoritesListName;
-					break;
+			case (BuildMode.Preview):
+				this.isPreview = true;
+				this.headerTitle = 'Preview Favorites';
+				break;
+			case (BuildMode.Presale):
+				this.isPresale = true;
+				this.isPresalePricingEnabled = state.presalePricingEnabled;
+				this.headerTitle = 'My Favorites';
+				break;
+			default:
+				this.isPreview = false;
+				this.isPresale = false;
+				this.headerTitle = this.summaryHeader.favoritesListName;
+				break;
 			}
 		});
 	}

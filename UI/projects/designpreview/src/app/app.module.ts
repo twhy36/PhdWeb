@@ -19,7 +19,6 @@ import { StoreModule } from './modules/ngrx-store/store.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { HomeModule } from './modules/home/home.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
-import { MobileModule } from './modules/mobile/mobile.module';
 import { AuthService } from './modules/core/services/auth.service';
 import { AuthConfigSelector } from './modules/shared/classes/auth-config-selector.class';
 import { BrandService } from './modules/core/services/brand.service';
@@ -30,7 +29,6 @@ import { PresaleInterceptor } from './modules/core/interceptors/presale.intercep
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
 	{ path: 'favorites', component: FavoritesModule },
-	{ path: 'mobile', component: MobileModule },
 	{ path: '', pathMatch: 'full', redirectTo: 'home' },
 	{ path: 'error', component: DefaultErrorComponent },
 	{ path: '**', pathMatch: 'full', component: DefaultErrorComponent }
@@ -82,7 +80,6 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 	SharedModule,
 	HomeModule,
 	FavoritesModule,
-	MobileModule,
 	RouterModule.forRoot(appRoutes),
 	StoreModule,
 	CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),

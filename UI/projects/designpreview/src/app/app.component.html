@@ -1,14 +1,10 @@
 <div [ngClass]="brandTheme" class="mat-typography">
-	<ng-container *ngIf="isMobile; else desktop">
+	<nav-bar></nav-bar>
+
+	<div class="phd-main-container" clickDirective>
 		<router-outlet></router-outlet>
-	</ng-container>
-	<ng-template #desktop>
-		<nav-bar></nav-bar>
-		<div class="phd-main-container" clickDirective>
-			<router-outlet></router-outlet>
-		</div>
-	</ng-template>
-	
+	</div>
+
 	<common-spinner></common-spinner>
 
 	<build-version class="phd-build-version" *ngIf="!environment.production" [branch]="branch" [version]="version"></build-version>

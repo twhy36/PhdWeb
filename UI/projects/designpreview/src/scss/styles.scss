@@ -15,9 +15,6 @@
 @use './themes/components/toggle-theme' as toggle;
 @use './themes/components/welcome-modal-theme' as welcome-modal;
 
-// Mobile component themes
-@use './themes/components/global-header-theme' as global-header;
-
 @import "@angular/material/theming";
 @import '../../../phd-common/src/lib/scss/color-pallet.scss';
 @import './themes/american-west-theme.scss';
@@ -50,9 +47,6 @@
 	@include nav-bar.theme($theme);
 	@include summary-header.theme($theme);
 	@include welcome-modal.theme($theme);
-
-	// Mobile component themes
-	@include global-header.theme($theme);
 
 	font-family: mat.font-family($typography-config);
 
