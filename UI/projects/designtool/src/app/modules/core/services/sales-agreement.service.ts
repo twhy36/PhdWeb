@@ -679,12 +679,12 @@ export class SalesAgreementService
 		);
 	}
 
-	voidSalesAgreement(salesAgreementId: number, reasonKey: string): Observable<SalesAgreement>
+	voidSalesAgreement(salesAgreementId: number, reasonKey: string, envelopeId?: string): Observable<SalesAgreement>
 	{
 		const entity = `voidSalesAgreement`;
 		const endpoint = environment.apiUrl + entity;
 
-		return this._http.patch(endpoint, { id: salesAgreementId, reasonKey: reasonKey }, { headers: { 'Prefer': 'return=representation' } }).pipe(
+		return this._http.patch(endpoint, { id: salesAgreementId, reasonKey: reasonKey, envelopeId: envelopeId }, { headers: { 'Prefer': 'return=representation' } }).pipe(
 			map((results: ISalesAgreement) => new SalesAgreement(results)),
 			catchError(error =>
 			{
