@@ -6,7 +6,7 @@ export const environment: IEnvironment = {
 	authConfigs: {
 		sitecoreSSO:
 		{
-			issuer: 'https://pultessok.pulte.com',
+			issuer: 'https://pultesso.pulte.com',
 			clientId: 'DesignPreview',
 			responseType: 'code',
 			clearHashAfterLogin: true,
