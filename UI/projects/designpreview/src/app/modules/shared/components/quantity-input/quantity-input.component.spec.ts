@@ -1,6 +1,5 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { instance, mock } from 'ts-mockito';
 import { QuantityInputComponent } from './quantity-input.component';
@@ -15,7 +14,6 @@ describe('QuantityInputComponent', () =>
 	{
 		TestBed.configureTestingModule({
 			declarations: [QuantityInputComponent],
-			imports: [ FormsModule ],
 			providers: [
 				{ provide: ChangeDetectorRef, useFactory: () => instance(mockChangeDetectorRef) },
 			],

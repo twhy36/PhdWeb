@@ -23,7 +23,6 @@ import { AuthService } from './services/auth.service';
 import { ReportsService } from './services/reports.service';
 import { BrandService } from './services/brand.service';
 import { AdobeService } from './services/adobe.service';
-import { DialogService } from './services/dialog.service';
 import { LoggedInGuard } from './guards/logged-in.guard';
 import { InternalGuard } from './guards/internal.guard';
 import { ExternalGuard } from './guards/external.guard';
@@ -31,7 +30,6 @@ import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
 import { InfoDisclaimerComponent } from './components/info-disclaimer/info-disclaimer.component';
 import { LoggingService, PhdErrorHandler } from 'phd-common';
-
 @NgModule({
 	exports: [
 	NavBarComponent,
@@ -69,7 +67,6 @@ import { LoggingService, PhdErrorHandler } from 'phd-common';
 	BrandService,
 	AdobeService,
 	LoggingService,
-	DialogService,
 	LoggedInGuard,
 	InternalGuard,
 	ExternalGuard,

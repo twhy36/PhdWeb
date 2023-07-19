@@ -1,39 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
+import { Component } from '@angular/core';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
-
-import * as fromRoot from '../ngrx-store/reducers';
-import * as ErrorActions from '../ngrx-store/error.action';
-
+import { BrandService } from '../core/services/brand.service';
 
 @Component({
 	selector: 'mobile',
 	templateUrl: './mobile.component.html',
 	styleUrls: ['./mobile.component.scss']
 	})
-export class MobileComponent extends UnsubscribeOnDestroy implements OnInit
+export class MobileComponent 
 {
-	constructor(
-		private router: Router,
-		private store: Store<fromRoot.State>,
-	)
-	{
-		super();
-	}
 
-	ngOnInit(): void
-	{
-		// Clear errors from store on successful navigation
-		this.router.events.subscribe(evt =>
-		{
-			if (evt instanceof NavigationEnd && evt.url != '/error')
-			{
-				this.store.dispatch(new ErrorActions.ClearLatestError());
-			}
-		});
+	constructor(private brandService: BrandService) {}
 
-		
+	getImageSrc(): string
+	{
+		return this.brandService.getBrandImage('white_logo');
 	}
 }
