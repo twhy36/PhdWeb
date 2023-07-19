@@ -696,7 +696,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 
 	isActionComplete()
 	{
-		const isComplete = (this.getActionBarStatus() === 'COMPLETE' || this.getActionBarStatus() === 'INCOMPLETE') && this.isChangePartiallyComplete();
+		const isComplete = this.getActionBarStatus() === 'COMPLETE' || this.getActionBarStatus() === 'INCOMPLETE' && this.isChangePartiallyComplete();
 
 		if (this.inChangeOrder && this.isChangeOrderComplete !== isComplete)
 		{

@@ -409,7 +409,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get disableChangeOrders()
 	{
-		return this.inChangeOrder && (!this.hasActiveChangeOrder || this.isChangeOrderComplete);		
+		return this.inChangeOrder && this.isChangeOrderComplete;
 	}
 
 	get isSalesOnlyChangeOrder()
