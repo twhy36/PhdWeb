@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 
-import { Observable, from, of, timer, never } from 'rxjs';
+import { Observable, from, of, timer, NEVER } from 'rxjs';
 import { switchMap, withLatestFrom, share, combineLatest, flatMap, map, take, delay, filter } from 'rxjs/operators';
 
 import * as _ from 'lodash';
@@ -47,10 +47,15 @@ export class ScenarioEffects
 				}
 				else if (!store.changeOrder || !store.changeOrder.isChangingOrder && store.scenario.buildMode === Constants.BUILD_MODE_BUYER)
 				{
+					if (action instanceof SetScenarioLot && action.skipSave)
+					{
+						return NEVER;
+					}
+
 					return of(new SaveScenario());
 				}
 
-				return never();
+				return NEVER;
 			})
 		);
 	});
@@ -169,7 +174,7 @@ export class ScenarioEffects
 								return of(new SavePendingJio());
 							}
 
-							return never();
+							return NEVER;
 						})
 					);
 				}
@@ -218,7 +223,7 @@ export class ScenarioEffects
 				}
 				else
 				{
-					return never();
+					return NEVER;
 				}
 			})
 		),
@@ -358,7 +363,7 @@ export class ScenarioEffects
 					}
 					else
 					{
-						return never();
+						return NEVER;
 					}
 				}
 				else

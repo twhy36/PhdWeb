@@ -362,7 +362,7 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 			// remove the lot
 			this.store.dispatch(new LotActions.DeselectLot());
-			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
+			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0, null, true));
 
 			// remove spec selections
 			this.removeSpecSelections(plan);
@@ -471,10 +471,10 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 	removeSpecSelections(plan: Plan)
 	{
-		const isPlanChanged = this.selectedPlan?.id !== plan.id;
-
 		if (this.isPhdLite)
 		{
+			const isPlanChanged = this.selectedPlan?.id !== plan.id;
+
 			const baseHouseOption = this.liteOptions.find(o => o.isBaseHouse && o.isActive);
 
 			// Remove selected options

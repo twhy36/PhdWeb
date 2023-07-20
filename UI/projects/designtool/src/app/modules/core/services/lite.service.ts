@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from "@angular/router";
-import { BehaviorSubject, Observable, of, throwError as _throw } from 'rxjs';
-import { map, catchError, switchMap, take, tap, shareReplay } from 'rxjs/operators';
+import { Observable, of, throwError as _throw } from 'rxjs';
+import { map, catchError, switchMap, take, tap } from 'rxjs/operators';
 import { Store, ActionsSubject, select } from '@ngrx/store';
 import { ofType } from '@ngrx/effects';
 
@@ -29,7 +28,6 @@ import
 	OptionRelationEnum, Elevation, IOptionCategory, LiteReportType, LiteMonotonyRule, SummaryReportData,
 	LitePlanOptionDto, LiteOptionColorDto, LiteChangeOrderPlanOptionDto, LegacyColorScheme
 } from '../../shared/models/lite.model';
-import { LotService } from './lot.service';
 import { ChangeOrderService } from './change-order.service';
 import { MonotonyConflict } from '../../shared/models/monotony-conflict.model';
 import * as LiteActions from '../../ngrx-store/lite/actions';
@@ -40,13 +38,11 @@ import { ScenarioService } from './scenario.service';
 export class LiteService
 {
 	private _ds: string = encodeURIComponent("$");
-	private isPhdLiteEnabled$ = new BehaviorSubject<boolean>(null);
+	private isLiteEnabled: boolean = null;
 	private currentFinancialCommunityId: number;
 
 	constructor(
 		private _http: HttpClient,
-		private router: Router,
-		private lotService: LotService,
 		private changeOrderService: ChangeOrderService,
 		private modalService: ModalService,
 		private store: Store<fromRoot.State>,
@@ -63,15 +59,14 @@ export class LiteService
 			return of(true);
 		}
 
-		if (this.currentFinancialCommunityId !== financialCommunityId || this.isPhdLiteEnabled$.value === null)
+		if (this.currentFinancialCommunityId !== financialCommunityId || this.isLiteEnabled === null)
 		{
 			return this.featureSwitchService.isFeatureEnabled('Phd Lite', { edhMarketId: null, edhFinancialCommunityId: financialCommunityId })
 				.pipe(
 					take(1),
-					shareReplay(1),
 					map(isFeatureEnabled =>
 					{
-						this.isPhdLiteEnabled$.next(!!isFeatureEnabled);
+						this.isLiteEnabled = isFeatureEnabled;
 						this.currentFinancialCommunityId = financialCommunityId;
 
 						return !!isFeatureEnabled;
@@ -79,7 +74,7 @@ export class LiteService
 				);
 		}
 
-		return this.isPhdLiteEnabled$;
+		return of(this.isLiteEnabled);
 	}
 
 	getLitePlanOptions(planId: number, optionIds?: Array<string>, skipSpinner?: boolean): Observable<LitePlanOption[]>
@@ -223,7 +218,7 @@ export class LiteService
 		{
 			const batchIds = optionIds.slice(i, i + batchSize);
 			const entity = `colorItems`;
-			const expand = `colorItemColorAssoc($expand=color)`;
+			const expand = `colorItemColorAssoc($select=colorItemId;$expand=color($select=colorId,name,sku,edhFinancialCommunityId,edhOptionSubcategoryId,isActive))`;
 			let filter = `(edhPlanOptionId in (${batchIds.join(',')}))`;
 			if (isActiveOnly)
 			{
