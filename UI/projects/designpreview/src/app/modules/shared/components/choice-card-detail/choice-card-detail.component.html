@@ -62,7 +62,7 @@
 				</ng-container>
 				<ng-container *ngIf="!choice.priceHiddenFromBuyerView">
 					<div class="d-flex flex-row align-items-center">
-						<strong class="phd-price-label">{{choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency:'USD':'symbol':'0.0-0'}}</strong>
+						<strong class="phd-price-label">{{ choice | choicePriceWithRangeCheck | async }}</strong>
 						<span class="phd-price-disclaimer">*Pricing Subject to change</span>
 					</div>
 				</ng-container>

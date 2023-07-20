@@ -339,8 +339,6 @@ export class CommonEffects
 			filter((errorScan: { prev: boolean; action: boolean; err: Action; }) => !errorScan.prev && errorScan.action),
 			map((errorScan: { prev: boolean; action: boolean; err: Action; }) =>
 			{
-				this.router.navigate(['error']);
-
 				if (errorScan.err)
 				{
 					const errStack = (<ErrorAction>errorScan.err).error ?
@@ -359,6 +357,11 @@ export class CommonEffects
 						this.loggingService.logError((<ErrorAction>errorScan.err).error, properties);
 					}
 
+					if (errFrom !== ErrorFrom.CalculatePriceRanges)
+					{
+						this.router.navigate(['error']);
+					}
+					
 					return new SetLatestError(new DesignPreviewError(errFrom, errStack, errMsg));
 				}
 			})

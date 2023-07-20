@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"lib":[
+		"lib": [
 			"ES2019",
 			"DOM"
 		],
@@ -12,9 +12,13 @@
 		"noImplicitUseStrict": true,
 		"alwaysStrict": false,
 		"strictPropertyInitialization": false,
-		"types": ["node"],
+		"types": [
+			"node"
+		],
 		"paths": {
-			"phd-common": [ "../phd-common/src/internal" ]
+			"phd-common": [
+				"../phd-common/src/internal"
+			]
 		}
 	},
 	"include": [
@@ -24,6 +28,7 @@
 	"exclude": [
 		"src/test.ts",
 		"**/*.spec.ts",
+		"**/*.worker.ts",
 		"../phd-common/src/test.ts",
 		"../phd-common/**/*.spec.ts"
 	],

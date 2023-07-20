@@ -11,7 +11,8 @@ export enum ScenarioActionTypes
 	SetTreeFilter = 'Set Tree filter',
 	SetStatusForPointsDeclined = 'Set Status For Points Declined',
 	SetPresalePricingEnabled = 'Set Presale Pricing Enabled',
-	TreeLoaded = 'Tree Loaded'
+	TreeLoaded = 'Tree Loaded',
+	SetChoicePriceRanges = 'Set Choice Price Ranges'
 }
 
 export class LoadPreview implements Action
@@ -68,6 +69,12 @@ export class SetPresalePricingEnabled implements Action
 
 	constructor(public isEnabled: boolean) { }
 }
+export class SetChoicePriceRanges implements Action
+{
+	readonly type = ScenarioActionTypes.SetChoicePriceRanges;
+
+	constructor(public priceRanges: { choiceId: number, min: number, max: number }[]) { }
+}
 
 export type ScenarioActions =
 	LoadPreview |
@@ -80,4 +87,5 @@ export type ScenarioActions =
 	SetPresalePricingEnabled |
 	TreeLoaded |
 	MyFavoritesChoiceAttributesDeleted |
-	LoadError;
+	LoadError |
+	SetChoicePriceRanges;

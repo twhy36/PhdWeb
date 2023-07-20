@@ -28,7 +28,8 @@ export enum ErrorFrom
 	LoadMyFavorite = 'Favorite.LoadMyFavorite',
 	LoadDefaultFavorite = 'Favorite.LoadDefaultFavorite',
 	UpdateMyFavoritesChoicesOnInit = 'Favorite.UpdateMyFavoritesChoicesOnInit',
-	DeleteMyFavoritesChoiceAttributes = 'Favorite.DeleteMyFavoritesChoiceAttributes'
+	DeleteMyFavoritesChoiceAttributes = 'Favorite.DeleteMyFavoritesChoiceAttributes',
+	CalculatePriceRanges = 'CalculatePriceRanges'
 };
 
 export class ErrorAction implements Action 
