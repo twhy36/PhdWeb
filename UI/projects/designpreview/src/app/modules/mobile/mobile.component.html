@@ -1,4 +1,4 @@
-<mat-drawer-container class="vh-100" hasBackdrop>
+<mat-drawer-container hasBackdrop>
 	<mat-drawer mode="over" fixedInViewport #drawer class="phd-hamburger-menu">
 		<hamburger-menu (closeClicked)="drawer.close()"></hamburger-menu>
 	</mat-drawer>
@@ -10,8 +10,7 @@
 			<router-outlet></router-outlet>
 		</main>
 		<footer>
-			<!-- TODO: WI | 400656 Will Create a Global Footer Component -->
+			<global-footer></global-footer>
 		</footer>
 	</mat-drawer-content>
 </mat-drawer-container>
-

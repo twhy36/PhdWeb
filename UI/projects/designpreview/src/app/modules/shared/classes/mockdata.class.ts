@@ -1,4 +1,4 @@
-import { DecisionPoint } from 'phd-common';
+import { DecisionPoint, MyFavorite, PointStatus, TreeVersion } from 'phd-common';
 import { ChoiceExt } from '../models/choice-ext.model';
 
 export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
@@ -805,3 +805,53 @@ export const dpToDpRulesPoint: DecisionPoint =
 	viewed: false,
 }
 
+export const testTreeVersion: TreeVersion = {
+	groups: [
+		{
+			id: 1,
+			groupCatalogId: 1,
+			label: 'Exterior',
+			treeVersionId: 1,
+			sortOrder: 0,
+			subGroups: [
+				{
+					id: 3,
+					groupId: 3,
+					label: 'Curb Appeal',
+					subGroupCatalogId: 123,
+					sortOrder: 0,
+					useInteractiveFloorplan: true,
+					treeVersionId: 111,
+					points: [choiceToChoiceMustHaveRulePoint],
+					status: 1,
+				},
+			],
+			status: PointStatus.REQUIRED,
+		},
+		{
+			id: 2,
+			groupCatalogId: 2,
+			label: 'Rooms',
+			treeVersionId: 2,
+			sortOrder: 0,
+			subGroups: [],
+			status: PointStatus.REQUIRED,
+		},
+	],
+	id: 0,
+	treeId: 0,
+	planKey: '',
+	name: '',
+	communityId: 0,
+	description: '',
+	publishStartDate: undefined,
+	publishEndDate: undefined,
+	lastModifiedDate: undefined,
+	includedOptions: [],
+};
+
+export const testMyFavorite: MyFavorite = {
+	id: 1,
+	name: 'Smith Favorites',
+	salesAgreementId: 123,
+};
