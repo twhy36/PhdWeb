@@ -18,6 +18,16 @@
 	margin-right: 15px;
 }
 
+a {
+	cursor: pointer;
+	color: #007bff;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
 .fa {
 	cursor: pointer;
 }

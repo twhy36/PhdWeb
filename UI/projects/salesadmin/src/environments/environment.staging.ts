@@ -7,6 +7,7 @@ export const environment = {
 	production: false,
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	hubUrl: 'https://phdhub.staging.pulte.com/hub',
+	designToolUrl: 'https://phd.staging.pulte.com/designtool/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: 'pulte.onmicrosoft.com/',
 	clientId: 'd6e4e999-c413-4d1d-b0fb-618759cb69e5',

@@ -70,7 +70,7 @@ export class communityLot
 
 export class Job
 {
-	jobId: number;
+	id: number;
 	jobTypeName: string;
 	createdBy: string;
 }
