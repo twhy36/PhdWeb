@@ -9,7 +9,7 @@ import { Choice } from 'phd-common';
 
 @Pipe({
 	name: 'choicePriceWithRangeCheck'
-})
+	})
 
 export class ChoicePriceWithRangeCheckPipe implements PipeTransform
 {

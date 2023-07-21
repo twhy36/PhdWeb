@@ -198,7 +198,7 @@ export class ScenarioEffects
 			{
 				this.adobeService.setSearchEvent(action?.treeFilter?.keyword, tree);
 			})),
-		{ dispatch: false }
+	{ dispatch: false }
 	);
 
 	calculatePriceRanges$: Observable<Action> = createEffect(() =>
@@ -217,7 +217,7 @@ export class ScenarioEffects
 
 							appInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.tree.treeVersion.id}`);
 
-							return new Observable<any>(observer =>
+							return new Observable(observer =>
 							{
 								const worker = new Worker(new URL('../../../app.worker', import.meta.url), { type: 'module' });
 

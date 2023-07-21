@@ -1,7 +1,7 @@
 import { IEnvironment } from './environment.model';
 
 export const environment: IEnvironment = {
-	production: false,
+	production: true,
 	apiUrl: 'https://phdapi.staging.pulte.com/odata/',
 	authConfigs: {
 		sitecoreSSO:
