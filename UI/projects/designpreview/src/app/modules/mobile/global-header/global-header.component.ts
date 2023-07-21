@@ -20,7 +20,7 @@ export class GlobalHeaderComponent extends UnsubscribeOnDestroy implements OnIni
 
 	@Output() hamburgerClicked = new EventEmitter();
 
-	buildMode: BuildMode;
+	homeRoute: string = 'home';
 
 	constructor(
 		private router: Router,
@@ -37,7 +37,18 @@ export class GlobalHeaderComponent extends UnsubscribeOnDestroy implements OnIni
 			select(state => state.scenario),
 		).subscribe((scenario) =>
 		{
-			this.buildMode = scenario.buildMode;
+			switch (scenario.buildMode)
+			{
+				case (BuildMode.Preview):
+					this.homeRoute = 'preview';
+					break;
+				case (BuildMode.Presale):
+					this.homeRoute = 'presale';
+					break;
+				default:
+					this.homeRoute = 'home';
+					break;
+			}
 		})
 	}
 
@@ -49,17 +60,5 @@ export class GlobalHeaderComponent extends UnsubscribeOnDestroy implements OnIni
 	homeLogoClicked(): void
 	{
 		this.store.dispatch(new ScenarioActions.SetTreeFilter(null));
-		switch (this.buildMode)
-		{
-			case (BuildMode.Preview):
-				this.router.navigate(['mobile/preview'], { queryParamsHandling: 'merge' });
-				break;
-			case (BuildMode.Presale):
-				this.router.navigate(['mobile/presale'], { queryParamsHandling: 'merge' });
-				break;
-			default:
-				this.router.navigate(['mobile/home'], { queryParamsHandling: 'merge' });
-				break;
-		}
 	}
 }

@@ -48,21 +48,21 @@
 				</mat-expansion-panel-header>
 
 				<ul class="submenu-link p-0">
-					<li class="py-2" *ngIf="showFloorplanLink">
+					<li *ngIf="showFloorplanLink" class="py-2">
 						<a
 							[routerLink]="['/floorplan']"
 							data-testid="floorplan-link"
 							queryParamsHandling="merge"
 							>Floorplan</a>
 					</li>
-					<li class="py-2" *ngIf="showIncludedOptionsLink">
+					<li *ngIf="showIncludedOptionsLink" class="py-2">
 						<a
 							[routerLink]="['/included']"
 							data-testid="includedOptions-link"
 							queryParamsHandling="merge"
 							>Included Options</a>
 					</li>
-					<li class="py-2" *ngIf="showContractedOptionsLink">
+					<li *ngIf="showContractedOptionsLink" class="py-2">
 						<a
 							[routerLink]="['/contracted']"
 							data-testid="contractedOptions-link"
@@ -75,7 +75,6 @@
 	</div>
 	<div class="logo-container d-flex justify-content-center">
 		<img
-			id="homeLogo"
 			class="brand-logo"
 			[src]="getImageSrc()"
 			alt=""
@@ -84,22 +83,22 @@
 	<hr class="mx-4 my-0" />
 	<div class="mt-5">
 		<li class="footer-item-copyright d-flex justify-content-center m-4">
-			<a id="copyright">
+			<a>
 				COPYRIGHT © 2021-{{ currentYear }} PULTEGROUP, INC
 			</a>
 		</li>
 		<li class="footer-item d-flex justify-content-center m-4">
-			<a id="termsOfUseLink" href="{{ termsUrl }}" target="_blank">
+			<a href="{{ termsUrl }}" target="_blank">
 				TERMS OF USE
 			</a>
 		</li>
 		<li class="footer-item d-flex justify-content-center m-4">
-			<a id="privacyPolicyLink" href="{{ policyUrl }}" target="_blank">
+			<a href="{{ policyUrl }}" target="_blank">
 				PRIVACY POLICY
 			</a>
 		</li>
 		<li class="footer-item d-flex justify-content-center m-4">
-			<a id="disclaimerLink" (click)="disclaimerClicked()">
+			<a data-testid="disclaimer-link" (click)="disclaimerClicked()">
 				DISCLAIMER
 			</a>
 		</li>

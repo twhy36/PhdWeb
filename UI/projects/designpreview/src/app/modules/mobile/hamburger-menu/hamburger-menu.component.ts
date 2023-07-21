@@ -1,4 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
 import { Group, UnsubscribeOnDestroy } from 'phd-common';
@@ -32,6 +33,7 @@ export class HamburgerMenuComponent extends UnsubscribeOnDestroy implements OnIn
 	constructor(
 		private brandService: BrandService,
 		private dialogService: DialogService,
+		private router: Router,
 		private store: Store<fromRoot.State>,
 	)
 	{

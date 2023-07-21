@@ -1,20 +1,16 @@
 .phd-brand-logo {
 	height: 25.73px;
+	max-height: 100%;
+	max-width: 100%;
+	object-fit: scale-down;
 }
 
 .phd-global-header {
 	height: 6%;
-}
-
-.phd-global-header-image {
-	width: 16.67%;
+	justify-content: space-around;
 }
 
 .phd-global-header-title {
 	font-weight: bold;
-	width: 66.66%;
-}
-
-.phd-hamburger-icon {
-	width: 16.67%;
+	width: 100%;
 }

@@ -54,34 +54,46 @@
 							</a>
 						</mat-panel-title>
 						<mat-panel-description class="d-flex justify-content-end mr-0">
-							<button mat-icon-button class="d-flex pl-4 pr-0">
+							<button mat-icon-button class="d-flex pl-4 pr-0" data-testid="resources-button">
 								<mat-icon *ngIf="!resourcesPanel.expanded">add</mat-icon>
 								<mat-icon *ngIf="resourcesPanel.expanded">remove</mat-icon>
 							</button>
 						</mat-panel-description>
 					</mat-expansion-panel-header>
 					<ul class="pl-2">
-						<li *ngIf="showFloorplanLink" id="floorplanLink" class="py-2">
-							<a>Floorplan</a>
+						<li *ngIf="showFloorplanLink" class="py-2">
+							<a
+								[routerLink]="['/floorplan']"
+								data-testid="floorplan-link"
+								queryParamsHandling="merge"
+								>Floorplan</a>
 						</li>
-						<li *ngIf="showIncludedOptionsLink" id="includedOptionsLink" class="py-2">
-							<a>Included Options</a>
+						<li *ngIf="showIncludedOptionsLink" class="py-2">
+							<a
+								[routerLink]="['/included']"
+								data-testid="includedOptions-link"
+								queryParamsHandling="merge"
+								>Included Options</a>
 						</li>
-						<li *ngIf="showPendingAndContractedOptionsLink" id="pendingAndContractedOptionsLink" class="py-2">
-							<a>Pending & Contracted Options</a>
+						<li *ngIf="showPendingAndContractedOptionsLink" class="py-2">
+							<a
+								[routerLink]="['/contracted']"
+								data-testid="contractedOptions-link"
+								queryParamsHandling="merge"
+								>Pending & Contracted Options</a>
 						</li>
 					</ul>
 				</mat-expansion-panel>
 			</li>
 			<hr/>
 			<li class="phd-hamburger-menu-item d-flex align-items-center">
-				<a id="termsOfUseLink" href="{{termsUrl}}" target="_blank">Terms of Use</a>
+				<a href="{{termsUrl}}" target="_blank">Terms of Use</a>
 			</li>
 			<li class="phd-hamburger-menu-item d-flex align-items-center">
-				<a id="privacyPolicyLink" href="{{policyUrl}}" target="_blank">Privacy Policy</a>
+				<a href="{{policyUrl}}" target="_blank">Privacy Policy</a>
 			</li>
 			<li class="phd-hamburger-menu-item d-flex align-items-center">
-				<a id="disclaimerLink" (click)="disclaimerClicked()">Disclaimer</a>
+				<a data-testid="disclaimer-link" (click)="disclaimerClicked()">Disclaimer</a>
 			</li>
 		</ul>
 	</mat-accordion>

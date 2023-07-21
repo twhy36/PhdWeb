@@ -213,7 +213,7 @@ describe('GlobalFooterComponent', () =>
 	{
 		const dialogSpy = spyOn(instanceDialogService, 'open');
 		const disclaimerLink = fixture.debugElement.query(
-			By.css('#disclaimerLink')
+			By.css('[data-testid="disclaimer-link"]')
 		).nativeElement;
 		disclaimerLink.click();
 		fixture.detectChanges();
