@@ -844,7 +844,7 @@ export class ContractService
 									if (sagBuyer && sagBuyer.opportunityContactAssoc && sagBuyer.opportunityContactAssoc.contact)
 									{
 										const sagBuyerMiddleName = sagBuyer.opportunityContactAssoc.contact.middleName && sagBuyer.opportunityContactAssoc.contact.middleName.length
-											? ` ${sagBuyer.opportunityContactAssoc.contact.middleName[0]}.`
+											? ` ${sagBuyer.opportunityContactAssoc.contact.middleName}.`
 											: '';
 
 										// match d365 full name format - Last Name, First Name Middle Initial
