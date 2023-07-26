@@ -512,7 +512,9 @@ export class LiteService
 	{
 		if (optionRelations?.length)
 		{
-			optionRelations.forEach(or =>
+			optionRelations
+			.filter(or => or.mainEdhOptionCommunityId !== or.relatedEdhOptionCommunityId)
+			.forEach(or =>
 			{
 				const mainOption = options.find(o => o.optionCommunityId === or.mainEdhOptionCommunityId);
 				const relatedOption = options.find(o => o.optionCommunityId === or.relatedEdhOptionCommunityId);
