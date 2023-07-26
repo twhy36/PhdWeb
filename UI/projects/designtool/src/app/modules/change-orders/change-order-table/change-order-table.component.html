@@ -48,7 +48,7 @@
             <td class="phd-sales-status">
                 <span>
                     {{changeOrder.salesStatus}}
-                    <a *ngIf="!!changeOrder.eSignStatus && displaySalesStatusIndicator(changeOrder)" [ngbTooltip]="eSignStatusTooltip" tooltipClass="phd-tooltip-table" placement="top" (click)="generateDocument(changeOrder)">
+                    <a *ngIf="!!changeOrder.eSignStatus && displaySalesStatusIndicator(changeOrder)" [ngbTooltip]="eSignStatusTooltip" [tooltipClass]="hasAutoRespondMessage ? 'phd-tooltip-table-message' : 'phd-tooltip-table'" placement="top" (click)="generateDocument(changeOrder)">
                         <i class="pl-1 fas"
                            [ngClass]="{'fa-check-circle text-success': changeOrder.eSignStatus === 'completed',
 								       'fa-arrow-alt-circle-right text-warning': changeOrder.eSignStatus === 'sent',
@@ -62,6 +62,7 @@
                                         <th><span class="font-weight-bold">Recipient Name</span></th>
                                         <th><span class="font-weight-bold">Status</span></th>
                                         <th><span class="font-weight-bold">Date</span></th>
+                                        <th *ngIf="hasAutoRespondMessage"><span class="font-weight-bold">Message</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,6 +70,7 @@
                                         <td><span>{{ recipient.recipientUserName | titlecase }}</span></td>
                                         <td><span>{{ getRecipientStatus(recipient) }}</span></td>
                                         <td><span class="pl-1">{{ recipient.lastModifiedStatusUtcDate | date:'L/dd/yyyy' }}</span></td>
+                                        <td *ngIf="hasAutoRespondMessage"><span>{{ recipient.autoRespondedErrorMessage }}</span></td>
                                     </tr>
                                 </tbody>
                             </table>
