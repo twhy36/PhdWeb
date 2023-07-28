@@ -843,12 +843,16 @@ export class ContractService
 
 									if (sagBuyer && sagBuyer.opportunityContactAssoc && sagBuyer.opportunityContactAssoc.contact)
 									{
+										const sagBuyerSuffix = sagBuyer.opportunityContactAssoc.contact.suffix && sagBuyer.opportunityContactAssoc.contact.suffix.length
+											? ` ${sagBuyer.opportunityContactAssoc.contact.suffix},`
+											: '';
+
 										const sagBuyerMiddleName = sagBuyer.opportunityContactAssoc.contact.middleName && sagBuyer.opportunityContactAssoc.contact.middleName.length
-											? ` ${sagBuyer.opportunityContactAssoc.contact.middleName}.`
+											? ` ${sagBuyer.opportunityContactAssoc.contact.middleName}`
 											: '';
 
 										// match d365 full name format - Last Name, First Name Middle Initial
-										sagBuyerName = `${sagBuyer.opportunityContactAssoc.contact.lastName}, ${sagBuyer.opportunityContactAssoc.contact.firstName}${sagBuyerMiddleName}`;
+										sagBuyerName = `${sagBuyer.opportunityContactAssoc.contact.lastName},${sagBuyerSuffix} ${sagBuyer.opportunityContactAssoc.contact.firstName}${sagBuyerMiddleName}`;
 									}
 
 									salesChangeOrderBuyers.push({
