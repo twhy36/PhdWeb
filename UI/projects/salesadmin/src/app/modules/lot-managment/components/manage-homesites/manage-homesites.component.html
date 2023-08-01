@@ -114,13 +114,7 @@
 				</phd-column>
 				<phd-column header="BuildType">
 					<ng-template #body let-lot>
-						<ng-container *ngIf="getBuildTypeDisplay(lot); else elseBody">
-							<a href="{{ getBuildTypeUrl(lot) }}" target="_blank"
-									[attr.title]="lot.lotJobType">{{ lot.lotJobType }}</a>
-						</ng-container>
-						<ng-template #elseBody>
-							<span [attr.title]="lot.lotJobType">{{ lot.lotJobType }}</span>
-						</ng-template>
+						<span (mouseenter)="showTooltip($event, lot.lotJobType, dt)" (mouseleave)="hideTooltip(dt)">{{ lot.lotJobType }}</span>
 					</ng-template>
 				</phd-column>
 				<phd-column header="Status" field="lotStatusDescription"></phd-column>
