@@ -880,23 +880,15 @@ export class LiteEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreateJIOForSpecLite>(LiteActionTypes.CreateJIOForSpecLite),
-			withLatestFrom(
-				this.store,
-				this.store.pipe(select(fromLite.selectedElevation)),
-				this.store.pipe(select(fromRoot.priceBreakdown)),
-			),
-			exhaustMap(([action, store, selectedElevation, priceBreakdown]) =>
-			{
-				const pendingJobSummary = this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options);
-
-				return this.liteService.createJioForSpecLite(
+			withLatestFrom(this.store, this.store.pipe(select(fromLite.selectedElevation))),
+			exhaustMap(([action, store, selectedElevation]) =>
+				this.liteService.createJioForSpecLite(
 					store.scenario.scenario,
 					store.lite.scenarioOptions,
 					store.lot.selectedLot?.financialCommunity.id,
 					store.scenario.buildMode,
 					store.lite.options,
-					selectedElevation,
-					pendingJobSummary
+					selectedElevation
 				)
 					.pipe(
 						tap(sag => this.router.navigateByUrl('/change-orders')),
@@ -925,7 +917,7 @@ export class LiteEffects
 							return of(new SaveError(error))
 						})
 					)
-			})
+			)
 		);
 	});
 

@@ -73,11 +73,6 @@ export class SalesAgreementEffects
 				salePrice = priceBreakdown.salesProgram > 0 ? salePrice + priceBreakdown.salesProgram : salePrice;
 				salePrice = priceBreakdown.priceAdjustments > 0 ? salePrice + priceBreakdown.priceAdjustments : salePrice;
 
-				const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
-				const pendingJobSummary = isPhdLite
-					? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-					: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
-
 				const createSalesAgreementForScenario = store.lite.isPhdLite
 					? this.liteService.createSalesAgreementForLiteScenario(
 						store.lite,
@@ -86,16 +81,14 @@ export class SalesAgreementEffects
 						priceBreakdown.baseHouse,
 						store.job.jobPlanOptions,
 						isSpecSale,
-						legacyColorScheme,
-						pendingJobSummary
+						legacyColorScheme
 					)
 					: this.salesAgreementService.createSalesAgreementForScenario(
 						store.scenario.scenario,
 						store.scenario.tree,
 						store.scenario.options.find(o => o.isBaseHouse),
 						salePrice,
-						store.scenario.rules.optionRules,
-						pendingJobSummary
+						store.scenario.rules.optionRules
 					);
 
 				return createSalesAgreementForScenario.pipe(
@@ -1038,19 +1031,15 @@ export class SalesAgreementEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreateJIOForSpec>(SalesAgreementActionTypes.CreateJIOForSpec),
-			withLatestFrom(this.store, this.store.pipe(select(fromRoot.priceBreakdown))),
-			exhaustMap(([action, store, priceBreakdown]) =>
-			{
-				const pendingJobSummary = this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree);
-
-				return this.salesAgreementService.createJIOForSpec(
-					store.scenario.tree,
-					store.scenario.scenario,
-					store.scenario.tree.financialCommunityId,
-					store.scenario.buildMode,
-					store.scenario.options.find(o => o.isBaseHouse),
-					store.scenario.rules.optionRules,
-					pendingJobSummary)
+			withLatestFrom(this.store),
+			exhaustMap(([action, store]) =>
+				this.salesAgreementService.createJIOForSpec(
+					store.scenario.tree, 
+					store.scenario.scenario, 
+					store.scenario.tree.financialCommunityId, 
+					store.scenario.buildMode, 
+					store.scenario.options.find(o => o.isBaseHouse), 
+					store.scenario.rules.optionRules)
 					.pipe(
 						tap(sag => this.router.navigateByUrl('/change-orders')),
 						switchMap(job =>
@@ -1075,10 +1064,10 @@ export class SalesAgreementEffects
 								return of(new LotConflict());
 							}
 
-							return of(new SaveError(error))
-						})
-					)
-			})
+						return of(new SaveError(error))
+					})
+				)
+			)
 		);
 	});
 

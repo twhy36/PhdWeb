@@ -12,7 +12,7 @@ import
 		removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
 		SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
 		ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint, IPendingJobSummary
+		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -201,14 +201,7 @@ export class SalesAgreementService
 		);
 	}
 
-	createSalesAgreementForScenario(
-		scenario: Scenario, 
-		tree: Tree, 
-		baseHouseOption: PlanOption, 
-		salePrice: number, 
-		optionRules: OptionRule[],
-		pendingJobSummary: IPendingJobSummary
-	): Observable<SalesAgreement>
+	createSalesAgreementForScenario(scenario: Scenario, tree: Tree, baseHouseOption: PlanOption, salePrice: number, optionRules: OptionRule[]): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForScenario`;
 		const url = `${environment.apiUrl}${action}`;
@@ -257,8 +250,7 @@ export class SalesAgreementService
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
 			},
-			salePrice: salePrice,
-			pendingJobSummary: pendingJobSummary
+			salePrice: salePrice
 		};
 
 		return this._http.post<ISalesAgreement>(url, data).pipe(
@@ -982,8 +974,7 @@ export class SalesAgreementService
 		communityId: number, 
 		buildMode: string, 
 		baseHouseOption: PlanOption, 
-		optionRules: OptionRule[], 
-		pendingJobSummary: IPendingJobSummary
+		optionRules: OptionRule[]
 	): Observable<Job>
 	{
 		const action = `CreateJIOForSpec`;
@@ -1044,8 +1035,7 @@ export class SalesAgreementService
 				quantity: 1,
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
-			},
-			pendingJobSummary: pendingJobSummary
+			}
 		};
 
 		return (withSpinner(this._http)).post(url, data).pipe(
