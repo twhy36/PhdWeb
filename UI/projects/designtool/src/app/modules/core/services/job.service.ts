@@ -8,7 +8,7 @@ import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
 	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice,
-	IPendingJobSummary, Constants
+	Constants
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
