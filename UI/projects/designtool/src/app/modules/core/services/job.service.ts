@@ -614,13 +614,4 @@ export class JobService
 			map(response => response.value)
 		);
 	}
-
-	updatePendingJobSummary(pendingJobSummary: IPendingJobSummary)
-	{
-		const url = `${environment.apiUrl}pendingJobSummary(${pendingJobSummary.jobId})`;
-
-		return this._http.patch(url, pendingJobSummary).pipe(
-			map(resp => resp as IPendingJobSummary)
-		);
-	}
 }
