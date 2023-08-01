@@ -690,7 +690,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	getBuildTypeDisplay(lot: HomeSite): boolean
 	{
 		return(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable')
-			&& (lot.dto.job.jobTypeName.trim() === 'Spec' || lot.dto.job.jobTypeName.trim() === 'Model')
+			&& (lot.dto.job?.jobTypeName.trim() === 'Spec' || lot.dto.job?.jobTypeName.trim() === 'Model')
 	}
 
 	getBuildTypeUrl(lot: HomeSite)
