@@ -683,9 +683,7 @@ export class SalesAgreementEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store]) =>
 				{
-					const envelopeId = store.salesAgreement.salesAgreementName.includes('THO') ? store.changeOrder?.currentChangeOrder?.envelopeId : '';
-
-					return forkJoin(of(store.job), this.salesAgreementService.voidSalesAgreement(store.salesAgreement.id || null, action.reasonKey, envelopeId));
+					return forkJoin(of(store.job), this.salesAgreementService.voidSalesAgreement(store.salesAgreement.id || null, action.reasonKey));
 				}),
 				switchMap(([jobState, salesAgreement]) =>
 				{
