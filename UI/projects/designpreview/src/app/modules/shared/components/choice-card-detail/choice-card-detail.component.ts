@@ -576,17 +576,20 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 
 		return locationMaxQty;
-	} 
+	}
 
-	changeQuantiy(data: { location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean, skipSave: boolean})
+	changeQuantity(data: { location: Location, locationGroup: LocationGroup, quantity: number, clearAttribute: boolean, skipSave: boolean })
 	{
+		// make deep copy of this.choice so we can alter selectedAttributes without running into read only errors
+		const choiceCopy = structuredClone(this.choice);
+
 		if (data.clearAttribute)
 		{
-			this.choice.selectedAttributes = this.choice.selectedAttributes.filter(a => a.locationId !== data.location.id || a.locationGroupId !== data.locationGroup.id);
+			choiceCopy.selectedAttributes = this.choice.selectedAttributes.filter(a => a.locationId !== data.location.id || a.locationGroupId !== data.locationGroup.id);
 		}
 		else
 		{
-			const locationAttributes = this.choice.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
+			const locationAttributes = choiceCopy.selectedAttributes.filter(a => a.locationId === data.location.id && a.locationGroupId === data.locationGroup.id);
 
 			if (locationAttributes && locationAttributes.length)
 			{
@@ -597,7 +600,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			}
 			else
 			{
-				this.choice.selectedAttributes.push({
+				choiceCopy.selectedAttributes.push({
 					attributeId: null,
 					attributeName: null,
 					attributeImageUrl: null,
@@ -628,10 +631,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					choiceId: this.choice.id,
 					divChoiceCatalogId: this.choice.divChoiceCatalogId,
 					quantity: this.choice.quantity,
-					attributes: this.choice.selectedAttributes
+					attributes: choiceCopy.selectedAttributes
 				}));
 
-		if(!data.skipSave)
+		if (!data.skipSave)
 		{
 			this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 		}
