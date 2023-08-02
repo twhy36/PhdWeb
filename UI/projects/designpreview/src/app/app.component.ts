@@ -102,7 +102,6 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.handleMobileNavigation();
 			}
-			
 		});
 
 		this.breakpoint$.subscribe(() =>
