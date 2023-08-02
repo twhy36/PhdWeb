@@ -17,7 +17,7 @@ import { SalesProgram } from '../../../shared/models/sales-program.model';
 	selector: 'pulte-info',
 	templateUrl: './pulte-info.component.html',
 	styleUrls: ['./pulte-info.component.scss']
-})
+	})
 export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	params$ = new ReplaySubject<{ jobId: number }>(1);
@@ -144,7 +144,18 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 					this.getMonthList();
 
 					this.pulteInfo = new SpecInformation(pulteInfo);
-					this.pulteInfo.discountExpirationDate = new Date(this.specDiscountService.specDiscountExpDate.toUTCString());
+					this.pulteInfo.discountExpirationDate = this.formatDate(this.pulteInfo.discountExpirationDate);
+
+					const minDate = new Date();
+					this.minDate = new Date(minDate.setDate(minDate.getDate() + 1));
+
+					const date = new Date();
+					date.setHours(0, 0, 0, 0);
+
+					if (this.pulteInfo.discountExpirationDate < date)
+					{
+						this.pulteInfo.discountAmount = 0;
+					}
 				}
 
 				this.qmiSalesProgram = programs.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
@@ -181,8 +192,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
 		});
 
-		this.pulteInfoForm.get('discountExpirationDate').disable();
-
 		this.toggleFormControls();
 	}
 
@@ -190,18 +199,15 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.cd.detectChanges();
 
-		for (let control in this.pulteInfoForm.controls)
+		for (const control in this.pulteInfoForm.controls)
 		{
-			if (control !== 'discountExpirationDate')
+			if (!this.canEdit)
 			{
-				if (!this.canEdit)
-				{
-					this.pulteInfoForm.controls[control].disable();
-				}
-				else
-				{
-					this.pulteInfoForm.controls[control].enable();
-				}
+				this.pulteInfoForm.controls[control].disable();
+			}
+			else
+			{
+				this.pulteInfoForm.controls[control].enable();
 			}
 		}
 	}
@@ -214,7 +220,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
 		clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value ? this.pulteInfoForm.controls['displayOnPulte'].value : false;
 		clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
-		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ?? new Date(this.specDiscountService.specDiscountExpDate.toUTCString());
+		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value;
 		clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value ? this.pulteInfoForm.controls['hotHome'].value : false;
 		clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
 		clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
@@ -258,6 +264,17 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			return null;
 		}
+	}
+
+	formatDate(date: Date)
+	{
+		const dateToFormat = new Date(date);
+
+		const month = dateToFormat.getUTCMonth() + 1;
+		const day = dateToFormat.getUTCDate();
+		const year = dateToFormat.getUTCFullYear();
+
+		return new Date(month + '/' + day + '/' + year);
 	}
 
 	allowNavigation(): boolean
