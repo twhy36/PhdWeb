@@ -150,9 +150,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 					this.minDate = new Date(minDate.setDate(minDate.getDate() + 1));
 
 					const date = new Date();
-					date.setHours(0, 0, 0, 0);
 
-					if (this.pulteInfo.discountExpirationDate < date)
+					if (this.pulteInfo.discountExpirationDate.getTime() < date.getTime())
 					{
 						this.pulteInfo.discountAmount = 0;
 					}
