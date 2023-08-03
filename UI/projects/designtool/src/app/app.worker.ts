@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-import { getChoicePriceRanges } from './modules/shared/classes/price-ranges';
+import { getChoicePriceRanges } from '../../../phd-common/src/lib/utils/price-ranges.class';
 
 addEventListener('message', ({ data }) =>
 {
