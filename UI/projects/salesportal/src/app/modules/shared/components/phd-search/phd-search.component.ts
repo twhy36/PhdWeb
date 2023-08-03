@@ -358,8 +358,7 @@ export class PHDSearchComponent
 			}			
 
 			this.searchResults = filteredLots.length > 0 ? filteredLots : [];
-
-			});
+		});
 	}
 
 	searchPendingCOs()
