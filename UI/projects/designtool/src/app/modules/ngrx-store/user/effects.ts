@@ -1,16 +1,18 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 import { Action } from '@ngrx/store';
-import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from "@ngrx/effects";
-import { switchMap, map, take, skipWhile } from "rxjs/operators";
-import { Observable, forkJoin } from "rxjs";
+import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects';
+import { switchMap, map, take, skipWhile } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
 
-import { IMarket, IdentityService, Claims } from "phd-common";
-import { SetPermissions } from "./actions";
+import { IMarket, IdentityService, Claims } from 'phd-common';
+import { SetPermissions } from './actions';
 
 @Injectable()
-export class UserEffects {
-	getUserPermissions$: Observable<Action> = createEffect(() => {
+export class UserEffects 
+{
+	getUserPermissions$: Observable<Action> = createEffect(() => 
+	{
 		return forkJoin([
 			this.$actions.pipe(
 				ofType<Action>(ROOT_EFFECTS_INIT),
