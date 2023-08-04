@@ -127,11 +127,11 @@ describe('GlobalFooterComponent', () =>
 			firstGroupLink.click();
 
 			expect(navigateSpy).toHaveBeenCalledWith(
-				['favorites', 'my-favorites', 1, 123],
+				['favorites', 'my-favorites', testMyFavorite.id, testTreeVersion.groups[0].subGroups[0].subGroupCatalogId],
 				{ queryParamsHandling: 'merge' }
 			);
 			expect(storeSpy).toHaveBeenCalledWith(
-				new NavActions.SetSelectedSubgroup(123, 888218, null)
+				new NavActions.SetSelectedSubgroup(testTreeVersion.groups[0].subGroups[0].subGroupCatalogId, testTreeVersion.groups[0].subGroups[0].points[0].id, null)
 			);
 		});
 
