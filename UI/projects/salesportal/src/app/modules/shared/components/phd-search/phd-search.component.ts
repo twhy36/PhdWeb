@@ -355,9 +355,9 @@ export class PHDSearchComponent
 						});
 					}
 				});
-			}
+			}			
 
-			this.searchResults = filteredLots.length > 0 ? filteredLots : results;
+			this.searchResults = filteredLots.length > 0 ? filteredLots : [];
 		});
 	}
 
