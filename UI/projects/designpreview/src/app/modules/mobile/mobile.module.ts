@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule, Routes } from '@angular/router';
-
-// Mobile Module
-import { MobileComponent } from './mobile.component';
-import { LandingComponent } from './landing/landing.component';
 
 // External Modules
 import { BuildMode } from '../shared/models/build-mode.model';
@@ -16,12 +15,26 @@ import { ExternalGuard } from '../core/guards/external.guard';
 import { InternalGuard } from '../core/guards/internal.guard';
 import { PresaleGuard } from '../core/guards/presale.guard';
 
+// Mobile Module
+import { ActionBarComponent } from './action-bar/action-bar.component';
+import { CarouselModule } from 'primeng/carousel';
+import { ChoiceCardDetailComponent } from './choice-card-detail/choice-card-detail.component';
+import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { EstimatedTotalsComponent } from './estimated-totals/estimated-totals.component';
+import { GlobalFooterComponent } from './global-footer/global-footer.component';
+import { GlobalHeaderComponent } from './global-header/global-header.component';
+import { HamburgerMenuComponent } from './hamburger-menu/hamburger-menu.component';
+import { LandingComponent } from './landing/landing.component';
+import { MobileComponent } from './mobile.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+
 const moduleRoutes: Routes = [
 	{
 		path: 'mobile',
 		component: MobileComponent,
 		children: [
-			{ 
+			{
 				path: 'home',
 				canActivate: [ExternalGuard],
 				component: LandingComponent,
@@ -45,34 +58,52 @@ const moduleRoutes: Routes = [
 				canActivate: [InternalGuard],
 				data: { buildMode: BuildMode.Preview },
 			},
-			{ 
+			{
 				path: 'presale',
 				canActivate: [PresaleGuard],
 				component: LandingComponent,
 				data: { pageLoadEvent: 'Home', buildMode: BuildMode.Presale },
 			},
+			{
+				path: 'options/:subGroupCatalogId/:decisionPointCatalogId/:choiceCatalogId',
+				component: ChoiceCardDetailComponent,
+			},
 			{ path: 'error', component: LandingComponent },
 			{ path: '**', pathMatch: 'full', redirectTo: '' },
-			{ path: '', component: LandingComponent }
-		]
+			{ path: '', component: LandingComponent },
+		],
 	},
 ];
 
 @NgModule({
-	exports: [
-	LandingComponent
-	],
+	exports: [LandingComponent],
 	declarations: [
+	MobileComponent,
+	GlobalHeaderComponent,
+	HamburgerMenuComponent,
 	LandingComponent,
-	MobileComponent
+	MobileComponent,
+	HamburgerMenuComponent,
+	GlobalHeaderComponent,
+	GlobalFooterComponent,
+	ChoiceCardDetailComponent,
+	ActionBarComponent,
+	EstimatedTotalsComponent,
+	ConfirmDialogComponent,
 	],
 	imports: [
 	CommonModule,
 	MatButtonModule,
+	MatDialogModule,
+	MatExpansionModule,
 	MatIconModule,
 	MatMenuModule,
 	MatSidenavModule,
-	RouterModule.forChild(moduleRoutes)
-	]
+	NgbModule,
+	CloudinaryModule,
+	CarouselModule,
+	MatListModule,
+	RouterModule.forChild(moduleRoutes),
+	],
 	})
-export class MobileModule { }
+export class MobileModule {}

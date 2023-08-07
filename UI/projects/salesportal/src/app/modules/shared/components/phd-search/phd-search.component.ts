@@ -272,7 +272,7 @@ export class PHDSearchComponent
 	}
 
 	edit(field?: string)
-	{
+	{		
 		if (!this.optionsShown)
 		{
 			this.optionsShown = true;
@@ -355,9 +355,9 @@ export class PHDSearchComponent
 						});
 					}
 				});
-			}
+			}			
 
-			this.searchResults = filteredLots.length > 0 ? filteredLots : results;
+			this.searchResults = filteredLots.length > 0 ? filteredLots : [];
 		});
 	}
 
@@ -564,17 +564,27 @@ export class PHDSearchComponent
 		this.cd.detectChanges();
 	}
 
-	get optionsShown(): boolean
+	editSearchCriteria()
 	{
+		this.optionsShown = true;
+
+		if (this.searchActiveOnly)
+		{
+			this.searchActiveOnly = false;
+		}
+	}
+
+	get optionsShown(): boolean
+	{		
 		return this._optionsShown;
 	}
 
 	set optionsShown(b: boolean)
 	{
 		this._optionsShown = b;
-
+	
 		if (b)
-		{
+		{			
 			this.search_button_label = this.SEARCH_STATUS.READY;
 		}
 	}
@@ -608,7 +618,11 @@ export class PHDSearchComponent
 
 	getBuildTypeUrl(lot: SearchResult)
 	{
-		let url = `${environment.baseUrl.designTool}scenario-summary/${lot.jobId}`;
+		let url = `${environment.baseUrl.designTool}`;
+
+		url += lot.buildTypeDisplayName === 'Spec' ? `spec` : `scenario-summary`;
+		url += `/${lot.jobId}`;
+		url += `${lot.buildTypeDisplayName === 'Spec' ? `?redirectUrl=scenario-summary` : ``}`;
 
 		return url;
 	}

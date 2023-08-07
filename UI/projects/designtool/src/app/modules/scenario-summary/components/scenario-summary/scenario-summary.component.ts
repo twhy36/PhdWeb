@@ -291,7 +291,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			.pipe(this.takeUntilDestroyed())
 			.subscribe(([changeOrder, scenario, job, sag]) =>
 			{
-				if (scenario.buildMode === Constants.BUILD_MODE_MODEL && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
+				if ((scenario.buildMode === Constants.BUILD_MODE_MODEL || scenario.buildMode === Constants.BUILD_MODE_SPEC) && job && !job.jobLoading && changeOrder && !changeOrder.loadingCurrentChangeOrder) 
 				{
 					this.liteService.isPhdLiteEnabled(job.financialCommunityId)
 						.subscribe(isPhdLiteEnabled =>
@@ -732,10 +732,10 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 			pdfViewer.componentInstance.pdfData = pdfData;
 			pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
 		},
-		error =>
-		{
-			this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
-		});
+			error =>
+			{
+				this._toastr.error(`There was an issue generating ${reportType} configuration.`, 'Error - Print Configuration');
+			});
 	}
 
 	compileSummaryData(reportType: SummaryReportType): Observable<SummaryData>

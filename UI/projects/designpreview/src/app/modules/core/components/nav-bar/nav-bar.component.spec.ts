@@ -156,7 +156,7 @@ describe('NavBarComponent', () =>
 		expect(component.showContractedOptionsLink).toEqual(false);
 		expect(component.showFloorplanLink).toEqual(false);
 		expect(component.showIncludedOptionsLink).toEqual(true);
-		expect(component.welcomeText).toEqual('Welcome To Your Future Home');;
+		expect(component.welcomeText).toEqual('Welcome To Your Future Home');
 	}));
 
 	it('should navigate to favorites summary on myFavoritesLink clicked', fakeAsync(() =>

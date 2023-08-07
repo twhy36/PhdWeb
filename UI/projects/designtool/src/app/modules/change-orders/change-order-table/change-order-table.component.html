@@ -48,32 +48,40 @@
             <td class="phd-sales-status">
                 <span>
                     {{changeOrder.salesStatus}}
-                    <a *ngIf="!!changeOrder.eSignStatus && displaySalesStatusIndicator(changeOrder)" [ngbTooltip]="eSignStatusTooltip" tooltipClass="phd-tooltip-table" placement="top" (click)="generateDocument(changeOrder)">
+                    <a *ngIf="!!changeOrder.eSignStatus && displaySalesStatusIndicator(changeOrder)" [ngbTooltip]="eSignStatusTooltip" [tooltipClass]="hasAutoRespondMessage ? 'phd-tooltip-table-message' : 'phd-tooltip-table'" placement="top" (click)="generateDocument(changeOrder)">
                         <i class="pl-1 fas"
                            [ngClass]="{'fa-check-circle text-success': changeOrder.eSignStatus === 'completed',
 								       'fa-arrow-alt-circle-right text-warning': changeOrder.eSignStatus === 'sent',
 								       'fa-minus-circle text-danger': changeOrder.eSignStatus === 'draft'}"></i>
                     </a>
                     <ng-template #eSignStatusTooltip>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th ><span class="font-weight-bold">Recipient Name</span></th>
-                                    <th><span class="font-weight-bold">Status</span></th>
-                                    <th><span class="font-weight-bold">Date</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let recipient of changeOrder.eSignEnvelopes[0].eSignRecipientEnvelopeEvents">
-                                    <td><span>{{ recipient.recipientUserName | titlecase }}</span></td>
-                                    <td><span>{{ getRecipientStatus(recipient) }}</span></td>
-                                    <td><span class="pl-1">{{ recipient.lastModifiedStatusUtcDate | date:'L/dd/yyyy' }}</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div *ngIf="changeOrder.salesStatus === 'Out For Signature'">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><span class="font-weight-bold">Recipient Name</span></th>
+                                        <th><span class="font-weight-bold">Status</span></th>
+                                        <th><span class="font-weight-bold">Date</span></th>
+                                        <th *ngIf="hasAutoRespondMessage"><span class="font-weight-bold">Message</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let recipient of changeOrder.eSignEnvelopes[0].eSignRecipientEnvelopeEvents">
+                                        <td><span>{{ recipient.recipientUserName | titlecase }}</span></td>
+                                        <td><span>{{ getRecipientStatus(recipient) }}</span></td>
+                                        <td><span class="pl-1">{{ recipient.lastModifiedStatusUtcDate | date:'L/dd/yyyy' }}</span></td>
+                                        <td *ngIf="hasAutoRespondMessage"><span>{{ recipient.autoRespondedErrorMessage }}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         <div *ngIf="changeOrder.eSignStatus === 'draft' && changeOrder.salesStatus === 'Out For Signature'" class="d-flex flex-row">
                             <span class="font-weight-bold">Exp:</span>
                             <span class="pl-1">{{changeOrder.eSignExpirationDate | date:'L/dd/yyyy'}}</span>
+                        </div>
+                        <div *ngIf="changeOrder.salesStatus !== 'Out For Signature'">
+                            <span class="font-weight-bold">{{changeOrder.eSignStatus | titlecase}}:</span>
+                            <span class="pl-1">{{changeOrder.eSignStatusDate | date:'L/dd/yyyy'}}</span>
                         </div>
                     </ng-template>
                 </span>

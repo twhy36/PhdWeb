@@ -9,14 +9,11 @@ import * as _ from 'lodash';
 import { Store, select } from '@ngrx/store';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
-import * as CommonActions from '../../../ngrx-store/actions';
-import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 
 import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage, TreeVersion } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
-import { ErrorFrom } from '../../../ngrx-store/error.action';
 import { ScrollTop } from '../../../shared/classes/utils.class';
 
 @Component({
@@ -36,7 +33,6 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedFavoritesId: number;
 	hasFloorPlanImages: boolean = false;
 	marketingPlanId$ = new BehaviorSubject<number>(0);
-	isFloorplanFlipped: boolean;
 	floorplanSG: SubGroup;
 	noVisibleFP: boolean = false;
 	selectedFloor;
@@ -56,77 +52,17 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		ScrollTop();
 
 		combineLatest([
-			this.activatedRoute.paramMap,
+			this.store.pipe(select(state => state.scenario)),
 			this.store.pipe(select(state => state.salesAgreement)),
 		]).pipe(
-			withLatestFrom(this.activatedRoute.data,
-				this.store.pipe(select(state => state.scenario)),
-				this.store.pipe(select(state => state.plan))),
-			switchMap(([[params, salesAgreementState], routeData, scenarioState, planState]) =>
+			switchMap(([scenarioState, salesAgreementState]) =>
 			{
 				if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
 				{
 					return new Observable<never>();
 				}
-				this.isFloorplanFlipped = salesAgreementState?.isFloorplanFlipped;
-				// flags for loading favorites or UI display
-				// reading existing store buildmode or url buildmode
-				this.isPreview = scenarioState.buildMode === BuildMode.Preview || routeData['buildMode'] === BuildMode.Preview;
-				this.isPresale = scenarioState.buildMode === BuildMode.Presale || routeData['buildMode'] === BuildMode.Presale;
-
-				// Load Store data on first home load if not loaded based on URL route
-				const urlBuildMode = routeData['buildMode'];
-				switch (urlBuildMode)
-				{
-					case BuildMode.Preview:
-					//set current buildmode to preview for Preview URL path
-						this.isPreview = true;
-
-						const treeVersionId = +params.get('treeVersionId');
-
-						if (!scenarioState.tree ||
-								scenarioState.tree.treeVersion.id !== treeVersionId
-								|| scenarioState.buildMode != BuildMode.Preview)
-						{
-							this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
-							return new Observable<never>();
-						}
-						break;
-					case BuildMode.Presale:
-					//set current buildmode to presale for presale URL path
-						this.isPresale = true;
-
-						const planCommunityId = Number(sessionStorage.getItem('presale_plan_community_id'));
-
-						if (planCommunityId === 0)
-						{
-							this.store.dispatch(new CommonActions.LoadError(new Error('load presale error'), 'CommunityId and/or PlanId are missing or invalid IDs', ErrorFrom.HomeComponent));
-						}
-
-						//plan not loaded before, or plan changed, or build mode changed 
-						if (!planState.selectedPlan || planState.selectedPlan !== planCommunityId || scenarioState.buildMode !== BuildMode.Presale)
-						{
-							this.store.dispatch(new ScenarioActions.LoadPresale(planCommunityId));
-
-							return new Observable<never>();
-						}
-						break;
-					default:
-					// PostContract ID changes or store BuildMode is not PostContract
-					// reload SA and update buildmode to Buyer
-						const salesAgreementId = +params.get('salesAgreementId');
-
-						if (salesAgreementId > 0 &&
-								(salesAgreementState.id !== salesAgreementId
-									|| scenarioState.buildMode !== BuildMode.Buyer)
-						)
-						{
-						//load store data in Buyer mode with pass querystring ID
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
-							return new Observable<never>();
-						}
-						break;
-				}
+				
+				this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 
 				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
 			}),

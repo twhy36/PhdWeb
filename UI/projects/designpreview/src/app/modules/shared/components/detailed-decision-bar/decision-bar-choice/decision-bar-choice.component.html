@@ -15,7 +15,7 @@
 	<a href="" class="phd-choice-label phd-clickable phd-choice-link" (click)="$event.preventDefault(); clickViewChoiceDetail()">{{choice?.label}}</a>
 	<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
 		<ng-container *ngIf='!choice.priceHiddenFromBuyerView'>
-			<div class="choice-price">{{choice?.price | currency:'USD':'symbol':'0.0-0'}}</div>
+			<div class="choice-price">{{ choice | choicePriceWithRangeCheck | async }}</div>
 		</ng-container>
 		<ng-container *ngIf='choice.priceHiddenFromBuyerView' (click)="$event.stopPropagation()">
 			<div class="phd-hidden-price">Pricing Varies

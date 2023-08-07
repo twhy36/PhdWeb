@@ -14,10 +14,9 @@ import { AttributeGroupMarket } from '../../shared/models/attribute-group-market
 import { LocationGroupMarket } from '../../shared/models/location-group-market.model';
 import { TableSort } from '../../../../../../phd-common/src/lib/components/table/phd-table.model';
 
-import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
-import { withSpinner } from 'phd-common';
 import { DivCatalogTab } from '../../shared/models/divisional-catalog.model';
+import { LoggingService, withSpinner } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 

@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
-import { CanActivate } from '@angular/router';
 import { select, Store } from '@ngrx/store';
-import { map, switchMap, tap, take } from 'rxjs/operators';
-import { NEVER, combineLatest, of } from 'rxjs';
 
 import { IdentityService } from 'phd-common';
-import { AuthService } from '../services/auth.service';
-import { SalesAgreementService } from '../services/sales-agreement.service';
-import { environment } from '../../../../environments/environment';
+import { map, switchMap, tap, take } from 'rxjs/operators';
+import { NEVER, combineLatest, of } from 'rxjs';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as CommonActions from '../../ngrx-store/actions';
+
+import { AuthService } from '../services/auth.service';
+import { SalesAgreementService } from '../services/sales-agreement.service';
+import { environment } from '../../../../environments/environment';
 import { clearPresaleSessions } from '../../shared/classes/utils.class';
 
 @Injectable()
-export class ExternalGuard implements CanActivate
+export class ExternalGuard
 {
 	constructor(
 		private identityService: IdentityService,

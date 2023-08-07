@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { ModalService } from 'phd-common';
 import { first } from 'rxjs/operators';
 import { instance, mock } from 'ts-mockito';
@@ -6,6 +7,7 @@ import { AdobeService } from '../../../core/services/adobe.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { choiceToChoiceMustHaveRuleChoice } from '../../classes/mockdata.class';
 import { AttributeLocationComponent } from './attribute-location.component';
+import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 
 describe('AttributeLocationComponent', () =>
 {
@@ -20,7 +22,8 @@ describe('AttributeLocationComponent', () =>
 	beforeEach(async () =>
 	{
 		TestBed.configureTestingModule({
-			declarations: [AttributeLocationComponent],
+			declarations: [AttributeLocationComponent, QuantityInputComponent],
+			imports: [ FormsModule ],
 			providers: [
 				{ provide: ModalService, useFactory: () => instance(mockModalService) },
 				{ provide: AdobeService, useFactory: () => instance(mockAdobeService) },

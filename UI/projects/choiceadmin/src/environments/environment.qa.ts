@@ -23,7 +23,9 @@ export const environment: IEnvironment = {
 	pictureParkAssetUrl: 'https://pultegroup.picturepark.com/Website/Publisher.aspx?Page=AssetConnector',
 	appInsights: {
 		connectionString: 'InstrumentationKey=59530951-22f6-449f-ac70-8dffc824b34d;IngestionEndpoint=https://eastus-5.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
-		enableAutoRouteTracking: true
+		enableAutoRouteTracking: true,
+		disableExceptionTracking: false,
+		disableAjaxTracking: true
 	},
 	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
 	whatFix: {

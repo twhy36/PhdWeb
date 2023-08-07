@@ -162,17 +162,17 @@ export function groupTrackBy(index: number, group: Group)
 {
 	return group.groupCatalogId;
 }
-	
+
 export function subGroupTrackBy(index: number, subGroup: SubGroup)
 {
 	return subGroup.subGroupCatalogId;
 }
-	
+
 export function pointTrackBy(index: number, point: DecisionPoint)
 {
 	return point.divPointCatalogId;
 }
-	
+
 export function choiceTrackBy(index: number, choice: Choice)
 {
 	return choice.divChoiceCatalogId;

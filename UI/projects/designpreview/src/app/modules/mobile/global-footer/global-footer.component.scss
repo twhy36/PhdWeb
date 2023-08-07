@@ -1,0 +1,43 @@
+.phd-global-footer {
+	background-color: #2c2c2c;
+	color: #ffffff;
+}
+
+.menu-container {
+	background-color: #343434;
+}
+
+hr {
+	border-top: 1px solid #676767;
+}
+
+.menu-item-header {
+	font-size: 12px;
+	justify-content: space-between;
+	a {
+		flex: auto;
+	}
+}
+
+.submenu-link {
+	font-size: 13px;
+}
+
+.logo-container {
+	min-height: 180px;
+}
+
+.brand-logo {
+	transform: scale(0.5);
+	max-height: 100%;
+	max-width: 100%;
+	object-fit: contain;
+}
+
+.footer-item {
+	font-size: 13px;
+}
+
+.footer-item-copyright {
+	font-size: 10px;
+}

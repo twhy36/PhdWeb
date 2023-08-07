@@ -30,6 +30,14 @@
 		.phd-action-bar-action-btn {
 			background: mat.get-color-from-palette($primary-palette, 400);
 		}
+
+		@media screen and (max-width: 480px) {
+			.phd-action-bar-back-btn {
+				background: transparent;
+				border: 2px solid mat.get-color-from-palette($primary-palette, 400);
+				color:  mat.get-color-from-palette($primary-palette, 400);
+			}
+		}
 	}
 }
 

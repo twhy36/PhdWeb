@@ -4,7 +4,11 @@ import { Store, select } from '@ngrx/store';
 import { Observable, ReplaySubject, combineLatest } from 'rxjs';
 import { map, filter, take } from 'rxjs/operators';
 
-import { UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity, ModalService, LotChoiceRules, ChoiceRules, PointRules, Choice, ConfirmModalComponent, Constants } from 'phd-common';
+import 
+{ 
+	UnsubscribeOnDestroy, flipOver, FinancialCommunity, ChangeTypeEnum, Job, LotExt, Plan, Scenario, SalesCommunity, ModalService, LotChoiceRules, ChoiceRules, PointRules, 
+	Choice, ConfirmModalComponent, Constants, ScenarioOption
+} from 'phd-common';
 
 import { PlanService } from '../../../core/services/plan.service';
 
@@ -22,7 +26,7 @@ import * as LotActions from '../../../ngrx-store/lot/actions';
 import { selectSelectedLot } from '../../../ngrx-store/lot/reducer';
 
 // PHD Lite
-import { ExteriorSubNavItems, LiteSubMenu } from '../../../shared/models/lite.model';
+import { ExteriorSubNavItems, LitePlanOption, LiteSubMenu } from '../../../shared/models/lite.model';
 import * as LiteActions from '../../../ngrx-store/lite/actions';
 import { NewHomeService } from '../../../new-home/services/new-home.service';
 import { LotService } from '../../../core/services/lot.service';
@@ -65,6 +69,8 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedPlanPrice$: Observable<number>;
 	job: Job;
 	isPhdLite: boolean = false;
+	scenarioOptions: ScenarioOption[] = [];
+	liteOptions: LitePlanOption[] = [];
 	salesCommunity: SalesCommunity;
 	totalPrice: number;
 
@@ -220,7 +226,12 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.lite)
-		).subscribe(lite => this.isPhdLite = lite?.isPhdLite);
+		).subscribe(lite => 
+		{
+			this.isPhdLite = lite?.isPhdLite;
+			this.scenarioOptions = lite?.scenarioOptions;
+			this.liteOptions = lite?.options;
+		});
 
 		combineLatest([
 			this.store.pipe(select(fromSalesAgreement.salesAgreementState)),
@@ -351,7 +362,10 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 
 			// remove the lot
 			this.store.dispatch(new LotActions.DeselectLot());
-			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0));
+			this.store.dispatch(new ScenarioActions.SetScenarioLot(null, null, 0, null, true));
+
+			// remove spec selections
+			this.removeSpecSelections(plan);
 		}
 
 		//if the plan was not selected, choose it
@@ -453,5 +467,39 @@ export class PlanComponent extends UnsubscribeOnDestroy implements OnInit
 		return this.inChangeOrder
 			? this.isPhdLite && !!plan.treeVersionId || !this.isPhdLite && !plan.treeVersionId
 			: false;
+	}
+
+	removeSpecSelections(plan: Plan)
+	{
+		if (this.isPhdLite)
+		{
+			const isPlanChanged = this.selectedPlan?.id !== plan.id;
+
+			const baseHouseOption = this.liteOptions.find(o => o.isBaseHouse && o.isActive);
+
+			// Remove selected options
+			const deselectedOptions = this.scenarioOptions
+				?.filter(opt => isPlanChanged || opt.edhPlanOptionId !== baseHouseOption.id)
+				?.map(opt =>
+				{
+					return { ...opt, planOptionQuantity: 0 };
+				});
+
+			if (!!deselectedOptions?.length)
+			{
+				this.store.dispatch(new LiteActions.SelectOptions(deselectedOptions));				
+			}
+
+			// Remove options in the spec plan
+			if (isPlanChanged)
+			{
+				this.store.dispatch(new LiteActions.LiteOptionsLoaded([], []));
+			}
+		}
+		else
+		{
+			// Clear tree 
+			this.store.dispatch(new ScenarioActions.TreeLoaded(null, null, null, null, null, this.salesCommunity));						
+		}
 	}
 }

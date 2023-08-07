@@ -15,7 +15,6 @@ import { CopyTreeService } from './services/copy-tree.service';
 import { DivisionalOptionService } from './services/divisional-option.service';
 import { DivisionalService } from './services/divisional.service';
 import { LocationService } from './services/location.service';
-import { LoggingService, PhdErrorHandler } from './services/logging.service';
 import { MessageService } from 'primeng/api';
 import { NationalService } from './services/national.service';
 import { OrganizationService } from './services/organization.service';
@@ -30,7 +29,7 @@ import { LoadingService } from './services/loading.service';
 import { ModalService } from './services/modal.service';
 
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
-import { PhdCommonModule } from 'phd-common';
+import { PhdCommonModule, LoggingService, PhdErrorHandler } from 'phd-common';
 
 
 @NgModule({

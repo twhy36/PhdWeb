@@ -1,8 +1,8 @@
 import { ActionReducer, MetaReducer } from '@ngrx/store';
 
 import * as fromRoot from './reducers';
-import { LoggingService } from '../core/services/logging.service';
 import { ErrorAction } from './error.action';
+import { LoggingService } from 'phd-common';
 
 export function exceptionHandlerFactory(loggingService: LoggingService): MetaReducer<fromRoot.State> 
 {
@@ -10,11 +10,12 @@ export function exceptionHandlerFactory(loggingService: LoggingService): MetaRed
 	{
 		try 
 		{
-			if (action instanceof ErrorAction){
+			if (action instanceof ErrorAction)
+			{
 				loggingService.logError(action.error);
 			}
 			return reducer(state, action);
-		} 
+		}
 		catch (err) 
 		{
 			console.error(err);

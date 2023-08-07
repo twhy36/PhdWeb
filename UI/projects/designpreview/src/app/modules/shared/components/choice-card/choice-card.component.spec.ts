@@ -18,6 +18,7 @@ import { ChoiceCardComponent } from './choice-card.component';
 import { ActionBarComponent } from '../action-bar/action-bar.component';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { ChoicePriceWithRangeCheckPipe } from '../../pipes/choicePriceWithRangeCheck.pipe';
 
 describe('ChoiceCardComponent', () => 
 {
@@ -43,7 +44,8 @@ describe('ChoiceCardComponent', () =>
 		TestBed.configureTestingModule({
 			declarations: [
 				ChoiceCardComponent,
-				ActionBarComponent
+				ActionBarComponent,
+				ChoicePriceWithRangeCheckPipe
 			],
 			imports: [ BrowserAnimationsModule ],
 			providers: [

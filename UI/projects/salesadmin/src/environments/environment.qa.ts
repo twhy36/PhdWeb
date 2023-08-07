@@ -7,6 +7,7 @@ export const environment = {
 	production: false,
 	apiUrl: 'https://phdapi.qa.pulte.com/odata/',
 	hubUrl: 'https://phdhub.qa.pulte.com/hub',
+	designToolUrl: 'https://phd.qa.pulte.com/designtool/',
 	alphaVisionBuilderGuid: '8D676CB9-C011-429D-8D71-87D34A87494B',
 	tenant: 'pulte.onmicrosoft.com',
 	clientId: '9d433c6a-9bfc-4d5e-917b-3bfe08942b6e',
@@ -23,7 +24,9 @@ export const environment = {
 	},
 	appInsights: {
 		connectionString: 'InstrumentationKey=59530951-22f6-449f-ac70-8dffc824b34d;IngestionEndpoint=https://eastus-5.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
-		enableAutoRouteTracking: true
+		enableAutoRouteTracking: true,
+		disableExceptionTracking: false,
+		disableAjaxTracking: true
 	},
 	whatFix: {
 		scriptUrl: '//whatfix.com/01caf5e0-cb2f-11e8-b979-04013d24cd02/embed/embed.nocache.js'

@@ -6,6 +6,7 @@ import { tap, switchMap, map, finalize } from 'rxjs/operators';
 
 import { MessageService, SelectItem } from 'primeng/api';
 
+import { environment } from '../../../../../environments/environment';
 import { PhdTableComponent, ConfirmModalComponent, FeatureSwitchService, IFeatureSwitchOrgAssoc, Constants } from 'phd-common';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { OrganizationService } from '../../../core/services/organization.service';
@@ -39,6 +40,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
 
+	environment = environment;
 	saving: boolean = false;
 	sidePanelOpen: boolean = false;
 	activeCommunities: Observable<Array<FinancialCommunityViewModel>>;
@@ -683,6 +685,19 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 			.find(r => financialCommunityId === r.org.edhFinancialCommunityId
 				&& r.state === true
 			);
+	}
+
+	getBuildTypeDisplay(lot: HomeSite): boolean
+	{
+		return(lot.lotStatusDescription.trim() === 'Available' || lot.lotStatusDescription.trim() === 'Unavailable')
+			&& (lot.dto.job?.jobTypeName.trim() === 'Spec' || lot.dto.job?.jobTypeName.trim() === 'Model')
+	}
+
+	getBuildTypeUrl(lot: HomeSite)
+	{
+		const url = `${environment.designToolUrl}scenario-summary/${lot.dto.job.id}`;
+
+		return url;
 	}
 
 	// #398751

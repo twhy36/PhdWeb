@@ -671,7 +671,8 @@
 						"buildOptimizer": false,
 						"sourceMap": true,
 						"optimization": false,
-						"namedChunks": true
+						"namedChunks": true,
+						"webWorkerTsConfig": "projects/designpreview/tsconfig.worker.json"
 					},
 					"configurations": {
 						"local": {
@@ -770,7 +771,8 @@
 						"scripts": [],
 						"assets": [
 							"projects/designpreview/src/assets"
-						]
+						],
+						"webWorkerTsConfig": "projects/designpreview/tsconfig.worker.json"
 					}
 				},
 				"lint": {
@@ -927,5 +929,5 @@
 				}
 			}
 		}
-  }
+	}
 }

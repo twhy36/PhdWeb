@@ -1,8 +1,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { Component, Inject, OnInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { Router } from '@angular/router';
+import { Component, Inject, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { select, Store } from '@ngrx/store';
@@ -10,24 +10,24 @@ import { select, Store } from '@ngrx/store';
 import { ModalService, ModalRef, IdentityService, UnsubscribeOnDestroy, NavigationService, Constants } from 'phd-common';
 import { distinctUntilChanged, withLatestFrom } from 'rxjs/operators';
 
-import { environment } from '../environments/environment';
-import { default as build } from './build.json';
+import * as fromRoot from './modules/ngrx-store/reducers';
+import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
 
+import { default as build } from './build.json';
+import { environment } from '../environments/environment';
+import { IEnvironment } from '../environments/environment.model';
 import { IdleLogoutComponent } from './modules/core/components/idle-logout/idle-logout.component';
 import { InfoModalComponent } from './modules/shared/components/info-modal/info-modal.component';
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
-import * as fromRoot from './modules/ngrx-store/reducers';
-import * as fromFavorite from './modules/ngrx-store/favorite/reducer';
 import { BuildMode } from './modules/shared/models/build-mode.model';
-import { IEnvironment } from '../environments/environment.model';
 
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
 	})
-export class AppComponent extends UnsubscribeOnDestroy implements OnInit 
+export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	mobileBreakpoint: string = '(max-width: 480px)';
 	environment: IEnvironment = environment;
@@ -37,8 +37,6 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
 	browserModal: ModalRef;
-
-	routerInitialized = false;
 
 	readonly breakpoint$ = this.breakpointObserver
 		.observe([this.mobileBreakpoint])
@@ -54,7 +52,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		return build.version;
 	}
 
-	//navService is needed here to initalize the routing history, please do not remove
+	// NavigationService is needed here to initalize the routing history, please do not remove
 	constructor(
 		public overlayContainer: OverlayContainer,
 		private idle: Idle,
@@ -97,13 +95,19 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
 			}
 		});
+		
+		this.router.events.subscribe((event) =>
+		{
+			if (event instanceof NavigationEnd)
+			{
+				this.handleMobileNavigation();
+			}
+		});
 
 		this.breakpoint$.subscribe(() =>
 		{
-			// this.breakpointChanged();
 			this.isMobile = this.breakpointObserver.isMatched(this.mobileBreakpoint);
 
-			// If router hasn't navigated yet you will get caught in an infinite routing loop
 			if (this.router.navigated)
 			{
 				this.handleMobileNavigation();
@@ -257,7 +261,10 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		const url = this.router.url.indexOf('?') > 0 ? this.router.url.substring(0, this.router.url.indexOf('?')) : this.router.url;
 
-		if (this.isMobile && !url.includes('mobile'))
+		// TODO: remove flag when mobile optimization is ready for production
+		// Until then this prevents the app from moving to mobile experience on each route navigation
+		// and when breakpoints are detected 
+		if (this.isMobile && !url.includes('mobile') && !environment.production)
 		{
 			this.router.navigate(['/mobile' + url], { queryParamsHandling: 'merge' });
 		}

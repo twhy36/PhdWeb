@@ -1,23 +1,28 @@
-import { Injectable } from '@angular/core';
+import { Injector, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 
-import { combineLatest, Observable, of } from 'rxjs';
-import { switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, Observable, of, never } from 'rxjs';
+import { switchMap, tap, withLatestFrom, map } from 'rxjs/operators';
 
-import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter, SetPresalePricingEnabled } from './actions';
+import * as _ from 'lodash';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+import { from } from 'rxjs';
+
 import * as fromRoot from '../reducers';
 import * as fromFavorite from '../favorite/reducer';
-import * as _ from 'lodash';
+
+import { LoadPreview, LoadPresale, ScenarioActionTypes, SelectChoices, SetStatusForPointsDeclined, TreeLoaded, SetTreeFilter, SetPresalePricingEnabled, SetChoicePriceRanges } from './actions';
 import { DeleteMyFavoritesPointDeclined, LoadDefaultFavorite } from '../favorite/actions';
-import { from } from 'rxjs';
+import { CommonActionTypes, SalesAgreementLoaded } from './../actions';
 import { ErrorFrom, tryCatch } from '../error.action';
+import { LoadError } from '../actions';
+import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
+
 import { OptionService } from '../../core/services/option.service';
 import { OrganizationService } from '../../core/services/organization.service';
 import { PlanService } from '../../core/services/plan.service';
 import { Plan, mergeTreeChoiceImages, getChoiceIdsHasChoiceImages, FeatureSwitchService, TreeService, IOrg } from 'phd-common';
-import { LoadError } from '../actions';
-import { PlansLoaded, SelectPlan, SetWebPlanMapping } from '../plan/actions';
 import { AdobeService } from '../../core/services/adobe.service';
 
 @Injectable()
@@ -196,6 +201,55 @@ export class ScenarioEffects
 	{ dispatch: false }
 	);
 
+	calculatePriceRanges$: Observable<Action> = createEffect(() =>
+	{
+		return this.actions$.pipe(
+			ofType<TreeLoaded | SalesAgreementLoaded>(ScenarioActionTypes.TreeLoaded, CommonActionTypes.SalesAgreementLoaded),
+			withLatestFrom(this.store.pipe(select(state => state.scenario))),
+			tryCatch(source => source.pipe(
+				switchMap(([action, state]) =>
+				{
+					if (state.tree)
+					{
+						if (typeof Worker !== 'undefined')
+						{
+							const appInsights = this.injector.get(ApplicationInsights);
+
+							appInsights.startTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.tree.treeVersion.id}`);
+
+							return new Observable(observer =>
+							{
+								const worker = new Worker(new URL('../../../app.worker', import.meta.url), { type: 'module' });
+
+								worker.onmessage = ({ data }) =>
+								{
+									observer.next(data);
+									observer.complete();
+
+									appInsights.stopTrackEvent(`Calculate Price Ranges - TreeVersionID: ${state.tree.treeVersion.id}`);
+								};
+
+								worker.postMessage({
+									function: 'getChoicePriceRanges',
+									args: [state]
+								});
+							});
+						}
+						else
+						{
+							return never();
+						}
+					}
+					else
+					{
+						return of(null);
+					}
+				}),
+				map(priceRanges => new SetChoicePriceRanges(priceRanges))
+			), LoadError, 'Error calculating price ranges!', ErrorFrom.CalculatePriceRanges)
+		);
+	});
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
@@ -204,5 +258,6 @@ export class ScenarioEffects
 		private optionService: OptionService,
 		private planService: PlanService,
 		private orgService: OrganizationService,
-		private featureSwitchService: FeatureSwitchService) { }
+		private featureSwitchService: FeatureSwitchService,
+		private injector: Injector) { }
 }

@@ -6,14 +6,13 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 
 import { Settings } from '../../shared/models/settings.model';
 
-import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { StorageService } from '../../core/services/storage.service';
 import { IPictureParkAsset } from '../../shared/models/image.model';
 
+import { IdentityService, LoggingService, UserProfile } from 'phd-common';
 import { newGuid } from '../../shared/classes/guid.class';
 
-import { IdentityService, UserProfile } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 

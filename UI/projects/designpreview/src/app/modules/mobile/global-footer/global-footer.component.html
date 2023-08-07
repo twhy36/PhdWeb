@@ -1,0 +1,119 @@
+<div class="phd-global-footer pb-4">
+	<div class="menu-container py-4">
+		<mat-accordion multi>
+			<mat-expansion-panel hideToggle #optionsPanel class='mb-0'>
+				<mat-expansion-panel-header
+					class="menu-item-header d-flex px-4">
+					<mat-panel-title>VIEW OPTIONS</mat-panel-title>
+					<button
+						mat-icon-button
+						class="pl-4 pr-0"
+						data-testid="viewOptions-button">
+						<mat-icon *ngIf="!optionsPanel.expanded">add</mat-icon>
+						<mat-icon *ngIf="optionsPanel.expanded">remove</mat-icon>
+					</button>
+				</mat-expansion-panel-header>
+				<ul class="submenu-link p-0">
+					<li
+						*ngFor="let group of this.groups"
+						class="py-2"
+						[attr.data-testid]="group.label + '-link'">
+						<a (click)="goToGroup(group)">
+							{{ group.label }}
+						</a>
+					</li>
+				</ul>
+			</mat-expansion-panel>
+			<hr class="mx-4 my-1" />
+			<li
+				class="menu-item-header d-flex px-4 py-3"
+				data-testid="myFavorites-link">
+				<a
+					[routerLink]="['/favorites/summary']"
+					queryParamsHandling="merge"
+					>MY FAVORITES</a>
+			</li>
+			<hr class="mx-4 my-1" />
+			<mat-expansion-panel hideToggle #resourcePanel class='mt-0'>
+				<mat-expansion-panel-header
+					class="menu-item-header d-flex px-4">
+					<mat-panel-title>RESOURCES</mat-panel-title>
+					<button
+						mat-icon-button
+						class="pl-4 pr-0"
+						data-testid="resources-button">
+						<mat-icon *ngIf="!resourcePanel.expanded">add</mat-icon>
+						<mat-icon *ngIf="resourcePanel.expanded">remove</mat-icon>
+					</button>
+				</mat-expansion-panel-header>
+
+				<ul class="submenu-link p-0">
+					<li *ngIf="showFloorplanLink" class="py-2">
+						<a
+							[routerLink]="['/floorplan']"
+							data-testid="floorplan-link"
+							queryParamsHandling="merge"
+							>Floorplan</a>
+					</li>
+					<li *ngIf="showIncludedOptionsLink" class="py-2">
+						<a
+							[routerLink]="['/included']"
+							data-testid="includedOptions-link"
+							queryParamsHandling="merge"
+							>Included Options</a>
+					</li>
+					<li *ngIf="showContractedOptionsLink" class="py-2">
+						<a
+							[routerLink]="['/contracted']"
+							data-testid="contractedOptions-link"
+							queryParamsHandling="merge"
+							>Pending & Contracted Options</a>
+					</li>
+				</ul>
+			</mat-expansion-panel>
+		</mat-accordion>
+	</div>
+	<div class="logo-container d-flex justify-content-center">
+		<img
+			class="brand-logo"
+			[src]="getImageSrc()"
+			alt=""
+		/>
+	</div>
+	<hr class="mx-4 my-0" />
+	<div class="mt-5">
+		<li class="footer-item-copyright d-flex justify-content-center m-4">
+			<a>
+				COPYRIGHT © 2021-{{ currentYear }} PULTEGROUP, INC
+			</a>
+		</li>
+		<li class="footer-item d-flex justify-content-center m-4">
+			<a href="{{ termsUrl }}" target="_blank">
+				TERMS OF USE
+			</a>
+		</li>
+		<li class="footer-item d-flex justify-content-center m-4">
+			<a href="{{ policyUrl }}" target="_blank">
+				PRIVACY POLICY
+			</a>
+		</li>
+		<li class="footer-item d-flex justify-content-center m-4">
+			<a data-testid="disclaimer-link" (click)="disclaimerClicked()">
+				DISCLAIMER
+			</a>
+		</li>
+		<div class="footer-item d-flex justify-content-center m-4">
+			<img src="{{ accessibilityImgSrc }}" alt="" class="pr-2" />
+			<img src="{{ equalHousingImgSrc }}" alt="" class="pl-2" />
+		</div>
+
+		<div class="footer-item d-flex justify-content-center m-2">
+			<a href="https://allyant.com" target="_blank">
+				<img
+					src="assets/Logo_Allyant_small.png"
+					alt="Reviewed by Allyant for accessibility"
+				/>
+			</a>
+		</div>
+	</div>
+</div>

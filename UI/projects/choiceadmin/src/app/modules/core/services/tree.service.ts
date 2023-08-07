@@ -10,7 +10,6 @@ import * as odataUtils from '../../shared/classes/odata-utils.class';
 import { DTree, DTVersion, DTGroup, DTSubGroup, DTPoint, DTChoice, DTreeVersionDropDown, AttributeReassignment, PointChoiceDependent, ITreeSortList } from '../../shared/models/tree.model';
 import { Settings } from '../../shared/models/settings.model';
 
-import { LoggingService } from '../../core/services/logging.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { PlanOptionService } from './plan-option.service';
 
@@ -19,7 +18,7 @@ import { TreeOption, ITreeOption } from '../../shared/models/option.model';
 import { IDivCatalogPointDto } from '../../shared/models/point.model';
 import { IDivCatalogChoiceDto } from '../../shared/models/choice.model';
 
-import { BatchResponse, withSpinner } from 'phd-common';
+import { BatchResponse, LoggingService, withSpinner } from 'phd-common';
 import { RuleType } from '../../shared/models/rule.model';
 import { DivCatWizPlan, DivCatWizChoice } from '../../divisional/services/div-catalog-wizard.service';
 import { IPlanOptionResult, IPlanOptionCommunityResult } from '../../shared/models/plan.model';
@@ -384,7 +383,7 @@ export class TreeService
 	{
 		const optionGroups = _.groupBy(planOptionCommunity, 'financialCommunityId');
 		const financialCommunityIds = Object.keys(optionGroups);
-		
+
 		const buildRequestUrl = (financialCommunityId: number) =>
 		{
 			const financialPlanIntegrationKey = optionGroups[financialCommunityId].map(p => `'${p.financialPlanIntegrationKey}'`).join(',');
@@ -415,7 +414,7 @@ export class TreeService
 
 			return resultArray;
 		}, []);
-		
+
 		return from(splitArrayresult).pipe(
 			mergeMap(item =>
 			{

@@ -16,6 +16,7 @@
 @use './themes/components/welcome-modal-theme' as welcome-modal;
 
 // Mobile component themes
+@use './themes/components/estimated-totals-theme' as estimated-totals;
 @use './themes/components/global-header-theme' as global-header;
 
 @import "@angular/material/theming";
@@ -37,6 +38,7 @@
 
 	@include mat.menu-theme($theme);
 	@include mat.button-theme($theme);
+	@include mat.dialog-theme($theme);
 	@include mat.typography-hierarchy($typography-config);
 
 	@include action-bar.theme($theme);
@@ -52,6 +54,7 @@
 	@include welcome-modal.theme($theme);
 
 	// Mobile component themes
+	@include estimated-totals.theme($theme);
 	@include global-header.theme($theme);
 
 	font-family: mat.font-family($typography-config);
@@ -127,8 +130,8 @@
 		}
 	}
 
-	.phd-icon-selected {
-		color: mat.get-color-from-palette($accent-palette, 'A700');
+	.phd-expand-text {
+		color: mat.get-color-from-palette($accent-palette, 500);
 	}
 
 	.phd-group-completed {
@@ -138,6 +141,10 @@
 
 	.phd-group-uncompleted {
 		padding-left: 19px;
+	}
+
+	.phd-icon-accent {
+		color: mat.get-color-from-palette($accent-palette, 500);
 	}
 
 	.phd-sub-menu-selected {
@@ -153,6 +160,16 @@
 			&.btn-auto-approval {
 				@include toggle.theme($theme, $font-size: .55rem, $margin: .5rem, $content-after: 'On', $content-before: 'Off')
 			}
+		}
+	}
+
+	// Global Style for Dialog (Modal)
+	.phd-dialog-header {
+		background-color: mat.get-color-from-palette($primary-palette, 500);
+		color: mat.get-color-from-palette($primary-palette, '500-contrast') !important;
+
+		.phd-dialog-header-text {
+			color: mat.get-color-from-palette($primary-palette, '500-contrast') !important;
 		}
 	}
 }
@@ -263,12 +280,27 @@ a:focus {
 	transition: all 0.5s;
 }
 
-// ngb-modal has an inline style bug. see more here: https://github.com/ng-bootstrap/ng-bootstrap/issues/2686
-ngb-modal-backdrop {
-	z-index: 1050 !important;
+ul {
+	list-style-type: none;
 }
 
-::ng-deep .modal-backdrop {
+// Angular Material Style Overrides
+// We use custom icons so this gets rid of the margin on the default icon
+.mat-content.mat-content-hide-toggle {
+	margin-right: 0px !important;
+}
+
+// Sets our disabled backdrop color
+.mat-drawer-backdrop {
+	background-color: #9D9A9AA7;
+}
+
+.mat-expansion-panel-body {
+	padding-bottom: 6px !important;
+}
+
+// ngb-modal has an inline style bug. see more here: https://github.com/ng-bootstrap/ng-bootstrap/issues/2686
+ngb-modal-backdrop {
 	z-index: 1050 !important;
 }
 
@@ -355,6 +387,25 @@ ngb-modal-backdrop {
 		}
 	}
 }
+
+@media screen and (max-width: 480px) {
+	.phd-image-carousel {
+		.phd-choice-image {
+			.phd-choice-image-selected {
+				border: solid 2px ;
+			}
+		}
+	}
+
+	.phd-image-content {
+		img {
+			max-width: 100%;
+			height: 30vh;
+			object-fit: contain;
+		}
+	}
+}
+
 
 .phd-visually-hidden {
 	position: absolute;

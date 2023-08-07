@@ -106,6 +106,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 	treeVersionRules: TreeVersionRules;
 	elevationDP: DecisionPoint;
 	colorSchemeDP: DecisionPoint;
+	isChangeOrderComplete: boolean = false;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -170,6 +171,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.changeType = changeOrder.changeInput ? changeOrder.changeInput.type : null;
 			this.changeOrderId = changeOrder.currentChangeOrder ? changeOrder.currentChangeOrder.id : 0;
 			this.errorInSavingChangeOrder = changeOrder.saveError;
+			this.isChangeOrderComplete = changeOrder.isChangeOrderComplete;
 		});
 
 		combineLatest([
@@ -646,7 +648,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 			return 'INCOMPLETE';
 		}
 		else
-		{
+		{			
 			return this.actionBarStatus;
 		}
 	}
@@ -690,5 +692,16 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		}
 
 		return isValidElevationAndColorOptions;
+	}
+
+	isActionComplete()
+	{
+		const isComplete = this.getActionBarStatus() === 'COMPLETE' || this.getActionBarStatus() === 'INCOMPLETE' && this.isChangePartiallyComplete();
+
+		if (this.inChangeOrder && this.isChangeOrderComplete !== isComplete)
+		{
+			this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderComplete(isComplete));
+		}
+		return isComplete;
 	}
 }

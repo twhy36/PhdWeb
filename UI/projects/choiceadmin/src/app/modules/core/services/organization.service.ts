@@ -8,11 +8,10 @@ import { IFinancialCommunity } from '../../shared/models/financial-community.mod
 import { IFinancialMarket } from '../../shared/models/financial-market.model';
 import { Settings } from '../../shared/models/settings.model';
 
-import { LoggingService } from './logging.service';
 import { SettingsService } from './settings.service';
 import { StorageService } from './storage.service';
 import { PhdEntityDto } from '../../shared/models/api-dtos.model';
-import { withSpinner } from 'phd-common';
+import { LoggingService, withSpinner } from 'phd-common';
 import * as _ from 'lodash';
 
 import * as odataUtils from '../../shared/classes/odata-utils.class';
@@ -178,7 +177,7 @@ export class OrganizationService
 	{
 		let url = settings.apiUrl;
 
-		const filter = `id in (${ ids.map(r => r).join(',') })`;
+		const filter = `id in (${ids.map(r => r).join(',')})`;
 		const select = `id, number, name`;
 		const orderby = `name`;
 

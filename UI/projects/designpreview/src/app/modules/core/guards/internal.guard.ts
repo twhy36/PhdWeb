@@ -1,18 +1,29 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
-import { map } from 'rxjs/operators';
+import { ActivatedRouteSnapshot } from '@angular/router';
+import { Store, select } from '@ngrx/store';
 
+import { of } from 'rxjs';
+import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { IdentityService } from 'phd-common';
+
+import * as fromRoot from '../../ngrx-store/reducers';
+import * as CommonActions from '../../ngrx-store/actions';
+import * as ScenarioActions from '../../ngrx-store/scenario/actions';
+
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../../../environments/environment';
 import { clearPresaleSessions } from '../../shared/classes/utils.class';
+import { BuildMode } from '../../shared/models/build-mode.model';
 
 @Injectable()
-export class InternalGuard implements CanActivate
+export class InternalGuard
 {
-	constructor(private identityService: IdentityService, private authService: AuthService) { }
+	constructor(
+		private identityService: IdentityService,
+		private authService: AuthService,
+		private store: Store<fromRoot.State>,) { }
 
-	canActivate(route: ActivatedRouteSnapshot)
+	canActivate(route: ActivatedRouteSnapshot,)
 	{
 		// clear presale sessions when switching from presale to others mode internal access
 		if (sessionStorage.getItem('authProvider')?.includes('presale') && !route.url.toString().includes('plan'))
@@ -27,16 +38,35 @@ export class InternalGuard implements CanActivate
 		}
 
 		return this.identityService.isLoggedIn.pipe(
-			map(loggedIn =>
+			withLatestFrom(
+				this.store.pipe(select(state => state.salesAgreement)),
+				this.store.pipe(select(state => state.scenario)),
+			),
+			switchMap(([loggedIn, salesAgreement, scenario]) =>
 			{
 				if (!loggedIn)
 				{
 					this.identityService.login({ provider: 'azureAD' });
-					return false; // redirect to access denied if error?
+					return of(false);
 				}
 
-				return true;
-			})
+				const salesAgreementId = +route.params.salesAgreementId;
+				const treeVersionId = +route.params.treeVersionId;
+
+				if (treeVersionId
+					&& (!scenario.tree 
+						|| scenario.tree.treeVersion.id !== treeVersionId
+						|| scenario.buildMode != BuildMode.Preview))
+				{
+					this.store.dispatch(new ScenarioActions.LoadPreview(treeVersionId));
+				}
+				else if (salesAgreementId > 0 && salesAgreement.id !== salesAgreementId)
+				{
+					this.store.dispatch(new CommonActions.LoadSalesAgreement(route.params.salesAgreementId))
+				}
+
+				return of(true);
+			}),
 		);
 	}
 }

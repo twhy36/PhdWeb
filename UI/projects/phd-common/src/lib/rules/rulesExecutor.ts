@@ -731,6 +731,10 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 					// If a replacing option is locked in to a choice, disregard this replace rule
 					// since the rule may have been added to the tree after the agreement
 					&& optRule.choices.some(c => !find(c.id)?.lockedInOptions?.map(lio => lio.optionId).includes(optRule.optionId))
+					// A TimeOfSale record implies that this option was replaced previously.
+					// In the event that a new rule was created in between tree versions, 
+					// verify that this option was replaced
+					&& timeOfSaleOptionPrices?.some(tos => tos.divChoiceCatalogID === choice.divChoiceCatalogId && choice.lockedInOptions[i].optionId === options.find(o => o.id === tos.edhPlanOptionID)?.financialOptionIntegrationKey)
 				);
 
 				// If the entire option rule is satisfied (Must Have's are all selected, Must Not Have's are all deselected), then remove the lockedInOption

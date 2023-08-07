@@ -6,24 +6,24 @@ import { Observable, throwError as _throw } from 'rxjs';;
 import { map, catchError } from 'rxjs/operators';
 
 import { SettingsService } from './settings.service';
-import { LoggingService } from './logging.service';
 
 import { Settings } from '../../shared/models/settings.model';
+import { LoggingService } from 'phd-common';
 
 const settings: Settings = new SettingsService().getSettings();
 
 @Injectable()
 export class CatalogService
 {
-    private _ds: string = encodeURIComponent("$");
+	private _ds: string = encodeURIComponent("$");
 
-    private _canEdit: boolean
-    public get canEdit(): boolean
-    {
-        return this._canEdit;
-    }
+	private _canEdit: boolean
+	public get canEdit(): boolean
+	{
+		return this._canEdit;
+	}
 
-    constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
+	constructor(private _http: HttpClient, private _loggingService: LoggingService) { }
 
 	/**
 	 * Checks to see if the entered label already exists.
@@ -31,8 +31,8 @@ export class CatalogService
 	 * @param column
 	 * @param label
 	 */
-    getLabelExistCount(route: string, column: string, label: string, additionalFilter?: string): Observable<boolean>
-    {
+	getLabelExistCount(route: string, column: string, label: string, additionalFilter?: string): Observable<boolean>
+	{
 		let url = settings.apiUrl;
 		label = label.replace(/'/g, "''");
 
@@ -51,7 +51,7 @@ export class CatalogService
 				return count > 0;
 			}),
 			catchError(this.handleError));
-    }
+	}
 
 	/**
 	 * Checks to see if the Catalog Item is in use or not.
@@ -60,8 +60,8 @@ export class CatalogService
 	 * @param selectCol
 	 * @param id
 	 */
-    getCatItemCount(route: string, filterCol: string, selectCol: string, id: number): Observable<boolean>
-    {
+	getCatItemCount(route: string, filterCol: string, selectCol: string, id: number): Observable<boolean>
+	{
 		let url = settings.apiUrl;
 
 		const filter = `${filterCol} eq ${id}`;
@@ -73,19 +73,19 @@ export class CatalogService
 
 		return this._http.get(url).pipe(
 			map(response =>
-				{
-					let count = response['@odata.count'] as number;
+			{
+				let count = response['@odata.count'] as number;
 
-					return count > 0;
-				}),
+				return count > 0;
+			}),
 			catchError(this.handleError));
-    }
+	}
 
-    private handleError(error: Response)
-    {
-        // In the future, we may send the server to some remote logging infrastructure
-        console.error(error);
+	private handleError(error: Response)
+	{
+		// In the future, we may send the server to some remote logging infrastructure
+		console.error(error);
 
-        return _throw(error || 'Server error');
-    }
+		return _throw(error || 'Server error');
+	}
 }

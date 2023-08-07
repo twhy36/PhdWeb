@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+import { getBrandImageSrc, getBannerImageSrc } from 'phd-common';
+
 import { environment } from '../../../../environments/environment';
 import * as pulte from '../../../../brands/pulte.json';
 import * as delwebb from '../../../../brands/delwebb.json';
@@ -8,7 +10,7 @@ import * as divosta from '../../../../brands/divosta.json';
 import * as centex from '../../../../brands/centex.json';
 import * as johnWieland from '../../../../brands/john-wieland.json';
 
-import { getBrandImageSrc, getBannerImageSrc } from 'phd-common';
+import { Constants } from '../../shared/classes/constants.class';
 
 @Injectable()
 export class BrandService
@@ -109,7 +111,7 @@ export class BrandService
 		}
 	}
 
-	//read host only with https from config logoutUrl
+	// read host only with https from config logoutUrl
 	getBrandHomeUrl()
 	{
 		let url = this.getBrandName(BrandDisplayMode.LogoutUrl);
@@ -127,6 +129,54 @@ export class BrandService
 		}
 
 		return url;
+	}
+
+	getBrandPrivacyPolicyUrl()
+	{
+		let privacyPolicyUrl = this.getBrandHomeUrl();
+
+		switch (window.location.host)
+		{
+			case environment.brandMap.americanWest:
+
+				// Privacy Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
+				privacyPolicyUrl += (environment.production ? '/legal' : Constants.URL_SITECORE_PARTIAL) + '/privacy-policy/';
+				break;
+
+			case environment.brandMap.johnWieland:
+				// Privacy Policy links: use /sitecore URLs in lower enviornments
+				privacyPolicyUrl += (environment.production ? '' : Constants.URL_SITECORE_PARTIAL) + '/privacy-policy/';
+				break;
+
+			default:
+				privacyPolicyUrl += '/privacy-policy/';
+				break;
+		}
+		return privacyPolicyUrl;
+	}
+
+	getBrandTermsOfUseUrl()
+	{
+		let termsOfUseUrl = this.getBrandHomeUrl();
+
+		switch (window.location.host)
+		{
+			case environment.brandMap.americanWest:
+
+				// Privacy Policy links: use /sitecore URLs in lower enviornments, and /legal URL for production
+				termsOfUseUrl += (environment.production ? '/legal' : Constants.URL_SITECORE_PARTIAL) + '/terms-of-use/';
+				break;
+
+			case environment.brandMap.johnWieland:
+				// Privacy Policy links: use /sitecore URLs in lower enviornments
+				termsOfUseUrl += (environment.production ? '' : Constants.URL_SITECORE_PARTIAL) + '/terms-of-use/';
+				break;
+
+			default:
+				termsOfUseUrl += '/terms-of-use/';
+				break;
+		}
+		return termsOfUseUrl;
 	}
 }
 

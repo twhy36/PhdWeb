@@ -397,6 +397,14 @@ export const includedTree = createSelector(
 	}
 );
 
+export const includedDecisionPoints = createSelector(
+	includedTree,
+	(tree) =>
+	{
+		return tree?.groups.flatMap(g => g.subGroups).flatMap(sg => sg.points);
+	}
+);
+
 export const selectedPlanPrice = createSelector(
 	fromPlan.selectedPlanData,
 	fromSalesAgreement.salesAgreementState,

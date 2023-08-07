@@ -1,15 +1,22 @@
-import { DecisionPoint } from 'phd-common';
+import {
+	DecisionPoint,
+	Group,
+	MyFavorite,
+	PlanOption,
+	PointStatus,
+	PriceBreakdown,
+	TreeVersion,
+} from 'phd-common';
 import { ChoiceExt } from '../models/choice-ext.model';
 
-export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
-{
+export const choiceToChoiceMustHaveRuleChoice: ChoiceExt = {
 	mappedAttributeGroups: [
 		{
-			id: 17941
+			id: 17941,
 		},
 		{
-			id: 17942
-		}
+			id: 17942,
+		},
 	],
 	mappedLocationGroups: [],
 	myFavoritesChoice: null,
@@ -23,20 +30,18 @@ export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
 			choiceId: 3494441,
 			rules: [
 				{
-					choices: [
-						3494443
-					],
+					choices: [3494443],
 					ruleId: 791986,
-					ruleType: 1
-				}
+					ruleType: 1,
+				},
 			],
 			executed: true,
-		}
+		},
 	],
 	enabled: false,
 	maxQuantity: 1,
 	options: [
-	  {
+		{
 			id: 3620530,
 			name: 'Cabinet Hardware - Level 1 - Whole House - G',
 			isActive: true,
@@ -44,23 +49,22 @@ export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
 			maxOrderQuantity: 1,
 			isBaseHouse: false,
 			isBaseHouseElevation: false,
-			attributeGroups: [
-		  17941,
-		  17942
-			],
+			attributeGroups: [17941, 17942],
 			locationGroups: [],
 			financialOptionIntegrationKey: '73298',
-			description: 'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
+			description:
+				'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
 			optionImages: [
-		  {
-					imageURL: 'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/15',
-					sortKey: 1
-		  }
+				{
+					imageURL:
+						'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/15',
+					sortKey: 1,
+				},
 			],
 			planId: 12068,
 			communityId: 0,
-			calculatedPrice: 900
-	  }
+			calculatedPrice: 900,
+		},
 	],
 	price: 900,
 	quantity: 0,
@@ -92,11 +96,10 @@ export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
 	choiceMaxQuantity: null,
 	description: null,
 	choiceStatus: 'Available',
-	isPointStructural: false
-}
+	isPointStructural: false,
+};
 
-export const choiceToChoiceMustNotHaveRuleChoice: ChoiceExt =
-{
+export const choiceToChoiceMustNotHaveRuleChoice: ChoiceExt = {
 	mappedAttributeGroups: [],
 	mappedLocationGroups: [],
 	myFavoritesChoice: null,
@@ -110,15 +113,13 @@ export const choiceToChoiceMustNotHaveRuleChoice: ChoiceExt =
 			choiceId: 3494375,
 			rules: [
 				{
-					choices: [
-						3494378
-					],
+					choices: [3494378],
 					ruleId: 791985,
-					ruleType: 2
-				}
+					ruleType: 2,
+				},
 			],
 			executed: true,
-		}
+		},
 	],
 	enabled: false,
 	maxQuantity: 1,
@@ -138,9 +139,10 @@ export const choiceToChoiceMustNotHaveRuleChoice: ChoiceExt =
 	choiceImages: [
 		{
 			dpChoiceId: 3494375,
-			imageUrl: 'https://pultegroup.picturepark.com/Go/yE81noae/V/359373/15',
-			sortKey: 0
-		}
+			imageUrl:
+				'https://pultegroup.picturepark.com/Go/yE81noae/V/359373/15',
+			sortKey: 0,
+		},
 	],
 	hasChoiceRules: true,
 	hasOptionRules: false,
@@ -160,10 +162,9 @@ export const choiceToChoiceMustNotHaveRuleChoice: ChoiceExt =
 	description: null,
 	choiceStatus: 'Available',
 	isPointStructural: true,
-}
+};
 
-export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
-{
+export const choiceToChoiceMustHaveRulePoint: DecisionPoint = {
 	enabled: true,
 	disabledBy: [],
 	price: 0,
@@ -192,11 +193,11 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 		{
 			mappedAttributeGroups: [
 				{
-					id: 17941
+					id: 17941,
 				},
 				{
-					id: 17942
-				}
+					id: 17942,
+				},
 			],
 			mappedLocationGroups: [],
 			overrideNote: null,
@@ -207,17 +208,15 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 					choiceId: 3494441,
 					rules: [
 						{
-							choices: [
-								3494443
-							],
+							choices: [3494443],
 							ruleId: 791986,
-							ruleType: 1
-						}
+							ruleType: 1,
+						},
 					],
 					executed: true,
-				}
+				},
 			],
-			enabled: false,
+			enabled: true,
 			maxQuantity: 1,
 			options: [
 				{
@@ -228,23 +227,27 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 					maxOrderQuantity: 1,
 					isBaseHouse: false,
 					isBaseHouseElevation: false,
-					attributeGroups: [
-						17941,
-						17942
-					],
+					attributeGroups: [17941, 17942],
 					locationGroups: [],
 					financialOptionIntegrationKey: '73298',
-					description: 'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
+					description:
+						'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/15',
-							sortKey: 1
-						}
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/15',
+							sortKey: 1,
+						},
+						{
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/16',
+							sortKey: 2,
+						},
 					],
 					planId: 12068,
 					communityId: 0,
-					calculatedPrice: 900
-				}
+					calculatedPrice: 900,
+				},
 			],
 			price: 900,
 			quantity: 0,
@@ -274,16 +277,16 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 			hasImage: false,
 			treeVersionId: 13021,
 			choiceMaxQuantity: null,
-			description: null
+			description: null,
 		},
 		{
 			mappedAttributeGroups: [
 				{
-					id: 17939
+					id: 17939,
 				},
 				{
-					id: 17940
-				}
+					id: 17940,
+				},
 			],
 			mappedLocationGroups: [],
 			overrideNote: null,
@@ -301,23 +304,22 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 					maxOrderQuantity: 1,
 					isBaseHouse: false,
 					isBaseHouseElevation: false,
-					attributeGroups: [
-						17939,
-						17940
-					],
+					attributeGroups: [17939, 17940],
 					locationGroups: [],
 					financialOptionIntegrationKey: '73299',
-					description: 'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
+					description:
+						'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/GxXLPPyI/V/369547/15',
-							sortKey: 1
-						}
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/GxXLPPyI/V/369547/15',
+							sortKey: 1,
+						},
 					],
 					planId: 12068,
 					communityId: 0,
-					calculatedPrice: 1375
-				}
+					calculatedPrice: 1375,
+				},
 			],
 			price: 1375,
 			quantity: 0,
@@ -347,7 +349,7 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 			hasImage: false,
 			treeVersionId: 13021,
 			choiceMaxQuantity: null,
-			description: null
+			description: null,
 		},
 		{
 			mappedAttributeGroups: [],
@@ -370,17 +372,19 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 					attributeGroups: [],
 					locationGroups: [],
 					financialOptionIntegrationKey: '73220',
-					description: 'Installed on all upper cabinets throughout house per plan. Style varies per selected cabinet door style.',
+					description:
+						'Installed on all upper cabinets throughout house per plan. Style varies per selected cabinet door style.',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/Nnc1SroS/V/361221/15',
-							sortKey: 1
-						}
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/Nnc1SroS/V/361221/15',
+							sortKey: 1,
+						},
 					],
 					planId: 12068,
 					communityId: 0,
-					calculatedPrice: 325
-				}
+					calculatedPrice: 325,
+				},
 			],
 			price: 325,
 			quantity: 0,
@@ -410,7 +414,7 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 			hasImage: false,
 			treeVersionId: 13021,
 			choiceMaxQuantity: null,
-			description: null
+			description: null,
 		},
 		{
 			mappedAttributeGroups: [],
@@ -433,17 +437,19 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 					attributeGroups: [],
 					locationGroups: [],
 					financialOptionIntegrationKey: '73221',
-					description: 'Installed on all upper cabinets throughout house per plan. Style varies per selected cabinet door style.',
+					description:
+						'Installed on all upper cabinets throughout house per plan. Style varies per selected cabinet door style.',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/YjIo2sQt/V/357486/15',
-							sortKey: 1
-						}
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/YjIo2sQt/V/357486/15',
+							sortKey: 1,
+						},
 					],
 					planId: 12068,
 					communityId: 0,
-					calculatedPrice: 650
-				}
+					calculatedPrice: 650,
+				},
 			],
 			price: 650,
 			quantity: 0,
@@ -473,7 +479,7 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 			hasImage: false,
 			treeVersionId: 13021,
 			choiceMaxQuantity: null,
-			description: null
+			description: null,
 		},
 		{
 			mappedAttributeGroups: [],
@@ -496,17 +502,19 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 					attributeGroups: [],
 					locationGroups: [],
 					financialOptionIntegrationKey: '73222',
-					description: 'Installed on all upper cabinets throughout house per plan. Style varies per selected cabinet door style.',
+					description:
+						'Installed on all upper cabinets throughout house per plan. Style varies per selected cabinet door style.',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/q26QPhqm/V/355995/15',
-							sortKey: 1
-						}
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/q26QPhqm/V/355995/15',
+							sortKey: 1,
+						},
 					],
 					planId: 12068,
 					communityId: 0,
-					calculatedPrice: 1025
-				}
+					calculatedPrice: 1025,
+				},
 			],
 			price: 1025,
 			quantity: 0,
@@ -536,14 +544,13 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint =
 			hasImage: false,
 			treeVersionId: 13021,
 			choiceMaxQuantity: null,
-			description: null
-		}
+			description: null,
+		},
 	],
 	viewed: false,
-}
+};
 
-export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint =
-{
+export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint = {
 	enabled: true,
 	disabledBy: [],
 	price: 0,
@@ -579,15 +586,13 @@ export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint =
 					choiceId: 3494375,
 					rules: [
 						{
-							choices: [
-								3494378
-							],
+							choices: [3494378],
 							ruleId: 791985,
-							ruleType: 2
-						}
+							ruleType: 2,
+						},
 					],
-					executed: true
-				}
+					executed: true,
+				},
 			],
 			enabled: false,
 			maxQuantity: 1,
@@ -607,9 +612,10 @@ export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint =
 			choiceImages: [
 				{
 					dpChoiceId: 3494375,
-					imageUrl: 'https://pultegroup.picturepark.com/Go/yE81noae/V/359373/15',
-					sortKey: 0
-				}
+					imageUrl:
+						'https://pultegroup.picturepark.com/Go/yE81noae/V/359373/15',
+					sortKey: 0,
+				},
 			],
 			hasChoiceRules: true,
 			hasOptionRules: false,
@@ -627,7 +633,7 @@ export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint =
 			treeVersionId: 13021,
 			choiceMaxQuantity: null,
 			description: null,
-			overrideNote: null
+			overrideNote: null,
 		},
 		{
 			mappedAttributeGroups: [],
@@ -646,22 +652,22 @@ export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint =
 					maxOrderQuantity: 1,
 					isBaseHouse: false,
 					isBaseHouseElevation: false,
-					attributeGroups: [
-						22098
-					],
+					attributeGroups: [22098],
 					locationGroups: [],
 					financialOptionIntegrationKey: '70292',
-					description: 'Reconfigures kitchen island with a lowered countertop seating area and waterfall edge per plan. Cabinet style/finish and Countertop material(s) can differ from main kitchen areas.  (Opt. 75175-75176 for cabinets and Opt. 75299-75302 for countertop, Opt. 75393-75396 for seating area countertop)',
+					description:
+						'Reconfigures kitchen island with a lowered countertop seating area and waterfall edge per plan. Cabinet style/finish and Countertop material(s) can differ from main kitchen areas.  (Opt. 75175-75176 for cabinets and Opt. 75299-75302 for countertop, Opt. 75393-75396 for seating area countertop)',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/dwhII4iY/V/359343/15',
-							sortKey: 1
-						}
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/dwhII4iY/V/359343/15',
+							sortKey: 1,
+						},
 					],
 					planId: 12068,
 					communityId: 0,
-					calculatedPrice: 8850
-				}
+					calculatedPrice: 8850,
+				},
 			],
 			price: 8850,
 			quantity: 0,
@@ -693,13 +699,12 @@ export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint =
 			choiceMaxQuantity: null,
 			description: null,
 			overrideNote: null,
-		}
+		},
 	],
 	viewed: false,
-}
+};
 
-export const dpToDpRulesPoint: DecisionPoint =
-{
+export const dpToDpRulesPoint: DecisionPoint = {
 	choices: [
 		{
 			attributeGroups: [],
@@ -736,7 +741,8 @@ export const dpToDpRulesPoint: DecisionPoint =
 					attributeGroups: [],
 					calculatedPrice: 250,
 					communityId: 0,
-					description: 'Sonos - Component will not be installed or fully operational at closing. After closing and activation of internet service with a provider of buyers\' choosing, the component(s) will be installed and configured by a third-party service company. See structured wiring agent for additional information.',
+					description:
+						'Sonos - Component will not be installed or fully operational at closing. After closing and activation of internet service with a provider of buyers\' choosing, the component(s) will be installed and configured by a third-party service company. See structured wiring agent for additional information.',
 					financialOptionIntegrationKey: '75635',
 					id: 3620670,
 					isActive: true,
@@ -748,7 +754,8 @@ export const dpToDpRulesPoint: DecisionPoint =
 					name: 'Wi-Fi Speaker - Single',
 					optionImages: [
 						{
-							imageURL: 'https://pultegroup.picturepark.com/Go/3OYaHRGh/V/355983/15',
+							imageURL:
+								'https://pultegroup.picturepark.com/Go/3OYaHRGh/V/355983/15',
 							sortKey: 1,
 						},
 					],
@@ -762,8 +769,8 @@ export const dpToDpRulesPoint: DecisionPoint =
 			selectedAttributes: [],
 			sortOrder: 1,
 			treePointId: 888260,
-			treeVersionId: 13021
-		}
+			treeVersionId: 13021,
+		},
 	],
 	completed: false,
 	cutOffDays: null,
@@ -779,9 +786,9 @@ export const dpToDpRulesPoint: DecisionPoint =
 					points: [888261],
 					ruleId: 233821,
 					ruleType: 1,
-				}
-			]
-		}
+				},
+			],
+		},
 	],
 	divPointCatalogId: 2822,
 	edhConstructionStageId: 4,
@@ -803,5 +810,99 @@ export const dpToDpRulesPoint: DecisionPoint =
 	subGroupId: 206635,
 	treeVersionId: 13021,
 	viewed: false,
-}
+};
 
+export const mockGroup1: Group = {
+	id: 1,
+	groupCatalogId: 1,
+	label: 'Exterior',
+	treeVersionId: 1,
+	sortOrder: 0,
+	subGroups: [
+		{
+			id: 3,
+			groupId: 3,
+			label: 'Curb Appeal',
+			subGroupCatalogId: 3,
+			sortOrder: 0,
+			useInteractiveFloorplan: true,
+			treeVersionId: 111,
+			points: [choiceToChoiceMustHaveRulePoint],
+			status: 1,
+		},
+	],
+	status: PointStatus.REQUIRED,
+};
+
+export const mockGroup2: Group = {
+	id: 2,
+	groupCatalogId: 2,
+	label: 'Rooms',
+	treeVersionId: 2,
+	sortOrder: 0,
+	subGroups: [],
+	status: PointStatus.REQUIRED,
+};
+
+export const testTreeVersion: TreeVersion = {
+	groups: [mockGroup1, mockGroup2],
+	id: 0,
+	treeId: 0,
+	planKey: '',
+	name: '',
+	communityId: 0,
+	description: '',
+	publishStartDate: undefined,
+	publishEndDate: undefined,
+	lastModifiedDate: undefined,
+	includedOptions: [],
+};
+
+export const testMyFavorite: MyFavorite = {
+	id: 1,
+	name: 'Smith Favorites',
+	salesAgreementId: 123,
+	myFavoritesChoice: [],
+	myFavoritesPointDeclined: [],
+};
+
+export const mockOption1: PlanOption = {
+	id: 3620530,
+	name: 'Cabinet Hardware - Level 1 - Whole House - G',
+	isActive: true,
+	listPrice: 900,
+	maxOrderQuantity: 1,
+	isBaseHouse: false,
+	isBaseHouseElevation: false,
+	attributeGroups: [17941, 17942],
+	locationGroups: [],
+	financialOptionIntegrationKey: '73298',
+	description:
+		'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
+	optionImages: [
+		{
+			imageURL:
+				'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/15',
+			sortKey: 1,
+		},
+	],
+	planId: 12068,
+	communityId: 0,
+	calculatedPrice: 900,
+};
+
+export const mockPriceBreakdown: PriceBreakdown = {
+	baseHouse: 0,
+	homesite: 0,
+	selections: 0,
+	salesProgram: 0,
+	closingIncentive: 0,
+	nonStandardSelections: 0,
+	priceAdjustments: 0,
+	closingCostAdjustment: 0,
+	homesiteEstimate: 0,
+	designEstimate: 0,
+	totalPrice: 650000,
+	changePrice: 0,
+	favoritesPrice: 800,
+};

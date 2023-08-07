@@ -1,0 +1,18 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+@mixin color($theme) {
+    $color-config: mat.get-color-config($theme);
+    $accent-palette: map.get($color-config, 'accent');
+	
+    .phd-estimated-totals-container {
+		background-color: mat.get-color-from-palette($accent-palette, 100);
+	}
+}
+
+@mixin theme($theme) {
+	$color-config: mat.get-color-config($theme);
+	@if $color-config != null {
+		@include color($theme);
+	}
+}

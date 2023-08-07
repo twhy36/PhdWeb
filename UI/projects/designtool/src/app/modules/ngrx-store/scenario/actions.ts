@@ -123,7 +123,7 @@ export class SetScenarioLot implements Action
 {
 	readonly type = ScenarioActionTypes.SetScenarioLot;
 
-	constructor(public lotId: number, public handing: ChangeOrderHanding, public premium: number, public lotChoiceRules?: LotChoiceRules[]) { }
+	constructor(public lotId: number, public handing: ChangeOrderHanding, public premium: number, public lotChoiceRules?: LotChoiceRules[], public skipSave?: boolean) { }
 }
 
 @Log(true)
