@@ -149,7 +149,7 @@ export class GlobalFooterComponent
 		const options = {
 			confirmText: Constants.DIALOG_DISCLAIMER_CONFIRM,
 			displayClose: true,
-			message: Constants.DIALOG_DISCLAIMER_MESSAGE,
+			message: Constants.DISCLAIMER_MESSAGE,
 			title: Constants.DIALOG_DISCLAIMER_TITLE,
 		};
 		this.dialogService.open(options);

@@ -11,6 +11,7 @@
 @use './themes/components/header-bar-theme' as header-bar;
 @use './themes/components/home-theme' as home;
 @use './themes/components/nav-bar-theme' as nav-bar;
+@use './themes/components/summary-theme' as summary;
 @use './themes/components/summary-header-theme' as summary-header;
 @use './themes/components/toggle-theme' as toggle;
 @use './themes/components/welcome-modal-theme' as welcome-modal;
@@ -50,6 +51,7 @@
 	@include header-bar.theme($theme);
 	@include home.theme($theme);
 	@include nav-bar.theme($theme);
+	@include summary.theme($theme);
 	@include summary-header.theme($theme);
 	@include welcome-modal.theme($theme);
 
@@ -88,7 +90,7 @@
 		}
 	}
 
-	.btn { 
+	.btn {
 		border-radius: 35px;
 
 		&:hover,
@@ -96,7 +98,7 @@
 			background-color: mat.get-color-from-palette($primary-palette, 600);
 			box-shadow: none !important;
 		}
-	} 
+	}
 
 	// This has to be outside the component because the mat menu is part of the overlay container
 	.fa-check {
@@ -436,8 +438,23 @@ ngb-modal-backdrop {
 	}
 }
 
+.phd-hide {
+	display: none;
+}
+
 @media print {
 	.phd-main-container {
 		padding-top: 0 !important;
+	}
+
+	.phd-hide-in-print {
+		display: none !important;
+		height: 0px !important;
+		position: fixed;
+		top: 0px !important;
+	}
+
+	.phd-show-in-print {
+		display: block !important;
 	}
 }

@@ -7,6 +7,7 @@ import * as fromPlan from '../../../../ngrx-store/plan/reducer';
 import { UnsubscribeOnDestroy, LotExt, PriceBreakdown } from 'phd-common';
 import { BrandService } from '../../../../core/services/brand.service';
 import { BuildMode } from '../../../../shared/models/build-mode.model';
+import { Constants } from '../../../../shared/classes/constants.class';
 
 @Component({
 	selector: 'summary-header',
@@ -20,10 +21,10 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() includeContractedOptions: boolean;
 	@Input() isDesignComplete: boolean = false;
 	@Input() isPrintHeader: boolean = false;
-	
+
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
-	
+
 	scrolling: boolean = false;
 	isSticky: boolean = false;
 	isPreview: boolean = false;
@@ -48,7 +49,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 
 	get disclaimerText()
 	{
-		return 'Option selections are not final until purchased via a signed agreement or change order.';
+		return Constants.DISCLAIMER_OPTION_SELECTIONS;
 	}
 
 	ngOnInit()
@@ -118,12 +119,12 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		return address;
 	}
 
-	getPlanName() : string
+	getPlanName(): string
 	{
 		return this.isPresale ? this.summaryHeader.planName + ' Floorplan' : this.summaryHeader.planName;
 	}
 
-	get isContractedOptionsDisabled() : boolean
+	get isContractedOptionsDisabled(): boolean
 	{
 		return this.isPreview || this.isDesignComplete;
 	}

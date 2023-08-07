@@ -25,6 +25,7 @@ import { AttributeLocationComponent } from '../attribute-location/attribute-loca
 import { AttributeGroupExt, AttributeExt } from '../../models/attribute-ext.model';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { Constants } from '../../classes/constants.class';
 
 @Component({
 	selector: 'choice-card-detail',
@@ -83,7 +84,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	get disclaimerText()
 	{
-		return 'Option selections are not final until purchased via a signed agreement or change order.';
+		return Constants.DISCLAIMER_OPTION_SELECTIONS;
 	}
 
 	ngOnInit()

@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import
 {
 	UnsubscribeOnDestroy, PriceBreakdown, Group, DecisionPoint, JobChoice, Tree, TreeVersionRules, SalesAgreement,
-	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite, Constants
+	getDependentChoices, ModalService, PlanOption, Choice, ConfirmModalComponent, SubGroup, FloorPlanImage, ModalRef, MyFavorite, Constants as CommonConstants
 } from 'phd-common';
 
 import { Store, select } from '@ngrx/store';
@@ -36,6 +36,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { InfoModalComponent } from '../../../shared/components/info-modal/info-modal.component';
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 import { ScrollTop } from '../../../shared/classes/utils.class';
+import { Constants } from '../../../shared/classes/constants.class';
 
 @Component({
 	selector: 'favorites-summary',
@@ -99,7 +100,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 	get disclaimerText()
 	{
-		return 'This Design Preview is a tool designed to give our customers a general understanding of home options, material and finish upgrades and option/upgrade pricing (where provided) and prepare them for making actual option and upgrade selections in the future. No selections are being made using this tool, nor is this a contract for a home or reservation of a lot. The terms and conditions pertaining to a home purchase, including option and upgrade selections, will be contained only within a fully-executed Home Purchase Agreement or a Change Order to that agreement. Lots, home plans, elevations, options, upgrades, features and specifications and the availability and pricing of each may change without notice. Images are for marketing purposes only and may not reflect exact home designs or dimensions, specific components or materials used in home construction, specific manufacturer or models of components, or exact colors or textures of materials, all of which may vary in the course of actual construction and all of which seller has the right to change. Model homes may vary significantly in design, décor and available options and materials from homes available to purchase in a community.';
+		return Constants.DISCLAIMER_MESSAGE;
 	}
 
 	get floorPlanDisclaimer()
@@ -423,14 +424,14 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 
 		this.confirmModal.componentInstance.title = 'Are You Sure?';
 		this.confirmModal.componentInstance.body = 'This will delete this item from your list';
-		this.confirmModal.componentInstance.defaultOption = Constants.CONTINUE;
+		this.confirmModal.componentInstance.defaultOption = CommonConstants.CONTINUE;
 
 		this.adobeService.setAlertEvent(this.confirmModal.componentInstance.title + ' ' + this.confirmModal.componentInstance.body, 'Remove Favorite Alert');
 
 		this.confirmModal.result.then((result) =>
 		{
 
-			if (result == Constants.CONTINUE)
+			if (result == CommonConstants.CONTINUE)
 			{
 
 				const removedChoices = [];
