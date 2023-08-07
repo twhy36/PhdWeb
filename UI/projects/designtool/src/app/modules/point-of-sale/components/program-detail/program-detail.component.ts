@@ -99,7 +99,7 @@ export class ProgramDetailComponent extends ComponentCanNavAway implements OnIni
 			Validators.min(1)
 		]);
 
-		this.description = new UntypedFormControl(this.program && this.program.salesProgramDescription || null, [Validators.nullValidator]);
+		this.description = new UntypedFormControl(this.program && this.program.salesProgramDescription || null, [Validators.maxLength(250), Validators.nullValidator]);
 		this.programName = new UntypedFormControl(this.selectedSalesProgram && this.selectedSalesProgram.name || null, [Validators.required]);
 
 		this.createForm();
