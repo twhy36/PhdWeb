@@ -117,7 +117,7 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 	{
 		// Setup form controls, only on component creation/init
 		this.description = new UntypedFormControl(this.deposit.description || null, [Validators.maxLength(this.maxDescriptionLength)]);
-		this.amount = new UntypedFormControl(this.deposit.amount ? this.formatDepositAmount(this.deposit.amount) : null, [Validators.required]);
+		this.amount = new UntypedFormControl(this.deposit.amount ? this.formatDepositAmount(this.deposit.amount) : null, [Validators.max(999999999999999), Validators.pattern(/^-?\d*[.,]?\d{0,2}$/), Validators.required]);
 		this.depositTypeDesc = new UntypedFormControl(this.deposit.depositTypeDesc || '', [Validators.required]);
 		this.dueDate = new UntypedFormControl(this.ngbDueDate, [Validators.required]);
 		this.paidDate = new UntypedFormControl(this.ngbPaidDate);
