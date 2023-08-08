@@ -2,7 +2,7 @@ import { Component, OnInit, Input, EventEmitter, Output, ViewChild } from '@angu
 import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import * as fromRoot from '../../../ngrx-store/reducers';
 import { ComponentCanNavAway } from '../../../shared/classes/component-can-nav-away.class';
 
@@ -17,7 +17,7 @@ import { SalesAgreementService } from '../../../core/services/sales-agreement.se
 	selector: 'deposit-detail',
 	templateUrl: './deposit-detail.component.html',
 	styleUrls: ['./deposit-detail.component.scss'],
-})
+	})
 export class DepositDetailComponent extends ComponentCanNavAway implements OnInit
 {
 	@ViewChild('dueDatePicker') dueDatePicker: NgbInputDatepicker;
@@ -117,7 +117,7 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 	{
 		// Setup form controls, only on component creation/init
 		this.description = new UntypedFormControl(this.deposit.description || null, [Validators.maxLength(this.maxDescriptionLength)]);
-		this.amount = new UntypedFormControl(this.deposit.amount ? this.formatDepositAmount(this.deposit.amount) : null, [Validators.max(999999999999999), Validators.pattern(/^-?\d*[.,]?\d{0,2}$/), Validators.required]);
+		this.amount = new UntypedFormControl(this.deposit.amount ? this.formatDepositAmount(this.deposit.amount) : null, [Validators.required]);
 		this.depositTypeDesc = new UntypedFormControl(this.deposit.depositTypeDesc || '', [Validators.required]);
 		this.dueDate = new UntypedFormControl(this.ngbDueDate, [Validators.required]);
 		this.paidDate = new UntypedFormControl(this.ngbPaidDate);
@@ -161,7 +161,7 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 
 	delete()
 	{
-		const content = "Sure you want to delete this Deposit?";
+		const content = 'Sure you want to delete this Deposit?';
 		const confirm = this.modalService.showWarningModal(content);
 
 		confirm.subscribe((result) =>
@@ -247,5 +247,21 @@ export class DepositDetailComponent extends ComponentCanNavAway implements OnIni
 		formatedAmount = formatedAmount.replace(/,/g, '');
 
 		return formatedAmount;
+	}
+
+	validateAmount(inputValue: string) 
+	{
+		const [integerPart, decimalPart] = inputValue.split('.');
+		const integerMaxLength = 15;
+		const decimalMaxLength = 2;
+
+		if (integerPart.length > integerMaxLength || (decimalPart && decimalPart.length > decimalMaxLength)) 
+		{
+			this.form.get('amount').setErrors({ max: true });
+		}
+		else 
+		{
+			this.form.get('amount').setErrors(null);
+		}
 	}
 }
