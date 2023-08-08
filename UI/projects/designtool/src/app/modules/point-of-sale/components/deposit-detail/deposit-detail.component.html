@@ -62,7 +62,7 @@
 					<div class="input-group-prepend">
 						<span class="input-group-text">$</span>
 					</div>
-					<input class="form-control" type="number" formControlName="amount" id="amount" name="amount" [attr.readonly]="deposit.paidDate">
+					<input class="form-control" (input)="validateAmount($event.target.value)" type="number" formControlName="amount" id="amount" name="amount" [attr.readonly]="deposit.paidDate">
 				</div>
 			</div>
 		</div>
