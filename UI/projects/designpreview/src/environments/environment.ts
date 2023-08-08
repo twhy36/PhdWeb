@@ -17,7 +17,7 @@ export const environment: IEnvironment = {
 			requestAccessToken: true,
 			scope: 'openid offline_access pulte designpreview.access',
 			showDebugInformation: true,
-			logoutUrl: 'https://cdr3.dev.pulte.com/My-Pulte-Account/Login'
+			logoutUrl: 'https://cdk.dev.pulte.com/My-Pulte-Account/Login'
 		},
 		azureAD:
 		{
@@ -57,11 +57,11 @@ export const environment: IEnvironment = {
 	},
 	adobeUrl: 'https://assets.adobedtm.com/73ef53bd253f/c533c20a08e9/launch-08a9cce44e7a-development.min.js',
 	brandLogoutMap: {
-		pulte: 'https://cdr3.dev.pulte.com/My-Pulte-Account/Login',
-		delwebb: 'https://cdr3.dev.delwebb.com/My-Del-Webb-Account/Login',
-		americanWest: 'https://cdr3.dev.americanwesthomes.com/My-American-West-Account/Login',
-		divosta: 'https://cdr3.dev.divosta.com/My-DiVosta-Account/Login',
-		johnWieland: 'https://cdr3.dev.jwhomes.com/My-JW-Account/Login',
-		centex: 'https://cdr3.dev.centex.com/My-Centex-Account/Login'
+		pulte: 'https://cdk.dev.pulte.com/My-Pulte-Account/Login',
+		delwebb: 'https://cdk.dev.delwebb.com/My-Del-Webb-Account/Login',
+		americanWest: 'https://cdk.dev.americanwesthomes.com/My-American-West-Account/Login',
+		divosta: 'https://cdk.dev.divosta.com/My-DiVosta-Account/Login',
+		johnWieland: 'https://cdk.dev.jwhomes.com/My-JW-Account/Login',
+		centex: 'https://cdk.dev.centex.com/My-Centex-Account/Login'
 	}
 };
