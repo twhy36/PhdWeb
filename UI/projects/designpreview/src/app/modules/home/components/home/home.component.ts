@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
-import { distinctUntilChanged, switchMap, withLatestFrom } from 'rxjs/operators';
+import { distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 import * as _ from 'lodash';
 
@@ -13,7 +13,7 @@ import * as CommonActions from '../../../ngrx-store/actions';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
 
-import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage, TreeVersion } from 'phd-common';
+import { UnsubscribeOnDestroy, SalesAgreement, SubGroup, FloorPlanImage, TreeVersion, ImagePlugins } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import { ErrorFrom } from '../../../ngrx-store/error.action';
@@ -23,7 +23,7 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'home',
 	templateUrl: 'home.component.html',
 	styleUrls: ['home.component.scss']
-	})
+})
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	communityName: string = '';
@@ -41,6 +41,9 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 	noVisibleFP: boolean = false;
 	selectedFloor;
 	filteredTree: TreeVersion;
+
+	defaultImage: string = this.brandService.getBrandImage('logo');
+	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -170,9 +173,11 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 			const tree = scenarioState?.tree?.treeVersion;
 			const contractedSgs = _.flatMap(contractedTree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
 			const sgs = _.flatMap(tree?.groups, g => g.subGroups.filter(sg => sg.useInteractiveFloorplan));
+
 			if ((tree || contractedTree) && plan && plan.marketingPlanId && plan.marketingPlanId.length)
 			{
 				let fpSubGroup;
+
 				if (contractedSgs?.length)
 				{
 					fpSubGroup = contractedSgs.pop();
@@ -184,6 +189,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 				if (fpSubGroup)
 				{
 					this.floorplanSG = fpSubGroup;
+
 					this.marketingPlanId$.next(plan.marketingPlanId[0]);
 				}
 				else
@@ -228,13 +234,13 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		if (firstSubGroup)
 		{
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(firstSubGroup.id));
+
 			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId, firstSubGroup.subGroupCatalogId], { queryParamsHandling: 'merge' });
 		}
 		else
 		{
-			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId], { queryParamsHandling: 'merge' })
+			this.router.navigate(['favorites', 'my-favorites', this.selectedFavoritesId], { queryParamsHandling: 'merge' });
 		}
-
 	}
 
 	getImageSrc()
@@ -252,6 +258,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 		if (!this.selectedFloor)
 		{
 			const floor1 = fp.floors.find(floor => floor.name === 'Floor 1');
+
 			if (floor1)
 			{
 				this.selectedFloor = floor1;

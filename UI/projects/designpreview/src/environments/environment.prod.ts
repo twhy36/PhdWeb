@@ -34,7 +34,9 @@ export const environment: IEnvironment = {
 		connectionString: 'InstrumentationKey=6c8d0c20-dc72-405b-ad70-1afd5aa8820e;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
 	},
-	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
+	cloudinary: {
+		cloud: { cloudName: 'dv0jqjrc3' }
+	},
 	alphavision: {
 		builderId: '8D676CB9-C011-429D-8D71-87D34A87494B'
 	},

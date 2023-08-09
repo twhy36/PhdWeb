@@ -132,17 +132,6 @@
 		color: #ad3543;
 	}
 
-	.phd-image-loading {
-		height: 367px;
-		width: 550px;
-		position: absolute;
-		background-color: lightgray;
-		z-index: 999 !important;
-		text-align: center;
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
 	.phd-image-loader {
 		position: relative;
 		top: 40%;
@@ -169,8 +158,10 @@
 		padding: 10px;
 
 		.phd-image-wrapper {
-			min-height: 367px;
-			min-width: 550px;
+			::ng-deep img {
+				height: 367px;
+				width: 550px;
+			}
 		}
 	}
 

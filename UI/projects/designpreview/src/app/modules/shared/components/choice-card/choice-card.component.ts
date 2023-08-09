@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnChanges, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, ModalService, ModalRef, getChoiceImage } from 'phd-common';
+import { UnsubscribeOnDestroy, flipOver3, DecisionPoint, Group, Tree, ModalService, ModalRef, getChoiceImage, ImagePlugins } from 'phd-common';
 import { ChoiceExt } from '../../models/choice-ext.model';
 import { Store } from '@ngrx/store';
 
@@ -14,9 +14,9 @@ import { BrandService } from '../../../core/services/brand.service';
 	templateUrl: './choice-card.component.html',
 	styleUrls: ['./choice-card.component.scss'],
 	animations: [
-	flipOver3
+		flipOver3
 	]
-	})
+})
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentChoice: ChoiceExt;
@@ -40,6 +40,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 	imageUrl: string = '';
 	blockedChoiceModalRef: ModalRef;
 	choiceDisabledLabel: string;
+
+	defaultImage: string = 'assets/NoImageAvailable.png';
+	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	constructor(
 		private store: Store<fromRoot.State>,
@@ -66,15 +69,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		return this.isPresalePricingEnabled ? '260px' : '285px';
 	}
 
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	onLoadImageError(event)
-	{
-		event.srcElement.src = 'assets/NoImageAvailable.png';
-	}
-
 	toggleChoice()
 	{
 		if (!this.isReadonly)
@@ -93,6 +87,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChang
 		if (!this.isIncludedOptions)
 		{
 			const subGroup = _.flatMap(this.groups, g => _.flatMap(g.subGroups)).find(sg => !!sg.points.find(p => this.currentPoint.id === p.id)) || null;
+
 			this.store.dispatch(new NavActions.SetSelectedSubgroup(subGroup.id, this.currentPoint.id, null));
 		}
 

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { CloudinaryModule } from '@cloudinary/ng';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -85,38 +85,38 @@ const moduleRoutes: Routes = [
 
 @NgModule({
 	exports: [
-	ManageFavoritesComponent,
-	MyFavoritesComponent,
-	NormalExperienceComponent,
-	IncludedOptionsComponent,
-	FavoritesSummaryComponent,
-	ContractedSummaryComponent,
-	FloorPlanSummaryComponent,
-	SummaryHeaderComponent,
-	FloorPlanExperienceComponent
+		ManageFavoritesComponent,
+		MyFavoritesComponent,
+		NormalExperienceComponent,
+		IncludedOptionsComponent,
+		FavoritesSummaryComponent,
+		ContractedSummaryComponent,
+		FloorPlanSummaryComponent,
+		SummaryHeaderComponent,
+		FloorPlanExperienceComponent
 	],
 	declarations: [
-	ManageFavoritesComponent,
-	MyFavoritesComponent,
-	NormalExperienceComponent,
-	IncludedOptionsComponent,
-	FavoritesSummaryComponent,
-	ContractedSummaryComponent,
-	FloorPlanSummaryComponent,
-	SummaryHeaderComponent,
-	FloorPlanExperienceComponent
+		ManageFavoritesComponent,
+		MyFavoritesComponent,
+		NormalExperienceComponent,
+		IncludedOptionsComponent,
+		FavoritesSummaryComponent,
+		ContractedSummaryComponent,
+		FloorPlanSummaryComponent,
+		SummaryHeaderComponent,
+		FloorPlanExperienceComponent
 	],
 	imports: [
-	CommonModule,
-	FormsModule,
-	ReactiveFormsModule,
-	CloudinaryModule,
-	SharedModule,
-	PhdCommonModule,
-	RouterModule.forChild(moduleRoutes),
-	ToastrModule,
-	NgbModule
+		CommonModule,
+		FormsModule,
+		ReactiveFormsModule,
+		CloudinaryModule,
+		SharedModule,
+		PhdCommonModule,
+		RouterModule.forChild(moduleRoutes),
+		ToastrModule,
+		NgbModule
 	],
 	providers: []
-	})
+})
 export class FavoritesModule { }

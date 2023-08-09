@@ -5,7 +5,7 @@ import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
 import {
 	UnsubscribeOnDestroy, flipOver2, isChoiceAttributesComplete, DesignToolAttribute, PointStatus, DecisionPoint,
-	Group, SubGroup, Choice, TreeService
+	Group, SubGroup, Choice, TreeService, ImagePlugins
 } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 
@@ -33,6 +33,9 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	selections: Choice[] = [];
 	choicesCustom: ChoiceCustom[] = [];
+
+	defaultImage: string = environment.defaultImageURL;
+	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	constructor(private router: Router, private config: NgbDropdownConfig, private cd: ChangeDetectorRef, private _treeService: TreeService)
 	{
@@ -77,30 +80,14 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 
 	getImagePath(attr: DesignToolAttribute): string
 	{
-		let imageUrl = environment.defaultImageURL;
-
-		if (attr.attributeImageUrl)
-		{
-			imageUrl = attr.attributeImageUrl;
-		}
-
-		return imageUrl;
+		return attr.attributeImageUrl ?? '';
 	}
 
 	isChoiceComplete(choice: ChoiceCustom): boolean
 	{
 		return isChoiceAttributesComplete(choice);
 	}
-
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	onLoadImageError(event: any)
-	{
-		event.srcElement.src = environment.defaultImageURL;
-	}
-
+		
 	toggleAttributes(toggleAttribute: boolean)
 	{
 		this.choicesCustom
@@ -144,7 +131,7 @@ class ChoiceCustom extends Choice
 
 		if (options.length)
 		{
-			let option = options.find(x => x.optionImages && x.optionImages.length > 0);
+			const option = options.find(x => x.optionImages && x.optionImages.length > 0);
 
 			if (option)
 			{

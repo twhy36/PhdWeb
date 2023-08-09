@@ -39,8 +39,7 @@
 						<!--End if not disabled-->
 						<ul>
 							<ng-template ngFor [ngForOf]="point.choices" [ngForTrackBy]="trackByChoices" let-choice>
-								<li
-									[ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
+								<li	[ngClass]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement ? 'disabled' : 'enabled'">
 									<input type="checkbox" (ngModelChange)="onOptionToggled(choice)"
 										[ngModel]="!!choice.quantity" [id]="'opt-'+choice.id"
 										[disabled]="point?.isPastCutOff || !point.enabled || !choice.enabled || !canEditAgreement">
@@ -115,8 +114,7 @@
 
 			<div id="av-floor-plan" class="mt-auto" [style.width]="useDefaultFP ? '100%' : ''" #av_floor_plan>
 				<div *ngIf="useDefaultFP">
-					<cl-image public-id="https://pultegroup.picturepark.com/Go/O1buxqPH/V/164279/1" type="fetch"
-						style="width:100%; max-width:800px;"></cl-image>
+					<image imageUrl="https://pultegroup.picturepark.com/Go/O1buxqPH/V/164279/1" class="phd-default-ifp"></image>
 				</div>
 			</div>
 		</div>
@@ -130,8 +128,7 @@
 	[canChange]="canConfigure">
 	<ng-template #leftCellTemplate>
 		<div>
-			<experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters"
-				(pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
+			<experience-filter [selectedPointFilter]="selectedPointFilter" [enabledPointFilters]="enabledPointFilters" (pointTypeFilterChanged)="onPointTypeFilterChanged($event)"></experience-filter>
 		</div>
 		<div class="flex-grow-1">
 			<scenario-status [scenarioStatus]="scenarioStatus"></scenario-status>
@@ -148,7 +145,6 @@
 		</div>
 	</header>
 
-	<disabled-error [choice]="currentChoice" [point]="currentDecisionPoint" (onLink)="disabledModalAction($event)"
-		[errorOverride]="!canEditAgreement ? 'Disbaled Due to Locked Agreement' : ''"></disabled-error>
+	<disabled-error [choice]="currentChoice" [point]="currentDecisionPoint" (onLink)="disabledModalAction($event)" [errorOverride]="!canEditAgreement ? 'Disbaled Due to Locked Agreement' : ''"></disabled-error>
 
 </ng-template>

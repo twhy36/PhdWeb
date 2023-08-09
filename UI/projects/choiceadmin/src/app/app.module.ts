@@ -3,7 +3,7 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
+import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
 import { CoreModule } from './modules/core/core.module';
 import { NationalModule } from './modules/national/national.module';
@@ -33,10 +33,10 @@ const appInitializerFn = (identityService: IdentityService) =>
 };
 
 const appRoutes: Routes = [
-    { path: '', pathMatch: 'full', redirectTo: 'national' },
-    { path: 'national', component: NationalModule },
-    { path: 'divisional', component: DivisionalModule },
-    { path: 'community', component: CommunityModule }
+	{ path: '', pathMatch: 'full', redirectTo: 'national' },
+	{ path: 'national', component: NationalModule },
+	{ path: 'divisional', component: DivisionalModule },
+	{ path: 'community', component: CommunityModule }
 ];
 
 export function getBaseHref(platformLocation: PlatformLocation): string
@@ -46,19 +46,19 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 
 @NgModule({
 	declarations: [
-        AppComponent
+		AppComponent
 	],
 	imports: [
-        BrowserAnimationsModule,
+		BrowserAnimationsModule,
 		NgbModule,
 		BrowserModule,
-        FormsModule,
+		FormsModule,
 		ReactiveFormsModule,
 		PhdCommonModule.forRoot(environment.apiUrl),
-        CoreModule,
-        NationalModule,
-        DivisionalModule,
-        CommunityModule,
+		CoreModule,
+		NationalModule,
+		DivisionalModule,
+		CommunityModule,
 		RouterModule.forRoot(appRoutes)
 	],
 	providers: [
@@ -66,7 +66,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string
 		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
 		{ provide: AUTH_CONFIG, useValue: environment.authConfig },
 		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
-		{ provide: TELEMETRY_INIT, useValue: setClientApp("Choice Admin") }
+		{ provide: TELEMETRY_INIT, useValue: setClientApp('Choice Admin') }
 	],
 	bootstrap: [AppComponent]
 })

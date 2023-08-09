@@ -4,7 +4,7 @@ import { select, Store } from '@ngrx/store';
 
 import * as fromRoot from '../../../../ngrx-store/reducers';
 import * as fromPlan from '../../../../ngrx-store/plan/reducer';
-import { UnsubscribeOnDestroy, LotExt, PriceBreakdown } from 'phd-common';
+import { UnsubscribeOnDestroy, LotExt, PriceBreakdown, ImageTransformation, ImageService } from 'phd-common';
 import { BrandService } from '../../../../core/services/brand.service';
 import { BuildMode } from '../../../../shared/models/build-mode.model';
 
@@ -12,7 +12,7 @@ import { BuildMode } from '../../../../shared/models/build-mode.model';
 	selector: 'summary-header',
 	templateUrl: './summary-header.component.html',
 	styleUrls: ['./summary-header.component.scss']
-	})
+})
 export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() summaryHeader: SummaryHeader;
@@ -34,6 +34,12 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	planName: string;
 	listener: () => void;
 
+	defaultImage: string = this.brandService.getBrandImage('logo');
+	imageTransformations: ImageTransformation[] = [
+		{ type: 'resize', action: this.imageService.createBaseResizeAction('pad', 1920, 1240, 'white') },
+		{ type: 'effect', action: this.imageService.getEffectType('outline').mode('outer').width(4).blurLevel(1).color('grey') }
+	];
+
 	constructor(
 		private ngZone: NgZone,
 		private renderer: Renderer2,
@@ -41,7 +47,9 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		private cd: ChangeDetectorRef,
 		private summaryHeaderElement: ElementRef,
 		private brandService: BrandService,
-		private titleService: Title)
+		private titleService: Title,
+		private imageService: ImageService
+	)
 	{
 		super();
 	}
@@ -84,16 +92,19 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 				case (BuildMode.Preview):
 					this.isPreview = true;
 					this.headerTitle = 'Preview Favorites';
+
 					break;
 				case (BuildMode.Presale):
 					this.isPresale = true;
 					this.isPresalePricingEnabled = state.presalePricingEnabled;
 					this.headerTitle = 'My Favorites';
+
 					break;
 				default:
 					this.isPreview = false;
 					this.isPresale = false;
 					this.headerTitle = this.summaryHeader.favoritesListName;
+
 					break;
 			}
 		});
@@ -146,12 +157,15 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		if (!this.isPrintHeader)
 		{
 			const clientRect = this.summaryHeaderElement.nativeElement.getBoundingClientRect();
+
 			if (clientRect.top < 110)
 			{
 				if (!this.isSticky && document.body.scrollHeight > 1500)
 				{
 					this.isSticky = true;
+
 					this.cd.detectChanges();
+
 					this.isStickyChanged.emit(this.isSticky);
 				}
 			}
@@ -160,7 +174,9 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 				if (this.isSticky)
 				{
 					this.isSticky = false;
+
 					this.cd.detectChanges();
+
 					this.isStickyChanged.emit(this.isSticky);
 				}
 			}
@@ -189,6 +205,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	onPrint() 
 	{
 		this.titleService.setTitle(`${this.communityName} ${this.planName}`);
+
 		window.print();
 	}
 

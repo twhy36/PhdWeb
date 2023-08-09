@@ -5,12 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 
-import { CloudinaryModule } from '@cloudinary/angular-5.x';
-import { Cloudinary } from 'cloudinary-core';
+import { CloudinaryModule } from '@cloudinary/ng';
+import { Cloudinary } from '@cloudinary/url-gen';
+
 import { ToastrModule } from 'ngx-toastr';
 import { NgIdleModule } from '@ng-idle/core'
 
-import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp } from 'phd-common';
+import { PhdCommonModule, IdentityService, AUTH_CONFIG, APP_INSIGHTS_CONFIG, TELEMETRY_INIT, setClientApp, CLOUDINARY } from 'phd-common';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -71,32 +72,33 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 
 @NgModule({
 	declarations: [
-	AppComponent
+		AppComponent
 	],
 	imports: [
-	BrowserModule,
-	CommonModule,
-	PhdCommonModule.forRoot(environment.apiUrl),
-	FormsModule,
-	CoreModule,
-	SharedModule,
-	HomeModule,
-	FavoritesModule,
-	MobileModule,
-	RouterModule.forRoot(appRoutes),
-	StoreModule,
-	CloudinaryModule.forRoot({ Cloudinary }, environment.cloudinary),
-	ToastrModule.forRoot({ closeButton: true }),
-	NgIdleModule.forRoot()
+		BrowserModule,
+		CommonModule,
+		PhdCommonModule.forRoot(environment.apiUrl),
+		FormsModule,
+		CoreModule,
+		SharedModule,
+		HomeModule,
+		FavoritesModule,
+		MobileModule,
+		RouterModule.forRoot(appRoutes),
+		StoreModule,
+		CloudinaryModule,
+		ToastrModule.forRoot({ closeButton: true }),
+		NgIdleModule.forRoot()
 	],
 	providers: [
-	{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
-	{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
-	{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
-	{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
-	{ provide: TELEMETRY_INIT, useValue: setClientApp('Design Preview') },
-	{ provide: HTTP_INTERCEPTORS, useClass: PresaleInterceptor, multi: true }
+		{ provide: APP_INITIALIZER, useFactory: tryInitAuth, deps: [AuthService, IdentityService], multi: true },
+		{ provide: APP_BASE_HREF, useFactory: getBaseHref, deps: [PlatformLocation] },
+		{ provide: AUTH_CONFIG, useClass: AuthConfigSelector, deps: [AuthService, BrandService] },
+		{ provide: APP_INSIGHTS_CONFIG, useValue: environment.appInsights },
+		{ provide: TELEMETRY_INIT, useValue: setClientApp('Design Preview') },
+		{ provide: HTTP_INTERCEPTORS, useClass: PresaleInterceptor, multi: true },
+		{ provide: CLOUDINARY, useValue: new Cloudinary(environment.cloudinary) }
 	],
 	bootstrap: [AppComponent]
-	})
+})
 export class AppModule { }

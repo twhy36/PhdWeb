@@ -51,10 +51,8 @@
 	@include nav-bar.theme($theme);
 	@include summary-header.theme($theme);
 	@include welcome-modal.theme($theme);
-
 	// Mobile component themes
 	@include global-header.theme($theme);
-
 	font-family: mat.font-family($typography-config);
 
 	.modal-content {
@@ -115,7 +113,9 @@
 	}
 
 	.phd-choice-image-selected {
-		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
+		img {
+			border-color: mat.get-color-from-palette($accent-palette, 500) !important;
+		}
 	}
 
 	.phd-choice-container {
@@ -333,22 +333,6 @@ ngb-modal-backdrop {
 	justify-content: center;
 }
 
-// cl-image styling
-.phd-attribute-item-image {
-	border: solid 1px #ccc;
-	cursor: pointer;
-
-	.phd-attribute-item-image-selected {
-		border: solid 4px;
-	}
-
-	.phd-image-is-inactive,
-	&.disabled {
-		cursor: no-drop;
-		opacity: .65;
-	}
-}
-
 .phd-clickable:hover {
 	cursor: pointer;
 }
@@ -367,15 +351,16 @@ ngb-modal-backdrop {
 
 .phd-image-carousel {
 	.phd-choice-image {
-		border: 2px solid #ccc;
 		cursor: pointer;
 
-		.phd-choice-image-selected {
-			border: solid 4px;
-			// border: solid 4px #1e81b3;
+		&.phd-choice-image-selected {
+			img {
+				border: solid 4px;
+			}
 		}
 
 		img {
+			border: 2px solid #ccc;
 			width: 50px;
 			height: 50px;
 		}
