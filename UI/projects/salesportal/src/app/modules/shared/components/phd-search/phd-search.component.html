@@ -48,7 +48,7 @@
 			<section *ngIf="!!optionsShown">
 				<div>
 					<div class="phd-flexbox mb-3">
-						<label>Sales Agreement Status</label>{{selectedSalesAgreementStatus.length}}_ {{optionsShown}}
+						<label>Sales Agreement Status</label>
 						<p-multiSelect defaultLabel="Select Agreement Status" [filter]="false" id="phdSalesStatus"
 									   [maxSelectedLabels]="5" [(ngModel)]="selectedSalesAgreementStatus"
 									   [options]="salesAgreementStatusOptions" (onPanelHide)="onOptionPanelClosed()">
