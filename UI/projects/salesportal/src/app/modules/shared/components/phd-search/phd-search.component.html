@@ -140,6 +140,9 @@
 				<span class="phd-badge" *ngIf="searchActiveOnly" (click)="edit('searchActiveOnly')">
 					<span>Pending CO</span>
 				</span>
+				<span class="phd-badge" *ngIf="readyToClose" (click)="edit()">
+					<span>Ready to close</span>
+				</span>
 			</section>
 		</div>
 
