@@ -45,7 +45,10 @@
                 </div>
                 <div class="phd-items">
                     <input formControlName="discountAmount" type="number" class="form-control" id="discountAmount"
-                        [value]="pulteInfo.discountAmount" min="0">
+                           [value]="pulteInfo.discountAmount" min="0">
+                </div>
+                <div class="phd-items">
+                    <div class="phd-discount-expired" *ngIf="discountExpired">Discount Expired</div>
                 </div>
             </div>
             <div class="phd-info">
