@@ -27,6 +27,7 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
     templates: Array<Template>;
     selectedTemplateId: number;
     customMergeFields$: Observable<Array<MergeField>>;
+	parentOrigin: string;
 
     constructor(public orgService: OrgService, private identityService: IdentityService, private contractService: ContractService, private appInsights: ApplicationInsights)
     {
@@ -36,6 +37,8 @@ export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
     ngOnInit()
     {
         let me = this;
+		
+		this.parentOrigin = (<any>window).parent.location.origin;
 
         Word.run(async function (context)
         {

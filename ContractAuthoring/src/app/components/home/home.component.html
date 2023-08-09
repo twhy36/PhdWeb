@@ -6,6 +6,7 @@
     </div>
 </div>
 <div class="pulte-addin-content">
+    <div>{{ parentOrigin }}</div>
     <ng-container *ngIf="!!selectedTemplateId">
         <app-merge-field-accordion [customMergeFields]="customMergeFields$"></app-merge-field-accordion>
     </ng-container>
