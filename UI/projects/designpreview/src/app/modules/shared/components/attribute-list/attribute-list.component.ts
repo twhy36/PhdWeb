@@ -8,8 +8,7 @@ import { AttributeExt } from '../../models/attribute-ext.model';
 	selector: 'attribute-list',
 	templateUrl: 'attribute-list.component.html',
 	styleUrls: ['attribute-list.component.scss']
-	})
-
+})
 export class AttributeListComponent extends UnsubscribeOnDestroy
 {
 	@Input() attributes: AttributeExt[];
@@ -21,6 +20,8 @@ export class AttributeListComponent extends UnsubscribeOnDestroy
 	@Output() attributeClick = new EventEmitter<Attribute>();
 	@Output() toggleAttribute = new EventEmitter<Attribute>();
 
+	defaultImage: string = 'assets/attribute-image-not-available.png';
+
 	constructor() { super() }
 
 	clickAttributeClick(attribute: Attribute)
@@ -30,17 +31,8 @@ export class AttributeListComponent extends UnsubscribeOnDestroy
 
 	getImageSrc(attribute: Attribute): string
 	{
-		return attribute.imageUrl || 'assets/attribute-image-not-available.png';
+		return attribute.imageUrl || '';
 	}
-
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	onLoadImageError(event)
-	{
-		event.srcElement.src = 'assets/attribute-image-not-available.png';
-	}	
 
 	clickToggleAttribute(attribute: Attribute) 
 	{

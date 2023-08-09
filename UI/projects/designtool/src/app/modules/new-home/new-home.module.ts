@@ -5,7 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { CloudinaryModule } from '@cloudinary/ng';
 
 import { SharedModule } from '../shared/shared.module';
 import { PageNotFoundComponent } from '../shared/components/page-not-found/page-not-found.component';

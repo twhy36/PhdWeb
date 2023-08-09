@@ -44,10 +44,8 @@ import { ChoiceExt } from '../../shared/models/choice-ext.model';
 	selector: 'choice-card-detail',
 	templateUrl: './choice-card-detail.component.html',
 	styleUrls: ['./choice-card-detail.component.scss'],
-	})
-export class ChoiceCardDetailComponent
-	extends UnsubscribeOnDestroy
-	implements OnInit, AfterViewInit
+})
+export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
 {
 	@ViewChild('imageCarousel') imageCarousel: NgbCarousel;
 	@ViewChild('estimatedTotals') estimatedTotals: ElementRef;
@@ -73,14 +71,14 @@ export class ChoiceCardDetailComponent
 	choiceDescriptions: string[];
 	myFavoritesChoices: MyFavoritesChoice[];
 	choiceImages: OptionImage[];
-	imageLoading: boolean = false;
-	isChoiceImageLoaded: boolean = false;
 	selectedImageUrl: string;
 	activeIndex = { current: 0, direction: '', prev: 0 };
 
 	expandDescription: boolean = false;
 	descOverflowedOnLoad: boolean = false;
 	estimatedTotalsOffsetHeight: number;
+
+	defaultImage: string = 'assets/NoImageAvailable.png';
 
 	constructor(
 		private activatedRoute: ActivatedRoute,
@@ -110,10 +108,8 @@ export class ChoiceCardDetailComponent
 			)
 			.subscribe((favorite) => 
 			{
-				this.myFavoritesChoices =
-					favorite && favorite.myFavoritesChoice;
-				this.myFavoritesPointsDeclined =
-					favorite && favorite.myFavoritesPointDeclined;
+				this.myFavoritesChoices = favorite && favorite.myFavoritesChoice;
+				this.myFavoritesPointsDeclined = favorite && favorite.myFavoritesPointDeclined;
 				this.myFavoriteId = favorite && favorite.id;
 			});
 
@@ -127,8 +123,10 @@ export class ChoiceCardDetailComponent
 			if (scenarioState.tree.treeVersion) 
 			{
 				const tree = scenarioState.tree.treeVersion;
+
 				this.unfilteredPoints = tree.groups.flatMap(g => g.subGroups.flatMap(sg => sg.points)) || [];
 			}
+
 			this.tree = scenarioState.tree;
 			this.treeVersionRules = structuredClone(scenarioState.rules);
 			this.options = structuredClone(scenarioState.options);
@@ -137,6 +135,7 @@ export class ChoiceCardDetailComponent
 			{
 				this.groups = filteredTree.groups;
 			}
+
 			this.salesChoices = fav && fav.salesChoices;
 
 			if (scenarioState.treeLoading) 
@@ -166,18 +165,19 @@ export class ChoiceCardDetailComponent
 					if (this.choiceCatalogId > 0) 
 					{
 						const paramPoint = sg.points.find(p => p.divPointCatalogId === this.decisionPointCatalogId);
+
 						if (!paramPoint)
 						{
 							this.rerouteHome();
 						}
-						const paramChoice = paramPoint?.choices.find(
-							(c) => this.choiceCatalogId === c.divChoiceCatalogId
-						);
+
+						const paramChoice = paramPoint?.choices.find((c) => this.choiceCatalogId === c.divChoiceCatalogId);
 
 						if (!paramChoice) 
 						{
 							this.rerouteHome();
 						}
+
 						this.getChoiceExt(paramChoice, paramPoint);
 					}
 				}
@@ -208,57 +208,35 @@ export class ChoiceCardDetailComponent
 	{
 		this.descOverflowedOnLoad = this.isTextOverflow('descriptionText');
 		this.estimatedTotalsOffsetHeight = this.estimatedTotals.nativeElement.offsetHeight;
+
 		this.cd.detectChanges();
 	}
 
 	get optionDisabled(): boolean 
 	{
-		return this.choice.quantity <= 0 && this.choice.options
-			? this.choice.options.some((option) => !option.isActive)
-			: false;
+		return this.choice.quantity <= 0 && this.choice.options ? this.choice.options.some((option) => !option.isActive) : false;
 	}
 
 	getChoiceExt(choice: Choice, point: DecisionPoint): void 
 	{
-		const unfilteredPoint = this.unfilteredPoints.find(
-			(up) => up.divPointCatalogId === point.divPointCatalogId
-		);
+		const unfilteredPoint = this.unfilteredPoints.find((up) => up.divPointCatalogId === point.divPointCatalogId);
 		let choiceStatus = 'Available';
 
-		if (
-			point.isPastCutOff ||
-			this.salesChoices?.findIndex(
-				(c) => c.divChoiceCatalogId === choice.divChoiceCatalogId
-			) > -1
-		) 
+		if (point.isPastCutOff || this.salesChoices?.findIndex((c) => c.divChoiceCatalogId === choice.divChoiceCatalogId) > -1) 
 		{
 			choiceStatus = 'Contracted';
 		}
 		else 
 		{
-			const contractedChoices = unfilteredPoint.choices.filter(
-				(c) =>
-					this.salesChoices?.findIndex(
-						(x) => x.divChoiceCatalogId === c.divChoiceCatalogId
-					) > -1
-			);
+			const contractedChoices = unfilteredPoint.choices.filter((c) => this.salesChoices?.findIndex((x) => x.divChoiceCatalogId === c.divChoiceCatalogId) > -1);
 
-			if (
-				contractedChoices &&
-				contractedChoices.length &&
-				(point.pointPickTypeId === PickType.Pick1 ||
-					point.pointPickTypeId === PickType.Pick0or1)
-			) 
+			if (contractedChoices && contractedChoices.length && (point.pointPickTypeId === PickType.Pick1 || point.pointPickTypeId === PickType.Pick0or1)) 
 			{
 				choiceStatus = 'ViewOnly';
 			}
 		}
 
-		const myFavoritesChoice = this.myFavoritesChoices
-			? this.myFavoritesChoices.find(
-				(x) => x.divChoiceCatalogId === choice.divChoiceCatalogId
-			)
-			: null;
+		const myFavoritesChoice = this.myFavoritesChoices ? this.myFavoritesChoices.find((x) => x.divChoiceCatalogId === choice.divChoiceCatalogId) : null;
 
 		this.choice = new ChoiceExt(
 			choice,
@@ -270,17 +248,6 @@ export class ChoiceCardDetailComponent
 		this.getImages();
 	}
 
-	/** Removes the loading flag when Cloudinary is able to load an image */
-	onLoadImage(): void 
-	{
-		this.imageLoading = false;
-
-		if (!this.isChoiceImageLoaded) 
-		{
-			this.isChoiceImageLoaded = true;
-		}
-	}
-
 	/**
 	 * Runs when the carousel moves to a new image
 	 * @param event
@@ -288,51 +255,32 @@ export class ChoiceCardDetailComponent
 	onSlide(event): void 
 	{
 		this.activeIndex = event;
-		this.imageLoading = true;
 
 		if (this.activeIndex) 
 		{
-			this.selectedImageUrl =
-				this.choiceImages[this.activeIndex.current].imageURL;
+			this.selectedImageUrl =	this.choiceImages[this.activeIndex.current].imageURL;
 		}
-	}
-
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	onLoadImageError(event): void 
-	{
-		this.imageLoading = false;
-
-		event.srcElement.src = 'assets/NoImageAvailable.png';
 	}
 
 	getImages(): void 
 	{
-		if (this.isChoiceImageLoaded) 
-		{
-			return;
-		}
-
 		this.choiceImages = getChoiceImageList(this.choice);
 
 		if (!this.choiceImages.length) 
 		{
-			this.choiceImages.push({ imageURL: 'this image does not exist' });
+			this.choiceImages.push({ imageURL: '' });
 		}
-
-		this.selectedImageUrl = this.choiceImages[0].imageURL;
-		this.imageLoading = true;
+		else
+		{
+			this.selectedImageUrl = this.choiceImages[0].imageURL;
+		}
 	}
 
 	imageClick(image: OptionImage): void 
 	{
 		this.selectedImageUrl = image.imageURL;
 
-		const imageIndex = this.choiceImages.findIndex(
-			(x) => x.imageURL === image.imageURL
-		);
+		const imageIndex = this.choiceImages.findIndex((x) => x.imageURL === image.imageURL);
 
 		if (imageIndex > -1) 
 		{
@@ -352,12 +300,7 @@ export class ChoiceCardDetailComponent
 				attributes: choice.selectedAttributes,
 			},
 		];
-		const impactedChoices = getDependentChoices(
-			this.tree,
-			this.treeVersionRules,
-			this.options,
-			choice
-		);
+		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
 
 		impactedChoices.forEach((c) => 
 		{
@@ -373,12 +316,8 @@ export class ChoiceCardDetailComponent
 		{
 			this.deselectDeclinedPoints(choice);
 		}
-		this.store.dispatch(
-			new ScenarioActions.SelectChoices(
-				this.isDesignComplete,
-				...selectedChoices
-			)
-		);
+
+		this.store.dispatch(new ScenarioActions.SelectChoices(this.isDesignComplete, ...selectedChoices));
 		this.store.dispatch(new FavoriteActions.SaveMyFavoritesChoices());
 	}
 
@@ -386,33 +325,24 @@ export class ChoiceCardDetailComponent
 	{
 		// Check for favorites and deselect declined points in favorites
 		const points = this.groups.flatMap(g => g.subGroups.flatMap(sg => sg.points)) || [];
-		const pointDeclined = points.find((p) =>
-			p.choices.some(
-				(c) => c.divChoiceCatalogId === choice.divChoiceCatalogId
-			)
-		);
-		const fdp = this.myFavoritesPointsDeclined?.find(
-			(p) => p.divPointCatalogId === pointDeclined.divPointCatalogId
-		);
+		const pointDeclined = points.find((p) => p.choices.some((c) => c.divChoiceCatalogId === choice.divChoiceCatalogId));
+		const fdp = this.myFavoritesPointsDeclined?.find((p) => p.divPointCatalogId === pointDeclined.divPointCatalogId);
 
 		if (fdp) 
 		{
-			this.store.dispatch(
-				new FavoriteActions.DeleteMyFavoritesPointDeclined(
-					this.myFavoriteId,
-					fdp.id
-				)
-			);
+			this.store.dispatch(new FavoriteActions.DeleteMyFavoritesPointDeclined(this.myFavoriteId, fdp.id));
 		}
 	}
 
 	isTextOverflow(id: string): boolean 
 	{
 		const elem = document.getElementById(id);
+
 		if (elem) 
 		{
 			return elem.offsetHeight < elem.scrollHeight;
 		}
+
 		return false;
 	}
 

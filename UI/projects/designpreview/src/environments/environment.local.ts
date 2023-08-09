@@ -42,7 +42,9 @@ export const environment: IEnvironment = {
 		disableExceptionTracking: false,
 		disableAjaxTracking: true
 	},
-	cloudinary: { cloud_name: 'dv0jqjrc3', responsive_use_breakpoints: false },
+	cloudinary: {
+		cloud: { cloudName: 'dv0jqjrc3' }
+	},
 	alphavision: {
 		builderId: '8D676CB9-C011-429D-8D71-87D34A87494B'
 	},

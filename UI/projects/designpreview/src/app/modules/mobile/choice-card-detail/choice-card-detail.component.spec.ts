@@ -238,7 +238,7 @@ describe('ChoiceCardDetailComponent', () =>
 			component.getImages();
 			expect(component.choiceImages).toHaveSize(1);
 			expect(component.choiceImages).toEqual([
-				{ imageURL: 'this image does not exist' },
+				{ imageURL: '' },
 			]);
 		});
 	});

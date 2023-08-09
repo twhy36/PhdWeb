@@ -2,11 +2,13 @@
 @import "../../../../../../../phd-common/src/lib/scss/sizes.scss";
 
 .phd-logo-image {
-	max-width: calc(25vw);
-	max-height: calc(25vh);
-	height: auto;
-	margin-top: auto;
-	margin-bottom: auto;
+	::ng-deep img {
+		max-width: calc(25vw);
+		max-height: calc(25vh);
+		height: auto;
+		margin-top: auto;
+		margin-bottom: auto;
+	}
 }
 
 .phd-home {
@@ -18,10 +20,15 @@
 }
 
 .phd-elevation-image {
-	margin-top: auto;
-	margin-bottom: auto;
-	margin-left: calc(0.2vw);
-	height: auto;
+	::ng-deep img {
+		margin-top: auto;
+		margin-bottom: auto;
+		margin-left: calc(0.2vw);
+		height: auto;
+		max-width: calc(25vw);
+		max-height: calc(25vh);
+		object-fit: contain;
+	}
 }
 
 .phd-start-reviewing {
@@ -94,4 +101,3 @@
 		font-size: 20px;
 	}
 }
-

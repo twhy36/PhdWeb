@@ -18,7 +18,7 @@
 					<div class="phd-choice-header">
 						<span>{{ choice.label }}</span>
 						<div *ngIf="showImages && choice.choiceImagePath.length">
-							<cl-image public-id="{{choice.choiceImagePath}}" type="fetch" background="#ffffff" crop="lpad" height="100" width="150" (onError)="onLoadImageError($event)"></cl-image>
+							<image [imageUrl]="choice.choiceImagePath" height="100" width="150" crop="lpad" [imagePlugins]="imagePlugins"></image>
 						</div>
 					</div>
 
@@ -43,11 +43,12 @@
 										<div class="phd-content">
 											<span class="phd-content">{{ attr.attributeName }}</span>
 											<div *ngIf="showImages && attr.attributeImageUrl?.length">
-												<cl-image public-id="{{getImagePath(attr)}}" type="fetch" gravity="auto" crop="fill" height="75" width="75" (onError)="onLoadImageError($event)"></cl-image>
+												<image [imageUrl]="getImagePath(attr)" height="75" width="75" crop="fill" gravity="auto" [imagePlugins]="imagePlugins"></image>
 											</div>
 										</div>
 									</div>
 								</div>
+
 								<ng-container *ngIf="isChoiceComplete(choice); else attributeMsg"></ng-container>
 
 							</ng-container>

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { flipOver, LotExt, Plan } from 'phd-common';
+import { flipOver, ImagePlugins, LotExt, Plan } from 'phd-common';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -23,7 +23,8 @@ export class PlanCardComponent implements OnInit
 
 	@Output() onTogglePlan = new EventEmitter<{ plan: Plan, lot: LotExt, isSelected: boolean }>();
 
-	noImageAvailable = environment.defaultImageURL;
+	defaultImage: string = environment.defaultImageURL;
+	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	constructor() { }
 
@@ -50,18 +51,9 @@ export class PlanCardComponent implements OnInit
 		return !this.isSpecSelected && this.selectedPlan?.id === plan.id;
 	}
 
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	loadImageError(event: any)
-	{
-		event.srcElement.src = environment.defaultImageURL;
-	}
-
 	getButtonLabel(): string
 	{
-		let btnLabel;
+		let btnLabel = 'Removed';
 
 		//if a spec wasn't selected, but a plan was, allow them to unselect it
 		//if a spec was selected or it isn't a job plan, allow them to choose another plan
@@ -78,10 +70,6 @@ export class PlanCardComponent implements OnInit
 		{
 			btnLabel = 'CHOOSE';
 		}
-		else
-		{
-			btnLabel = 'Removed';
-		}
 
 		return btnLabel;
 	}
@@ -93,7 +81,7 @@ export class PlanCardComponent implements OnInit
 
 	get planPrice(): number
 	{
-		if (this.selectedLot && this.selectedLot.salesPhase && this.selectedLot.salesPhase.salesPhasePlanPriceAssocs)
+		if (this.selectedLot?.salesPhase?.salesPhasePlanPriceAssocs)
 		{
 			const isPhaseEnabled = this.selectedLot.financialCommunity && this.selectedLot.financialCommunity.isPhasedPricingEnabled;
 			const phasePlanPrice = this.selectedLot.salesPhase.salesPhasePlanPriceAssocs.find(x => x.planId === this.plan.id);

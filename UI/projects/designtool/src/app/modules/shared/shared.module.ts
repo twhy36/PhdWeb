@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { CloudinaryModule } from '@cloudinary/ng';
 import { DragScrollModule } from 'ngx-drag-scroll';
 import { CarouselModule } from 'primeng/carousel';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -15,6 +15,7 @@ import { PhdCommonModule } from 'phd-common';
 import { ActionBarComponent } from './components/action-bar/action-bar.component';
 import { AddCardComponent } from './components/add-card/add-card.component';
 import { AttributeGroupComponent } from './components/attribute-group/attribute-group.component';
+import { AttributeImagePreviewComponent } from './components/attribute-image-preview/attribute-image-preview.component';
 import { AttributeListComponent } from './components/attribute-list/attribute-list.component';
 import { AttributeLocationComponent } from './components/attribute-location/attribute-location.component';
 import { ChangeOrderNoteComponent } from './components/change-order-note/change-order-note.component';
@@ -72,6 +73,7 @@ import { NewHomeService } from '../new-home/services/new-home.service';
 		ActionBarComponent,
 		AddCardComponent,
 		AttributeGroupComponent,
+		AttributeImagePreviewComponent,
 		AttributeLocationComponent,
 		CapitalCaseSpacePipe,
 		ChangeOrderNoteComponent,
@@ -117,6 +119,7 @@ import { NewHomeService } from '../new-home/services/new-home.service';
 		ActionBarComponent,
 		AddCardComponent,
 		AttributeGroupComponent,
+		AttributeImagePreviewComponent,
 		AttributeLocationComponent,
 		CapitalCaseSpacePipe,
 		ChangeOrderNoteComponent,

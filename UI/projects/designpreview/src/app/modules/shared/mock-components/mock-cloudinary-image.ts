@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-	selector: 'cl-image',
+	selector: 'image',
 	template: ''
 	})
 export class MockCloudinaryImage
 {
-	@Input() 'public-id': string;
+	@Input() 'imageUrl': string;
+	@Input() 'defaultImage': string;
 }

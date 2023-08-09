@@ -1,0 +1,12 @@
+<div class="phd-preview-preview">
+	<div class="phd-preview-header">
+		<div class="phd-label" title="{{ title }}">{{ title }}</div>
+		<div class="phd-close-preview">
+			<label (click)="close()"><i class="fas fa-times-circle"></i></label>
+		</div>
+	</div>
+
+	<div class="phd-preview-fader" [class.on]="doFade">
+		<image [imageUrl]="imageUrl" height="300" width="300" crop="lpad"></image>
+	</div>
+</div>

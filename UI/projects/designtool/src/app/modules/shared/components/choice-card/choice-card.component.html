@@ -5,10 +5,7 @@
 		</div>
 
 		<div class="phd-choice-image">
-			<cl-image public-id="{{getImagePath()}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270"
-					  (onError)="onLoadImageError($event)"
-					  [class.phd-choice-image-inactive]="choice?.enabled === false">
-			</cl-image>
+			<image [imageUrl]="getImagePath()" [defaultImage]="defaultImage" height="190" width="270" crop="lpad" [imagePlugins]="imagePlugins"></image>
 		</div>
 
 		<div *ngIf="!choice" class="phd-choice-image"></div>

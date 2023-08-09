@@ -22,17 +22,13 @@
 <div class="d-flex justify-content-center">
 	<div *ngIf="canDisplay" class="summary-container d-flex align-items-onLoadImage flex-column">
 		<div class="position-relative phd-summary-header-image" *ngIf="summaryImages.length">
-			<ngb-carousel [interval]="0" (slide)="onSlide($event)" *ngIf="summaryImages.length > 1" [showNavigationIndicators]="false">
-				<ng-template ngbSlide *ngFor="let image of summaryImages; let currentIndex = index;" id="{{currentIndex}}">
-					<cl-image public-id="{{image.imageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" gravity="auto" crop="fill" *ngIf="activeIndex?.current == currentIndex && !image.hasDataUri"></cl-image>
+			<ngb-carousel [interval]="0" *ngIf="summaryImages.length > 0" [showNavigationIndicators]="false" [showNavigationArrows]="summaryImages.length > 1">
+				<ng-template ngbSlide *ngFor="let image of summaryImages">
+					<image [imageUrl]="image.imageUrl" [defaultImage]="defaultImage" crop="fill" gravity="auto" *ngIf="!image.hasDataUri"></image>
 
-					<img [src]="image.imageUrl | safeUrl" *ngIf="activeIndex?.current == currentIndex && image.hasDataUri" class="phd-ifp-image">
+					<img [src]="image.imageUrl | safeUrl" *ngIf="image.hasDataUri" class="phd-ifp-image">
 				</ng-template>
 			</ngb-carousel>
-
-			<cl-image *ngIf="summaryImages.length == 1 && !summaryImages[0].hasDataUri" public-id="{{summaryImages[0].imageUrl}}" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" gravity="auto" crop="fill"></cl-image>
-
-			<img [src]="summaryImages[0].imageUrl | safeUrl" *ngIf="summaryImages.length == 1 && summaryImages[0].hasDataUri" class="phd-ifp-image">
 		</div>
 
 		<summary-header [pointStatusFilter]="(pointStatusFilter$ | async)"

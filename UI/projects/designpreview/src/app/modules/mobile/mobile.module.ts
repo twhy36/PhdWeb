@@ -21,7 +21,7 @@ import { LoggedInGuard } from '../core/guards/logged-in.guard';
 import { ActionBarComponent } from './action-bar/action-bar.component';
 import { CarouselModule } from 'primeng/carousel';
 import { ChoiceCardDetailComponent } from './choice-card-detail/choice-card-detail.component';
-import { CloudinaryModule } from '@cloudinary/angular-5.x';
+import { CloudinaryModule } from '@cloudinary/ng';
 import { EstimatedTotalsComponent } from './estimated-totals/estimated-totals.component';
 import { GlobalFooterComponent } from './global-footer/global-footer.component';
 import { GlobalHeaderComponent } from './global-header/global-header.component';
@@ -88,35 +88,35 @@ const moduleRoutes: Routes = [
 @NgModule({
 	exports: [LandingComponent],
 	declarations: [
-	MobileComponent,
-	GlobalHeaderComponent,
-	HamburgerMenuComponent,
-	LandingComponent,
-	MobileComponent,
-	HamburgerMenuComponent,
-	GlobalHeaderComponent,
-	GlobalFooterComponent,
-	ChoiceCardDetailComponent,
-	ActionBarComponent,
-	EstimatedTotalsComponent,
-	ConfirmDialogComponent,
-	SummaryComponent,
-	SummaryRowComponent,
+		MobileComponent,
+		GlobalHeaderComponent,
+		HamburgerMenuComponent,
+		LandingComponent,
+		MobileComponent,
+		HamburgerMenuComponent,
+		GlobalHeaderComponent,
+		GlobalFooterComponent,
+		ChoiceCardDetailComponent,
+		ActionBarComponent,
+		EstimatedTotalsComponent,
+		ConfirmDialogComponent,
+		SummaryComponent,
+		SummaryRowComponent
 	],
 	imports: [
-	CommonModule,
-	MatButtonModule,
-	MatDialogModule,
-	MatExpansionModule,
-	MatIconModule,
-	MatMenuModule,
-	MatSidenavModule,
-	NgbModule,
-	CloudinaryModule,
-	CarouselModule,
-	MatListModule,
-	PhdCommonModule,
-	RouterModule.forChild(moduleRoutes),
+		CommonModule,
+		MatButtonModule,
+		MatDialogModule,
+		MatExpansionModule,
+		MatIconModule,
+		MatMenuModule,
+		MatSidenavModule,
+		NgbModule,
+		CloudinaryModule,
+		CarouselModule,
+		MatListModule,
+		PhdCommonModule,
+		RouterModule.forChild(moduleRoutes),
 	],
-	})
+})
 export class MobileModule { }

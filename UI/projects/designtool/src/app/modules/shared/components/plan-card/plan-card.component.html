@@ -1,9 +1,8 @@
-<div class="card phd-plan-card m-2"
-	 [class.active]="isPlanActive()"
-	 [class.phd-no-lot-assocation]="!isAssociatedWithSelectedLot && !isSpecSelected">
+<div class="card phd-plan-card m-2" [class.active]="isPlanActive()" [class.phd-no-lot-assocation]="!isAssociatedWithSelectedLot && !isSpecSelected">
 
-	<cl-image *ngIf="plan.baseHouseElevationImageUrl" public-id="{{plan.baseHouseElevationImageUrl}}" type="fetch" width="286" crop="fill" (onError)="loadImageError($event)" class="card-img-top"></cl-image>
-	<cl-image *ngIf="!plan.baseHouseElevationImageUrl" public-id="{{noImageAvailable}}" type="fetch" width="286" crop="fill" (onError)="loadImageError($event)" class="card-img-top"></cl-image>
+	<div class="phd-card-image">
+		<image [imageUrl]="plan.baseHouseElevationImageUrl" [defaultImage]="defaultImage" width="286" crop="fill" [imagePlugins]="imagePlugins"></image>
+	</div>
 
 	<div class="card-body d-flex flex-column">
 		<div class="d-flex">
@@ -14,8 +13,7 @@
 				{{planPrice | currency:'USD':'symbol':'4.0-0'}}
 			</div>
 		</div>
-		<div class="d-flex mt-auto phd-plan-selection-container"
-			 [class.phd-incompatible-lot]="!isAssociatedWithSelectedLot && !isSpecSelected">
+		<div class="d-flex mt-auto phd-plan-selection-container" [class.phd-incompatible-lot]="!isAssociatedWithSelectedLot && !isSpecSelected">
 
 			<div *ngIf="(isAssociatedWithSelectedLot && canConfigure) || isSpecSelected" class="flex-column flex-fill">
 				<button class="btn w-100 phd-experience-btn-choice" type="button"

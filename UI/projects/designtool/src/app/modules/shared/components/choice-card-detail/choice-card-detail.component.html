@@ -6,14 +6,10 @@
 	<div class="phd-card-detail-body">
 		<div class="flex-column phd-card-detail-image-body">
 			<div class="phd-image-carousel-container">
-				<div *ngIf="imageLoading" class="phd-image-loading">
-					<i class="fa fa-spinner fa-spin fa-3x phd-image-loader"></i>
-				</div>
-
-				<ngb-carousel #imageCarousel *ngIf="carouselImages.length > 0" [showNavigationArrows]="carouselImages.length > 1"	[showNavigationIndicators]="carouselImages.length > 1" [interval]="0" (slide)="onSlide($event)">
+				<ngb-carousel #imageCarousel *ngIf="carouselImages.length > 0" [showNavigationArrows]="carouselImages.length > 1" [showNavigationIndicators]="carouselImages.length > 1" [interval]="0">
 					<ng-template ngbSlide *ngFor="let carouselImage of carouselImages; let currentIndex = index;" id="{{currentIndex}}">
 						<div class="phd-image-wrapper">
-							<cl-image [public-id]="getImageUrl(carouselImage)" (onLoad)="onLoadImage()" (onError)="onLoadImageError($event)" type="fetch" background="#ffffff" crop="lpad" height="367" width="550" *ngIf="activeIndex?.current == currentIndex"></cl-image>
+							<image [imageUrl]="getImageUrl(carouselImage)" [defaultImage]="defaultImage" height="367" width="550" crop="lpad"></image>
 						</div>
 					</ng-template>
 				</ngb-carousel>
@@ -79,8 +75,7 @@
 						</ng-container>
 					</div>
 
-					<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)"
-						class="d-flex flex-column w-100">
+					<div *ngIf="!optionDisabled && (!locationGroups?.length && attributeGroups?.length)" class="d-flex flex-column w-100">
 						<attribute-group [selectedAttributes]="choice?.selectedAttributes"
 							[attributeGroups]="attributeGroups" [isActive]="true" [isPastCutOff]="isPastCutOff"
 							[canEditAgreement]="canEditAgreement" [canOverride]="canOverride"

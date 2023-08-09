@@ -9,6 +9,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 
+import { CloudinaryModule } from '@cloudinary/ng';
+
 import { OAuthModule, OAuthModuleConfig } from 'angular-oauth2-oidc';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
@@ -47,6 +49,8 @@ import { initAppInsights, TELEMETRY_INIT } from './utils/appInsights';
 import { NavigationService } from './services/navigation.service';
 import { LoggingService } from './services/logging.service';
 import { SpecDiscountService } from './services/spec-discount.service';
+import { ImageComponent } from './components/image/image.component';
+import { ImageService } from './services/image.service';
 
 export function oAuthModuleConfigFactory(apiUrl: string)
 {
@@ -74,7 +78,8 @@ export function getOrigin()
 		FormsModule,
 		BrowserAnimationsModule,
 		HttpClientModule,
-		OAuthModule.forRoot()
+		OAuthModule.forRoot(),
+		CloudinaryModule
 	],
 	declarations: [
 		PhdTableComponent,
@@ -94,7 +99,8 @@ export function getOrigin()
 		EllipsisPipe,
 		SafeUrlPipe,
 		ColorDisplayPipe,
-		MinusSignToParens
+		MinusSignToParens,
+		ImageComponent
 	],
 	exports: [
 		PhdTableComponent,
@@ -114,7 +120,8 @@ export function getOrigin()
 		EllipsisPipe,
 		SafeUrlPipe,
 		ColorDisplayPipe,
-		MinusSignToParens
+		MinusSignToParens,
+		ImageComponent
 	],
 })
 export class PhdCommonModule
@@ -154,7 +161,8 @@ export class PhdCommonModule
 				TokenService,
 				NavigationService,
 				LoggingService,
-				SpecDiscountService
+				SpecDiscountService,
+				ImageService
 			]
 		};
 	}

@@ -1,9 +1,8 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, HostListener, SimpleChanges, OnChanges } from '@angular/core';
-import * as _ from 'lodash';
 import { ReplaySubject } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute } from 'phd-common';
+import { UnsubscribeOnDestroy, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, ImagePlugins } from 'phd-common';
 
 import { DragScrollComponent } from 'ngx-drag-scroll';
 import * as fromRoot from '../../../ngrx-store/reducers';
@@ -13,7 +12,6 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 	templateUrl: 'attribute-list.component.html',
 	styleUrls: ['attribute-list.component.scss']
 })
-
 export class AttributeListComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() selectedAttributeId: number;
@@ -40,14 +38,15 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	hasImage: boolean = false;
 	attributes: Attribute[];
 
-	previewImageLabel: string;
-	previewImageSrc: any;
-	doFade: boolean;
+	previewAttribute: Attribute = null;
 
 	leftNavDisabled: boolean = false;
 	rightNavDisabled: boolean = false;
 
 	responsiveOptions: any[];
+
+	defaultImage: string = 'assets/attribute-image-not-available.png';
+	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	moveLeft()
 	{
@@ -85,10 +84,9 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 	@HostListener('document:click', ['$event'])
 	clickedOutside($event)
 	{
-		if (this.previewImageSrc)
+		if (this.previewAttribute)
 		{
-			this.previewImageSrc = null;
-			this.previewImageLabel = '';
+			this.closePreview();
 		}
 	}
 
@@ -193,17 +191,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 		if (!this.showCarousel)
 		{
-			if (this.previewImageSrc)
-			{
-				this.previewImageSrc = null;
-				this.previewImageLabel = '';
-				this.doFade = false;
-			}
-
-			_.delay(i => this.doFade = true, 100);
-
-			this.previewImageSrc = attribute.imageUrl;
-			this.previewImageLabel = attribute.name;
+			this.previewAttribute = attribute;
 		}
 		else
 		{
@@ -213,8 +201,7 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	closePreview()
 	{
-		this.previewImageSrc = null;
-		this.previewImageLabel = '';
+		this.previewAttribute = null;
 	}
 
 	getTitle(attribute: Attribute): string
@@ -224,9 +211,9 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 
 	getImageSrc(attribute: Attribute): string
 	{
-		this.hasImage = attribute.imageUrl ? true : false;
+		this.hasImage = attribute.imageUrl?.length > 0;
 
-		return attribute.imageUrl || 'assets/attribute-image-not-available.png';
+		return attribute.imageUrl || '';
 	}
 
 	isFavoriteAttribute(attribute: Attribute): boolean
@@ -239,19 +226,8 @@ export class AttributeListComponent extends UnsubscribeOnDestroy implements OnIn
 		return this.selectedAttributeId === attribute.id;
 	}
 
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	onLoadImageError(event: any)
-	{
-		this.hasImage = false;
-
-		event.srcElement.src = 'assets/attribute-image-not-available.png';
-	}
-
 	closeClicked()
 	{
-		this.closeExpandedAttribute.emit(true)
+		this.closeExpandedAttribute.emit(true);
 	}
 }

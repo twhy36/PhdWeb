@@ -109,6 +109,11 @@
 	overflow: auto;
 }
 
+.phd-default-ifp {
+	width: 100%;
+	max-width: 800px;
+}
+
 /*FLOORPLAN SIDEBAR*/
 /*Replacing the switch buttons with Material's UI checkbox buttons*/
 aside {
@@ -289,7 +294,6 @@ aside {
 		}
 	}
 }
-
 	
 @media (max-width: $tablet-max-width) {
 
@@ -332,5 +336,3 @@ aside {
 		left:70px;
 	}
 }
-
-

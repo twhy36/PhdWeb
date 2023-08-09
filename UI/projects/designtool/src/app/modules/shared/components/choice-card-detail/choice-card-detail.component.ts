@@ -52,7 +52,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	hasMonotonyConflict: boolean;
 	isButtonEnabled = true;
-	activeIndex: any = { current: 0, direction: '', prev: 0 };
 	imageLoading: boolean = false;
 	qtyAvailable: number;
 	selectedQuantity: number;
@@ -68,6 +67,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	favoriteChoiceAttributes?: MyFavoritesChoiceAttribute[];
 	favoriteChoiceLocations?: MyFavoritesChoiceLocation[];
+
+	defaultImage: string = environment.defaultImageURL;
 
 	get showChoiceDescriptionExpand(): boolean
 	{
@@ -204,7 +205,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		// default to pultegroup image if no choice/option image is found
 		if (!this.choiceImages.length && !this.optionImages.length)
 		{
-			this.optionImages.push({ imageURL: environment.defaultImageURL });
+			this.optionImages.push({ imageURL: '' });
 		}
 	}
 
@@ -470,7 +471,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		const attributeGroups = this.attributeComponent?.attributeGroups;
 
-		this.attributeComponent.attributeListComponents.forEach(a =>
+		this.attributeComponent?.attributeListComponents.forEach(a =>
 		{
 			//if selectedAttributeId of the attribute list component is not null,
 			//add it as one of the list of selected attributes
@@ -504,33 +505,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		});
 
 		return selectedAttributes;
-	}
-
-	/**
-	 * Runs when the carousel moves to a new image
-	 * @param event
-	 */
-	onSlide(event: any)
-	{
-		this.activeIndex = event;
-		this.imageLoading = true;
-	}
-
-	/** Removes the loading flag when Cloudinary is able to load an image */
-	onLoadImage()
-	{
-		this.imageLoading = false;
-	}
-
-	/**
-	 * Used to set a default image if Cloudinary can't load an image
-	 * @param event
-	 */
-	onLoadImageError(event: any)
-	{
-		this.imageLoading = false;
-
-		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()
