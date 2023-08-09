@@ -102,6 +102,7 @@ export class PHDSearchComponent
 	firstName: string;
 	lastName: string;
 	searchActiveOnly: boolean = false;
+	readyToClose: boolean = false;
 	pendingLotBlocks: Array<string> = [];
 	financialCommunities: IFinancialCommunity[];
 	featureSwitchOrgAssoc: IFeatureSwitchOrgAssoc[];
@@ -325,7 +326,8 @@ export class PHDSearchComponent
 	{
 		this.clear();
 
-		this.searchActiveOnly = true;
+		this.optionsShown = false;
+		this.readyToClose = true;
 		const filters: Array<IFilterItems> = [];
 		this.selectedSalesAgreementStatus = [Constants.AGREEMENT_STATUS_APPROVED];
 		const financialCommunityString = this.selectedFinancialCommunity && this.selectedFinancialCommunity?.toString();
@@ -391,6 +393,7 @@ export class PHDSearchComponent
 		this.lastName = null;
 		this.streetAddress = null;
 		this.searchActiveOnly = false;
+		this.readyToClose = false;
 	}
 
 	/*
