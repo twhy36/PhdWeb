@@ -48,10 +48,10 @@
 			<section *ngIf="!!optionsShown">
 				<div>
 					<div class="phd-flexbox mb-3">
-						<label>Sales Agreement Status</label>
+						<label>Sales Agreement Status</label>{{selectedSalesAgreementStatus.length}}_ {{optionsShown}}
 						<p-multiSelect defaultLabel="Select Agreement Status" [filter]="false" id="phdSalesStatus"
-							[maxSelectedLabels]="5" [(ngModel)]="selectedSalesAgreementStatus"
-							[options]="salesAgreementStatusOptions" (onPanelHide)="onOptionPanelClosed()">
+									   [maxSelectedLabels]="5" [(ngModel)]="selectedSalesAgreementStatus"
+									   [options]="salesAgreementStatusOptions" (onPanelHide)="onOptionPanelClosed()">
 						</p-multiSelect>
 					</div>
 
@@ -139,6 +139,9 @@
 				</span>
 				<span class="phd-badge" *ngIf="searchActiveOnly" (click)="edit('searchActiveOnly')">
 					<span>Pending CO</span>
+				</span>
+				<span class="phd-badge" *ngIf="readyToClose" (click)="edit()">
+					<span>Ready to close</span>
 				</span>
 			</section>
 		</div>
