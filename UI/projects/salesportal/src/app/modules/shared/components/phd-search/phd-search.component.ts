@@ -346,7 +346,7 @@ export class PHDSearchComponent
 					// filter the results for a sales agreement id that contains the sales agreement # string if needed
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
 					{
-						result.salesAgreements.map(agreement =>
+						result.salesAgreements.map(agreement => 
 						{
 
 							// if the agreement.status is 'Approved' and agreement.isLockedIn is true
