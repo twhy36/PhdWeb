@@ -10,12 +10,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule, Routes } from '@angular/router';
 
 // External Modules
-import { PhdCommonModule } from 'phd-common';
 import { BuildMode } from '../shared/models/build-mode.model';
 import { ExternalGuard } from '../core/guards/external.guard';
 import { InternalGuard } from '../core/guards/internal.guard';
 import { PresaleGuard } from '../core/guards/presale.guard';
-import { LoggedInGuard } from '../core/guards/logged-in.guard';
 
 // Mobile Module
 import { ActionBarComponent } from './action-bar/action-bar.component';
@@ -30,8 +28,6 @@ import { LandingComponent } from './landing/landing.component';
 import { MobileComponent } from './mobile.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
-import { SummaryComponent } from './summary/summary.component';
-import { SummaryRowComponent } from './shared/summary-row/summary-row.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -69,12 +65,6 @@ const moduleRoutes: Routes = [
 				data: { pageLoadEvent: 'Home', buildMode: BuildMode.Presale },
 			},
 			{
-				path: 'favorites/summary',
-				component: SummaryComponent,
-				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'FavoritesSummary' }
-			},
-			{
 				path: 'options/:subGroupCatalogId/:decisionPointCatalogId/:choiceCatalogId',
 				component: ChoiceCardDetailComponent,
 			},
@@ -100,8 +90,6 @@ const moduleRoutes: Routes = [
 	ActionBarComponent,
 	EstimatedTotalsComponent,
 	ConfirmDialogComponent,
-	SummaryComponent,
-	SummaryRowComponent,
 	],
 	imports: [
 	CommonModule,
@@ -115,8 +103,7 @@ const moduleRoutes: Routes = [
 	CloudinaryModule,
 	CarouselModule,
 	MatListModule,
-	PhdCommonModule,
 	RouterModule.forChild(moduleRoutes),
 	],
 	})
-export class MobileModule { }
+export class MobileModule {}

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 
 import { ModalContent } from 'phd-common';
-import { Constants } from '../../../shared/classes/constants.class';
 
 @Component({
 	selector: 'info-disclaimer',
@@ -14,12 +13,7 @@ export class InfoDisclaimerComponent extends ModalContent
 
 	get headerText(): string
 	{
-		return Constants.DIALOG_DISCLAIMER_TITLE;
-	}
-
-	get disclaimerText(): string
-	{
-		return Constants.DISCLAIMER_MESSAGE;
+		return 'Disclaimer'
 	}
 
 	close(result?: string)

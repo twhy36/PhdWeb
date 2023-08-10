@@ -25,7 +25,7 @@ export class HamburgerMenuComponent extends UnsubscribeOnDestroy implements OnIn
 	groups: Group[];
 	policyUrl: string;
 	termsUrl: string;
-
+	
 	showFloorplanLink: boolean = false;
 	showIncludedOptionsLink: boolean = true;
 	showPendingAndContractedOptionsLink: boolean = false;
@@ -92,7 +92,7 @@ export class HamburgerMenuComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			confirmText: Constants.DIALOG_DISCLAIMER_CONFIRM,
 			displayClose: true,
-			message: Constants.DISCLAIMER_MESSAGE,
+			message: Constants.DIALOG_DISCLAIMER_MESSAGE,
 			title: Constants.DIALOG_DISCLAIMER_TITLE
 		}
 		this.dialogService.open(options);

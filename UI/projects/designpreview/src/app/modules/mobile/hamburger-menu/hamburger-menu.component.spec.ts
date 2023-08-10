@@ -54,7 +54,7 @@ describe('HamburgerMenuComponent', () =>
 	beforeEach(async () => 
 	{
 		await TestBed.configureTestingModule({
-			declarations: [HamburgerMenuComponent],
+			declarations: [ HamburgerMenuComponent ],
 			imports: [
 				RouterTestingModule.withRoutes([]),
 				BrowserAnimationsModule,
@@ -119,7 +119,7 @@ describe('HamburgerMenuComponent', () =>
 		expect(dialogSpy).toHaveBeenCalledWith({
 			confirmText: Constants.DIALOG_DISCLAIMER_CONFIRM,
 			displayClose: true,
-			message: Constants.DISCLAIMER_MESSAGE,
+			message: Constants.DIALOG_DISCLAIMER_MESSAGE,
 			title: Constants.DIALOG_DISCLAIMER_TITLE,
 		});
 	});
