@@ -15,6 +15,8 @@ import { ContractService } from '../../../core/services/contract.service';
 import { ESignRecipient, ESignRecipientRoles, IESignRecipient } from '../../models/contract.model';
 import { ToastrService } from 'ngx-toastr';
 
+import { environment } from '../../../../../environments/environment';
+
 @Component({
 	selector: 'distribution-list',
 	templateUrl: './distribution-list.component.html',
@@ -101,7 +103,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 				const emailAssoc = contact ? contact.emailAssocs.find(e => e.isPrimary == true) : null;
 
 				dListItem.id = sa.id;
-				dListItem.email = emailAssoc ? emailAssoc.email.emailAddress : '';
+				dListItem.email = this.checkEmailIfProd(emailAssoc?.email?.emailAddress);
 				dListItem.name = sa.trustName ? sa.trustName : `${contact.firstName}${contact.middleName ? ' ' + contact.middleName : ''}${contact.lastName ? ' ' + contact.lastName : ''}`;
 				dListItem.role = ESignRecipientRoles.buyer;
 				dListItem.label = 'Buyer';
@@ -131,7 +133,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 				const dListItem = new DistributionListItem(this.distributionList.length);
 
 				dListItem.id = eSign.id;
-				dListItem.email = eSign.agentEmail;
+				dListItem.email = this.checkEmailIfProd(eSign.agentEmail);
 				dListItem.name = eSign.agentFullName;
 				dListItem.role = ESignRecipientRoles.authorizedAgent;
 				dListItem.label = 'Authorized Agent';
@@ -152,8 +154,8 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 						let recipientObj = {} as IESignRecipient;
 
 						recipientObj.id = carbonCopyRecipientID++;
-						recipientObj.email = splitRecipient;
-						recipientObj.name = "Default Copy";
+						recipientObj.email = this.checkEmailIfProd(splitRecipient);
+						recipientObj.name = 'Default Copy';
 						recipientObj.role = ESignRecipientRoles.carbonCopyRecipient.toString();
 
 						this.recipients.push(recipientObj);
@@ -180,7 +182,7 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 		dListItem.id = contact.id;
 		dListItem.role = role;
 		dListItem.name = `${contact.firstName}${contact.middleName ? ' ' + contact.middleName : ''}${contact.lastName ? ' ' + contact.lastName : ''}`;
-		dListItem.email = emailAssoc ? emailAssoc.email.emailAddress : '';
+		dListItem.email = this.checkEmailIfProd(emailAssoc?.email?.emailAddress);
 		dListItem.label = label;
 
 		this.addControl(dListItem);
@@ -244,10 +246,10 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 					this.closeClicked();
 				}
 			},
-				error =>
-				{
-					this._toastrService.error("Error sending envelope!");
-				});
+			error =>
+			{
+				this._toastrService.error('Error sending envelope!');
+			});
 	}
 
 	@HostListener('window:message', ['$event'])
@@ -286,10 +288,10 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 			{
 				this.onEnvelopeSent.emit(true);
 			},
-				error =>
-				{
-					this._toastrService.error("Error sending envelope!");
-				});
+			error =>
+			{
+				this._toastrService.error('Error sending envelope!');
+			});
 	}
 
 	getRecipients(): IESignRecipient[]
@@ -317,6 +319,20 @@ export class DistributionListComponent extends UnsubscribeOnDestroy implements O
 	getPlaceholder(label: string)
 	{
 		return label == 'Authorized Agent' ? 'Setup required in Sales Admin' : '';
+	}
+
+	checkEmailIfProd(email: string)
+	{
+		if (email && environment.production)
+		{
+			return email;
+		}
+		else if (email && !environment.production)
+		{
+			return email + 'X'
+		}
+
+		return '';
 	}
 }
 
