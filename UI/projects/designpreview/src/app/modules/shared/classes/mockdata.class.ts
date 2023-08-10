@@ -1,7 +1,9 @@
-import {
+import
+{
 	DecisionPoint,
 	Group,
 	MyFavorite,
+	Plan,
 	PlanOption,
 	PointStatus,
 	PriceBreakdown,
@@ -905,6 +907,34 @@ export const mockPriceBreakdown: PriceBreakdown = {
 	totalPrice: 650000,
 	changePrice: 0,
 	favoritesPrice: 800,
+};
+
+export const mockPlan: Plan = {
+	id: 111,
+	salesName: '2630-1 Test Sales Name',
+	numBed: 4,
+	numFullBath: 2,
+	numHalfBath: 0,
+	squareFeet: 2500,
+	title: '',
+	subtitle: '',
+	feature: '',
+	description: '',
+	price: 0,
+	communityId: 0,
+	foundation: 'test foundation',
+	garageConfiguration: 'test garage config',
+	masterBedLocation: 'test master bed location',
+	productConfiguration: 'test product config',
+	productType: 'test product type',
+	integrationKey: 0,
+	salesDescription: '',
+	treeVersionId: 0,
+	treePlanId: 0,
+	marketingPlanId: [],
+	baseHouseElevationImageUrl: '',
+	lotAssociations: [],
+	isActive: false
 };
 
 export const testGroups: Group[] =[{

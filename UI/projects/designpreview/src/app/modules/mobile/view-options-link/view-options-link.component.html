@@ -1,0 +1,13 @@
+<div class="d-flex justify-content-center text-center">
+    <div class="phd-start-reviewing-desc mb-4" data-testid="description">
+        Browse the different options available for your home. Select
+        the<mat-icon
+            class="phd-start-reviewing-heart">favorite_outline</mat-icon>symbols
+        to add to your MY FAVORITES list<ng-container *ngIf="!isPresale">
+            and review them later</ng-container>.
+    </div>
+</div>
+<button class="btn phd-view-options-btn p-2" [routerLink]="['../options']"
+    queryParamsHandling="merge" data-testid="view-options-btn">
+    View Options
+</button>

@@ -140,10 +140,8 @@
     <!-- no group section -->         
     <div class="d-flex flex-column justify-content-center align-items-center phd-fav-nofav" *ngIf="isEmptyFavorites && !includeContractedOptions">
         <div class="phd-fav-title">You don't yet have any favorites!</div>
-        <div class="phd-fav-review">
-            Browse the different options available for your home. Select the <span class="phd-fav-review-heart" aria-label="Heart">♡</span> symbols to add to your <strong>MY FAVORITES</strong> list<ng-container *ngIf="!isPresale"> and review them later</ng-container>.					
-        </div>
-        <a [routerLink]="['/options']" queryParamsHandling="merge" class="btn phd-fav-view-button">View Options</a>
+
+        <view-options-link [isPresale]="isPresale" class="phd-fav-review"></view-options-link>
     
         <button *ngIf="this.hasAgreement && !isDesignComplete" class="py-4 phd-fav-link-button" (click)="onContractedOptionsToggled($event)">{{showOptionText}}</button>
     </div>

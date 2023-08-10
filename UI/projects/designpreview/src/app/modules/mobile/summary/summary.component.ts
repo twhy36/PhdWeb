@@ -25,7 +25,7 @@ import { MatAccordion } from '@angular/material/expansion';
 	selector: 'summary',
 	templateUrl: './summary.component.html',
 	styleUrls: ['./summary.component.scss']
-})
+	})
 export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	summaryTitle: string = '';
