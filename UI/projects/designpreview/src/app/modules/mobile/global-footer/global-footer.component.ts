@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { withLatestFrom } from 'rxjs/operators';
+import _ from 'lodash';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromFavorite from '../../ngrx-store/favorite/reducer';

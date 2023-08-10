@@ -16,17 +16,11 @@ import { InternalGuard } from '../core/guards/internal.guard';
 import { PresaleGuard } from '../core/guards/presale.guard';
 
 // Mobile Module
-import { ActionBarComponent } from './action-bar/action-bar.component';
-import { CarouselModule } from 'primeng/carousel';
-import { ChoiceCardDetailComponent } from './choice-card-detail/choice-card-detail.component';
-import { CloudinaryModule } from '@cloudinary/angular-5.x';
-import { EstimatedTotalsComponent } from './estimated-totals/estimated-totals.component';
+import { MobileComponent } from './mobile.component';
 import { GlobalFooterComponent } from './global-footer/global-footer.component';
 import { GlobalHeaderComponent } from './global-header/global-header.component';
 import { HamburgerMenuComponent } from './hamburger-menu/hamburger-menu.component';
 import { LandingComponent } from './landing/landing.component';
-import { MobileComponent } from './mobile.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 
 const moduleRoutes: Routes = [
@@ -64,10 +58,6 @@ const moduleRoutes: Routes = [
 				component: LandingComponent,
 				data: { pageLoadEvent: 'Home', buildMode: BuildMode.Presale },
 			},
-			{
-				path: 'options/:subGroupCatalogId/:decisionPointCatalogId/:choiceCatalogId',
-				component: ChoiceCardDetailComponent,
-			},
 			{ path: 'error', component: LandingComponent },
 			{ path: '**', pathMatch: 'full', redirectTo: '' },
 			{ path: '', component: LandingComponent },
@@ -86,10 +76,7 @@ const moduleRoutes: Routes = [
 	HamburgerMenuComponent,
 	GlobalHeaderComponent,
 	GlobalFooterComponent,
-	ChoiceCardDetailComponent,
-	ActionBarComponent,
-	EstimatedTotalsComponent,
-	ConfirmDialogComponent,
+	ConfirmDialogComponent
 	],
 	imports: [
 	CommonModule,
@@ -99,9 +86,6 @@ const moduleRoutes: Routes = [
 	MatIconModule,
 	MatMenuModule,
 	MatSidenavModule,
-	NgbModule,
-	CloudinaryModule,
-	CarouselModule,
 	MatListModule,
 	RouterModule.forChild(moduleRoutes),
 	],
