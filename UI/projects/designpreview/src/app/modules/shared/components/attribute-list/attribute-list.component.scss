@@ -10,11 +10,6 @@ ul {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-start;
-	padding-top: 0;
-
-	&.phd-blocked-location-attribute {
-		padding-top: 15px;
-	}
 }
 
 .phd-attribute-item {
@@ -56,18 +51,4 @@ ul {
 	background: none;
 	border: none;
 	padding: 0;
-}
-
-.phd-attribute-item-image {
-	border: solid 1px #ccc;
-	cursor: pointer;
-
-	::ng-deep img {
-		height: 80px;
-		width: 80px;
-	}
-
-	&.phd-attribute-item-image-selected {
-		border: solid 4px;
-	}
 }

@@ -27,19 +27,20 @@ h1 {
 //PrimeNG carousel thumbnail
 .phd-image-carousel {
 	// horizontal scroll on thumbnails if overflow
-	display:flex;
 	overflow-x: scroll;
 	white-space: nowrap;
 
 	.phd-thumbnail-image-list {
 		padding: 0;
-		display:flex;
 	}
 
 	.phd-image-thumbnail {
 		padding: 0;
 		border: none;
-		display:flex;
+
+		cl-image {
+			border: none;
+		}
 	}
 }
 

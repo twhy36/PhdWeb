@@ -1,28 +1,27 @@
-<ul class="phd-attribute-list" [class.phd-blocked-location-attribute]="isBlocked && isLocationAttribute">
+<ul class="phd-attribute-list" [style.padding-top]="isBlocked && isLocationAttribute ? '15px': '0px'">
 	<ng-container *ngFor="let attribute of attributes">
-		<li role="group" aria-label="attribute">
-			<button class="phd-attribute-item">
-
-				<image [imageUrl]="getImageSrc(attribute)" [defaultImage]="defaultImage" crop="fill" height="80" width="80" alt=""
-					   title="{{attribute.name}}"
-					   (click)="clickAttributeClick(attribute)"
-					   class="phd-attribute-item-image"
-					   [class.phd-attribute-item-image-selected]="highlightedAttributeId === attribute.id">
-				</image>
-
-				<span class="phd-attribute-name" title="{{attribute.name}}" (click)="clickAttributeClick(attribute)">
-					{{attribute.name}}
-				</span>
-
-				<button class="phd-attribute-selector">
-					<i class="fa fa-check phd-icon-selected" *ngIf="attribute.attributeStatus === 'Contracted'"></i>
-					
-					<div [class.phd-clickable]="!isReadonly" *ngIf="!isBlocked && attribute.attributeStatus === 'Available'">
+	<li role="group" aria-label="attribute">
+		<button class="phd-attribute-item">
+			<cl-image public-id="{{getImageSrc(attribute)}}" title="{{attribute.name}}" type="fetch"
+				crop="fill" height="80" width="80" (click)="clickAttributeClick(attribute)" (onError)="onLoadImageError($event)" 
+				class="phd-attribute-item-image"
+				[class.phd-attribute-item-image-selected]="highlightedAttributeId === attribute.id" alt="">
+			</cl-image>
+			<span class="phd-attribute-name" title="{{attribute.name}}" (click)="clickAttributeClick(attribute)">
+				{{attribute.name}}
+			</span>
+			<button class="phd-attribute-selector">
+				<ng-container *ngIf="attribute.attributeStatus === 'Contracted'">
+					<i class="fa fa-check phd-icon-selected"></i>
+				</ng-container>
+				<ng-container *ngIf="attribute.attributeStatus === 'Available'">
+					<div [class.phd-clickable]="!isReadonly" *ngIf="!isBlocked">
 						<span class="phd-icon-selected"><i *ngIf="attribute.isFavorite" class="fa fa-heart" aria-pressed="true" (click)="clickToggleAttribute(attribute)"></i></span>
 						<i *ngIf="!attribute.isFavorite" class="fa fa-heart-o" aria-pressed="false" (click)="clickToggleAttribute(attribute)"></i>
-					</div>					
-				</button>
-			</button>
-		</li>
+					</div>			
+				</ng-container>	
+			</button>		
+		</button>
+	</li>
 	</ng-container>
 </ul>

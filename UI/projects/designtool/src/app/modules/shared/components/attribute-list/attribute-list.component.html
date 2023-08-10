@@ -1,10 +1,21 @@
-<attribute-image-preview [attribute]="previewAttribute" (closePreview)="closePreview()" *ngIf="previewAttribute && !showCarousel"></attribute-image-preview>
-
 <div class="phd-attribute-item-container" [ngClass]="{'flex-column': !showCarousel}">
 	<div *ngIf="!showCarousel" class="phd-expanded-header">
 		<div class="phd-label" title="{{selectedAttributeGroup.label}}">{{selectedAttributeGroup.label}}</div>
 		<div class="phd-close">
 			<label (click)="closeClicked()"><i class="fas fa-times-circle"></i></label>
+		</div>
+	</div>
+
+	<div class="phd-preview-preview" *ngIf="previewImageSrc && !showCarousel">
+		<div class="phd-preview-header">
+			<div class="phd-label" title="{{previewImageLabel}}">{{previewImageLabel}}</div>
+			<div class="phd-close-preview">
+				<label (click)="closePreview()"><i class="fas fa-times-circle"></i></label>
+			</div>
+		</div>
+
+		<div class="phd-preview-fader" [class.on]="doFade">
+			<cl-image public-id="{{previewImageSrc}}" title="" type="fetch" background="#ffffff" crop="lpad" height="300" width="300" class="phd-attribute-item-image"></cl-image>
 		</div>
 	</div>
 
@@ -30,16 +41,12 @@
 		<div class="col-12">
 			<div class="phd-attribute-item-image-body">
 				<div class="phd-thumbnail">
-
-					<image [imageUrl]="getImageSrc(attribute)" [defaultImage]="defaultImage" height="80" width="80" crop="fill" [imagePlugins]="imagePlugins"
-						   (click)="attributeClick(attribute)"
-						   title="{{ getTitle(attribute) }}"
-						   class="phd-attribute-item-image"
-						   [class.disabled]="disableAttribute"
-						   [class.phd-attribute-item-image-selected]="isAttributeSelected(attribute)"
-						   [class.phd-image-is-inactive]="(!isActive && attribute.monotonyConflict)"
-						   [class.phd-attribute-disabled]="!canEditAttributes">
-					</image>
+					<cl-image public-id="{{getImageSrc(attribute)}}" title="{{getTitle(attribute)}}" type="fetch" gravity="auto" [class.disabled]="disableAttribute"
+							  crop="fill" height="80" width="80" (click)="attributeClick(attribute)" (onError)="onLoadImageError($event)" class="phd-attribute-item-image"
+							  [class.phd-attribute-disabled]="!canEditAttributes"
+							  [class.phd-attribute-item-image-selected]="isAttributeSelected(attribute)"
+							  [class.phd-image-is-inactive]="(!isActive && attribute.monotonyConflict)">
+					</cl-image>
 
 					<span href="#" (click)="preview(attribute, $event)" *ngIf="hasImage">
 						<i class="fas fa-search-plus"></i>

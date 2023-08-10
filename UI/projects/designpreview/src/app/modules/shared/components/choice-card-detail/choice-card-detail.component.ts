@@ -31,7 +31,7 @@ import { Constants } from '../../classes/constants.class';
 	selector: 'choice-card-detail',
 	templateUrl: 'choice-card-detail.component.html',
 	styleUrls: ['choice-card-detail.component.scss']
-})
+	})
 export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild('imageCarousel') imageCarousel: NgbCarousel;
@@ -68,9 +68,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	choiceAttributeGroups: AttributeGroup[];
 	choiceLocationGroups: LocationGroup[];
 	blockedChoiceModalRef: ModalRef;
+	isChoiceImageLoaded: boolean = false;
 	point: DecisionPoint;
-
-	defaultImage: string = 'assets/NoImageAvailable.png';
 
 	constructor(private cd: ChangeDetectorRef,
 		private attributeService: AttributeService,
@@ -143,9 +142,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		error =>
 		{
 			const msg = 'Failed to load choice attributes!';
-
 			this.toastr.error(msg, 'Error');
-
 			this.adobeService.setErrorEvent(msg);
 		});
 
@@ -158,7 +155,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			if (tree)
 			{
 				this.point = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => sg.points)).find(p => p.id === this.choice.treePointId);
-
 				const choices = _.flatMap(tree.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices))) || [];
 				const updatedChoice = choices.find(x => x.divChoiceCatalogId === this.choice.divChoiceCatalogId);
 
@@ -210,7 +206,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.populateAttributeGroups(this.choiceAttributeGroups);
 		this.populateLocationGroups(this.choiceLocationGroups);
-
 		this.hasAttributes = (this.attributeGroups.length > 0 || this.locationGroups.length > 0);
 
 		// if the choice has selected attributes then fill in the location/group/attribute names at this time
@@ -248,7 +243,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						}
 					}
 				}
-
 				return attributeCopy;
 			});
 		}
@@ -295,7 +289,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 							const isFavorite = this.choice.favoriteAttributes
 								? this.choice.favoriteAttributes.findIndex(x => x.attributeId === att.id && x.attributeGroupId === attributeGroup.id) > -1
 								: false;
-
 							attributes.push(new AttributeExt(att, attritbuteStatus, isFavorite));
 						}
 					});
@@ -351,16 +344,22 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	getImages()
 	{
-		this.choiceImages = getChoiceImageList(this.choice);
+		if (this.isChoiceImageLoaded)
+		{
+			return;
+		}
 
+		this.choiceImages = getChoiceImageList(this.choice);
 		if (!this.choiceImages.length)
 		{
-			this.choiceImages.push({ imageURL: '' });
+			this.choiceImages.push({ imageURL: 'this image does not exist' });
 		}
 		else
 		{
 			this.selectedImageUrl = this.choiceImages[0].imageURL;
 		}
+
+		this.imageLoading = true;
 	}
 
 	get optionDisabled(): boolean
@@ -448,11 +447,34 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	onSlide(event)
 	{
 		this.activeIndex = event;
+		this.imageLoading = true;
 
 		if (this.activeIndex)
 		{
 			this.selectedImageUrl = this.choiceImages[this.activeIndex.current].imageURL;
 		}
+	}
+
+	/** Removes the loading flag when Cloudinary is able to load an image */
+	onLoadImage()
+	{
+		this.imageLoading = false;
+
+		if (!this.isChoiceImageLoaded)
+		{
+			this.isChoiceImageLoaded = true;
+		}
+	}
+
+	/**
+	 * Used to set a default image if Cloudinary can't load an image
+	 * @param event
+	 */
+	onLoadImageError(event)
+	{
+		this.imageLoading = false;
+
+		event.srcElement.src = 'assets/NoImageAvailable.png';
 	}
 
 	imageClick(image: OptionImage)
@@ -508,6 +530,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			if (this.attributeImageUrl !== updatedImageUrl)
 			{
 				this.attributeImageUrl = updatedImageUrl;
+				this.imageLoading = true;
 			}
 		}
 	}

@@ -1,7 +1,0 @@
-<ng-container *ngIf="imageUrlHasValue; else defaultImageTemp">
-	<advanced-image [cldImg]="cldImage" [height]="height" [width]="width" [plugins]="plugins" [alt]="alt"></advanced-image>
-</ng-container>
-
-<ng-template #defaultImageTemp>
-	<img src="{{ defaultImage }}" alt="{{ alt }}" #phdImage *ngIf="defaultImageHasValue" />
-</ng-template>

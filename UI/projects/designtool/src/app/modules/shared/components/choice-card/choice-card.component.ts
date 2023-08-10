@@ -10,7 +10,7 @@ import { Store, select } from '@ngrx/store';
 import
 {
 	UnsubscribeOnDestroy, flipOver3, ModalRef, LocationGroup, AttributeGroup, DesignToolAttribute, ChangeTypeEnum, ChangeOrderGroup,
-	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption, TreeService, Constants, ImagePlugins
+	LotExt, Plan, Choice, OptionImage, DecisionPoint, ChoiceImageAssoc, ModalService, JobPlanOption, TreeService, Constants
 } from 'phd-common';
 
 import { MonotonyConflict } from '../../models/monotony-conflict.model';
@@ -81,9 +81,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	isFavorite: boolean;
 	loadingChoiceImage = true;
 	loadingAttributeImage = true;
-	
-	defaultImage: string = environment.defaultImageURL;
-	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	private onChanges$: Subject<void> = new Subject<void>();
 
@@ -125,7 +122,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	get showRequiredButton(): boolean
 	{
-		return this.choice?.isRequired;
+		return (this.choice && this.choice.isRequired);
 	}
 
 	get showConfirmButton(): boolean
@@ -144,11 +141,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 	{
 		return !(this.loadingAttributeImage || this.loadingChoiceImage);
 	}
-
 	ngOnInit()
 	{
-		this.isPastCutOff = this.currentDecisionPoint?.isPastCutOff;
-
+		this.isPastCutOff = this.currentDecisionPoint && this.currentDecisionPoint.isPastCutOff;
 		this.route.paramMap.pipe(
 			this.takeUntilDestroyed(),
 			map(params =>
@@ -163,7 +158,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 				}
 			});
 
-		const attributeGroups: Observable<AttributeGroup[]> = this.onChanges$.pipe(
+		let attributeGroups: Observable<AttributeGroup[]> = this.onChanges$.pipe(
 			map(() => this.choice.mappedAttributeGroups),
 			distinctUntilChanged((prev, curr) => _.isEqual(prev, curr)),
 			switchMap(() => this.choice.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.choice) : of([]))
@@ -193,7 +188,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 						mergeAttributes(attributes, missingAttributes, attributeGroups, this.choice.selectedAttributes);
 						mergeLocations(locations, missingLocations, locationGroups);
 						mergeAttributeImages(attributeGroups, attributeCommunityImageAssocs);
-
 						return { attributeGroups, locationGroups };
 					}));
 			})
@@ -207,10 +201,9 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.locationGroups.forEach(x => x.locations = _.orderBy(x.locations, [l => l.name]));
 
 			const options = this.choice.options;
-
 			if (options.length)
 			{
-				const option = options.find(x => x.optionImages && x.optionImages.length > 0);
+				let option = options.find(x => x.optionImages && x.optionImages.length > 0);
 
 				if (option)
 				{
@@ -253,15 +246,14 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 							}
 						}
 					}
-
 					return attributeCopy;
 				});
 			}
 		},
-		error =>
-		{
-			this.loadingAttributeImage = false;
-		});
+			error =>
+			{
+				this.loadingAttributeImage = false;
+			});
 
 		this.override$.next((!!this.choice.overrideNote));
 
@@ -279,8 +271,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			{
 				this.choiceImages = choiceImages;
 				this.loadingChoiceImage = false;
-
-				const conflictMessage: MonotonyConflict = new MonotonyConflict();
+				let conflictMessage: MonotonyConflict = new MonotonyConflict();
 
 				if (choiceOverride)
 				{
@@ -335,7 +326,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			this.inChangeOrder = state.isChangingOrder;
 
 			const changeOrder = state.currentChangeOrder as ChangeOrderGroup;
-
 			this.changeOrderOverrideReason = changeOrder ? changeOrder.overrideNote : null;
 		});
 
@@ -441,7 +431,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	emitToggleEvent()
 	{
-		const evt = { choice: this.choice, saveNow: false, quantity: this.unsavedQty };
+		let evt = { choice: this.choice, saveNow: false, quantity: this.unsavedQty };
 
 		if (this.choice.maxQuantity > 1 && this.choice.quantity === 0)
 		{
@@ -470,7 +460,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			{
 				if (ag.attributes.length === 1)
 				{
-					const attribute = ag.attributes[0];
+					let attribute = ag.attributes[0];
 
 					selectedAttributes.push({
 						attributeId: attribute.id,
@@ -512,25 +502,33 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 	getImagePath(): string
 	{
-		let imagePath = '';
+		let imagePath = this._baseHref + environment.defaultImageURL;
 
-		if (this.optionImages?.length)
+		if (this.optionImages && this.optionImages.length)
 		{
 			imagePath = this.optionImages[0].imageURL;
 		}
-		else if (this.choice?.hasImage && this.choiceImages.length)
+		else if (this.choice && this.choice.hasImage && this.choiceImages.length)
 		{
 			imagePath = this.choiceImages[0].imageUrl;
 		}
-
 		return imagePath;
+	}
+
+	/**
+	 * Used to set a default image if Cloudinary can't load an image
+	 * @param event
+	 */
+	onLoadImageError(event: any)
+	{
+		event.srcElement.src = environment.defaultImageURL;
 	}
 
 	onOverride()
 	{
 		if (!this.overrideReason)
 		{
-			let body = Constants.OVERRIDE_CUT_OFF;
+			let body = '';
 
 			if (this.monotonyConflict.monotonyConflict && this.isPastCutOff)
 			{
@@ -539,6 +537,10 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 			else if (this.monotonyConflict.monotonyConflict)
 			{
 				body = Constants.OVERRIDE_MONOTONY;
+			}
+			else
+			{
+				body = Constants.OVERRIDE_CUT_OFF;
 			}
 
 			const confirm = this.modalService.open(ModalOverrideSaveComponent);
@@ -644,7 +646,7 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit,
 
 				if (!this.monotonyConflict.choiceOverride)
 				{
-					this.lots.monotonyRules?.forEach(rule =>
+					this.lots.monotonyRules && this.lots.monotonyRules.forEach(rule =>
 					{
 						if (rule.colorSchemeAttributeCommunityIds.length > 0 && rule.edhPlanId === this.plan.id)
 						{

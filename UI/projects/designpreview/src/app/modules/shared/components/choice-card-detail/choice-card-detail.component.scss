@@ -85,10 +85,6 @@ ul {
 	.phd-card-detail-image-body {
 		display: flex !important;
 		justify-content: center !important;
-
-		.phd-carousel-section {
-			flex: 0;
-		}
 	
 		.carousel:focus {
 			outline: none;
@@ -107,7 +103,10 @@ ul {
 			margin-right: 0;
 			padding: 0 10px 0 0;
 			border: none;
-			display: flex;
+	
+			cl-image {
+				border: none;
+			}
 		}
 	}
 

@@ -1,9 +1,10 @@
 <div class="container d-flex flex-column px-0 vh-100">
 	<div #estimatedTotals class="phd-sticky-header">
-		<estimated-totals *ngIf="(isPresalePricingEnabled || !isPresale)"
-						  [isPresale]="isPresale"
-						  [isPresalePricingEnabled]="isPresalePricingEnabled"
-						  [isDesignComplete]="isDesignComplete">
+		<estimated-totals 
+			*ngIf="(isPresalePricingEnabled || !isPresale)"
+			[isPresale]="isPresale"
+			[isPresalePricingEnabled]="isPresalePricingEnabled"
+			[isDesignComplete]="isDesignComplete">
 		</estimated-totals>
 	</div>
 
@@ -13,82 +14,123 @@
 
 	<div class="phd-sticky-content p-3" [ngStyle]="{ top: estimatedTotalsOffsetHeight + 'px' }">
 		<header>
-			<h1 class="py-1" data-testid="choice-label">{{ choice.label }}</h1>
+			<h1 class="py-1" data-testid="choice-label">
+				{{ choice.label }}
+			</h1>
 		</header>
-
 		<div class="d-flex justify-content-end mb-1">
-			<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
+			<ng-container *ngIf="!isPresale || (isPresale && isPresalePricingEnabled)">
 				<div *ngIf="!choice.priceHiddenFromBuyerView" class="mt-2 mb-1 mr-auto">
 					<span class="phd-info-text">Pricing subject to change</span>
 				</div>
 			</ng-container>
 
 			<div class="price-icon-container d-flex justify-content-end align-items-center">
-				<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
+				<ng-container *ngIf="!isPresale || (isPresale && isPresalePricingEnabled)">
 					<div>
-						<span class="phd-price-label mr-2">{{ choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency: "USD" : "symbol" : "0.0-0" }}</span>
+						<span class="phd-price-label mr-2">
+							{{
+								choice.price * (choice.quantity > 0 ? choice.quantity : 1)
+									| currency: "USD" : "symbol" : "0.0-0"
+							}}
+						</span>
 					</div>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
-					<button class="phd-clickable phd-favorite-selector phd-icon-accent p-0" (click)="toggleChoice(choice)">
-						<mat-icon attr.aria-pressed="{{ choice.isFavorite }}" data-testid="favorite-icon">
+					<button
+						class="phd-clickable phd-favorite-selector phd-icon-accent p-0"
+						(click)="toggleChoice(choice)">
+						<mat-icon
+							attr.aria-pressed="{{ choice.isFavorite }}"
+							data-testid="favorite-icon">
 							{{ choice.isFavorite ? "favorite" : "favorite_outline" }}
 						</mat-icon>
 					</button>
 				</ng-container>
 				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
-					<button class="phd-clickable phd-favorite-selector phd-icon-accent" data-testid="blocked-icon">
+					<button
+						class="phd-clickable phd-favorite-selector phd-icon-accent"
+						data-testid="blocked-icon">
 						<mat-icon attr.aria-label="{{ choice.label + ' is blocked' }}">block</mat-icon>
 					</button>
 				</ng-container>
 			</div>
 		</div>
-
 		<section aria-label="Carousel" class="phd-main-image-section d-flex justify-content-center">
 			<span class="phd-visually-hidden" aria-label="Image Carousel Instructions">
 				This is a carousel with slides. Jump to a slide using the thumbnail.
 			</span>
-
-			<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="false" (slide)="onSlide($event)" class="d-flex">
-				<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index" id="{{ currentIndex }}">
-					<image [imageUrl]="image.imageURL" [defaultImage]="defaultImage" crop="lpad"
-						   class="phd-image-content"
-						   alt=""
-						   role="group"
-						   attr.aria-label="{{ 'Slide ' + (currentIndex + 1) + ' of ' + choiceImages.length }}"
-						   data-testid="main-carousel-image">
-					</image>
+			<ngb-carousel
+				#imageCarousel
+				[interval]="0"
+				[showNavigationArrows]="false"
+				(slide)="onSlide($event)"
+				class="d-flex">
+				<ng-template
+					ngbSlide
+					*ngFor="let image of choiceImages; let currentIndex = index"
+					id="{{ currentIndex }}">
+					<!--eslint-disable-next-line @angular-eslint/template/eqeqeq-->
+					<cl-image *ngIf="activeIndex?.current == currentIndex"
+						public-id="{{ image.imageURL }}"
+						(onLoad)="onLoadImage()"
+						(onError)="onLoadImageError($event)"
+						type="fetch"
+						background="#ffffff"
+						crop="lpad"
+						class="phd-image-content"
+						alt=""
+						role="group"
+						attr.aria-label="{{
+							'Slide ' + (currentIndex + 1) + ' of ' + choiceImages.length
+						}}"
+						data-testid="main-carousel-image"></cl-image>
 				</ng-template>
 			</ngb-carousel>
 		</section>
-
 		<div class="phd-info-text my-2" data-testid="images-disclaimer">
 			Images are examples only. Products are subject to change.
 		</div>
 
-		<div class="phd-image-carousel">
+		<div class="phd-image-carousel d-flex">
 			<ul class="phd-thumbnail-image-list">
-				<button *ngFor="let image of choiceImages; let i = index" class="phd-image-thumbnail phd-clickable mr-3">
-					<image [imageUrl]="image.imageURL" [defaultImage]="defaultImage" crop="lpad"
-						   attr.aria-label="{{ 'Image ' + (image.sortKey + 1) + ' of ' + choiceImages.length }}"
-						   class="phd-choice-image"
-						   [class.phd-choice-image-selected]="selectedImageUrl === image.imageURL"
-						   alt=""
-						   attr.aria-current="{{ selectedImageUrl === image.imageURL }}"
-						   (click)="imageClick(image)"
-						   [attr.data-testid]="'thumbnail-image-' + i">
-					</image>
+				<button
+					*ngFor="let image of choiceImages; let i = index"
+					class="phd-image-thumbnail phd-clickable mr-3">
+					<cl-image
+						public-id="{{ image.imageURL }}"
+						type="fetch"
+						background="#ffffff"
+						crop="lpad"
+						attr.aria-label="{{
+							'Image ' + (image.sortKey + 1) + ' of ' + choiceImages.length
+						}}"
+						class="phd-choice-image"
+						[class.phd-choice-image-selected]="selectedImageUrl === image.imageURL"
+						alt=""
+						attr.aria-current="{{ selectedImageUrl === image.imageURL }}"
+						(onError)="onLoadImageError($event)"
+						(click)="imageClick(image)"
+						[attr.data-testid]="'thumbnail-image-' + i"></cl-image>
 				</button>
 			</ul>
 		</div>
 
-		<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-description" [class.phd-description-expanded]="this.expandDescription" id="descriptionText" data-testid="description-text">
+		<div
+			*ngIf="choiceDescriptions.length && !optionDisabled"
+			class="phd-description"
+			[class.phd-description-expanded]="this.expandDescription"
+			id="descriptionText"
+			data-testid="description-text">
 			<div *ngFor="let description of choiceDescriptions">
 				{{ description }}
 			</div>
 		</div>
-
-		<button *ngIf="descOverflowedOnLoad" (click)="this.expandDescription = !this.expandDescription" class="phd-expand-text px-0" data-testid="expand-text">
+		<button
+			*ngIf="descOverflowedOnLoad"
+			(click)="this.expandDescription = !this.expandDescription"
+			class="phd-expand-text px-0"
+			data-testid="expand-text">
 			{{ this.isTextOverflow("descriptionText") ? "See More" : "See Less" }}
 		</button>
 	</div>

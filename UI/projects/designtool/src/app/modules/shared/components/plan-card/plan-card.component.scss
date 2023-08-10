@@ -5,14 +5,6 @@
 .phd-plan-card {
 	width: 286px;
 
-	.phd-card-image {
-		min-height: 180px;
-
-		::ng-deep img {
-			width: 286px;
-		}
-	}
-
 	&.active {
 		box-shadow: 0 0 0 2pt $weird-green;
 		transition: all 0.12s;
@@ -43,7 +35,7 @@
 			color: $black;
 			font-size: 12px;
 			font-weight: bold;
-		}
+		}		
 	}
 
 	&.phd-no-lot-assocation {

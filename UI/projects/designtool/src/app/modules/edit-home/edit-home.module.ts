@@ -8,7 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 import { PhdCommonModule } from 'phd-common';
 
 import { ConfirmNavigationGuard } from '../core/guards/confirm-navigation.guard';
-import { CloudinaryModule } from '@cloudinary/ng';
+import { CloudinaryModule } from '@cloudinary/angular-5.x';
 import { NormalExperienceComponent } from './components/edit-home/normal-experience/normal-experience.component';
 import { EditHomeComponent } from './components/edit-home/edit-home.component';
 import { DragScrollModule } from 'ngx-drag-scroll';

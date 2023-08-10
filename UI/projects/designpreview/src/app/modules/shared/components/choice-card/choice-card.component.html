@@ -1,8 +1,11 @@
 <li class="phd-choice-card" [ngClass]="!isPresalePricingEnabled && isPresale ? 'phd-choice-card-presale-height' : 'phd-choice-card-standard-height'" [class.active]="choice?.quantity" [class.selected]="choice?.quantity" [@flipOver] (click)="clickViewChoiceDetail()" role="group" attr.aria-label="{{'Choice - ' + choice.label}}">
 	<div class="phd-header">
-		<div class="phd-choice-image">
-			<image [imageUrl]="imageUrl" [defaultImage]="defaultImage" height="190" width="270" crop="lpad" [imagePlugins]="imagePlugins" [class.phd-logo-image]="!imageUrl"></image>
+		<div class="phd-choice-image"*ngIf="imageUrl">
+			<cl-image public-id="{{imageUrl}}" type="fetch" background="#ffffff" crop="lpad" height="190" width="270" alt=""
+					  (onError)="onLoadImageError($event)">
+			</cl-image>
 		</div>
+		<img class="phd-logo-image" src="assets/NoImageAvailable.png" *ngIf="!imageUrl" alt="">
 	</div>
 
 	<div class="phd-body">
@@ -40,10 +43,11 @@
 </li>
 
 <ng-template #blockedChoiceModal let-c="close" let-d="dismiss">
-	<blocked-choice-modal [choice]="choice"
-						  [point]="currentPoint"
-						  (closeModal)="onCloseClicked()"
-						  (blockedItemClick)="onBlockedItemClick()">
+	<blocked-choice-modal
+		[choice]="choice"
+		[point]="currentPoint"
+		(closeModal)="onCloseClicked()"
+		(blockedItemClick)="onBlockedItemClick()">
 	</blocked-choice-modal>
 </ng-template>
 

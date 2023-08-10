@@ -1,22 +1,26 @@
 <header [ngClass]="(isPresale && !isPresalePricingEnabled) ? 'phd-summary-header-presale' : ''" class="phd-summary-header" [class.is-sticky]="isSticky">
-
-	<ng-container *ngIf="(isPresale && !isPresalePricingEnabled) || (!isPresale || isPresalePricingEnabled)">
-		<div class="phd-elevation-block phd-hide-in-print" [class.phd-hidden-from-view]="((!isPresale || isPresalePricingEnabled) && isSticky)">
-			<image [imageUrl]="summaryHeader.elevationImageUrl" [defaultImage]="defaultImage" crop="fill" [transformations]="imageTransformations" alt=""
-				   [class.phd-presale-elevation-image]="isPresale && !isPresalePricingEnabled && summaryHeader.elevationImageUrl"
-				   [class.phd-postsale-elevation-image]="summaryHeader.elevationImageUrl && (!isPresale || isPresalePricingEnabled) && !isSticky"
-				   [class.phd-logo-image-sticky]="!summaryHeader.elevationImageUrl && isPresale && !isPresalePricingEnabled"
-				   [class.phd-logo-image]="!summaryHeader.elevationImageUrl && !isSticky">
-			</image>
+	<ng-container *ngIf="isPresale && !isPresalePricingEnabled">
+		<div class="phd-presale-elevation phd-hide-in-print">
+			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:112px;border:'black'" alt="">
+				<cl-transformation width="1920" height="1240" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
+			</cl-image>
 		</div>
+		<img class="phd-logo-image-sticky phd-hide-in-print" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl" alt="">
+	</ng-container>
+	
+	<ng-container *ngIf="(!isPresale || isPresalePricingEnabled) && !isSticky">
+		<div class="phd-hide-in-print phd-postsale-elevation">
+			<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:360px;margin:10px" crop="fill" alt="">
+				<cl-transformation width="1920" height="1240" background="white" crop="pad" color="grey" effect="outline:outer:4:1"></cl-transformation>
+			</cl-image>
+		</div>
+		<img class="phd-logo-image" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl" alt="">
 	</ng-container>
 
 	<div class="phd-hidden-from-view phd-show-in-print">
-		<image [imageUrl]="summaryHeader.elevationImageUrl" [defaultImage]="defaultImage" crop="fill" alt=""
-			   [class.phd-printable-image]="summaryHeader.elevationImageUrl"
-			   [class.phd-hide-in-print]="!summaryHeader.elevationImageUrl"
-			   [class.phd-logo-image]="!summaryHeader.elevationImageUrl">
-		</image>
+		<cl-image *ngIf="summaryHeader.elevationImageUrl" public-id="{{summaryHeader.elevationImageUrl}}" type="fetch" style="width:auto;height:calc(15vw);margin:10px" crop="fill" alt="">
+		</cl-image>
+		<img class="phd-logo-image phd-hide-in-print" [src]="getImageSrc()" *ngIf="!summaryHeader.elevationImageUrl" alt="">
 	</div>
 
 	<div class="phd-header-body">
@@ -89,7 +93,6 @@
 		</ng-container>
 	</div>
 </header>
-
 <header *ngIf="!isPresale || isPresalePricingEnabled" class="phd-show-in-print">
 	<div class="phd-top-price-spacer"></div>
 	<div class="phd-divider"></div>

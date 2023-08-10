@@ -141,7 +141,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			});
 		});
 
-		const wd: any = window;
+		let wd: any = window;
 
 		wd.message = function (str) { };
 
@@ -319,7 +319,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			this.renderer.removeChild(this.img.nativeElement, this.img.nativeElement.children[i]);
 		}
 
-		const svgContainer = this.renderer.createElement('div');
+		let svgContainer = this.renderer.createElement('div');
 
 		svgContainer.innerHTML = this.selectedFloor.svg;
 
@@ -347,8 +347,8 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	{
 		if (changes['subGroup'] && !changes['subGroup'].isFirstChange())
 		{
-			const current = changes['subGroup'].currentValue as SubGroup;
-			const previous = changes['subGroup'].previousValue as SubGroup;
+			let current = changes['subGroup'].currentValue as SubGroup;
+			let previous = changes['subGroup'].previousValue as SubGroup;
 
 			if (current.points.some(c => previous.points.find(p => p.id === c.id).enabled !== c.enabled))
 			{
@@ -356,12 +356,12 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			}
 			else
 			{
-				const currentChoices = _.flatMap(current.points, p => p.choices);
-				const previousChoices = _.flatMap(previous.points, p => p.choices);
+				let currentChoices = _.flatMap(current.points, p => p.choices);
+				let previousChoices = _.flatMap(previous.points, p => p.choices);
 
 				if (currentChoices.some(c =>
 				{
-					const previousChoice = previousChoices.find(p => p.id === c.id);
+					let previousChoice = previousChoices.find(p => p.id === c.id);
 
 					return previousChoice.enabled !== c.enabled || previousChoice.quantity != c.quantity;
 				}))
@@ -377,7 +377,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		unloadScript('code.jquery.com', 'jQuery', '$');
 		unloadScript('alpha-vision.com', 'AVFloorplan');
 
-		const wd: any = window;
+		let wd: any = window;
 
 		delete wd.message;
 		delete wd.fp;
@@ -707,7 +707,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			{
 				try
 				{
-					const wd: any = window;
+					let wd: any = window;
 
 					this.fp = wd.fp = new AVFloorplan(environment.alphavision.builderId, '' + this.planId, document.querySelector('#av-floor-plan'), [], this.staticFloorPlanInitialized.bind(this));
 				}
@@ -727,4 +727,5 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 		this.fp.setOptionsColor('#48A5F1');
 		this.fp.addHomeFootPrint('#eaf1fc');
 	}
+
 }

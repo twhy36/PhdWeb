@@ -28,11 +28,51 @@
 			cursor: pointer;
 		}
 	}
-}
 
-::ng-deep .phd-preview-preview {
-	right: 35%;
-	top: 10px;
+	.phd-preview-preview {
+		position: absolute;
+		right: 40%;
+		top: 50px;
+		z-index: 9999;
+
+		.phd-preview-header {
+			position: absolute;
+			display: flex;
+			width: 100%;
+			padding: 10px;
+		}
+
+		.phd-label {
+			display: flex;
+			flex: 1;
+		}
+
+		.phd-preview-fader {
+			background: rgba(100, 100, 100, 0.4);
+			box-shadow: 0 0 8px 1px rgba(100, 100, 100, 0.3);
+			max-height: 300px;
+			max-width: 300px;
+			min-height: 200px;
+			min-width: 200px;
+			opacity: 0.1;
+			transition: opacity 100ms;
+
+			&.on {
+				opacity: 1;
+			}
+		}
+
+		.phd-close-preview {
+			display: flex;
+			flex: 1;
+			flex-direction: row-reverse;
+
+			label {
+				color: red;
+				cursor: pointer;
+			}
+		}
+	}
 }
 
 .phd-attribute-group-container:not(:last-child) {

@@ -78,6 +78,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	isSpecOrModel: boolean;
 
 	imageLoading: boolean = false;
+	activeIndex: any = { current: 0, direction: '', prev: 0 };
 	summaryImages: SDImage[] = [];
 
 	showImages: boolean = false;
@@ -113,8 +114,6 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	opportunityId: string;
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
-
-	defaultImage: string = environment.defaultImageURL;
 
 	get showRemoveDesignSelectionsButton(): boolean
 	{
@@ -541,7 +540,34 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 
 		this.cd.detectChanges();
 	}
-		
+
+	/**
+	 * Runs when the carousel moves to a new image
+	 * @param event
+	 */
+	onSlide(event: any)
+	{
+		this.activeIndex = event;
+		this.imageLoading = true;
+	}
+
+	/** Removes the loading flag when Cloudinary is able to load an image */
+	onLoadImage()
+	{
+		this.imageLoading = false;
+	}
+
+	/**
+	 * Used to set a default image if Cloudinary can't load an image
+	 * @param event
+	 */
+	onLoadImageError(event: any)
+	{
+		this.imageLoading = false;
+
+		event.srcElement.src = environment.defaultImageURL;
+	}
+
 	onPointTypeFilterChanged(pointTypeFilter: DecisionPointFilterType)
 	{
 		// set the new filter type

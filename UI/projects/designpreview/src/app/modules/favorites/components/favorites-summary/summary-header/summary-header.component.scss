@@ -1,44 +1,17 @@
 @import "../../../../../../../../phd-common/src/lib/scss/color-pallet.scss";
 
-.phd-elevation-block {
+.phd-logo-image {
+	width: calc(40vw);
+	height: auto;
+}
+
+.phd-presale-elevation {
 	margin: 10px;
 }
 
-.phd-logo-image {
-	::ng-deep img {
-		width: calc(40vw);
-		height: auto;
-	}
-}
-
 .phd-logo-image-sticky {
-	::ng-deep img {
-		width: calc(10vw);
-		height: auto;
-	}
-}
-
-.phd-presale-elevation-image {
-	::ng-deep img {
-		width: auto;
-		height: 112px;
-		border-color: black;
-	}
-}
-
-.phd-postsale-elevation-image {
-	::ng-deep img {
-		width: auto;
-		height: 360px;
-	}
-}
-
-.phd-printable-image {
-	::ng-deep img {
-		width: auto;
-		height: calc(15vw);
-		margin: 10px;
-	}
+	width: calc(10vw);
+	height: auto;
 }
 
 .phd-header-body {

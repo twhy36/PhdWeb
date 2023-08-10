@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { CloudinaryModule } from '@cloudinary/ng';
+import { CloudinaryModule } from '@cloudinary/angular-5.x';
 
 import { PhdCommonModule } from 'phd-common';
 

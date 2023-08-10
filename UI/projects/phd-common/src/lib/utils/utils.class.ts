@@ -226,7 +226,6 @@ export function mergeTreeChoiceImages(choiceImages: Array<ChoiceImageAssoc>, tre
 export function getChoiceImage(choice: Choice): string
 {
 	const options = choice ? choice.options : null;
-
 	if (options && options.length) 
 	{
 		return options.find(x => x.optionImages && x.optionImages.length)?.optionImages[0]?.imageURL;
@@ -241,8 +240,7 @@ export function getChoiceImage(choice: Choice): string
 export function getChoiceImageList(choice: Choice): OptionImage[]
 {
 	const options = choice ? choice.options : null;
-	const images: OptionImage[] = [];
-
+	let images: OptionImage[] = [];
 	if (options && options.length) 
 	{
 		options.forEach(option =>

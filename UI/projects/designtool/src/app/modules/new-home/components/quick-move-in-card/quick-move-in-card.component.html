@@ -1,15 +1,12 @@
 <div class="phd-quick-card">
-
-	<div class="phd-card-image">
-		<image [imageUrl]="getImagePath()" [defaultImage]="defaultImage" width="286" crop="fill" [imagePlugins]="imagePlugins"></image>
-	</div>
-
+	<cl-image public-id="{{getImagePath()}}" type="fetch"
+		width="286" crop="fill" (onError)="loadImageError($event)" class="card-img-top"></cl-image>
 	<div>
 		<div class="phd-flex-container">
 			<div class="phd-plan-name">
 				{{lot.salesName}}
 			</div>
-			<div>Lot #{{ lot.lotBlock }} </div>
+				<div>Lot #{{ lot.lotBlock }} </div>
 			<div>
 				{{lot.price | currency:'USD':'symbol':'4.0-0'}}
 			</div>

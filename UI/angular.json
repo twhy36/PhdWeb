@@ -201,6 +201,7 @@
 					"options": {
 						"allowedCommonJsDependencies": [
 							"applicationinsights-js",
+							"cloudinary-core",
 							"lodash",
 							"rxjs"
 						],
@@ -637,6 +638,7 @@
 					"options": {
 						"allowedCommonJsDependencies": [
 							"applicationinsights-js",
+							"cloudinary-core",
 							"lodash",
 							"rxjs"
 						],

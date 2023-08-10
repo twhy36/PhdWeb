@@ -1,5 +1,3 @@
-<attribute-image-preview [attribute]="previewAttribute" (closePreview)="closePreview()" *ngIf="previewAttribute"></attribute-image-preview>
-
 <div *ngFor="let attributeGroup of attributeGroups" class="phd-attribute-group-container">
 	<div class="phd-attribute-group-header">
 		<div class="label">
@@ -26,9 +24,22 @@
 						[isCollapsed]="isCollapsed"
 						[favoriteChoiceAttributes]="favoriteChoiceAttributes"
 						[isDesignComplete]="isDesignComplete"
-						(onPreview)="preview($event)"
+						(onPreview)="previewAttribute($event)"
 						(onAttributeClick)="attributeClick($event)">
 		</attribute-list>
+	</div>
+
+	<div class="phd-preview-preview" *ngIf="previewImageSrc">
+		<div class="phd-preview-header">
+			<div class="phd-label" title="{{previewImageLabel}}">{{previewImageLabel}}</div>
+			<div class="phd-close-preview">
+				<label (click)="closePreview()"><i class="fas fa-times-circle"></i></label>
+			</div>
+		</div>
+
+		<div class="phd-preview-fader" [class.on]="doFade">
+			<cl-image public-id="{{previewImageSrc}}" title="" type="fetch" background="#ffffff" crop="lpad" height="300" width="300" class="phd-attribute-item-image"></cl-image>
+		</div>
 	</div>
 </div>
 
@@ -45,7 +56,7 @@
 					[monotonyOverride]="monotonyOverride$"
 					[updateParent]="true"
 					[favoriteChoiceAttributes]="favoriteChoiceAttributes"
-					(onPreview)="preview($event)"
+					(onPreview)="previewAttribute($event)"
 					(closeExpandedAttribute)="closeExpanded()"
 					(onAttributeClick)="attributeClick($event)">
 	</attribute-list>

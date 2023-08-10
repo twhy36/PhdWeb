@@ -9,7 +9,6 @@ export * from './lib/components/spinner/spinner.component';
 export * from './lib/components/table/phd-column.directive';
 export * from './lib/components/table/phd-table.component';
 export * from './lib/components/table/phd-rowtoggler.directive';
-export * from './lib/components/image/image.component';
 
 // directives
 export * from './lib/directives/control-disabled.directive';
@@ -72,7 +71,6 @@ export * from './lib/services/feature-switch.service';
 export * from './lib/services/navigation.service';
 export * from './lib/services/logging.service';
 export * from './lib/services/spec-discount.service';
-export * from './lib/services/image.service';
 
 //utils
 export * from './lib/utils/animations.class';

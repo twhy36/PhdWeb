@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener, ViewChild
 
 import { Store } from '@ngrx/store';
 
+import * as _ from 'lodash';
+
 import { UnsubscribeOnDestroy, ModalRef, ModalService, Attribute, AttributeGroup, DesignToolAttribute, MyFavoritesChoiceAttribute, Constants } from 'phd-common';
 
 import { AttributeListComponent } from '../attribute-list/attribute-list.component';
@@ -52,16 +54,19 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	@HostListener('document:click', ['$event'])
 	clickedOutside($event)
 	{
-		if (this.previewAttribute)
+		if (this.previewImageSrc)
 		{
-			this.closePreview();
+			this.previewImageSrc = null;
+			this.previewImageLabel = '';
 		}
 	}
 
 	@ViewChild('content') content: any;
 
 	// Image preview vars
-	previewAttribute: Attribute = null;
+	previewImageLabel: string;
+	previewImageSrc: string;
+	doFade: boolean;
 
 	constructor(private store: Store<fromRoot.State>, private modalService: ModalService) { super(); }
 
@@ -137,14 +142,24 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		return attributeId;
 	}
 
-	preview(attribute: Attribute)
+	previewAttribute(attribute: Attribute)
 	{
-		this.previewAttribute = attribute;
+		if (this.previewImageSrc)
+		{
+			this.previewImageSrc = null;
+			this.previewImageLabel = '';
+			this.doFade = false;
+		}
+
+		_.delay(i => this.doFade = true, 100);
+
+		this.previewImageSrc = attribute.imageUrl;
+		this.previewImageLabel = attribute.name;
 	}
 
 	closePreview()
 	{
-		this.previewAttribute = null;
+		this.previewImageSrc = null;
 	}
 
 	expandAttributes(attributeGroup: AttributeGroup)

@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, Inject, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, Inject, EventEmitter, Output } from "@angular/core";
 import { APP_BASE_HREF } from '@angular/common';
 
 import * as _ from 'lodash';
 
-import { UnsubscribeOnDestroy, Job, Plan, TreeService, ImagePlugins } from 'phd-common';
+import { UnsubscribeOnDestroy, Job, Plan, TreeService } from 'phd-common';
 
 import { of } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -27,8 +27,6 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 	plan: Plan;
 	choices: { choiceId: number, overrideNote: string, quantity: number }[];
 	hasPendingChangeOrder: boolean = false;
-	defaultImage: string = environment.defaultImageURL;
-	imagePlugins: ImagePlugins[] = [ImagePlugins.LazyLoad];
 
 	private imagePath: string;
 
@@ -41,13 +39,18 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 
 	ngOnInit()
 	{
-		this.plan = this.plans.find(plan => plan.id === this.specJob.planId);
+		this.plan = this.plans.find(
+			plan => plan.id === this.specJob.planId
+		);
 
-		const elevationPlanOptions = this.specJob.jobPlanOptions.filter(x => x.jobOptionTypeName === 'Elevation');
-		const getImages = elevationPlanOptions?.length > 0 ? this._treeService.getPlanOptionCommunityImageAssoc(elevationPlanOptions) : of(null);
+		let elevationPlanOptions = this.specJob.jobPlanOptions.filter(x => x.jobOptionTypeName === "Elevation");
+
+		let getImages = elevationPlanOptions?.length > 0 ?
+			this._treeService.getPlanOptionCommunityImageAssoc(elevationPlanOptions) : of(null);
 
 		getImages.subscribe(jobPlanImages =>
 		{
+
 			if (jobPlanImages && jobPlanImages.length > 0)
 			{
 				this.imagePath = jobPlanImages[0].imageUrl;
@@ -58,7 +61,7 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 			}
 			else
 			{
-				this.imagePath = '';
+				this.imagePath = this._baseHref + environment.defaultImageURL;
 			}
 		});
 
@@ -88,6 +91,11 @@ export class QuickMoveInCardComponent extends UnsubscribeOnDestroy
 	getImagePath(): string
 	{
 		return this.imagePath;
+	}
+
+	loadImageError(event: any)
+	{
+		event.srcElement.src = this._baseHref + environment.defaultImageURL;
 	}
 
 	getButtonLabel(): string
