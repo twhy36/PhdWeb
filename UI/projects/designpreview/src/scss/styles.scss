@@ -19,7 +19,6 @@
 // Mobile component themes
 @use './themes/components/estimated-totals-theme' as estimated-totals;
 @use './themes/components/global-header-theme' as global-header;
-@use './themes/components/landing-theme' as landing;
 
 @import "@angular/material/theming";
 @import '../../../phd-common/src/lib/scss/color-pallet.scss';
@@ -58,8 +57,6 @@
 	// Mobile component themes
 	@include estimated-totals.theme($theme);
 	@include global-header.theme($theme);
-	@include landing.theme($theme);
-
 	font-family: mat.font-family($typography-config);
 
 	.modal-content {
@@ -132,14 +129,6 @@
 
 		.phd-point-link {
 			color: mat.get-color-from-palette($primary-palette, 'A100');
-		}
-	}
-
-	.phd-elevation-image {
-		img {
-			max-width: 100%;
-			max-height: 100%;
-			object-fit: contain;
 		}
 	}
 

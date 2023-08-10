@@ -17,7 +17,6 @@ import { GroupExt } from '../../shared/models/group-ext.model';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BuildMode } from '../../shared/models/build-mode.model';
-import { ViewOptionsLinkComponent } from '../view-options-link/view-options-link.component';
 
 describe('SummaryComponent', () =>
 {
@@ -37,7 +36,7 @@ describe('SummaryComponent', () =>
 	beforeEach(async () =>
 	{
 		await TestBed.configureTestingModule({
-			declarations: [SummaryComponent, ViewOptionsLinkComponent],
+			declarations: [SummaryComponent],
 			imports: [
 				RouterTestingModule.withRoutes([]),
 				BrowserAnimationsModule,

@@ -32,7 +32,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 import { SummaryComponent } from './summary/summary.component';
 import { SummaryRowComponent } from './shared/summary-row/summary-row.component';
-import { ViewOptionsLinkComponent } from './view-options-link/view-options-link.component';
 
 const moduleRoutes: Routes = [
 	{
@@ -73,7 +72,7 @@ const moduleRoutes: Routes = [
 				path: 'favorites/summary',
 				component: SummaryComponent,
 				canActivate: [LoggedInGuard],
-				data: { pageLoadEvent: 'FavoritesSummary' },
+				data: { pageLoadEvent: 'FavoritesSummary' }
 			},
 			{
 				path: 'options/:subGroupCatalogId/:decisionPointCatalogId/:choiceCatalogId',
@@ -89,36 +88,35 @@ const moduleRoutes: Routes = [
 @NgModule({
 	exports: [LandingComponent],
 	declarations: [
-	MobileComponent,
-	GlobalHeaderComponent,
-	HamburgerMenuComponent,
-	LandingComponent,
-	MobileComponent,
-	HamburgerMenuComponent,
-	GlobalHeaderComponent,
-	GlobalFooterComponent,
-	ChoiceCardDetailComponent,
-	ActionBarComponent,
-	EstimatedTotalsComponent,
-	ConfirmDialogComponent,
-	SummaryComponent,
-	SummaryRowComponent,
-	ViewOptionsLinkComponent,
+		MobileComponent,
+		GlobalHeaderComponent,
+		HamburgerMenuComponent,
+		LandingComponent,
+		MobileComponent,
+		HamburgerMenuComponent,
+		GlobalHeaderComponent,
+		GlobalFooterComponent,
+		ChoiceCardDetailComponent,
+		ActionBarComponent,
+		EstimatedTotalsComponent,
+		ConfirmDialogComponent,
+		SummaryComponent,
+		SummaryRowComponent
 	],
 	imports: [
-	CommonModule,
-	MatButtonModule,
-	MatDialogModule,
-	MatExpansionModule,
-	MatIconModule,
-	MatMenuModule,
-	MatSidenavModule,
-	NgbModule,
-	CloudinaryModule,
-	CarouselModule,
-	MatListModule,
-	PhdCommonModule,
-	RouterModule.forChild(moduleRoutes),
+		CommonModule,
+		MatButtonModule,
+		MatDialogModule,
+		MatExpansionModule,
+		MatIconModule,
+		MatMenuModule,
+		MatSidenavModule,
+		NgbModule,
+		CloudinaryModule,
+		CarouselModule,
+		MatListModule,
+		PhdCommonModule,
+		RouterModule.forChild(moduleRoutes),
 	],
-	})
-export class MobileModule {}
+})
+export class MobileModule { }
