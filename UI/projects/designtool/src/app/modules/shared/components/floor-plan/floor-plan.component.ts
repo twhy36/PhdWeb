@@ -82,6 +82,7 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 	favoriteChoices: MyFavoritesChoice[];
 	isDesignComplete: boolean;
 	replaceRules: OptionRule[];
+	isSavingFloorPlan: boolean = false;
 
 	get fpFloors()
 	{
@@ -481,12 +482,15 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 			switchMap(() => this.store.select(state => state.scenario.scenario.scenarioId))
 		).subscribe(scenarioId =>
 		{
-			if (!this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
+			if (!this.isSavingFloorPlan && !this.useDefaultFP && (this.canForceSave || this.canEditAgreement))
 			{
+				this.isSavingFloorPlan = true;
+
 				if (!this.jobId && !!scenarioId)
 				{
 					this.scenarioService.saveFloorPlanImages(scenarioId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
 					{
+						this.isSavingFloorPlan = false;
 						this.onFloorPlanSaved.emit(images);
 					});
 				}
@@ -494,8 +498,13 @@ export class FloorPlanComponent extends UnsubscribeOnDestroy implements OnInit, 
 				{
 					this.jobService.saveFloorPlanImages(this.jobId, this.fp.floors, this.fp.exportStaticSVG()).subscribe(images =>
 					{
+						this.isSavingFloorPlan = false;
 						this.onFloorPlanSaved.emit(images);
 					});
+				}
+				else
+				{
+					this.isSavingFloorPlan = false;
 				}
 			}
 		});
