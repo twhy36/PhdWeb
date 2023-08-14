@@ -55,9 +55,9 @@ export class PlanService
 										: of([]);
 
 									return combineLatest([
-											this.optionService.getPlanOptions(plan.id, includedPlanOptions, true),
-											getOptionImages
-										])
+										this.optionService.getPlanOptions(plan.id, includedPlanOptions, true),
+										getOptionImages
+									])
 										.pipe(
 											map(([optionsResponse, optionImages]) =>
 											{
@@ -68,8 +68,7 @@ export class PlanService
 													plan.price = optionsResponse[0].listPrice;
 												}
 
-												plan.baseHouseElevationImageUrl = optionImages && optionImages.length > 0
-													? optionImages[0].imageURL : environment.defaultImageURL;
+												plan.baseHouseElevationImageUrl = optionImages?.length > 0 ? optionImages[0].imageURL : '';
 
 												return plan;
 											})
