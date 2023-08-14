@@ -9,6 +9,7 @@ import { mock } from 'ts-mockito';
 import { JobService } from '../../core/services/job.service';
 import { State } from '../reducers';
 import { JobPlanOptionsUpdated } from './actions';
+import { LiteService } from '../../core/services/lite.service';
 
 function getDefaultState()
 {
@@ -48,7 +49,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -67,7 +71,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);			
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -86,7 +93,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -105,7 +115,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing');
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);	
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe();
 
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledTimes(0);
@@ -124,7 +137,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing').and.returnValue(of([<JobPlanOption>{ id: 10 }]));
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);	
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe(result =>
 			{
 				expect(result).toBeInstanceOf(JobPlanOptionsUpdated);
@@ -147,7 +163,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing').and.returnValue(of([<JobPlanOption>{ id: 10 }]));
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe(result =>
 			{
 				expect(result).toBeInstanceOf(JobPlanOptionsUpdated);
@@ -170,7 +189,10 @@ describe('JobEffects', () =>
 			const jobService = mock(JobService);
 			spyOn(jobService, 'updateSpecJobPricing').and.returnValue(of([<JobPlanOption>{ id: 10 }]));
 
-			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null);
+			const liteService = mock(LiteService);
+			spyOn(liteService, 'checkLiteAgreement').and.returnValue(false);			
+
+			const jobEffect = new JobEffects(actions, store, null, jobService, null, null, null, liteService);
 			jobEffect.updateSpecJobPricing$.subscribe(result =>
 			{
 				expect(result).toBeInstanceOf(JobPlanOptionsUpdated);
