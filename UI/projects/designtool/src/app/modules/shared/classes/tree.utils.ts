@@ -466,7 +466,7 @@ export function checkElevationAndColorSelectionOptions(tree: Tree, optionRules: 
 					
 				});
 
-				if (!!replacedOptionId)
+				if (!!replacedOptionId && !optionList.includes(replacedOptionId))
 				{
 					optionList.push(replacedOptionId);
 				}

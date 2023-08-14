@@ -4,12 +4,12 @@ import { map, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 import
-	{
-		DesignToolAttribute, ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute, 
-		ChangeOrderChoiceLocation, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, PlanOption,
-		OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, MappedAttributeGroup, MappedLocationGroup,
-		applyRules, MyFavoritesChoice, TreeService
-	} from 'phd-common';
+{
+	DesignToolAttribute, ChangeOrderGroup, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceAttribute,
+	ChangeOrderChoiceLocation, JobChoice, JobPlanOption, JobChoiceAttribute, JobChoiceLocation, PlanOption,
+	OptionRule, TreeVersionRules, Scenario, SelectedChoice, Tree, Choice, MappedAttributeGroup, MappedLocationGroup,
+	applyRules, MyFavoritesChoice, TreeService
+} from 'phd-common';
 
 export function isLocked(changeOrder: ChangeOrderGroup, includeChangedChoice: boolean = false): (choice: JobChoice | ChangeOrderChoice) => boolean
 {
@@ -60,7 +60,7 @@ export function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice
 {
 	choices.filter(isLocked(changeOrder)).forEach(choice =>
 	{
-		let treeChoice = treeChoices.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
+		const treeChoice = treeChoices.find(ch => ch.divChoiceCatalogId === choice.divChoiceCatalogId);
 
 		if (treeChoice)
 		{
@@ -78,20 +78,24 @@ export function saveLockedInChoices(choices: Array<JobChoice | ChangeOrderChoice
 }
 
 export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options: Array<JobPlanOption | ChangeOrderPlanOption>)
-	: { 
-		choice: (JobChoice | ChangeOrderChoice),
-		optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }> 
-	}
+	:
+		{
+			choice: (JobChoice | ChangeOrderChoice),
+			optionAttributeGroups: Array<{ optionId: string, attributeGroups: number[], locationGroups: number[] }>
+		}
 {
-	return { choice, 
+	return {
+		choice,
 		optionAttributeGroups: isJobChoice(choice)
 			? choice.jobChoiceJobPlanOptionAssocs.filter(a => a.choiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as JobPlanOption).id === a.jobPlanOptionId);
+
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as JobPlanOption).jobPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as JobPlanOption).jobPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
 						};
@@ -102,27 +106,29 @@ export function getLockedInChoice(choice: JobChoice | ChangeOrderChoice, options
 					}
 				})
 			: choice.jobChangeOrderChoiceChangeOrderPlanOptionAssocs.filter(a => a.jobChoiceEnabledOption)
-				.map(a => {
+				.map(a =>
+				{
 					const opt = options.find(o => (o as ChangeOrderPlanOption).id === a.jobChangeOrderPlanOptionId);
+
 					if (opt)
 					{
-						return { 
-							optionId: opt.integrationKey, 
+						return {
+							optionId: opt.integrationKey,
 							attributeGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionAttributes?.map(att => att.attributeGroupCommunityId),
 							locationGroups: (opt as ChangeOrderPlanOption).jobChangeOrderPlanOptionLocations?.map(loc => loc.locationGroupCommunityId)
-						};	
+						};
 					}
 					else
 					{
 						return null;
 					}
 				})
-			};
+	};
 }
 
 export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<DesignToolAttribute>
 {
-	let result: Array<DesignToolAttribute> = [];
+	const result: Array<DesignToolAttribute> = [];
 	let locations: Array<JobChoiceLocation | ChangeOrderChoiceLocation>;
 	let attributes: Array<JobChoiceAttribute | ChangeOrderChoiceAttribute>;
 
@@ -139,7 +145,7 @@ export function mapAttributes(choice: JobChoice | ChangeOrderChoice): Array<Desi
 
 	locations && locations.forEach(loc =>
 	{
-		let locationAttributes = loc instanceof JobChoiceLocation ? loc.jobChoiceLocationAttributes : loc.jobChangeOrderChoiceLocationAttributes;
+		const locationAttributes = loc instanceof JobChoiceLocation ? loc.jobChoiceLocationAttributes : loc.jobChangeOrderChoiceLocationAttributes;
 
 		if (locationAttributes && locationAttributes.length)
 		{
@@ -223,19 +229,19 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 		{
 			return combineLatest([
 				source,
-				treeService.getTree(scenario.originalTreeVersionId), 
+				treeService.getTree(scenario.originalTreeVersionId),
 				treeService.getRules(scenario.originalTreeVersionId)
 			]).pipe(
 				map(([data, origTree, origRules]: [T, Tree, TreeVersionRules]) =>
 				{
-					let newTree = _.cloneDeep(data.tree);
-					let newTreeChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
-					let origTreeChoices = _.flatMap(origTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+					const newTree = _.cloneDeep(data.tree);
+					const newTreeChoices = _.flatMap(newTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
+					const origTreeChoices = _.flatMap(origTree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => _.flatMap(sg.points, pt => pt.choices)));
 
 					scenario.scenarioChoices.forEach(choice =>
 					{
-						let c1 = newTreeChoices.find(c => c.divChoiceCatalogId === choice.choice.choiceCatalogId);
-						let c2 = origTreeChoices.find(c => c.divChoiceCatalogId === choice.choice.choiceCatalogId);
+						const c1 = newTreeChoices.find(c => c.divChoiceCatalogId === choice.choice.choiceCatalogId);
+						const c2 = origTreeChoices.find(c => c.divChoiceCatalogId === choice.choice.choiceCatalogId);
 
 						if (c1)
 						{
@@ -252,10 +258,10 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 					applyRules(origTree, origRules, data.options);
 
 					//compare old and new choices, and remove anything that no longer exists, is no longer selected, or has different options
-					let selectedChoices = scenario.scenarioChoices.filter(c =>
+					const selectedChoices = scenario.scenarioChoices.filter(c =>
 					{
-						let nc = newTreeChoices.find(c1 => c1.divChoiceCatalogId === c.choice.choiceCatalogId && c1.quantity > 0);
-						let oc = origTreeChoices.find(c2 => c2.divChoiceCatalogId === c.choice.choiceCatalogId && c2.quantity > 0);
+						const nc = newTreeChoices.find(c1 => c1.divChoiceCatalogId === c.choice.choiceCatalogId && c1.quantity > 0);
+						const oc = origTreeChoices.find(c2 => c2.divChoiceCatalogId === c.choice.choiceCatalogId && c2.quantity > 0);
 
 						return !!nc && !!oc && (nc.options || []).every(o1 => (oc.options || []).findIndex(o2 => o2.financialOptionIntegrationKey === o1.financialOptionIntegrationKey) !== -1)
 							&& (oc.options || []).every(o1 => (nc.options || []).findIndex(o2 => o2.financialOptionIntegrationKey === o1.financialOptionIntegrationKey) !== -1);
@@ -263,43 +269,43 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 
 					if (selectedChoices.length > 0)
 					{
-						let newSubGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
-						let newPoints = _.flatMap(newSubGroups, sg => sg.points);
-						let newChoices = _.flatMap(newPoints, p => p.choices);
+						const newSubGroups = _.flatMap(newTree.treeVersion.groups, g => g.subGroups);
+						const newPoints = _.flatMap(newSubGroups, sg => sg.points);
+						const newChoices = _.flatMap(newPoints, p => p.choices);
 
-						let oldSubGroups = _.flatMap(origTree.treeVersion.groups, g => g.subGroups);
-						let oldPoints = _.flatMap(oldSubGroups, sg => sg.points);
-						let oldChoices = _.flatMap(oldPoints, p => p.choices);
+						const oldSubGroups = _.flatMap(origTree.treeVersion.groups, g => g.subGroups);
+						const oldPoints = _.flatMap(oldSubGroups, sg => sg.points);
+						const oldChoices = _.flatMap(oldPoints, p => p.choices);
 
 						// filter out any rule that didn't have anything to do with attribute reassignment
-						let oldOptionRules = origRules.optionRules.filter(or => or.choices.find(c => c.attributeReassignments.length > 0) !== null);
-						let oldOptionRuleChoices = _.flatMap(oldOptionRules, r => r.choices);
+						const oldOptionRules = origRules.optionRules.filter(or => or.choices.find(c => c.attributeReassignments.length > 0) !== null);
+						const oldOptionRuleChoices = _.flatMap(oldOptionRules, r => r.choices);
 
-						let newOptionRules = data.rules.optionRules.filter(or => or.choices.find(c => c.attributeReassignments.length > 0) !== null);
-						let newOptionRuleChoices = _.flatMap(newOptionRules, r => r.choices);
+						const newOptionRules = data.rules.optionRules.filter(or => or.choices.find(c => c.attributeReassignments.length > 0) !== null);
+						const newOptionRuleChoices = _.flatMap(newOptionRules, r => r.choices);
 
 						selectedChoices.forEach(selectedChoice =>
 						{
-							let newChoice = newChoices.find(x => x.id === selectedChoice.choiceId);
-							let lostAttributes = selectedChoice.selectedAttributes.filter(sa => newChoice.mappedAttributeGroups.findIndex(ag => ag.id === sa.attributeGroupId) === -1);
+							const newChoice = newChoices.find(x => x.id === selectedChoice.choiceId);
+							const lostAttributes = selectedChoice.selectedAttributes.filter(sa => newChoice.mappedAttributeGroups.findIndex(ag => ag.id === sa.attributeGroupId) === -1);
 
 							if (lostAttributes.length > 0)
 							{
 								lostAttributes.forEach(attribute =>
 								{
-									let oldChoice = oldChoices.find(c => c.divChoiceCatalogId === newChoice.divChoiceCatalogId);
+									const oldChoice = oldChoices.find(c => c.divChoiceCatalogId === newChoice.divChoiceCatalogId);
 
 									// if it was a reassignment in its past life
-									let oldOptionRuleChoice = oldOptionRuleChoices.find(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.attributeGroupId === attribute.attributeGroupId && ar.choiceId === oldChoice.id) > -1);
+									const oldOptionRuleChoice = oldOptionRuleChoices.find(c => c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.attributeGroupId === attribute.attributeGroupId && ar.choiceId === oldChoice.id) > -1);
 
 									if (oldOptionRuleChoice != null)
 									{
 										// get the old choice parent
-										let oldParentChoice = oldChoices.find(c => c.id === oldOptionRuleChoice.id);
+										const oldParentChoice = oldChoices.find(c => c.id === oldOptionRuleChoice.id);
 										// so we can find the new choice parent
-										let newParentChoice = newChoices.find(c => c.divChoiceCatalogId === oldParentChoice.divChoiceCatalogId);
+										const newParentChoice = newChoices.find(c => c.divChoiceCatalogId === oldParentChoice.divChoiceCatalogId);
 										// then we can get the new selected choice
-										let newSelectedChoiceParent = selectedChoices.find(c => c.choiceId === newParentChoice.id);
+										const newSelectedChoiceParent = selectedChoices.find(c => c.choiceId === newParentChoice.id);
 
 										// Add the selected attribute back to its original location before the reassignment
 										newSelectedChoiceParent.selectedAttributes.push(attribute);
@@ -312,12 +318,12 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 									else
 									{
 										// if it wasn't a reassignment but now is
-										let optionRuleChoice = newOptionRuleChoices.find(c => c.id === newChoice.id && c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.attributeGroupId === attribute.attributeGroupId) > -1);
+										const optionRuleChoice = newOptionRuleChoices.find(c => c.id === newChoice.id && c.attributeReassignments.length > 0 && c.attributeReassignments.findIndex(ar => ar.attributeGroupId === attribute.attributeGroupId) > -1);
 
 										if (optionRuleChoice != null)
 										{
 											// find the reassignment rule
-											let attributeReassignment = optionRuleChoice.attributeReassignments.filter(ar => ar.attributeGroupId === attribute.attributeGroupId);
+											const attributeReassignment = optionRuleChoice.attributeReassignments.filter(ar => ar.attributeGroupId === attribute.attributeGroupId);
 
 											if (attributeReassignment.length > 0)
 											{
@@ -325,7 +331,7 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 												attributeReassignment.forEach(ar =>
 												{
 													// find the reassigned choice if available
-													let newSelectedChoice = selectedChoices.find(c => c.choiceId === ar.choiceId);
+													const newSelectedChoice = selectedChoices.find(c => c.choiceId === ar.choiceId);
 
 													// the reassigned choice might not have been selected so we'll just drop the selection
 													if (newSelectedChoice != null)
@@ -354,11 +360,11 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 				//all choices
 				tap(data =>
 				{
-					let newTreePoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
+					const newTreePoints = _.flatMap(data.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
 					data.selectedChoices = data.selectedChoices.filter(sc =>
 					{
-						let pt = newTreePoints.find(p => p.choices.some(ch => ch.id === sc.choiceId));
+						const pt = newTreePoints.find(p => p.choices.some(ch => ch.id === sc.choiceId));
 
 						if (pt)
 						{
@@ -369,7 +375,7 @@ export function updateWithNewTreeVersion<T extends { tree: Tree, rules: TreeVers
 							return false; //should never happen
 						}
 					});
-				}),
+				})
 			);
 		}
 	};
