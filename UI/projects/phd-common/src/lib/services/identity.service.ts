@@ -1,6 +1,6 @@
 import { Injectable, Inject, forwardRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, ReplaySubject, throwError as _throw, of } from 'rxjs';
+import { Observable, ReplaySubject, throwError as _throw, of } from "rxjs";
 
 import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 
@@ -23,7 +23,7 @@ export class IdentityService
 	//private _user: ReplaySubject<adal.User> = new ReplaySubject(1);
 	private loggedInSubject$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
 
-	private readonly _graphUrl = 'https://graph.microsoft.com';
+	private readonly _graphUrl = "https://graph.microsoft.com";
 
 	private claims: Claims;
 	private assignedMarkets: Array<{ id: number, number: string }>;
@@ -106,12 +106,12 @@ export class IdentityService
 		);
 
 		this.loggedInSubject$.pipe(
-			filter(loggedIn => loggedIn),
-			take(1)
-		).subscribe(() => 
-		{
-			this.appInsights.setAuthenticatedUserContext(this.osvc.getIdentityClaims()['preferred_username']);
-		});
+            filter(loggedIn => loggedIn),
+            take(1)
+        ).subscribe(() => 
+        {
+            this.appInsights.setAuthenticatedUserContext(this.osvc.getIdentityClaims()['preferred_username']);
+         });
 	}
 
 	private configure(authConfig: AuthConfig)
@@ -355,11 +355,11 @@ export class IdentityService
 }
 
 export const Roles = {
-	ItSupport: 'ITSupport',
-	CatalogManager: 'CatalogManager',
-	TreeManager: 'TreeManager',
-	AllOrgs: 'ORG_All',
-	HomeSiteManager: 'SiteAdmin',
+	ItSupport: "ITSupport",
+	CatalogManager: "CatalogManager",
+	TreeManager: "TreeManager",
+	AllOrgs: "ORG_All",
+	HomeSiteManager: "SiteAdmin",
 	SalesConsultant: 'SalesConsultant',
 	SalesManager: 'SalesManager',
 	/** Gets the dynamic role name for a specific org */

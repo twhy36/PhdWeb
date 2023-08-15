@@ -191,7 +191,7 @@ export const canEditSpecInfo = createSelector(
 	fromOrg.market,
 	fromUser.selectUser,
 	fromSalesAgreement.salesAgreementState,
-	(scenario, market, user) =>
+	(scenario, market, user, sag) =>
 		((scenario.buildMode === Constants.BUILD_MODE_MODEL || scenario.buildMode === Constants.BUILD_MODE_SPEC))
 		&& (user.canSelectAddenda && !!market && user.assignedMarkets && user.assignedMarkets.some(m => m.number === market.number))
 )

@@ -41,7 +41,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	canSell$: Observable<boolean>;
 	canEditSpecInfo: boolean = false;
 	canCreateSpecOrModel: boolean = false;
-	canAddIncentive: boolean = false;
 	priceBreakdown$: Observable<PriceBreakdown>;
 	isChangingOrder$: Observable<boolean>;
 	isChangingOrder: boolean;
@@ -53,12 +52,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 	get canEdit(): boolean
 	{
-		return this.canEditSpecInfo || this.canCreateSpecOrModel;
-	}
-
-	get canEditSpecDiscount(): boolean
-	{
-		return this.canAddIncentive || this.canCreateSpecOrModel;
+		return !!this.canEditSpecInfo || !!this.canCreateSpecOrModel;
 	}
 
 	constructor(
@@ -109,22 +103,21 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			this.takeUntilDestroyed(),
 			select(state => state.job),
 			combineLatest(this.store.pipe(select(fromRoot.canEditSpecInfo)), this.store.pipe(select(fromRoot.canCreateSpecOrModel)),
-				this.store.pipe(select(fromRoot.canAddIncentive)), this.params$, this.store.pipe(select(state => state.job.specInformation))),
-			switchMap(([job, canEditSpecInfo, canCreateSpecOrModel, canAddIncentive, params, pulteInfo]) =>
+				this.params$, this.store.pipe(select(state => state.job.specInformation))),
+			switchMap(([job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo]) =>
 			{
 				const getSalesPrograms = !!job?.financialCommunityId ? this.salesInfoService.getSalesPrograms(job.financialCommunityId) : of([]);
 				return getSalesPrograms.pipe(
 					map(programs =>
 					{
-						return { job, canEditSpecInfo, canCreateSpecOrModel, canAddIncentive, params, pulteInfo, programs };
+						return { job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo, programs };
 					})
 				);
 			})
-		).subscribe(({ job, canEditSpecInfo, canCreateSpecOrModel, canAddIncentive, params, pulteInfo, programs }) =>
+		).subscribe(({ job, canEditSpecInfo, canCreateSpecOrModel, params, pulteInfo, programs }) =>
 		{
 			this.canEditSpecInfo = canEditSpecInfo;
 			this.canCreateSpecOrModel = canCreateSpecOrModel;
-			this.canAddIncentive = canAddIncentive;
 
 			if (job.plan)
 			{
@@ -197,15 +190,18 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.cd.detectChanges();
 
-		for (const control in this.pulteInfoForm.controls)
+		for (let control in this.pulteInfoForm.controls)
 		{
-			if (!this.canEdit || ((control == 'discountExpirationDate' || control == 'discountAmount') && !this.canEditSpecDiscount))
+			if (control !== 'discountExpirationDate')
 			{
-				this.pulteInfoForm.controls[control].disable();
-			}
-			else
-			{
-				this.pulteInfoForm.controls[control].enable();
+				if (!this.canEdit)
+				{
+					this.pulteInfoForm.controls[control].disable();
+				}
+				else
+				{
+					this.pulteInfoForm.controls[control].enable();
+				}
 			}
 		}
 	}
