@@ -29,7 +29,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	loadingJob = false;
 	loadingInfo = false;
 	discountExpired = false;
-
 	projectedFinalDate: Date;
 	fullBathsDefault: number;
 	halfBathsDefault: number;
@@ -156,13 +155,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 					const minDate = new Date();
 					this.minDate = new Date(minDate.setDate(minDate.getDate() + 1));
-
-					const date = new Date();
-
-					if (this.pulteInfo.discountExpirationDate.getTime() < date.getTime())
-					{
-						this.discountExpired = true;
-					}
 				}
 
 				this.qmiSalesProgram = programs.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
@@ -197,6 +189,11 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			'bedrooms': new UntypedFormControl(this.pulteInfo.numberBedOverride, [Validators.min(0), Validators.max(255)]),
 			'squareFeet': new UntypedFormControl(this.pulteInfo.squareFeetOverride, [Validators.min(0), Validators.max(32000)]),
 			'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
+		});
+
+		this.pulteInfoForm.controls['discountExpirationDate'].valueChanges.subscribe((value: Date) =>
+		{
+			this.checkDiscountExpirationDate();
 		});
 
 		this.toggleFormControls();
@@ -282,6 +279,12 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		const year = dateToFormat.getUTCFullYear();
 
 		return new Date(month + '/' + day + '/' + year);
+	}
+
+	checkDiscountExpirationDate()
+	{
+		const currentDate = new Date();
+		this.discountExpired = this.pulteInfoForm.controls['discountExpirationDate'].value.getTime() < currentDate.getTime();
 	}
 
 	allowNavigation(): boolean
