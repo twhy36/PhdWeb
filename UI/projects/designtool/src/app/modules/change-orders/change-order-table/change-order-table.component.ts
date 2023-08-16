@@ -20,8 +20,6 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 	@Output() onActionSelected = new EventEmitter();
 	@Output() onGenerateDocument = new EventEmitter();
 
-	hasAutoRespondMessage: boolean = false;
-
 	@ViewChild('changeOrderAction') changeOrderAction: ElementRef;
 
 	constructor(private renderer: Renderer2) { super(); }
@@ -32,8 +30,6 @@ export class ChangeOrderTableComponent extends UnsubscribeOnDestroy implements O
 		{
 			this.changeOrders[0].index = 0;
 		}
-
-		this.hasAutoRespondMessage = this.changeOrders.some(changeOrder => changeOrder.eSignEnvelopes.length > 0 && changeOrder.eSignEnvelopes[0].eSignRecipientEnvelopeEvents.some(eSign => eSign.autoRespondedErrorMessage));
 	}
 
 	resetChangeOrderAction(changeOrderActionTypes)
