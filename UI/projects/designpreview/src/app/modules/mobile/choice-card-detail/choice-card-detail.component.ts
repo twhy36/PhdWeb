@@ -56,9 +56,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	decisionPointCatalogId: number;
 	choiceCatalogId: number;
 	isPreview: boolean;
-	isPresale: boolean;
+	isPresale: boolean = true;
 	isDesignComplete: boolean;
-	isPresalePricingEnabled: boolean;
+	isPresalePricingEnabled: boolean = false;
 
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
@@ -120,7 +120,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.store.pipe(select(fromFavorite.favoriteState)),
 		]).subscribe(([scenarioState, filteredTree, sag, fav]) => 
 		{
-			if (scenarioState.tree.treeVersion) 
+			if (scenarioState.tree?.treeVersion) 
 			{
 				const tree = scenarioState.tree.treeVersion;
 
@@ -194,14 +194,6 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				this.isPresalePricingEnabled = isPricingEnabled;
 			});
 
-		const desc = this.choice.description ? [this.choice.description] : [];
-
-		this.choiceDescriptions =
-			this.choice.options && this.choice.options.length > 0
-				? this.choice.options
-					.filter((o) => o.description != null)
-					.map((o) => o.description)
-				: desc;
 	}
 
 	ngAfterViewInit() 
@@ -245,6 +237,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			point.isStructuralItem
 		);
 
+		const desc = this.choice?.description ? [this.choice.description] : [];
+
+		this.choiceDescriptions =
+			this.choice?.options && this.choice.options.length > 0
+				? this.choice.options
+					.filter((o) => o.description != null)
+					.map((o) => o.description)
+				: desc;
+		
 		this.getImages();
 	}
 

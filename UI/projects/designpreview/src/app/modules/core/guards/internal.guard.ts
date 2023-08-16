@@ -50,8 +50,8 @@ export class InternalGuard
 					return of(false);
 				}
 
-				const salesAgreementId = +route.params.salesAgreementId;
-				const treeVersionId = +route.params.treeVersionId;
+				const salesAgreementId = +route.params.salesAgreementId || +route.queryParams.salesAgreementId;
+				const treeVersionId = +route.params.treeVersionId || +route.queryParams.treeVersionId;
 
 				if (treeVersionId
 					&& (!scenario.tree 
@@ -62,7 +62,7 @@ export class InternalGuard
 				}
 				else if (salesAgreementId > 0 && salesAgreement.id !== salesAgreementId)
 				{
-					this.store.dispatch(new CommonActions.LoadSalesAgreement(route.params.salesAgreementId))
+					this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId));
 				}
 
 				return of(true);

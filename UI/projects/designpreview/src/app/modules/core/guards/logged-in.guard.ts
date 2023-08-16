@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot } from '@angular/router';
-import { IdentityService } from 'phd-common';
-import { environment } from '../../../../environments/environment';
 import { clearPresaleSessions } from '../../shared/classes/utils.class';
+import { environment } from '../../../../environments/environment';
 import { ExternalGuard } from './external.guard';
+import { InternalGuard } from './internal.guard';
 import { PresaleGuard } from './presale.guard';
 
 @Injectable()
 export class LoggedInGuard
 {
-	constructor(private identityService: IdentityService,
+	constructor(
 		private externalGuard: ExternalGuard,
-		private presaleGuard: PresaleGuard) { }
+		private internalGuard: InternalGuard,
+		private presaleGuard: PresaleGuard
+	) {}
 
 	canActivate(route: ActivatedRouteSnapshot)
 	{
@@ -31,10 +33,16 @@ export class LoggedInGuard
 			clearPresaleSessions();
 		}
 
-		if (!sessionStorage.getItem('authProvider'))
+		if (
+			route.params.salesAgreementId ||
+			route.params.treeVersionId ||
+			route.queryParams.salesAgreementId ||
+			route.queryParams.treeVersionId ||
+			route.url.some((urlSegment) => urlSegment.path === 'preview')
+		) 
 		{
-			return this.externalGuard.canActivate();
+			return this.internalGuard.canActivate(route);
 		}
-		return this.identityService.isLoggedIn;
+		return this.externalGuard.canActivate();
 	}
 }

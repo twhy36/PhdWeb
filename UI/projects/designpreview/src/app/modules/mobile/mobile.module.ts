@@ -41,31 +41,31 @@ const moduleRoutes: Routes = [
 		children: [
 			{
 				path: 'home',
-				canActivate: [ExternalGuard],
+				canActivate: [LoggedInGuard],
 				component: LandingComponent,
 				data: { pageLoadEvent: 'Home', buildMode: BuildMode.Buyer },
 			},
 			{
 				path: 'home/:salesAgreementId',
-				canActivate: [InternalGuard],
+				canActivate: [LoggedInGuard],
 				component: LandingComponent,
 				data: { pageLoadEvent: 'Home', buildMode: BuildMode.Buyer },
 			},
 			{
 				path: 'preview',
 				component: LandingComponent,
-				canActivate: [InternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { buildMode: BuildMode.Preview },
 			},
 			{
 				path: 'preview/:treeVersionId',
 				component: LandingComponent,
-				canActivate: [InternalGuard],
+				canActivate: [LoggedInGuard],
 				data: { buildMode: BuildMode.Preview },
 			},
 			{
 				path: 'presale',
-				canActivate: [PresaleGuard],
+				canActivate: [LoggedInGuard],
 				component: LandingComponent,
 				data: { pageLoadEvent: 'Home', buildMode: BuildMode.Presale },
 			},
@@ -78,6 +78,7 @@ const moduleRoutes: Routes = [
 			{
 				path: 'options/:subGroupCatalogId/:decisionPointCatalogId/:choiceCatalogId',
 				component: ChoiceCardDetailComponent,
+				canActivate: [LoggedInGuard]
 			},
 			{ path: 'error', component: LandingComponent },
 			{ path: '**', pathMatch: 'full', redirectTo: '' },

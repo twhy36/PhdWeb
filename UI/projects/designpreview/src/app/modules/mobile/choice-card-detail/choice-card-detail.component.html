@@ -13,30 +13,28 @@
 
 	<div class="phd-sticky-content p-3" [ngStyle]="{ top: estimatedTotalsOffsetHeight + 'px' }">
 		<header>
-			<h1 class="py-1" data-testid="choice-label">{{ choice.label }}</h1>
+			<h1 class="py-1" data-testid="choice-label">{{ choice?.label }}</h1>
 		</header>
 
 		<div class="d-flex justify-content-end mb-1">
 			<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
-				<div *ngIf="!choice.priceHiddenFromBuyerView" class="mt-2 mb-1 mr-auto">
+				<div *ngIf="choice && choice.priceHiddenFromBuyerView" class="mt-2 mb-1 mr-auto">
 					<span class="phd-info-text">Pricing subject to change</span>
 				</div>
 			</ng-container>
 
 			<div class="price-icon-container d-flex justify-content-end align-items-center">
 				<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
-					<div>
-						<span class="phd-price-label mr-2">{{ choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency: "USD" : "symbol" : "0.0-0" }}</span>
-					</div>
+					<span class="phd-price-label mr-2" *ngIf="choice && choice?.price">{{ choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency: "USD" : "symbol" : "0.0-0" }}</span>
 				</ng-container>
-				<ng-container *ngIf="choice.choiceStatus === 'Available' && choice.enabled">
+				<ng-container *ngIf="choice && choice.choiceStatus === 'Available' && choice.enabled">
 					<button class="phd-clickable phd-favorite-selector phd-icon-accent p-0" (click)="toggleChoice(choice)">
 						<mat-icon attr.aria-pressed="{{ choice.isFavorite }}" data-testid="favorite-icon">
 							{{ choice.isFavorite ? "favorite" : "favorite_outline" }}
 						</mat-icon>
 					</button>
 				</ng-container>
-				<ng-container *ngIf="choice.choiceStatus === 'Available' && !choice.enabled">
+				<ng-container *ngIf="choice?.choiceStatus === 'Available' && !choice?.enabled">
 					<button class="phd-clickable phd-favorite-selector phd-icon-accent" data-testid="blocked-icon">
 						<mat-icon attr.aria-label="{{ choice.label + ' is blocked' }}">block</mat-icon>
 					</button>
@@ -82,7 +80,7 @@
 			</ul>
 		</div>
 
-		<div *ngIf="choiceDescriptions.length && !optionDisabled" class="phd-description" [class.phd-description-expanded]="this.expandDescription" id="descriptionText" data-testid="description-text">
+		<div *ngIf="choiceDescriptions?.length && !optionDisabled" class="phd-description" [class.phd-description-expanded]="this.expandDescription" id="descriptionText" data-testid="description-text">
 			<div *ngFor="let description of choiceDescriptions">
 				{{ description }}
 			</div>

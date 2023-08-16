@@ -69,7 +69,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		super();
 
 		// Start idle watch for user inactivities if an external user is logged in
-		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO') 
+		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO' && sessionStorage.getItem('uri_state').endsWith('home')) 
 		{
 			this.watchIdle();
 		}
