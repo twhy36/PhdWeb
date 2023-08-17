@@ -30,7 +30,7 @@
 				<p *ngIf="choiceDescription && !optionDisabled" class="phd-2-line-limit">{{ choiceDescription }}</p>
 			</div>
 
-			<div class="phd-qty-selector d-flex justify-content-center align-items-center" *ngIf="choice?.maxQuantity > 1 && choice?.quantity === 0">
+			<div class="phd-qty-selector d-flex justify-content-center align-items-center" *ngIf="choice?.maxQuantity > 1 && choice?.quantity === 0 && choice?.options?.length <= 1">
 				<span class="text-right">Qty</span>
 				<div class="phd-quantity-input" (click)="$event.stopPropagation()">
 					<quantity-input [min]="1" [max]="choice?.maxQuantity" [quantity]="choice.quantity" (quantityChange)="unsavedQty = $event" [canEditAgreement]="canEditAgreement && (!isPastCutOff || canOverride) && canConfigure"></quantity-input>

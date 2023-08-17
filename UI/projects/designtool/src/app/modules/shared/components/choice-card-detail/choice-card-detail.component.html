@@ -39,7 +39,7 @@
 					class="phd-choice-description-expand" (click)="choiceDescriptionToggle()">{{ expandChoiceDescription
 					? 'Show Less' : 'Show More' }}...</div>
 
-				<ng-container *ngIf="choice?.maxQuantity > 1 && !optionDisabled">
+				<ng-container *ngIf="choice?.maxQuantity > 1 && !optionDisabled && choice?.options?.length <= 1">
 					<div class="mt-auto align-self-left">
 						<span class="text-right">
 							Qty

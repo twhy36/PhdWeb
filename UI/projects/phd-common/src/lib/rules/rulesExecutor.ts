@@ -658,6 +658,13 @@ export function applyRules(tree: Tree, rules: TreeVersionRules, options: PlanOpt
 
 	choices.forEach(choice =>
 	{
+		// #403916
+		// When multiple options are involved and the maxOrderQuantity is not 1, the quantity should default to 1 for all options.
+		if (choice.options?.length > 1 && choice.options.some(o => o.maxOrderQuantity > 1))
+		{
+		 	choice.price = choice.options.reduce((sum, option) => sum + option.listPrice, 0);
+		}
+		
 		// #364540
 		// For any option on this choice that has a corresponding TimeOfSale record,
 		// if every set of replace rules for that option is not satisified
