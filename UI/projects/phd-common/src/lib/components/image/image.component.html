@@ -3,5 +3,5 @@
 </ng-container>
 
 <ng-template #defaultImageTemp>
-	<img src="{{ defaultImage }}" alt="{{ alt }}" #phdImage *ngIf="defaultImageHasValue" />
+	<img src="{{ defaultImage }}" alt="{{ alt }}" #phdImage *ngIf="defaultImageHasValue" [attr.height]="height ?? '100%'" [attr.width]="width ?? '100%'"/>
 </ng-template>
