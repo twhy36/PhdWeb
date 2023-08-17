@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Renderer2, ElementRef } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
@@ -267,7 +267,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.isLockedIn = salesAgreement.isLockedIn;
 			this.isDesignComplete = salesAgreement.isDesignComplete;
 
-			let index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === "SpecJIO" || c.jobChangeOrderTypeDescription === "SalesJIO")) !== undefined);
+			let index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === 'SpecJIO' || c.jobChangeOrderTypeDescription === 'SalesJIO')) !== undefined);
 			let changeOrders = [];
 
 			if (index > -1)
@@ -486,17 +486,17 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		if (completed)
 		{
-			return "completed";
+			return 'completed';
 		}
 
 		if (sent)
 		{
-			return "sent";
+			return 'sent';
 		}
 
 		if (draft)
 		{
-			return "draft";
+			return 'draft';
 		}
 	}
 
@@ -547,6 +547,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	onActionSelected(event)
 	{
 		let changeOrder;
+		const pendingChangeOrder = this.activeChangeOrders.find(t => t.salesStatus === 'Pending');
 
 		if (this.activeChangeOrders.length === 1)
 		{
@@ -560,6 +561,12 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				changeOrder = this.activeChangeOrders[this.activeChangeOrders.length - 1];
 			}
+		}
+
+		if (pendingChangeOrder && pendingChangeOrder.id !== changeOrder.id)
+		{
+			this.toastr.error('You cannot perform this action while there is a pending change order.');
+			return;
 		}
 
 		switch (event)
@@ -582,7 +589,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				break;
 			case this.ACTION_TYPES.SIGN:
-				changeOrder = { ...changeOrder, salesStatusDescription: "Signed", jobChangeOrderGroupSalesStatusHistories: undefined }
+				changeOrder = { ...changeOrder, salesStatusDescription: 'Signed', jobChangeOrderGroupSalesStatusHistories: undefined }
 				this.isSaving = true;
 
 				this._changeOrderService.updateJobChangeOrder([changeOrder])
@@ -643,7 +650,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 				else
 				{
-					changeOrder = { ...changeOrder, salesStatusDescription: "Pending", jobChangeOrderGroupSalesStatusHistories: undefined };
+					changeOrder = { ...changeOrder, salesStatusDescription: 'Pending', jobChangeOrderGroupSalesStatusHistories: undefined };
 
 					this._changeOrderService.updateJobChangeOrder([changeOrder])
 						.pipe(finalize(() => this.isSaving = false))
@@ -682,7 +689,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 				break;
 			case this.ACTION_TYPES.CANCEL_E_SIGN:
-				changeOrder = { ...changeOrder, salesStatusDescription: "Pending", jobChangeOrderGroupSalesStatusHistories: undefined }
+				changeOrder = { ...changeOrder, salesStatusDescription: 'Pending', jobChangeOrderGroupSalesStatusHistories: undefined }
 				let envelopeDto = changeOrder.eSignEnvelopes[0]
 				envelopeDto = { ...envelopeDto, eSignStatusId: 4 };
 
@@ -755,7 +762,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		if (this.activeChangeOrders.length > 1)
 		{
-			changeOrder = { ...changeOrder, salesStatusDescription: "Approved", jobChangeOrderGroupSalesStatusHistories: undefined };
+			changeOrder = { ...changeOrder, salesStatusDescription: 'Approved', jobChangeOrderGroupSalesStatusHistories: undefined };
 
 			let rejectedChangeOrders = this.activeChangeOrders.filter(t => !t.isResubmittedChangeOrder && t.salesStatus === 'Rejected');
 
@@ -769,7 +776,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 		else
 		{
-			changeOrder = { ...changeOrder, salesStatusDescription: "Approved", jobChangeOrderGroupSalesStatusHistories: undefined };
+			changeOrder = { ...changeOrder, salesStatusDescription: 'Approved', jobChangeOrderGroupSalesStatusHistories: undefined };
 			changeOrdersToBeUpdated = [changeOrder];
 		}
 
@@ -923,7 +930,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		if (cancelledChangeOrder)
 		{
-			let changeOrder = { ...cancelledChangeOrder, salesStatusDescription: "Pending", jobChangeOrderGroupSalesStatusHistories: undefined }
+			let changeOrder = { ...cancelledChangeOrder, salesStatusDescription: 'Pending', jobChangeOrderGroupSalesStatusHistories: undefined }
 			const eSignEnvelopeId = cancelledChangeOrder.eSignEnvelopes?.find(e => e.envelopeGuid === envelopeId)?.eSignEnvelopeId;
 
 			this.isSaving = true;
@@ -951,11 +958,11 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	{
 		let changeOrderId = changeOrder.id;
 		let salesStatusReason = null;
-		let salesStatusDescription = "";
+		let salesStatusDescription = '';
 
 		if (actionSelected === this.ACTION_TYPES.WITHDRAW)
 		{
-			salesStatusDescription = "Withdrawn";
+			salesStatusDescription = 'Withdrawn';
 
 			let salesStatusHistories = changeOrder.jobChangeOrderGroupSalesStatusHistories.filter(t => t.salesStatusId === 4);
 
@@ -966,7 +973,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		}
 		else if (actionSelected === this.ACTION_TYPES.REJECT)
 		{
-			salesStatusDescription = "Rejected";
+			salesStatusDescription = 'Rejected';
 		}
 
 		this.updateChangeOrderForm = new UntypedFormGroup({
@@ -1006,7 +1013,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			salesStatusReason: salesStatusReason
 		};
 
-		if (isResubmittedChangeOrder && salesStatusDescription === "Withdrawn")
+		if (isResubmittedChangeOrder && salesStatusDescription === 'Withdrawn')
 		{
 			let rejectedChangeOrders = this.activeChangeOrders.filter(t => !t.isResubmittedChangeOrder);
 
