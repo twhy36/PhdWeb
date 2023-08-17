@@ -563,7 +563,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			}
 		}
 
-		if (pendingChangeOrder && pendingChangeOrder.id !== changeOrder.id)
+		if (pendingChangeOrder?.id !== changeOrder.id)
 		{
 			this.toastr.error('You cannot perform this action while there is a pending change order.');
 			return;
