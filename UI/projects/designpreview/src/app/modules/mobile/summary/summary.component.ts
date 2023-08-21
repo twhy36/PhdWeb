@@ -182,7 +182,7 @@ export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	onPrint() 
 	{
-		if (this.isEmptyFavorites)
+		if (this.isEmptyFavorites && !this.includeContractedOptions)
 		{
 			return;
 		}

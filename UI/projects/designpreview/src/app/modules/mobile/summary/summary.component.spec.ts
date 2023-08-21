@@ -72,6 +72,7 @@ describe('SummaryComponent', () =>
 		{
 			return new GroupExt(g);
 		});
+		component.includeContractedOptions = true;
 		fixture.detectChanges();
 
 		const element = fixture.debugElement.nativeElement;

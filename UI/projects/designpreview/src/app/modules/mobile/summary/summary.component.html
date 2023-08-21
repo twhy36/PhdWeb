@@ -6,8 +6,8 @@
         <!---- sticky header title -->
         <div class="d-flex justify-content-between phd-fav-title phd-fav-sub-wrapper" >
             <h1>{{this.summaryTitle}}</h1>
-            <button class="phd-fav-print-icon" [disabled]="isEmptyFavorites" aria-label="Print">
-            <mat-icon (click)="onPrint()">print</mat-icon></button>          
+            <button class="phd-fav-print-icon" [disabled]="isEmptyFavorites && !includeContractedOptions" aria-label="Print" mat-icon-button>
+            <mat-icon (click)="onPrint()">print</mat-icon></button>
         </div>
         <!---- sticky header expand/colapes all links -->
         <div class="phd-fav-text-end phd-fav-sub-wrapper" *ngIf="groups?.length > 0">
@@ -20,11 +20,11 @@
     <div class="d-flex flex-column phd-fav-sub-wrapper">
         <div class="d-flex justify-content-between phd-fav-title">
             <h1>{{this.summaryTitle}}</h1>
-            <button class="phd-fav-print-icon" [disabled]="isEmptyFavorites" aria-label="Print">
+            <button class="phd-fav-print-icon" [disabled]="isEmptyFavorites && !includeContractedOptions" aria-label="Print" mat-icon-button>
             <mat-icon (click)="onPrint()">print</mat-icon></button>
         </div>
 
-        <div class="phd-fav-disclaimer">
+        <div class="py-1 phd-fav-disclaimer">
             {{optionDisclaimerText}}
         </div>
 
@@ -85,7 +85,7 @@
     </header>
 
     <!-- group section -->
-    <ng-container *ngIf="groups?.length > 0">
+    <ng-container *ngIf="groups?.length && (!isEmptyFavorites || includeContractedOptions)">
         <!---- expand/colapes all links -->
         <div class="phd-fav-text-end phd-fav-sub-wrapper phd-show-in-print" [ngClass]="{'phd-hide': isSticky}">
             <button class="phd-fav-link-button" *ngIf="!groupExpended" mat-button (click)="accordion.openAll();groupExpended = true;">Expand All</button>
@@ -138,18 +138,18 @@
     </ng-container>
 
     <!-- no group section -->         
-    <div class="d-flex flex-column justify-content-center align-items-center phd-fav-nofav" *ngIf="isEmptyFavorites && !includeContractedOptions">
+    <div class="d-flex flex-column justify-content-center align-items-center pt-5 pt-2" *ngIf="isEmptyFavorites && !includeContractedOptions">
         <div class="phd-fav-title">You don't yet have any favorites!</div>
 
         <view-options-link [isPresale]="isPresale" class="phd-fav-review"></view-options-link>
     
-        <button *ngIf="this.hasAgreement && !isDesignComplete" class="py-4 phd-fav-link-button" (click)="onContractedOptionsToggled($event)">{{showOptionText}}</button>
+        <button *ngIf="this.hasAgreement && !isDesignComplete" class="pt-1 pb-4 phd-fav-link-button" (click)="onContractedOptionsToggled($event)">{{showOptionText}}</button>
     </div>
 
     <!-- floorplan section -->
 
     <!-- bottom disclaimer -->
-    <div class="phd-fav-sub-wrapper">
+    <div class="pt-4 pb-2 phd-fav-sub-wrapper">
          <span class="phd-fav-disclaimer">{{disclaimerText}}</span>
     </div>
 
