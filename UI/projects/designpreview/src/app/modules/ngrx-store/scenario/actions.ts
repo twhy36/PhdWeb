@@ -2,6 +2,7 @@ import { Action } from '@ngrx/store';
 
 import { TreeFilter, DesignToolAttribute, Tree, TreeVersionRules, PlanOption, OptionImage, LotExt, SalesCommunity } from 'phd-common';
 import { LoadSalesAgreement, SalesAgreementLoaded, MyFavoritesChoiceAttributesDeleted, LoadError } from '../actions';
+import { CurrentAttribute as CurAttributeModel } from '../../shared/models/current-attribute.model';
 
 export enum ScenarioActionTypes
 {
@@ -12,7 +13,8 @@ export enum ScenarioActionTypes
 	SetStatusForPointsDeclined = 'Set Status For Points Declined',
 	SetPresalePricingEnabled = 'Set Presale Pricing Enabled',
 	TreeLoaded = 'Tree Loaded',
-	SetChoicePriceRanges = 'Set Choice Price Ranges'
+	SetChoicePriceRanges = 'Set Choice Price Ranges',
+	CurrentAttribute = 'Current Attribute Hightlighted'
 }
 
 export class LoadPreview implements Action
@@ -76,6 +78,13 @@ export class SetChoicePriceRanges implements Action
 	constructor(public priceRanges: { choiceId: number, min: number, max: number }[]) { }
 }
 
+export class CurrentAttribute implements Action
+{
+	readonly type = ScenarioActionTypes.CurrentAttribute;
+
+	constructor(public curAttribute: CurAttributeModel) { }
+}
+
 export type ScenarioActions =
 	LoadPreview |
 	LoadPresale |
@@ -88,4 +97,5 @@ export type ScenarioActions =
 	TreeLoaded |
 	MyFavoritesChoiceAttributesDeleted |
 	LoadError |
-	SetChoicePriceRanges;
+	SetChoicePriceRanges |
+	CurrentAttribute;

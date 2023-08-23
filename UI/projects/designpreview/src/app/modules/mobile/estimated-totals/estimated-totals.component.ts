@@ -9,7 +9,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 	selector: 'estimated-totals',
 	templateUrl: './estimated-totals.component.html',
 	styleUrls: ['./estimated-totals.component.scss'],
-})
+	})
 export class EstimatedTotalsComponent
 	extends UnsubscribeOnDestroy
 	implements OnInit

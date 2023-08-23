@@ -1,0 +1,50 @@
+<div *ngIf="hasAttributes" class="phd-attribute-group-container">
+    <mat-accordion *ngIf="!optionDisabled && updatedAttributeGroups.length" multi>   
+        <ng-container *ngFor="let attributeGroup of updatedAttributeGroups; let i = index">          
+            <mat-expansion-panel data-testid="attribute-group-panel" [expanded]="panelStates[i]" (opened)="togglePanelState(i, true)" (closed)="togglePanelState(i, false)">
+                <mat-expansion-panel-header class="phd-attribute-group-header">
+                    <mat-panel-title>
+                        {{attributeGroup.label}}
+                    </mat-panel-title>  
+                </mat-expansion-panel-header> 
+                
+                <div class="d-flex flex-column phd-attribute-group-content">
+                    Please select all that interest you
+                    
+                    <!----attribute thumbnail list-->
+                    <div class="d-flex flex-row flex-wrap">
+                        <ng-container *ngFor="let attribute of attributeGroup?.attributes">
+                            <button class="d-flex flex-column flex-wrap phd-attribute-item">
+                                <image [imageUrl]="attribute.imageUrl" title="{{attribute.name}}"
+                                    height="80" width="80"
+                                    (click)="handleAttributeClick($event, attribute)"
+                                    defaultImage="{{defaultImage}}"
+                                    class="mr-3 phd-attribute-item-image"
+                                    [class.phd-attribute-item-image-selected]="curAttribute?.id === attribute.id" alt="">
+                                </image>
+                                <span class="phd-attribute-name phd-icon-accent" title="{{attribute.name}}" (click)="handleAttributeClick($event, attribute)">
+                                    {{attribute.name}}
+                                </span>
+                                <button class="p-0 phd-attribute-selector">
+                                    <ng-container *ngIf="attribute.attributeStatus === 'Contracted'">
+                                        <mat-icon class ="phd-icon-accent">check</mat-icon>
+                                    </ng-container>
+                                    <ng-container *ngIf="attribute.attributeStatus === 'Available'">
+                                        <div class="phd-icon-accent" *ngIf="!isBlocked">
+                                            <button mat-icon-button (click)="handleToggleAttributeFavorite($event, attribute, attributeGroup)">
+                                                <mat-icon [attr.aria-pressed]="attribute?.isFavorite? 'true':'false'">
+                                                    {{attribute?.isFavorite? 'favorite': 'favorite_outline'}}
+                                                </mat-icon>
+                                            </button>
+                                        </div>			
+                                    </ng-container>	
+                                </button>		
+                            </button>                              
+                        </ng-container>
+                    </div>             
+                </div>
+            </mat-expansion-panel>
+            <div *ngIf="!panelStates[i]" class="px-3">{{getSelectedAttributeNames(attributeGroup)}}</div>
+        </ng-container>
+    </mat-accordion>
+</div>

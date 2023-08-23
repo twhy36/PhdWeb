@@ -20,7 +20,7 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'home',
 	templateUrl: 'home.component.html',
 	styleUrls: ['home.component.scss']
-})
+	})
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	communityName: string = '';

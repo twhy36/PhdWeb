@@ -1,24 +1,30 @@
-<div class="container d-flex flex-column px-0 vh-100">
-	<div #estimatedTotals class="phd-sticky-header">
-		<estimated-totals *ngIf="(isPresalePricingEnabled || !isPresale)"
-						  [isPresale]="isPresale"
-						  [isPresalePricingEnabled]="isPresalePricingEnabled"
-						  [isDesignComplete]="isDesignComplete">
-		</estimated-totals>
-	</div>
+<div class="container-fluid d-flex flex-column px-0 min-vh-100">
+	<div>
+		<!----price block-->
+		<div #estimatedTotals class="phd-sticky-header">
+			<estimated-totals
+				*ngIf="(isPresalePricingEnabled || !isPresale)"
+				[isPresale]="isPresale"
+				[isPresalePricingEnabled]="isPresalePricingEnabled"
+				[isDesignComplete]="isDesignComplete">
+			</estimated-totals>
+		</div>
 
-	<span class="phd-info-text d-flex px-3 pt-3" data-testid="selected-options-disclaimer">
-		Option selections are not final until purchased via a signed agreement or change order.
-	</span>
+		<!----top disclaimer-->
+		<span class="phd-info-text d-flex px-3 pt-3"  data-testid="selected-options-disclaimer">
+			{{ disclaimerText }}
+		</span>
 
-	<div class="phd-sticky-content p-3" [ngStyle]="{ top: estimatedTotalsOffsetHeight + 'px' }">
+	<!----Image display with thumbnail-->
+	<div #imgWithThumbnail class="px-3 pt-2 phd-sticky-content" [ngStyle]="{ top: estimatedTotalsOffsetHeight + 'px' }">
 		<header>
-			<h1 class="py-1" data-testid="choice-label">{{ choice?.label }}</h1>
+			<h1 class="py-1 px-0" data-testid="choice-label">
+				{{ choice?.label }}
+			</h1>
 		</header>
-
 		<div class="d-flex justify-content-end mb-1">
 			<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
-				<div *ngIf="choice && choice.priceHiddenFromBuyerView" class="mt-2 mb-1 mr-auto">
+				<div *ngIf="choice && !choice.priceHiddenFromBuyerView" class="mr-auto">
 					<span class="phd-info-text">Pricing subject to change</span>
 				</div>
 			</ng-container>
@@ -42,14 +48,24 @@
 			</div>
 		</div>
 
-		<section aria-label="Carousel" class="phd-main-image-section d-flex justify-content-center">
+		<!----image display-->
+		<div *ngIf="highlightedAttribute">
+			<img src="{{highlightedAttribute.imageUrl}}"
+						   class="phd-image-content"
+						   alt="{{highlightedAttribute.title}}"
+						   role="group"
+						   attr.aria-label=""
+						   data-testid="main-attribute-image">
+		</div>
+		<section aria-label="Carousel" class="phd-main-image-section d-flex justify-content-center" *ngIf="!highlightedAttribute">
 			<span class="phd-visually-hidden" aria-label="Image Carousel Instructions">
 				This is a carousel with slides. Jump to a slide using the thumbnail.
 			</span>
 
 			<ngb-carousel #imageCarousel [interval]="0" [showNavigationArrows]="false" (slide)="onSlide($event)" class="d-flex">
 				<ng-template ngbSlide *ngFor="let image of choiceImages; let currentIndex = index" id="{{ currentIndex }}">
-					<image [imageUrl]="image.imageURL" [defaultImage]="defaultImage" crop="lpad"
+					<image [imageUrl]="image.imageURL" 
+						   defaultImage="{{defaultImage}}" crop="lpad"
 						   class="phd-image-content"
 						   alt=""
 						   role="group"
@@ -59,41 +75,57 @@
 				</ng-template>
 			</ngb-carousel>
 		</section>
-
 		<div class="phd-info-text my-2" data-testid="images-disclaimer">
 			Images are examples only. Products are subject to change.
 		</div>
 
-		<div class="phd-image-carousel">
+		<!----thumbnails-->
+		<div class="phd-image-carousel d-flex">
 			<ul class="phd-thumbnail-image-list">
 				<button *ngFor="let image of choiceImages; let i = index" class="phd-image-thumbnail phd-clickable mr-3">
 					<image [imageUrl]="image.imageURL" [defaultImage]="defaultImage" crop="lpad"
 						   attr.aria-label="{{ 'Image ' + (image.sortKey + 1) + ' of ' + choiceImages.length }}"
 						   class="phd-choice-image"
-						   [class.phd-choice-image-selected]="selectedImageUrl === image.imageURL"
+						   [class.phd-choice-image-selected]="selectedImageUrl === image.imageURL && !highlightedAttribute"
 						   alt=""
 						   attr.aria-current="{{ selectedImageUrl === image.imageURL }}"
-						   (click)="imageClick(image)"
+						   (click)="thumbnailClick(image)"
 						   [attr.data-testid]="'thumbnail-image-' + i">
 					</image>
 				</button>
 			</ul>
 		</div>
+	</div>
 
-		<div *ngIf="choiceDescriptions?.length && !optionDisabled" class="phd-description" [class.phd-description-expanded]="this.expandDescription" id="descriptionText" data-testid="description-text">
+	<!----description-->
+	<div class="px-3 pt-2">
+		<div
+			*ngIf="choiceDescriptions?.length && !optionDisabled"
+			class="phd-description"
+			[class.phd-description-expanded]="this.expandDescription"
+			id="descriptionText"
+			data-testid="description-text">
 			<div *ngFor="let description of choiceDescriptions">
 				{{ description }}
 			</div>
 		</div>
-
-		<button *ngIf="descOverflowedOnLoad" (click)="this.expandDescription = !this.expandDescription" class="phd-expand-text px-0" data-testid="expand-text">
+		
+		<button
+			*ngIf="descOverflowedOnLoad"
+			(click)="this.expandDescription = !this.expandDescription"
+			class="phd-expand-text px-0"
+			data-testid="expand-text">
 			{{ this.isTextOverflow("descriptionText") ? "See More" : "See Less" }}
 		</button>
 	</div>
+	
+	<!-- Attributes: when has attribute groups -->
+	<div class="phd-attributes" [ngStyle]="{ top: stickyHeaderHeight + 'px', 'height': divAttributesHeight + 'px'}">
+		<attribute-group [currentChoice]="choice"></attribute-group>				
+	</div>
 
-	<!-- Attributes section goes here -->
 
-	<div class="phd-sticky-footer">
+	<div #actionBar class="phd-sticky-footer">
 		<action-bar [showBack]="true"></action-bar>
 	</div>
 </div>

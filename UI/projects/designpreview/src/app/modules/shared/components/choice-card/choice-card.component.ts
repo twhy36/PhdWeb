@@ -14,9 +14,9 @@ import { BrandService } from '../../../core/services/brand.service';
 	templateUrl: './choice-card.component.html',
 	styleUrls: ['./choice-card.component.scss'],
 	animations: [
-		flipOver3
+	flipOver3
 	]
-})
+	})
 export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnChanges
 {
 	@Input() currentChoice: ChoiceExt;

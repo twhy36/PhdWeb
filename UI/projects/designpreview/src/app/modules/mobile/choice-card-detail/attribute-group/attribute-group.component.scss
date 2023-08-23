@@ -1,0 +1,53 @@
+.phd-attribute-group-container {
+	border: none;
+	background-color: transparent;
+	padding: 5px 0;
+}
+
+.phd-attribute-group-header {
+	border: none;
+	padding: 3px 16px;
+}
+
+.mat-expanded {
+	background: white !important;
+}
+
+.mat-expansion-panel:not(.mat-expanded) {
+	padding: 2px 0;
+}
+
+//attribute thumbnail
+.phd-attribute-item {
+	margin: 3px;
+	background: none;
+	border: none;
+	padding: 0;
+}
+
+//attribute title
+.phd-attribute-name {
+	width: 80px;
+	font-size: 9px;
+	text-align: left;
+	overflow: hidden;
+}
+
+//heart symbol
+.phd-attribute-selector {
+	position: absolute;
+	margin: 45px 0px 0px 45px;
+	z-index: 9;
+	color: rgb(214, 214, 214);
+	background: none;
+	border: none;
+}
+
+.phd-attribute-item-image {
+	border: solid 1px #ccc;
+	cursor: pointer;
+
+	&.phd-attribute-item-image-selected {
+		border: solid 4px;
+	}
+}

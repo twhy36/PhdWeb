@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { UnsubscribeOnDestroy } from 'phd-common';
-
 import * as fromRoot from '../ngrx-store/reducers';
 import * as ErrorActions from '../ngrx-store/error.action';
+import { filter } from 'rxjs/operators';
 
 
 @Component({
@@ -13,27 +12,35 @@ import * as ErrorActions from '../ngrx-store/error.action';
 	templateUrl: './mobile.component.html',
 	styleUrls: ['./mobile.component.scss']
 	})
-export class MobileComponent extends UnsubscribeOnDestroy implements OnInit
+export class MobileComponent
 {
-	constructor(
-		private router: Router,
-		private store: Store<fromRoot.State>,
-	)
-	{
-		super();
-	}
+	showFooter: boolean = true;
+	isSummaryPage: boolean = false;
+	hideFooterForRoutes: string[] = ['/options']; // Update when more routs are added
 
-	ngOnInit(): void
+	constructor(private router: Router,
+		private store: Store<fromRoot.State>)
 	{
-		// Clear errors from store on successful navigation
-		this.router.events.subscribe(evt =>
-		{
-			if (evt instanceof NavigationEnd && evt.url != '/error')
+		this.router.events
+			.pipe(filter((event) => event instanceof NavigationEnd))
+			.subscribe((event: NavigationEnd) =>
 			{
-				this.store.dispatch(new ErrorActions.ClearLatestError());
-			}
-		});
+				// Check the current route path
+				const currentUrl = event.url;
 
-		
+				if (currentUrl != '/error')
+				{
+					this.store.dispatch(new ErrorActions.ClearLatestError());
+				}
+
+				if (currentUrl)
+				{
+					this.showFooter = !this.hideFooterForRoutes.some((path) => currentUrl.includes(path));
+					this.isSummaryPage = currentUrl.includes('/favorites/summary');
+				}
+			});
 	}
+
+
+
 }

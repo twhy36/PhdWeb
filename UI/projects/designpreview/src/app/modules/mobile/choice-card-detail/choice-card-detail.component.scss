@@ -2,11 +2,6 @@
 	min-height: 100%;
 }
 
-.phd-sticky-header {
-	position: sticky;
-	top: 0;
-}
-
 header {
 	width: 100%;
 	background-color: white;
@@ -17,6 +12,7 @@ h1 {
 	font-size: 16px;
 	max-width: 70%;
 	color: #000000;
+	font-weight: bold;
 }
 
 .phd-info-text {
@@ -27,19 +23,19 @@ h1 {
 //PrimeNG carousel thumbnail
 .phd-image-carousel {
 	// horizontal scroll on thumbnails if overflow
-	display:flex;
+	display: flex;
 	overflow-x: scroll;
 	white-space: nowrap;
 
 	.phd-thumbnail-image-list {
 		padding: 0;
-		display:flex;
+		display: flex;
 	}
 
 	.phd-image-thumbnail {
 		padding: 0;
 		border: none;
-		display:flex;
+		display: flex;
 	}
 }
 
@@ -67,17 +63,8 @@ h1 {
 	background-color: transparent;
 }
 
-.phd-sticky-footer {
-	position: sticky;
-	bottom: 0;
-	width: 100%;
-}
-
-.phd-sticky-content {
-	// top position is determined dynamically (depends on if there is pricing or not)
-	position: sticky;
-	background-color: white;
-	flex: 1;
+.phd-attributes{
+	overflow-y: auto;
 }
 
 .phd-price-label {
@@ -92,4 +79,10 @@ h1 {
 
 .phd-main-image-section {
 	border: 1px solid #d7d7d8;
+}
+
+.phd-image-content {
+	max-width: 100%;
+	height: 30vh;
+	object-fit: contain;
 }

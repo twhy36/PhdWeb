@@ -32,6 +32,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 import { SummaryComponent } from './summary/summary.component';
 import { SummaryRowComponent } from './shared/summary-row/summary-row.component';
+import { AttributeGroupComponent } from './choice-card-detail/attribute-group/attribute-group.component';
+import { LocationGroupComponent } from './choice-card-detail/location-group/location-group.component';
 import { ViewOptionsLinkComponent } from './view-options-link/view-options-link.component';
 
 const moduleRoutes: Routes = [
@@ -104,6 +106,8 @@ const moduleRoutes: Routes = [
 	ConfirmDialogComponent,
 	SummaryComponent,
 	SummaryRowComponent,
+	AttributeGroupComponent,
+	LocationGroupComponent,
 	ViewOptionsLinkComponent,
 	],
 	imports: [
@@ -122,4 +126,4 @@ const moduleRoutes: Routes = [
 	RouterModule.forChild(moduleRoutes),
 	],
 	})
-export class MobileModule {}
+export class MobileModule { }

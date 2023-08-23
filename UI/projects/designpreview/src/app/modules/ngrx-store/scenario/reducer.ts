@@ -14,6 +14,7 @@ import { RehydrateMap } from '../sessionStorage';
 import { CommonActionTypes } from '../actions';
 import { ScenarioActions, ScenarioActionTypes } from './actions';
 import { BuildMode } from '../../shared/models/build-mode.model';
+import { CurrentAttribute } from '../../shared/models/current-attribute.model';
 
 export interface State
 {
@@ -40,6 +41,7 @@ export interface State
 	floorPlanImages: FloorPlanImage[];
 	presalePricingEnabled: boolean;
 	priceRanges: ChoicePriceRange[];
+	currentAttribute: CurrentAttribute;
 }
 
 export const initialState: State = {
@@ -47,7 +49,7 @@ export const initialState: State = {
 	savingScenario: false, saveError: false, isUnsaved: false, treeLoading: false, loadError: false, isGanked: false,
 	pointHasChanges: false, buildMode: BuildMode.Buyer,
 	monotonyAdvisementShown: false, financialCommunityFilter: 0, treeFilter: null, overrideReason: null,
-	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: [], presalePricingEnabled: false, priceRanges: null
+	hiddenChoiceIds: [], hiddenPointIds: [], floorPlanImages: [], presalePricingEnabled: false, priceRanges: null, currentAttribute: null
 };
 
 RehydrateMap.onRehydrate<State>('scenario', state => { return { ...state, savingScenario: false, saveError: false, treeLoading: false, loadError: false }; });
@@ -427,6 +429,9 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 		case ScenarioActionTypes.SetChoicePriceRanges:
 			return { ...state, priceRanges: action.priceRanges };
+			
+		case ScenarioActionTypes.CurrentAttribute:
+			return { ...state, currentAttribute: action.curAttribute };
 
 		default:
 			return state;
@@ -759,5 +764,14 @@ export const choicePriceRanges = createSelector(
 	(state) =>
 	{
 		return state.priceRanges;
+	}
+);
+
+
+export const getCurrentAttribute = createSelector(
+	selectScenario,
+	(state) =>
+	{
+		return state.currentAttribute;
 	}
 );

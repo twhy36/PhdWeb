@@ -11,6 +11,7 @@
 @use './themes/components/header-bar-theme' as header-bar;
 @use './themes/components/home-theme' as home;
 @use './themes/components/nav-bar-theme' as nav-bar;
+@use './themes/components/choice-card-detail-theme' as choice-card-detail;
 @use './themes/components/summary-theme' as summary;
 @use './themes/components/summary-header-theme' as summary-header;
 @use './themes/components/toggle-theme' as toggle;
@@ -52,6 +53,7 @@
 	@include header-bar.theme($theme);
 	@include home.theme($theme);
 	@include nav-bar.theme($theme);
+	@include choice-card-detail.theme($theme);
 	@include summary.theme($theme);
 	@include summary-header.theme($theme);
 	@include welcome-modal.theme($theme);
@@ -366,6 +368,29 @@ ngb-modal-backdrop {
 	background-color: white;
 	border-radius: 2px;
 	border: solid 1px;
+}
+
+.phd-sticky-header {
+	background-color: white;
+	position: -webkit-sticky; // needed for safari
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.phd-sticky-content {
+	// top position is determined dynamically (depends on if there is pricing or not)
+	position: sticky;
+	background-color: white;
+	flex: 1;
+	z-index: 10;
+}
+
+.phd-sticky-footer {
+	position: -webkit-sticky; // needed for safari
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
 }
 
 .phd-image-carousel {

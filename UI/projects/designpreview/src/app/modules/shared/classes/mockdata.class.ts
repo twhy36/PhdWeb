@@ -10,6 +10,159 @@ import
 	TreeVersion,
 } from 'phd-common';
 import { ChoiceExt } from '../models/choice-ext.model';
+import { AttributeGroupExt } from '../models/attribute-ext.model';
+
+export const testUpdatedChoiceAttributeGroups: AttributeGroupExt[] = 
+[
+	{
+	   'id':107918,
+	   'choiceId':11138672,
+	   'label':'Cabinet Hardware Finish',
+	   'name':'Cabinet Hardware Finishes - L2',
+	   'sortOrder':0,
+	   'attributes':[
+		  {
+			 'id':524774,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/6aFHOlex/V/434270/15',
+			 'manufacturer':null,
+			 'monotonyConflict': false,
+			 'name':'26 - Polished Chrome',
+			 'sku':'26',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525403,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/Kc0vn1Pf/V/434283/15',
+			 'manufacturer':null,
+			 'monotonyConflict': false,
+			 'name':'BBR - Black Bronze',
+			 'sku':'BBR',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525404,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/P1xD3LK4/V/434285/15',
+			 'manufacturer':null,
+			 'monotonyConflict': false,
+			 'name':'BBZ - Golden Champagne',
+			 'sku':'BBZ',
+			 'attributeStatus':'Available',
+			 'isFavorite':true,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':524771,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/I63WENKX/V/434264/15',
+			 'manufacturer':'',
+			 'monotonyConflict': false,
+			 'name':'CZ - Champagne Bronze',
+			 'sku':'CZ',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  }
+	   ]
+	},
+	{
+	   'id':107919,
+	   'choiceId':11138672,
+	   'label':'Doors - Cabinet Hardware Style',
+	   'name':'Cabinet Hardware - L2 - Doors - Whole House',
+	   'sortOrder':1,
+	   'attributes':[
+		  {
+			 'id':525405,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/SHX8ppKb/V/434418/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Appoint Knob - BP36758',
+			 'sku':'BP36758',
+			 'attributeStatus':'Available',
+			 'isFavorite':true,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525406,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/HBJa47rT/V/434755/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Appoint Pull - BP36759',
+			 'sku':'BP36759',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525407,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/syFsZSpu/V/434756/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Bar Pulls Knob - BP19009',
+			 'sku':'BP19009',
+			 'attributeStatus':'Available',
+			 'isFavorite':true,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525408,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/VMytjUZH/V/434761/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Bar Pulls Pull - BP40516',
+			 'sku':'BP40516',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  }
+	   ]
+	},
+	{
+	   'id':107920,
+	   'choiceId':11138672,
+	   'label':'Drawers - Cabinet Hardware Style',
+	   'name':'Cabinet Hardware - L2 - Drawers - Whole House',
+	   'sortOrder':2,
+	   'attributes':[
+		  {
+			 'id':525405,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/SHX8ppKb/V/434418/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Appoint Knob - BP36758',
+			 'sku':'BP36758',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525406,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/HBJa47rT/V/434755/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Appoint Pull - BP36759',
+			 'sku':'BP36759',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  },
+		  {
+			 'id':525407,
+			 'imageUrl':'https://pultegroup.picturepark.com/Go/syFsZSpu/V/434756/15',
+			 'manufacturer':'Amerock',
+			 'monotonyConflict': false,
+			 'name':'Bar Pulls Knob - BP19009',
+			 'sku':'BP19009',
+			 'attributeStatus':'Available',
+			 'isFavorite':false,
+			 'attributeGroups':[]
+		  }
+	   ]
+	}
+]
 
 export const choiceToChoiceMustHaveRuleChoice: ChoiceExt = {
 	mappedAttributeGroups: [

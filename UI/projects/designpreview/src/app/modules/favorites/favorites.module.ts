@@ -85,38 +85,38 @@ const moduleRoutes: Routes = [
 
 @NgModule({
 	exports: [
-		ManageFavoritesComponent,
-		MyFavoritesComponent,
-		NormalExperienceComponent,
-		IncludedOptionsComponent,
-		FavoritesSummaryComponent,
-		ContractedSummaryComponent,
-		FloorPlanSummaryComponent,
-		SummaryHeaderComponent,
-		FloorPlanExperienceComponent
+	ManageFavoritesComponent,
+	MyFavoritesComponent,
+	NormalExperienceComponent,
+	IncludedOptionsComponent,
+	FavoritesSummaryComponent,
+	ContractedSummaryComponent,
+	FloorPlanSummaryComponent,
+	SummaryHeaderComponent,
+	FloorPlanExperienceComponent
 	],
 	declarations: [
-		ManageFavoritesComponent,
-		MyFavoritesComponent,
-		NormalExperienceComponent,
-		IncludedOptionsComponent,
-		FavoritesSummaryComponent,
-		ContractedSummaryComponent,
-		FloorPlanSummaryComponent,
-		SummaryHeaderComponent,
-		FloorPlanExperienceComponent
+	ManageFavoritesComponent,
+	MyFavoritesComponent,
+	NormalExperienceComponent,
+	IncludedOptionsComponent,
+	FavoritesSummaryComponent,
+	ContractedSummaryComponent,
+	FloorPlanSummaryComponent,
+	SummaryHeaderComponent,
+	FloorPlanExperienceComponent
 	],
 	imports: [
-		CommonModule,
-		FormsModule,
-		ReactiveFormsModule,
-		CloudinaryModule,
-		SharedModule,
-		PhdCommonModule,
-		RouterModule.forChild(moduleRoutes),
-		ToastrModule,
-		NgbModule
+	CommonModule,
+	FormsModule,
+	ReactiveFormsModule,
+	CloudinaryModule,
+	SharedModule,
+	PhdCommonModule,
+	RouterModule.forChild(moduleRoutes),
+	ToastrModule,
+	NgbModule
 	],
 	providers: []
-})
+	})
 export class FavoritesModule { }

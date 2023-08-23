@@ -39,16 +39,20 @@ import * as ScenarioActions from '../../ngrx-store/scenario/actions';
 
 import { BuildMode } from '../../shared/models/build-mode.model';
 import { ChoiceExt } from '../../shared/models/choice-ext.model';
+import { Constants } from '../../shared/classes/constants.class';
+import { CurrentAttribute } from '../../shared/models/current-attribute.model';
 
 @Component({
 	selector: 'choice-card-detail',
 	templateUrl: './choice-card-detail.component.html',
 	styleUrls: ['./choice-card-detail.component.scss'],
-})
+	})
 export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
 {
 	@ViewChild('imageCarousel') imageCarousel: NgbCarousel;
 	@ViewChild('estimatedTotals') estimatedTotals: ElementRef;
+	@ViewChild('actionBar') actionBar: ElementRef;
+	@ViewChild('imgWithThumbnail') imgWithThumbnail: ElementRef;
 
 	choice: ChoiceExt;
 
@@ -76,7 +80,11 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	expandDescription: boolean = false;
 	descOverflowedOnLoad: boolean = false;
+	highlightedAttribute: CurrentAttribute = null;
+	curAttribute: CurrentAttribute;
 	estimatedTotalsOffsetHeight: number;
+	stickyHeaderHeight: number;
+	divAttributesHeight: number;
 
 	defaultImage: string = 'assets/NoImageAvailable.png';
 
@@ -92,6 +100,15 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	ngOnInit() 
 	{
+		//get selected attribute
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromScenario.getCurrentAttribute)
+		).subscribe(att =>
+		{
+			this.highlightedAttribute = att;
+		});
+
 		this.activatedRoute.paramMap.subscribe(
 			(paramMap) =>
 			{
@@ -200,6 +217,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.descOverflowedOnLoad = this.isTextOverflow('descriptionText');
 		this.estimatedTotalsOffsetHeight = this.estimatedTotals.nativeElement.offsetHeight;
+		this.stickyHeaderHeight = this.estimatedTotalsOffsetHeight + this.imgWithThumbnail.nativeElement.offsetHeight;
+		const actionBarHeight = this.actionBar.nativeElement.offsetHeight;
+		this.divAttributesHeight = window.innerHeight - this.stickyHeaderHeight - actionBarHeight;
 
 		this.cd.detectChanges();
 	}
@@ -245,7 +265,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 					.filter((o) => o.description != null)
 					.map((o) => o.description)
 				: desc;
-		
+
 		this.getImages();
 	}
 
@@ -259,7 +279,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 		if (this.activeIndex) 
 		{
-			this.selectedImageUrl =	this.choiceImages[this.activeIndex.current].imageURL;
+			this.selectedImageUrl = this.choiceImages[this.activeIndex.current].imageURL;
 		}
 	}
 
@@ -277,18 +297,21 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		}
 	}
 
-	imageClick(image: OptionImage): void 
+	thumbnailClick(image: OptionImage): void 
 	{
-		this.selectedImageUrl = image.imageURL;
+		this.highlightedAttribute = null;
+		this.store.dispatch(new ScenarioActions.CurrentAttribute(null));
+
+		this.selectedImageUrl = image?.imageURL;
 
 		const imageIndex = this.choiceImages.findIndex((x) => x.imageURL === image.imageURL);
 
 		if (imageIndex > -1) 
 		{
-			this.cd.detectChanges();
-
-			this.imageCarousel.select(imageIndex.toString());
+			this.imageCarousel?.select(imageIndex.toString());
 		}
+
+		this.cd.detectChanges();
 	}
 
 	toggleChoice(choice: ChoiceExt): void 
@@ -301,7 +324,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 				attributes: choice.selectedAttributes,
 			},
 		];
-		const impactedChoices = getDependentChoices(this.tree, this.treeVersionRules, this.options, choice);
+		this.choice.quantity = selectedChoices[0].quantity;
+
+		const impactedChoices = getDependentChoices(
+			this.tree,
+			this.treeVersionRules,
+			this.options,
+			choice
+		);
 
 		impactedChoices.forEach((c) => 
 		{
@@ -351,4 +381,10 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	{
 		this.router.navigate(['/']);
 	}
+
+	get disclaimerText()
+	{
+		return Constants.DISCLAIMER_OPTION_SELECTIONS;
+	}
+
 }
