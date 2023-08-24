@@ -134,8 +134,9 @@ p-multiselect {
 }
 
 .phd-search-container {
-	sales-community-selector .phd-select-menus {
-		background-color: #fff;
+	sales-community-selector {
+		background: #fff;
+		border-bottom: none;
 	}
 
 	/*WHEN SEARCH INPUTS ARE VISIBLE*/

@@ -1,5 +1,5 @@
 <div class="modal-header">
-	<span class="modal-title">Pulte Home Designer<br />Create Spec or Model Homes</span>
+	<span class="modal-title">Create Spec or Model</span>
 
 	<button type="button" class="close" aria-label="Close" (click)="close()">
 		<span aria-hidden="true">&times;</span>
@@ -7,24 +7,23 @@
 </div>
 
 <div class="modal-body">
-	<sales-community-selector (onMarketChange)="onMarketChange($event)"
+	<sales-community-selector
+							  (onMarketChange)="onMarketChange($event)"
 							  (onSalesCommunityChange)="onSalesCommunityChange($event)"
 							  (onFinancialCommunityChange)="onFinancialCommunityChange($event)"
-							  [showLabels]="true"></sales-community-selector>
+							  [showLabels]="true">
+	</sales-community-selector>
 
-	<div class="btn-group btn-group-toggle phd-button-group w-100" name="radioBasic">
-		<label class="btn btn-primary" [ngClass]="{ 'active': selectedSpecOrHomes === 'spec' }">
-			<input type="radio" value="spec" [(ngModel)]="selectedSpecOrHomes"> Spec
-		</label>
-		<label class="btn btn-primary" [ngClass]="{ 'active': selectedSpecOrHomes === 'model' }">
-			<input type="radio" value="model" [(ngModel)]="selectedSpecOrHomes"> Model
-		</label>
+	<div class="phd-build-type-group">
+		<button class="btn" (click)="changeBuildType('spec')" [ngClass]="selectedSpecOrHomes === 'spec' ? 'btn-primary' : 'btn-secondary'">Spec</button>
+
+		<button class="btn" (click)="changeBuildType('model')" [ngClass]="selectedSpecOrHomes === 'model' ? 'btn-primary' : 'btn-secondary'">Model</button>
 	</div>
 </div>
 
 <div class="modal-footer">
-	<button class="btn btn-primary phd-btn-save" [disabled]="!!!selectedSalesCommunity" (click)="save();">Submit</button>
+	<button class="btn btn-primary phd-btn-save" [disabled]="!!!selectedSalesCommunity" (click)="save();">Continue</button>
 
-	<button class="btn btn-secondary" (click)="close();">Close</button>
+	<button class="btn btn-secondary" (click)="close();">Cancel</button>
 </div>
 

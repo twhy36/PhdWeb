@@ -1,31 +1,39 @@
-.phd-spec-home {
-  padding: 20px;
-
-  sales-community-selector {
-    border-bottom: none;
-  }
-}
-
-/* Modal styling specific to the spec homes modal */
+/* Modal styling specific to the spec homes modal -> portal-item.component.ts */
 .phd-home-modal {
+	.modal-body {
+		padding: .5em;
+	}
 
-  .phd-button-group {
-    background: #fff;
-    margin: 0;
-    padding: 1em;
-  }
+	.phd-build-type-group {
+		display: flex;
+		justify-content: space-evenly;
+		margin: 10px 0;
+		width: 100%;
 
-  sales-community-selector {
-    background: #fff !important;
+		button {
+			width: 200px;
+		}
+	}
 
-    form > div {
-      flex-direction: column !important;
-    }
+	.phd-button-group {
+		background: #fff;
+		margin: 0;
+		padding: 1em;
+	}
 
-    .phd-select-menus .form-group {
-      margin: 0;
-      padding: .25em;
-      width: 100%;
-    }
-  }
+	sales-community-selector {
+		background: #fff;
+		border-bottom: none;
+		padding: 0;
+
+		form > div {
+			flex-direction: column !important;
+		}
+
+		.phd-select-menus .form-group {
+			margin: 0;
+			padding: .25em;
+			width: 100%;
+		}
+	}
 }
