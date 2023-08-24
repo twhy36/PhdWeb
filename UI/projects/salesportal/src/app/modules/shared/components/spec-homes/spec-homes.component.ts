@@ -32,7 +32,7 @@ export class SpecHomeComponent
 	{
 		const url = `${environment.baseUrl.designTool}${this.action.path}/${this.selectedSpecOrHomes}/${this.selectedMarket}/${this.selectedSalesCommunity.id}`;
 
-		window.open(url, "_blank");
+		window.open(url, '_blank');
 	}
 
 	onMarketChange(market)
@@ -50,4 +50,8 @@ export class SpecHomeComponent
 		this.selectedSalesCommunity = salesCommunity;
 	}
 
+	changeBuildType(buildType: string)
+	{
+		this.selectedSpecOrHomes = buildType;
+	}
 }

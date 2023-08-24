@@ -1,12 +1,13 @@
 <div class="phd-portal-container" [class.phd-hasLink]="url || template" (click)="(url || template) && onClicked()" target="_blank">
-  <div class="phd-icon" *ngIf="icon">
-    <i class="fas fa-{{icon}}"></i>
-  </div>
-  <h3 *ngIf="title">{{title}}</h3>
+	<div class="phd-icon" *ngIf="icon">
+		<i class="fas fa-{{icon}}"></i>
+	</div>
+
+	<h3 *ngIf="title">{{title}}</h3>
 </div>
 
 <ng-template [ngIf]="template">
-  <div id="phdClickContent">
-    <ng-container *ngTemplateOutlet="template"></ng-container>
-  </div>
+	<div id="phdClickContent">
+		<ng-container *ngTemplateOutlet="template"></ng-container>
+	</div>
 </ng-template>
