@@ -193,9 +193,17 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
 		});
 
+		//Set control as dirty to allow primeNG to validate the control
+		this.pulteInfoForm.controls['discountExpirationDate'].markAsDirty();
+
 		this.pulteInfoForm.controls['discountExpirationDate'].valueChanges.subscribe((value: Date) =>
 		{
 			this.checkDiscountExpirationDate();
+		});
+
+		this.pulteInfoForm.controls['discountAmount'].valueChanges.subscribe((value: number) =>
+		{
+			this.checkDiscountAmount();
 		});
 
 		this.toggleFormControls();
@@ -226,7 +234,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		clonePulteInfo.webSiteDescription = this.pulteInfoForm.controls['tagLines'].value;
 		clonePulteInfo.isPublishOnWebSite = this.pulteInfoForm.controls['displayOnPulte'].value ? this.pulteInfoForm.controls['displayOnPulte'].value : false;
 		clonePulteInfo.discountAmount = +this.pulteInfoForm.controls['discountAmount'].value;
-		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value;
+		clonePulteInfo.discountExpirationDate = this.pulteInfoForm.controls['discountExpirationDate'].value ? this.pulteInfoForm.controls['discountExpirationDate'].value : null;
 		clonePulteInfo.isHotHomeActive = this.pulteInfoForm.controls['hotHome'].value ? this.pulteInfoForm.controls['hotHome'].value : false;
 		clonePulteInfo.hotHomeBullet1 = this.pulteInfoForm.controls['keySellingPoint1'].value;
 		clonePulteInfo.hotHomeBullet2 = this.pulteInfoForm.controls['keySellingPoint2'].value;
@@ -280,13 +288,27 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		const day = dateToFormat.getUTCDate();
 		const year = dateToFormat.getUTCFullYear();
 
-		return new Date(month + '/' + day + '/' + year);
+		return date ? new Date(month + '/' + day + '/' + year) : null;
 	}
 
 	checkDiscountExpirationDate()
 	{
 		const currentDate = new Date();
-		this.discountExpired = this.pulteInfoForm.controls['discountExpirationDate'].value.getTime() < currentDate.getTime();
+		this.discountExpired = this.pulteInfoForm.controls['discountExpirationDate'].value ? new Date(this.pulteInfoForm.controls['discountExpirationDate'].value).getTime() < currentDate.getTime() : false;
+	}
+
+	checkDiscountAmount()
+	{
+		if (this.pulteInfoForm.controls['discountAmount'].value > 0)
+		{
+			this.pulteInfoForm.controls['discountExpirationDate'].setValidators(Validators.required);
+		}
+		else
+		{
+			this.pulteInfoForm.controls['discountExpirationDate'].clearValidators();
+		}
+
+		this.pulteInfoForm.controls['discountExpirationDate'].updateValueAndValidity();
 	}
 
 	allowNavigation(): boolean
