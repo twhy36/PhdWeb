@@ -14,7 +14,7 @@ import { IdentityService } from 'phd-common';
 
 export class PortalItemComponent implements OnInit
 {
-	@Input() title: string = "";
+	@Input() title: string = '';
 	@Input() action: LinkAction;
 	@Input() envBaseUrl;
 	@Input() icon;
@@ -39,7 +39,7 @@ export class PortalItemComponent implements OnInit
 	{
 		if (!this.template)
 		{
-			window.open(this.url, "_blank");
+			window.open(this.url, '_blank');
 		}
 		else
 		{

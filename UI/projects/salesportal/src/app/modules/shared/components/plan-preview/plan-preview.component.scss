@@ -1,46 +1,47 @@
-.modal-body {
-	padding: .5em;
-}
+/* Modal styling specific to the preview modal -> portal-item.component.ts */
+.phd-binoculars-modal {
+	.modal-body {
+		padding: .5em;
+	}
 
-sales-community-selector {
-	border-bottom: none;
-	padding: 0;
-}
+	sales-community-selector {
+		border-bottom: none;
+		padding: 0;
+	}
 
-.phd-plan-select {
-	background: #fff !important;
+	.phd-plan-select {
+		background: #fff !important;
 
-	.form-group {
-		display: inline-block;
-		margin-bottom: 0;
-		width: 100%;
-		padding: .25rem .55rem;
-
-		select {
+		.form-group {
 			display: inline-block;
-			font-size: 13px;
-			text-indent: 0;
-			width: 100% !important;
+			margin-bottom: 0;
+			width: 100%;
+			padding: .25rem .55rem;
 
-			&:disabled {
-				background: none;
-				color: #888;
-			}
-
-			option {
-				border: none;
-				outline: none;
+			select {
+				display: inline-block;
+				font-size: 13px;
 				text-indent: 0;
-			}
-		}
+				width: 100% !important;
 
-		select:focus {
-			background: none;
+				&:disabled {
+					background: none;
+					color: #888;
+				}
+
+				option {
+					border: none;
+					outline: none;
+					text-indent: 0;
+				}
+			}
+
+			select:focus {
+				background: none;
+			}
 		}
 	}
-}
 
-.phd-binoculars-modal {
 	.phd-button-group {
 		background: #fff;
 		margin: 0;

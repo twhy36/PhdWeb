@@ -57,10 +57,7 @@
                 </div>
                 <div class="phd-items">
                     <p-calendar formControlName="discountExpirationDate" dateFormat="mm/dd/yy"
-                        [minDate]="minDate" [(ngModel)]="pulteInfo.discountExpirationDate" *ngIf="canEdit; else readonlyDiscExpDate"></p-calendar>
-					<ng-template #readonlyDiscExpDate>
-						<input type="text" class="form-control" [value]="pulteInfo.discountExpirationDate" disabled/>
-					</ng-template>
+                        [minDate]="minDate" [showClear]="true"></p-calendar>
                 </div>
             </div>
             <div class="phd-info">
