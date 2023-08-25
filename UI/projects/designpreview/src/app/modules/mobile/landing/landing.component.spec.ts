@@ -105,7 +105,7 @@ describe('LandingComponent', () =>
 
 	describe('Non-presale renders correctly', () => 
 	{
-		it('does not show community name and plan name', () => 
+		it('shows community name and plan name', () => 
 		{
 			mockStore.setState({ scenario: BuildMode.Buyer });
 			fixture.detectChanges();
@@ -113,7 +113,9 @@ describe('LandingComponent', () =>
 				fixture,
 				'elevation-info'
 			);
-			expect(elevationInfo).toBeFalsy();
+			expect(elevationInfo.nativeElement.innerText).toBe(
+				`${expectedFinancialCommunityName}\n${mockPlan.salesName}`
+			);
 		});
 
 		it('shows correct title', () => 
