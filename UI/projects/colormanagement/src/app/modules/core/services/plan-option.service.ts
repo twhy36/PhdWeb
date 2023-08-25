@@ -63,7 +63,7 @@ export class PlanOptionService
 			expand = `planOptionCommunities($select=Id,isBaseHouse,planid)`;
 		}
 
-		qryStr += `&${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}`;
+		qryStr += `&${this._ds}filter=${encodeURIComponent(filter)}`;
 		qryStr += `&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		const endpoint = `${environment.apiUrl}${entity}?${qryStr}`;

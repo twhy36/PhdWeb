@@ -2,23 +2,23 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, filter, map, switchMap, take } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { IColorItem, IColorItemAssoc, IColorItemColorAssoc, IColorItemDto, IColorItemIdBatch } from '../../shared/models/colorItem.model';
 import * as _ from 'lodash';
 import
-	{
-		newGuid,
-		createBatch,
-		createBatchGet,
-		createBatchHeaders,
-		createBatchBody,
-		getNewGuid,
-		withSpinner,
-		IdentityService,
-		IColor, 
-		IColorDto,
-		IColorIdBatch
-	} from 'phd-common';
+{
+	newGuid,
+	createBatch,
+	createBatchGet,
+	createBatchHeaders,
+	createBatchBody,
+	getNewGuid,
+	withSpinner,
+	IdentityService,
+	IColor,
+	IColorDto,
+	IColorIdBatch
+} from 'phd-common';
 import { IPlanOptionCommunityGridDto } from '../../shared/models/community.model';
 import { PlanOptionService } from './plan-option.service';
 import { AttributeGroupKey } from '../../shared/models/option.model';
@@ -94,11 +94,12 @@ export class ColorService
 			);
 	}
 
-	getColorsByNames(communityId: number, subcategoryId: number, colors: {name: string, sku: string}[]): Observable<IColor[]>
+	getColorsByNames(communityId: number, subcategoryId: number, colors: { name: string, sku: string }[]): Observable<IColor[]>
 	{
 		const batchGuid = getNewGuid();
 
-		let requests = colors.map(color => {
+		let requests = colors.map(color =>
+		{
 			const entity = `colors`;
 			const select = `colorId,name,sku,isActive`;
 
@@ -106,7 +107,7 @@ export class ColorService
 
 			if (color.name)
 			{
-				filter += ` and (tolower(name) eq tolower('${color.name}'))`; 
+				filter += ` and (tolower(name) eq tolower('${color.name}'))`;
 			}
 
 			if (color.sku)
@@ -151,7 +152,7 @@ export class ColorService
 			}),
 			catchError(this.handleError)
 		);
-	}	
+	}
 
 	getPlanOptionAssocColorItems(communityId: number, edhPlanOptionIds: Array<number>, isActive?: boolean, name?: string, topRows?: number, skipRows?: number): Observable<IColorItemDto[]>
 	{
@@ -558,15 +559,40 @@ export class ColorService
 
 	getAttributeGroupCommunityId(): Observable<number>
 	{
-		const entity = `attributeGroupCommunities`;
-		const filter = `financialCommunity/number eq '${AttributeGroupKey.FinancialCommunityKey}' and financialCommunity/market/number eq '${AttributeGroupKey.MarketKey}'`;
+		const entity = `financialCommunities`;
+		const filter = `number eq '${AttributeGroupKey.FinancialCommunityKey}' and market/number eq '${AttributeGroupKey.MarketKey}'`;
 		const select = `id`;
 		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
 		const url = `${environment.apiUrl}${entity}?${qryStr}`;
 
 		return this._http.get<any>(`${url}`).pipe(
-			map(response =>
+			switchMap(response =>
 			{
+				if (!response.value || !response.value.length)
+				{
+					return of(response);
+				}
+
+				const entity = `attributeGroupCommunities`;
+				const filter = `financialCommunityId eq ${response.value[0].id}`;
+				const select = `id`;
+				const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}&${this._ds}select=${encodeURIComponent(select)}`;
+				const url = `${environment.apiUrl}${entity}?${qryStr}`;
+
+				return this._http.get<any>(`${url}`).pipe(
+					map(response2 =>
+					{
+						return response2;
+					})
+				);
+			}),
+			map(response => 
+			{
+				if (!response.value || !response.value.length)
+				{
+					return null;
+				}
+
 				this._attributeGroupCommunityId = response.value[0].id;
 				return this.attributeGroupCommunityId;
 			}),
