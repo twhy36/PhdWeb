@@ -193,9 +193,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			'numberOfGarages': new UntypedFormControl(this.pulteInfo.numberGarageOverride, [Validators.min(0), Validators.max(255)])
 		});
 
-		//Set control as dirty to allow primeNG to validate the control
-		this.pulteInfoForm.controls['discountExpirationDate'].markAsDirty();
-
 		this.pulteInfoForm.controls['discountExpirationDate'].valueChanges.subscribe((value: Date) =>
 		{
 			this.checkDiscountExpirationDate();
@@ -251,6 +248,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		clonePulteInfo.webSiteAvailableDate = this.pulteInfo.webSiteAvailableDate;
 
 		this.pulteInfoForm.markAsPristine();
+
 		this.store.dispatch(new JobActions.SavePulteInfo(clonePulteInfo));
 	}
 
