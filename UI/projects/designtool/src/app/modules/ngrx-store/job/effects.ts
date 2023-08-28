@@ -252,7 +252,10 @@ export class JobEffects
 
 						let shouldUpdateSpecChangeOrder = false;
 						
-						if (currentChangeOrderGroup?.salesStatusDescription === 'Pending')
+						// Make sure the latest change order is valid before checking against the construction status.
+						// Should NOT use simplified version currentChangeOrderGroup?.constructionStatusDescription !== Constants.AGREEMENT_STATUS_APPROVED
+						// because it will satisfy the condition if currentChangeOrderGroup is null which is not expected.
+						if (currentChangeOrderGroup && currentChangeOrderGroup.constructionStatusDescription !== Constants.AGREEMENT_STATUS_APPROVED)
 						{
 							const changeOrderPlanOptions = currentChangeOrderGroup.jobChangeOrders.flatMap(co => co.jobChangeOrderPlanOptions);
 
