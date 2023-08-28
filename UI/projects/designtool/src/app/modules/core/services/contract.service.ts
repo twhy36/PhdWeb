@@ -196,9 +196,9 @@ export class ContractService
 
 	getConstructionChangeOrderPdfData(jobChangeOrderChoicesDto: Array<ChangeOrderChoice>)
 	{
-		let jobChangeOrderChoices = jobChangeOrderChoicesDto.map(t =>
+		const jobChangeOrderChoices = jobChangeOrderChoicesDto.map(t =>
 		{
-			let jobChangeOrderChoiceAttributes = t.jobChangeOrderChoiceAttributes.map(attr =>
+			const jobChangeOrderChoiceAttributes = t.jobChangeOrderChoiceAttributes.map(attr =>
 			{
 				return {
 					attributeGroupCommunityId: attr.attributeGroupCommunityId,
@@ -211,7 +211,7 @@ export class ContractService
 				};
 			});
 
-			let jobChangeOrderChoiceLocations = t.jobChangeOrderChoiceLocations.map(loc =>
+			const jobChangeOrderChoiceLocations = t.jobChangeOrderChoiceLocations.map(loc =>
 			{
 				return {
 					locationGroupCommunityId: loc.locationGroupCommunityId,
@@ -259,14 +259,14 @@ export class ContractService
 
 	getPlanChangeOrderPdfData(plansDto: Array<Plan>, decisionPointsDto: Array<DecisionPoint>, jobChangeOrderPlansDto: Array<any>, jobChangeOrderChoicesDto: Array<ChangeOrderChoice>, currentHouseSelectionsPoints: Array<SDPoint>)
 	{
-		let changeOrderPlans: Array<Plan> = [];
+		const changeOrderPlans: Array<Plan> = [];
 
 		jobChangeOrderPlansDto.forEach(p =>
 		{
 			changeOrderPlans.push(plansDto.find(t => t.id === p.planCommunityId));
 		});
 
-		let plans = changeOrderPlans.map(p =>
+		const plans = changeOrderPlans.map(p =>
 		{
 			return {
 				name: p.salesName,
@@ -275,7 +275,7 @@ export class ContractService
 			};
 		});
 
-		let planChangeOrderSelections = {
+		const planChangeOrderSelections = {
 			plans: plans,
 		};
 
@@ -414,8 +414,8 @@ export class ContractService
 			return store.contract.templates.find(t => t.templateId === id);
 		}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0) : [{ displayName: 'JIO', displayOrder: 2, documentName: 'JIO', templateId: 0, templateTypeId: 4, marketId: 0, version: 0 }];
 
-		let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
-		let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10).map(n => n.noteContent).join('*') : '';
+		const salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
+		const termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10).map(n => n.noteContent).join('*') : '';
 
 		const liteBaseHouseOptions = this.liteService.getSelectedBaseHouseOptions(
 			store.lite.scenarioOptions,
@@ -432,7 +432,7 @@ export class ContractService
 				: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
 		}
 
-		let jioSelections =
+		const jioSelections =
 		{
 			currentHouseSelections: currentHouseSelections,
 			salesAgreementNotes: salesAgreementNotes
@@ -467,7 +467,7 @@ export class ContractService
 
 			const createdDate = store.salesAgreement.createdUtcDate || jio.createdUtcDate;
 
-			let jobBuyerHeaderInfo =
+			const jobBuyerHeaderInfo =
 			{
 				homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), '') : '',
 				workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), '') : '',
@@ -480,7 +480,7 @@ export class ContractService
 				? selectedLiteElevation.name
 				: elevationDP && elevationDP.choices.find(c => c.quantity > 0) ? elevationDP.choices.find(c => c.quantity > 0).label : '';
 
-			let jobAgreementHeaderInfo =
+			const jobAgreementHeaderInfo =
 			{
 				agreementNumber: store.salesAgreement.salesAgreementNumber,
 				agreementCreatedDate: new Date(createdDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
@@ -502,13 +502,13 @@ export class ContractService
 				salesDescription: jio ? jio.jobChangeOrderGroupDescription : ''
 			};
 
-			var envelopeInfo =
+			const envelopeInfo =
 			{
 				oldHanding: store.job.handing,
-				newHanding: store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.handing ? store.changeOrder.changeInput.handing.handing : null,
+				newHanding: store.changeOrder?.changeInput?.handing ? store.changeOrder.changeInput.handing.handing : null,
 				buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : '',
-				primaryBuyerName: isNull(store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
-				primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
+				primaryBuyerName: isNull(store.changeOrder?.changeInput ? store.changeOrder.changeInput.trustName : null, this.getFormattedContactName(primaryBuyer)),
+				primaryBuyerTrustName: isNull(store.changeOrder?.changeInput?.trustName?.length > 100 ? `${store.changeOrder.changeInput.trustName.substring(0, 100)}` : store.changeOrder?.changeInput ? store.changeOrder.changeInput.trustName : null, this.getFormattedContactName(primaryBuyer)),
 				salesAgreementNotes: salesAgreementNotes,
 				termsAndConditions: termsAndConditions,
 				coBuyers: coBuyers ? coBuyers.map(result =>
@@ -546,11 +546,11 @@ export class ContractService
 
 			// Create a snapshot
 
-			let planChangeOrderSelections = null;
+			const planChangeOrderSelections = null;
 			let constructionChangeOrderSelections = [];
-			let nonStandardChangeOrderSelections = [];
-			let lotTransferChangeOrderSelections = null;
-			let mappedTemplates = templates.map(t =>
+			const nonStandardChangeOrderSelections = [];
+			const lotTransferChangeOrderSelections = null;
+			const mappedTemplates = templates.map(t =>
 			{
 				return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 			});
@@ -570,13 +570,13 @@ export class ContractService
 				});
 			}
 
-			let lot = store.lot.selectedLot;
-			let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : '') + ' ' + (lot.streetAddress2 ? lot.streetAddress2 : '') + ',' + (lot.city ? lot.city : '') + ',' + (lot.stateProvince ? lot.stateProvince : '') + ' ' + (lot.postalCode ? lot.postalCode : '');
+			const lot = store.lot.selectedLot;
+			const lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : '') + ' ' + (lot.streetAddress2 ? lot.streetAddress2 : '') + ',' + (lot.city ? lot.city : '') + ',' + (lot.stateProvince ? lot.stateProvince : '') + ' ' + (lot.postalCode ? lot.postalCode : '');
 
 			const inChangeOrderOrSpecSale = store.changeOrder.isChangingOrder || isSpecSalePending;
-			let buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
-			const buyerContact = buyer && buyer.opportunityContactAssoc ? buyer.opportunityContactAssoc.contact : null;
-			const currentBuyerName = buyerContact ? `${buyerContact.firstName ? buyerContact.firstName : ''}${buyerContact.middleName ? ' ' + buyerContact.middleName : ''} ${buyerContact.lastName ? ' ' + buyerContact.lastName : ''}${buyerContact.suffix ? ' ' + buyerContact.suffix : ''}` : '';
+			const buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
+			const buyerContact = buyer?.opportunityContactAssoc ? buyer.opportunityContactAssoc.contact : null;
+			const currentBuyerName = buyerContact ? this.getFormattedContactName(buyerContact) : '';
 
 			const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
 			let coBuyerList = sagBuyers;
@@ -598,7 +598,7 @@ export class ContractService
 				};
 			}) : [];
 
-			let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName) : '';
+			const salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName) : '';
 			let homePhone = '';
 			let workPhone = '';
 			let buyerCurrentAddress = '';
@@ -618,16 +618,16 @@ export class ContractService
 				});
 			}
 
-			let buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
+			const buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
 
 			if (buyerAddressAssoc)
 			{
 				buyerCurrentAddress = (buyerAddressAssoc.address.address1 ? buyerAddressAssoc.address.address1 : '') + ' ' + (buyerAddressAssoc.address.address2 ? buyerAddressAssoc.address.address2 : '') + ',' + (buyerAddressAssoc.address.city ? buyerAddressAssoc.address.city : '') + ',' + (buyerAddressAssoc.address.stateProvince ? buyerAddressAssoc.address.stateProvince : '') + ' ' + (buyerAddressAssoc.address.postalCode ? buyerAddressAssoc.address.postalCode : '');
 			}
 
-			let financialCommunity = store.org.salesCommunity.financialCommunities[0];
+			const financialCommunity = store.org.salesCommunity.financialCommunities[0];
 
-			let decisionPoints = store.lite.isPhdLite
+			const decisionPoints = store.lite.isPhdLite
 				? [] // TODO For PHD Lite 
 				: _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
@@ -635,7 +635,7 @@ export class ContractService
 				? decisionPoints.find(t => t.dPointTypeId === 1).choices.find(c => c.quantity > 0)
 				: null;
 
-			let jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
+			const jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
 			{
 				return {
 					id: o.id,
@@ -656,14 +656,14 @@ export class ContractService
 			});
 
 			// Fetches SalesJIO, SpecJIO and Spec Customer JIO since they will be the first on the agreement. Not checking for pending since SpecJIO would be approved at this point.
-			let activeChangeOrderGroup = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
+			const activeChangeOrderGroup = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
 
-			let currentChangeOrderChoices = store.changeOrder && store.changeOrder.currentChangeOrder
+			const currentChangeOrderChoices = store.changeOrder && store.changeOrder.currentChangeOrder
 				? _.flatten(store.changeOrder.currentChangeOrder.jobChangeOrders.map(t => t.jobChangeOrderChoices))
 				: [];
 			let constructionChangeOrderSelectionsDto = null;
 
-			let customerSelections = store.lite.isPhdLite
+			const customerSelections = store.lite.isPhdLite
 				? [] // TODO For PHD Lite 
 				: getChangeOrderGroupSelections(store.scenario.tree.treeVersion.groups, <ChangeOrderChoice[]>currentChangeOrderChoices);
 
@@ -672,11 +672,11 @@ export class ContractService
 				changeOrderChoices: currentChangeOrderChoices
 			};
 
-			let jobChangeOrderChoices = this.getConstructionChangeOrderPdfData(<ChangeOrderChoice[]>currentChangeOrderChoices);
+			const jobChangeOrderChoices = this.getConstructionChangeOrderPdfData(<ChangeOrderChoice[]>currentChangeOrderChoices);
 
 			constructionChangeOrderSelections = constructionChangeOrderSelectionsDto.constructionChangeOrderSelections;
 
-			let changeOrderInformation = {
+			const changeOrderInformation = {
 				agreementId: store.salesAgreement.id,
 				createdUtcDate: store.salesAgreement.createdUtcDate,
 				approvedDate: store.salesAgreement.approvedDate,
@@ -766,24 +766,24 @@ export class ContractService
 							: getCurrentHouseSelections(store.scenario.tree.treeVersion.groups);
 					}
 
-					let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
-					let addedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Add').map(snco => snco.note) : [];
-					let removedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Delete').map(snco => snco.note) : [];
-					let previousTermsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10 && !removedTermsAndConditions.some(rtnc => rtnc.id === n.id)) : [];
+					const salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
+					const addedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Add').map(snco => snco.note) : [];
+					const removedTermsAndConditions = store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes') ? store.changeOrder.currentChangeOrder.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'SalesNotes').salesNotesChangeOrders.filter(sncos => sncos.action === 'Delete').map(snco => snco.note) : [];
+					const previousTermsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10 && !removedTermsAndConditions.some(rtnc => rtnc.id === n.id)) : [];
 
 					previousTermsAndConditions.push(...addedTermsAndConditions);
 
-					let termsAndConditions = previousTermsAndConditions.map(tcs => tcs.noteContent).join('*');
-					let jioSelections = {
+					const termsAndConditions = previousTermsAndConditions.map(tcs => tcs.noteContent).join('*');
+					const jioSelections = {
 						currentHouseSelections: currentHouseSelections,
 						salesAgreementNotes: salesAgreementNotes
 					};
 
-					let decisionPoints = store.lite.isPhdLite
+					const decisionPoints = store.lite.isPhdLite
 						? []
 						: _.flatMap(store.scenario.tree.treeVersion.groups, g => _.flatMap(g.subGroups, sg => sg.points));
 
-					let salesChangeOrderBuyers: Array<any> = [];
+					const salesChangeOrderBuyers: Array<any> = [];
 
 					const changeOrderBuyers = changeOrder.salesChangeOrderBuyers;
 
@@ -792,11 +792,11 @@ export class ContractService
 						const salesAgreemenetBuyers = store.salesAgreement.buyers;
 						const buyerIndexes = _.groupBy(changeOrderBuyers, 'sortKey');
 
-						for (let buyerIndex in buyerIndexes)
+						for (const buyerIndex in buyerIndexes)
 						{
-							let added = buyerIndexes[buyerIndex].find(b => b.action === 'Add');
-							let removed = buyerIndexes[buyerIndex].find(b => b.action === 'Delete');
-							let changed = buyerIndexes[buyerIndex].find(b => b.action === 'Change');
+							const added = buyerIndexes[buyerIndex].find(b => b.action === 'Add');
+							const removed = buyerIndexes[buyerIndex].find(b => b.action === 'Delete');
+							const changed = buyerIndexes[buyerIndex].find(b => b.action === 'Change');
 
 							if (added && removed && added.opportunityContactAssoc.id !== removed.opportunityContactAssoc.id)
 							{
@@ -894,7 +894,7 @@ export class ContractService
 						case 'ChoiceAttribute':
 						case 'Elevation':
 						case 'Handing':
-							let constructionChangeOrderSelections = store.lite.isPhdLite
+							const constructionChangeOrderSelections = store.lite.isPhdLite
 								? getLiteChangeOrderGroupSelections(
 									store.lite.scenarioOptions,
 									changeOrder.jobChangeOrderPlanOptions,
@@ -912,7 +912,7 @@ export class ContractService
 
 							break;
 						case 'Plan':
-							let currentHouseSelectionsPoints = _.flatMap(currentHouseSelections, g => _.flatMap(g.subGroups, sg => sg.points)).filter(t => [1, 2].indexOf(t.dPointTypeId) === -1);
+							const currentHouseSelectionsPoints = _.flatMap(currentHouseSelections, g => _.flatMap(g.subGroups, sg => sg.points)).filter(t => [1, 2].indexOf(t.dPointTypeId) === -1);
 
 							planChangeOrderSelectionsDto = {
 								plans: store.plan.plans,
@@ -927,21 +927,21 @@ export class ContractService
 
 							break;
 						case 'HomesiteTransfer':
-							let deletedLot = store.job.lot;
-							let addedLot = store.lot.selectedLot;
+							const deletedLot = store.job.lot;
+							const addedLot = store.lot.selectedLot;
 
 							lotTransferSeletionsDto = { addedLot, deletedLot };
 
 							break;
 					}
 
-					let lot = store.lot.selectedLot;
-					let lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : '') + ' ' + (lot.streetAddress2 ? lot.streetAddress2 : '') + ',' + (lot.city ? lot.city : '') + ',' + (lot.stateProvince ? lot.stateProvince : '') + ' ' + (lot.postalCode ? lot.postalCode : '');
+					const lot = store.lot.selectedLot;
+					const lotAddress = (lot.streetAddress1 ? lot.streetAddress1 : '') + ' ' + (lot.streetAddress2 ? lot.streetAddress2 : '') + ',' + (lot.city ? lot.city : '') + ',' + (lot.stateProvince ? lot.stateProvince : '') + ' ' + (lot.postalCode ? lot.postalCode : '');
 
 					const inChangeOrderOrSpecSale = store.changeOrder.isChangingOrder || isSpecSalePending;
-					let buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
-					const buyerContact = buyer && buyer.opportunityContactAssoc ? buyer.opportunityContactAssoc.contact : null;
-					const currentBuyerName = buyerContact ? (`${buyerContact.firstName ? buyerContact.firstName : ''}${buyerContact.middleName ? ' ' + buyerContact.middleName : ''} ${buyerContact.lastName ? ' ' + buyerContact.lastName : ''}${buyerContact.suffix ? ' ' + buyerContact.suffix : ''}`) : '';
+					const buyer = inChangeOrderOrSpecSale ? coPrimaryBuyer : store.salesAgreement.buyers.find(t => t.isPrimaryBuyer === true);
+					const buyerContact = buyer?.opportunityContactAssoc ? buyer.opportunityContactAssoc.contact : null;
+					const currentBuyerName = buyerContact ? this.getFormattedContactName(buyerContact) : '';
 
 					const sagBuyers = store.salesAgreement.buyers.filter(t => t.isPrimaryBuyer === false);
 					let coBuyerList = sagBuyers;
@@ -962,7 +962,7 @@ export class ContractService
 						};
 					}) : [];
 
-					let salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName) : '';
+					const salesConsultant = store.salesAgreement.consultants.length > 0 ? (store.salesAgreement.consultants[0].contact.firstName + ' ' + store.salesAgreement.consultants[0].contact.lastName) : '';
 					let homePhone = '';
 					let workPhone = '';
 					let buyerCurrentAddress = '';
@@ -982,7 +982,7 @@ export class ContractService
 						});
 					}
 
-					let buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
+					const buyerAddressAssoc = buyer && buyer.opportunityContactAssoc.contact.addressAssocs.length > 0 ? buyer.opportunityContactAssoc.contact.addressAssocs.find(t => t.isPrimary === true) : null;
 
 					if (buyerAddressAssoc)
 					{
@@ -1004,7 +1004,7 @@ export class ContractService
 						});
 					}
 
-					let financialCommunity = store.org.salesCommunity.financialCommunities[0];
+					const financialCommunity = store.org.salesCommunity.financialCommunities[0];
 
 					const elevationChoice = decisionPoints.find(t => t.dPointTypeId === 1)
 						? decisionPoints.find(t => t.dPointTypeId === 1).choices.find(c => c.quantity > 0)
@@ -1024,6 +1024,7 @@ export class ContractService
 						planName: planName,
 						planId: planId,
 						elevation: elevationChoice ? elevationChoice.label : '',
+						buyerTrustName: store.changeOrder?.changeInput?.trustName,
 						buyerName: currentBuyerName,
 						coBuyerName: '',
 						currentCoBuyers: currentCoBuyers,
@@ -1067,7 +1068,7 @@ export class ContractService
 						const salesIncentivePrice = priceBreakdown.salesProgram !== null ? (-Math.abs(priceBreakdown.salesProgram) + priceBreakdown.priceAdjustments) : 0;
 						const buyerClosingCosts = (priceBreakdown.closingIncentive || 0) + (priceBreakdown.closingCostAdjustment || 0);
 
-						let jobBuyerHeaderInfo = {
+						const jobBuyerHeaderInfo = {
 							homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), '') : '',
 							workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), '') : '',
 							email: customerEmail ? isNull(customerEmail.email.emailAddress, '') : '',
@@ -1079,7 +1080,7 @@ export class ContractService
 							? selectedLiteElevation?.name
 							: (store.job.jobPlanOptions?.find(x => x.jobOptionTypeName === 'Elevation')?.optionSalesName || '');
 
-						let jobAgreementHeaderInfo = {
+						const jobAgreementHeaderInfo = {
 							agreementNumber: store.salesAgreement.salesAgreementNumber,
 							agreementCreatedDate: new Date(store.salesAgreement.createdUtcDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
 							agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null,
@@ -1102,10 +1103,10 @@ export class ContractService
 
 						var envelopeInfo = {
 							oldHanding: store.job.handing,
-							newHanding: store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.handing ? store.changeOrder.changeInput.handing.handing : null,
+							newHanding: store.changeOrder?.changeInput?.handing ? store.changeOrder.changeInput.handing.handing : null,
 							buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : '',
-							primaryBuyerName: isNull(store.salesAgreement.trustName, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
-							primaryBuyerTrustName: isNull(store.salesAgreement.trustName && store.salesAgreement.trustName.length > 20 ? `${store.salesAgreement.trustName.substring(0, 20)}...` : store.salesAgreement.trustName, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
+							primaryBuyerName: isNull(store.salesAgreement.trustName, this.getFormattedContactName(primaryBuyer)),
+							primaryBuyerTrustName: isNull(store.salesAgreement.trustName?.length > 100 ? `${store.salesAgreement.trustName.substring(0, 100)}` : store.salesAgreement.trustName, this.getFormattedContactName(primaryBuyer)),
 							salesAgreementNotes: salesAgreementNotes,
 							termsAndConditions: termsAndConditions,
 							coBuyers: coBuyers ? coBuyers.map(result =>
@@ -1141,7 +1142,7 @@ export class ContractService
 							jobAgreementHeaderInfo: jobAgreementHeaderInfo
 						};
 
-						let mappedTemplates = templates.map(t =>
+						const mappedTemplates = templates.map(t =>
 						{
 							return { templateId: t.templateId, displayOrder: templates.indexOf(t) + 1, documentName: t.documentName, templateTypeId: t.templateTypeId };
 						});
@@ -1153,7 +1154,7 @@ export class ContractService
 
 						if (constructionChangeOrderSelectionsDto)
 						{
-							let jobChangeOrderChoices = store.lite.isPhdLite
+							const jobChangeOrderChoices = store.lite.isPhdLite
 								? getLiteConstructionChangeOrderPdfData(
 									store.lite.options,
 									store.lite.categories,
@@ -1207,8 +1208,8 @@ export class ContractService
 
 	getProgramDetails(programs: Array<SalesAgreementProgram>, changeOrders: Array<ChangeOrderGroup>, salesProgramType: string): any[]
 	{
-		let mappedPrograms = _.cloneDeep(programs) || [];
-		let clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved'))
+		const mappedPrograms = _.cloneDeep(programs) || [];
+		const clonedCOs = _.cloneDeep(changeOrders.filter(co => co.salesStatusDescription !== 'Withdrawn' && co.salesStatusDescription !== 'Resolved'))
 			.reverse();
 
 		let coPrograms = _.flatten(clonedCOs.map(cog =>
@@ -1217,12 +1218,13 @@ export class ContractService
 				.map(co => co.jobSalesChangeOrderSalesPrograms.filter(p => p.action === 'Add' && p.salesProgramType === salesProgramType)
 					.map(p =>
 					{
-						let removed = co.jobSalesChangeOrderSalesPrograms.find(r => r.action === 'Delete' && r.salesProgramId === p.salesProgramId);
+						const removed = co.jobSalesChangeOrderSalesPrograms.find(r => r.action === 'Delete' && r.salesProgramId === p.salesProgramId);
 
 						if (removed)
 						{
 							p.amount -= removed.amount;
 						}
+
 						return p;
 					}))
 				.filter(cop => cop.length !== 0)
@@ -1262,7 +1264,7 @@ export class ContractService
 		{
 			p.amount -= _.sum(coPrograms.filter(cop => cop.approved && (cop.salesAgreementProgram.salesProgramId === p.salesProgramId)).map(cop => cop.salesAgreementProgram.amount));
 
-			for (let cog of clonedCOs)
+			for (const cog of clonedCOs)
 			{
 				var deleted = _.flatten(cog.jobChangeOrders.filter(co => co.jobSalesChangeOrderSalesPrograms.length !== 0)
 					.map(co => co.jobSalesChangeOrderSalesPrograms))
@@ -1376,7 +1378,7 @@ export class ContractService
 					return null;
 				}
 			})
-		)
+		);
 	}
 
 	getEnvelope(jobId: number, changeOrderId: number, approvedDate: Date, signedDate: Date, isPhdLite: boolean)
@@ -1417,6 +1419,7 @@ export class ContractService
 									nonStandardChangeOrderSelections: clonedSnapshot.nonStandardChangeOrderSelections,
 									lotTransferChangeOrderSelections: clonedSnapshot.lotTransferSelections
 								};
+
 								return this.createEnvelope(snapShotData, null, isPhdLite).pipe(
 									map(() =>
 									{
@@ -1426,8 +1429,10 @@ export class ContractService
 							})
 						);
 					}
+
 					return of(true);
 				}
+
 				return of(false);
 			})
 		);
@@ -1435,9 +1440,10 @@ export class ContractService
 
 	getNsoOptionDetailsData(nsoSummary: any, jobNonStandardOptions: any)
 	{
-		let nsoDetails = nsoSummary ? nsoSummary.map(result =>
+		const nsoDetails = nsoSummary ? nsoSummary.map(result =>
 		{
-			let nsoChangeOrder = result.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'NonStandard').jobChangeOrderNonStandardOptions[0];
+			const nsoChangeOrder = result.jobChangeOrders.find(co => co.jobChangeOrderTypeDescription === 'NonStandard').jobChangeOrderNonStandardOptions[0];
+
 			return {
 				nonStandardOptionName: nsoChangeOrder.nonStandardOptionName,
 				nonStandardOptionDescription: nsoChangeOrder.nonStandardOptionDescription,
@@ -1447,7 +1453,7 @@ export class ContractService
 			};
 		}) : [];
 
-		let jobNsoDetails = jobNonStandardOptions ? jobNonStandardOptions.map(result =>
+		const jobNsoDetails = jobNonStandardOptions ? jobNonStandardOptions.map(result =>
 		{
 			return {
 				nonStandardOptionName: result.name,
@@ -1459,5 +1465,10 @@ export class ContractService
 		}) : [];
 
 		return [...nsoDetails, ...jobNsoDetails];
+	}
+
+	getFormattedContactName(contact: Contact)
+	{
+		return contact ? `${contact.firstName ?? ''}${contact.middleName ? ' ' + contact.middleName : ''}${contact.lastName ? ' ' + contact.lastName : ''}${contact.suffix ? ' ' + contact.suffix : ''}` : '';
 	}
 }
