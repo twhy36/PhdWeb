@@ -10,7 +10,7 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MockCloudinaryImage } from '../../../shared/mock-components/mock-cloudinary-image';
+import { MockCloudinaryImageComponent } from '../../../shared/mocks/mock-cloudinary-image';
 
 describe('LocationGroupComponent', () => 
 {
@@ -28,7 +28,7 @@ describe('LocationGroupComponent', () =>
 	beforeEach(async () => 
 	{
 		await TestBed.configureTestingModule({
-			declarations: [ LocationGroupComponent , MockCloudinaryImage],
+			declarations: [ LocationGroupComponent , MockCloudinaryImageComponent],
 			imports: [
 				BrowserAnimationsModule,
 				MatExpansionModule,

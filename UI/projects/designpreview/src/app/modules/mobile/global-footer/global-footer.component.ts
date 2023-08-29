@@ -5,7 +5,6 @@ import { withLatestFrom } from 'rxjs/operators';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromFavorite from '../../ngrx-store/favorite/reducer';
-import * as NavActions from '../../ngrx-store/nav/actions';
 
 import { BrandService } from '../../core/services/brand.service';
 import { BuildMode } from '../../shared/models/build-mode.model';
@@ -119,29 +118,6 @@ export class GlobalFooterComponent
 	getImageSrc(): string 
 	{
 		return this.brandService.getBrandImage('white_logo');
-	}
-
-	goToGroup(group: Group) 
-	{
-		const newSubgroup = this.groups.find((g) => g.id === group.id)
-			.subGroups[0];
-		const firstPoint = newSubgroup?.points[0] || null;
-		this.router.navigate(
-			[
-				'favorites',
-				'my-favorites',
-				this.myFavoriteId,
-				newSubgroup.subGroupCatalogId,
-			],
-			{ queryParamsHandling: 'merge' }
-		);
-		this.store.dispatch(
-			new NavActions.SetSelectedSubgroup(
-				newSubgroup.subGroupCatalogId,
-				firstPoint.id,
-				null
-			)
-		);
 	}
 
 	disclaimerClicked(): void 

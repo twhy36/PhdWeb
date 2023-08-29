@@ -14,7 +14,7 @@
                     <!----attribute thumbnail list-->
                     <div class="d-flex flex-row flex-wrap">
                         <ng-container *ngFor="let attribute of attributeGroup?.attributes">
-                            <button class="d-flex flex-column flex-wrap phd-attribute-item">
+                            <button class="d-flex flex-column flex-wrap phd-attribute-item" data-testid="attribute-item">
                                 <image [imageUrl]="attribute.imageUrl" title="{{attribute.name}}"
                                     height="80" width="80"
                                     (click)="handleAttributeClick($event, attribute)"

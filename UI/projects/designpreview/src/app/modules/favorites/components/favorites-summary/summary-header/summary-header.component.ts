@@ -13,7 +13,8 @@ import { Constants } from '../../../../shared/classes/constants.class';
 	selector: 'summary-header',
 	templateUrl: './summary-header.component.html',
 	styleUrls: ['./summary-header.component.scss']
-	})
+// eslint-disable-next-line indent
+})
 export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() summaryHeader: SummaryHeader;

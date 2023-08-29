@@ -13,8 +13,12 @@
 				</mat-expansion-panel-header>
 
 				<ul class="submenu-link p-0">
-					<li *ngFor="let group of this.groups" class="py-2" [attr.data-testid]="group.label + '-link'">
-						<a (click)="goToGroup(group)"> {{ group.label }} </a>
+					<li *ngFor="let group of this.groups"
+						class="py-2"
+						[attr.data-testid]="group.label + '-link'">
+						<a [routerLink]="['/options', group.subGroups[0]?.id, group.subGroups[0]?.points[0]?.id]" queryParamsHandling="merge">
+							{{ group.label }}
+						</a>
 					</li>
 				</ul>
 			</mat-expansion-panel>

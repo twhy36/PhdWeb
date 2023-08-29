@@ -1,0 +1,26 @@
+<div class="phd-choice-card d-flex flex-row m-1 p-2 justify-content-between">
+	<div class="d-flex flex-column">
+		<image [imageUrl]="imageUrl" [defaultImage]="defaultImage" height="117" width="200" alt=""></image>
+	</div>
+	<div class="phd-choice-card-info d-flex flex-column justify-content-between pl-2">
+		<h1 class="mat-headline-3 mb-0 justify-content-start">{{choice?.label}}</h1>
+		<div class="d-flex flex-row align-items-end" [ngClass]="!isPresale || (isPresale && isPresalePricingEnabled) ? 'justify-content-between' : 'justify-content-end'">
+			<ng-container *ngIf="!isPresale || (isPresale && isPresalePricingEnabled)">
+				<span *ngIf="!choice.priceHiddenFromBuyerView" class="mat-headline-3 mb-1 font-weight-bold">{{ choice | choicePriceWithRangeCheck | async }}</span>
+				<span *ngIf="choice.priceHiddenFromBuyerView"class="d-flex flex-row mat-headline-3 mb-0 font-weight-bold">
+					<span>Pricing Varies</span>
+					<button class="phd-pricing-info-disclaimer d-flex phd-accent-text p-0 pt-1" mat-icon-button>
+						<mat-icon>info_outline</mat-icon>
+					</button>
+				</span>
+			</ng-container>
+			<button *ngIf="choiceStatus === 'Available'" mat-icon-button class="phd-accent-text d-flex justify-content-end pl-4 pr-0 pt-4 pb-0" data-testid="favorite-button" (click)="toggleChoice()">
+				<mat-icon *ngIf="choice.enabled" attr.aria-pressed="{{ isFavorite }}" data-testid="favorite-icon">
+					{{ isFavorite ? "favorite" : "favorite_outline" }}
+				</mat-icon>
+				<mat-icon *ngIf="!choice.enabled" data-testid="blocked-icon">block</mat-icon>
+			</button>
+			<mat-icon *ngIf="choiceStatus === 'Contracted'" class="phd-accent-text" data-testid="contracted-icon">done</mat-icon>
+		</div>
+	</div>
+</div>

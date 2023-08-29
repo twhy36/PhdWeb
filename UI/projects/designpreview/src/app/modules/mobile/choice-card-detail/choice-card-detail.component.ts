@@ -46,7 +46,8 @@ import { CurrentAttribute } from '../../shared/models/current-attribute.model';
 	selector: 'choice-card-detail',
 	templateUrl: './choice-card-detail.component.html',
 	styleUrls: ['./choice-card-detail.component.scss'],
-	})
+// eslint-disable-next-line indent
+})
 export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
 {
 	@ViewChild('imageCarousel') imageCarousel: NgbCarousel;
@@ -56,9 +57,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 
 	choice: ChoiceExt;
 
-	subGroupCatalogId: number;
-	decisionPointCatalogId: number;
-	choiceCatalogId: number;
+	subGroupId: number;
+	decisionPointId: number;
+	choiceId: number;
 	isPreview: boolean;
 	isPresale: boolean = true;
 	isDesignComplete: boolean;
@@ -84,7 +85,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	curAttribute: CurrentAttribute;
 	estimatedTotalsOffsetHeight: number;
 	stickyHeaderHeight: number;
-	divAttributesHeight: number;
+	attributesHeight: number;
 
 	defaultImage: string = 'assets/NoImageAvailable.png';
 
@@ -112,9 +113,9 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.activatedRoute.paramMap.subscribe(
 			(paramMap) =>
 			{
-				this.subGroupCatalogId = +paramMap.get('subGroupCatalogId');
-				this.decisionPointCatalogId = +paramMap.get('decisionPointCatalogId');
-				this.choiceCatalogId = +paramMap.get('choiceCatalogId');
+				this.subGroupId = +paramMap.get('subGroupId');
+				this.decisionPointId = +paramMap.get('decisionPointId');
+				this.choiceId = +paramMap.get('choiceId');
 			}
 		);
 
@@ -164,14 +165,14 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 			this.isDesignComplete = sag?.isDesignComplete || false;
 
-			if (filteredTree && this.subGroupCatalogId > 0) 
+			if (filteredTree && this.subGroupId > 0) 
 			{
 				const groups = scenarioState.tree.treeVersion.groups;
 				let sg: SubGroup;
 
 				if (groups.length) 
 				{
-					sg = groups.flatMap(g => g.subGroups).find(sg => sg.subGroupCatalogId === this.subGroupCatalogId);
+					sg = groups.flatMap(g => g.subGroups).find(sg => sg.id === this.subGroupId);
 
 					//when choice is requested for detail and subgroup not in filtered tree, find subgroup in original tree
 					if (!sg) 
@@ -179,17 +180,16 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 						this.rerouteHome();
 					}
 
-					if (this.choiceCatalogId > 0) 
+					if (this.choiceId > 0) 
 					{
-						const paramPoint = sg.points.find(p => p.divPointCatalogId === this.decisionPointCatalogId);
-
+						const paramPoint = sg.points.find(p => p.id === this.decisionPointId);
 						if (!paramPoint)
 						{
 							this.rerouteHome();
 						}
-
-						const paramChoice = paramPoint?.choices.find((c) => this.choiceCatalogId === c.divChoiceCatalogId);
-
+						const paramChoice = paramPoint?.choices.find(
+							(c) => this.choiceId === c.id
+						);
 						if (!paramChoice) 
 						{
 							this.rerouteHome();
@@ -218,8 +218,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 		this.descOverflowedOnLoad = this.isTextOverflow('descriptionText');
 		this.estimatedTotalsOffsetHeight = this.estimatedTotals.nativeElement.offsetHeight;
 		this.stickyHeaderHeight = this.estimatedTotalsOffsetHeight + this.imgWithThumbnail.nativeElement.offsetHeight;
-		const actionBarHeight = this.actionBar.nativeElement.offsetHeight;
-		this.divAttributesHeight = window.innerHeight - this.stickyHeaderHeight - actionBarHeight;
+		this.attributesHeight = window.innerHeight - this.stickyHeaderHeight - this.actionBar.nativeElement.offsetHeight;
 
 		this.cd.detectChanges();
 	}

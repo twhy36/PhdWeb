@@ -5,14 +5,15 @@ import { By } from '@angular/platform-browser';
 export function findElementByTestId<T>(
 	fixture: ComponentFixture<T>,
 	testId: string
-): DebugElement 
+): DebugElement
 {
 	return fixture.debugElement.query(By.css(`[data-testid='${testId}']`));
 }
 
-export function findAllElementByTestId<T>(
+export function findAllElementsByTestId<T>(
 	fixture: ComponentFixture<T>,
 	testId: string
-  ): HTMLElement[] {
-	return fixture.nativeElement.querySelectorAll(`[data-testid="${testId}"]`);
-  }
+): DebugElement[]
+{
+	return fixture.debugElement.queryAll(By.css(`[data-testid='${testId}']`));
+}

@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 
-import * as fromRoot from '../../ngrx-store/reducers';
+import * as fromRoot from '../../../ngrx-store/reducers';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 
 import { EstimatedTotalsComponent } from './estimated-totals.component';
-import { findElementByTestId } from '../../shared/classes/test-utils.class';
-import { mockPriceBreakdown } from '../../shared/classes/mockdata.class';
+import { findElementByTestId } from '../../../shared/classes/test-utils.class';
+import { mockPriceBreakdown } from '../../../shared/classes/mockdata.class';
 
 describe('EstimatedTotalsComponent', () => 
 {
@@ -14,12 +15,16 @@ describe('EstimatedTotalsComponent', () =>
 	let fixture: ComponentFixture<EstimatedTotalsComponent>;
 	let mockStore: MockStore;
 
+	const initialState = {
+		salesAgreement: fromSalesAgreement.initialState
+	}
+
 	beforeEach(async () => 
 	{
 		await TestBed.configureTestingModule({
 			declarations: [EstimatedTotalsComponent],
 			imports: [MatIconModule],
-			providers: [provideMockStore()],
+			providers: [provideMockStore({ initialState })],
 		}).compileComponents();
 		mockStore = TestBed.inject(MockStore);
 		mockStore.overrideSelector(fromRoot.priceBreakdown, mockPriceBreakdown);
@@ -28,7 +33,6 @@ describe('EstimatedTotalsComponent', () =>
 		component = fixture.componentInstance;
 		component.isPresale = true;
 		component.isPresalePricingEnabled = true;
-		component.isDesignComplete = false;
 		fixture.detectChanges();
 	});
 
@@ -56,7 +60,10 @@ describe('EstimatedTotalsComponent', () =>
 
 		it('does not display estimated favorites total if design complete', () => 
 		{
-			component.isDesignComplete = true;
+			mockStore.setState({
+				...initialState,
+				salesAgreement: { isDesignComplete: true },
+			});
 			fixture.detectChanges();
 
 			const estimatedFavoritesLabel = findElementByTestId(
@@ -89,7 +96,10 @@ describe('EstimatedTotalsComponent', () =>
 		it('shows "Total Purchase Price" if not presale and design complete', () =>
 		{
 			component.isPresale = false;
-			component.isDesignComplete = true;
+			mockStore.setState({
+				...initialState,
+				salesAgreement: { isDesignComplete: true },
+			});
 			fixture.detectChanges();
 
 			const totalPriceLabel = findElementByTestId(
@@ -107,7 +117,6 @@ describe('EstimatedTotalsComponent', () =>
 		it('shows "Estimated Total Purchase Price" if not presale and not design complete', () =>
 		{
 			component.isPresale = false;
-			component.isDesignComplete = false;
 			fixture.detectChanges();
 
 			const totalPriceLabel = findElementByTestId(

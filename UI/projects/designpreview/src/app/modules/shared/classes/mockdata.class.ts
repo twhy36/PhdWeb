@@ -1,8 +1,12 @@
 import
 {
+	Choice,
 	DecisionPoint,
 	Group,
+	JobChoice,
 	MyFavorite,
+	MyFavoritesChoice,
+	MyFavoritesPointDeclined,
 	Plan,
 	PlanOption,
 	PointStatus,
@@ -164,6 +168,8 @@ export const testUpdatedChoiceAttributeGroups: AttributeGroupExt[] =
 	}
 ]
 
+export const financialCommunityName = 'Allen Ranches 3000s - Cypress';
+
 export const choiceToChoiceMustHaveRuleChoice: ChoiceExt = {
 	mappedAttributeGroups: [
 		{
@@ -319,7 +325,7 @@ export const choiceToChoiceMustNotHaveRuleChoice: ChoiceExt = {
 	isPointStructural: true,
 };
 
-export const choiceToChoiceMustHaveRulePoint: DecisionPoint = {
+export const mockPoint1: DecisionPoint = {
 	enabled: true,
 	disabledBy: [],
 	price: 0,
@@ -331,6 +337,101 @@ export const choiceToChoiceMustHaveRulePoint: DecisionPoint = {
 	divPointCatalogId: 2269,
 	pointPickTypeId: 4,
 	pointPickTypeLabel: 'Pick 0 or more',
+	sortOrder: 8,
+	isQuickQuoteItem: false,
+	isStructuralItem: false,
+	isHiddenFromBuyerView: false,
+	edhConstructionStageId: 4,
+	cutOffDays: null,
+	label: 'Cabinet Additions 2',
+	description: '',
+	treeVersionId: 13021,
+	dPointTypeId: null,
+	subGroupCatalogId: 0,
+	completed: false,
+	status: 4,
+	choices: [],
+	viewed: false,
+}
+
+export const mockPoint2: DecisionPoint = {
+	enabled: true,
+	disabledBy: [],
+	price: 0,
+	isPastCutOff: false,
+	viewed: false,
+	hasPointToPointRules: false,
+	hasPointToChoiceRules: false,
+	id: 17,
+	subGroupId: 721123,
+	divPointCatalogId: 2215,
+	pointPickTypeId: 1,
+	pointPickTypeLabel: 'Pick 1',
+	sortOrder: 1,
+	isQuickQuoteItem: true,
+	isStructuralItem: true,
+	isHiddenFromBuyerView: false,
+	edhConstructionStageId: null,
+	cutOffDays: -14,
+	label: 'Cabinets',
+	description: '',
+	treeVersionId: 45471,
+	dPointTypeId: 1,
+	subGroupCatalogId: 0,
+	completed: false,
+	status: PointStatus.COMPLETED,
+	choices: [
+		{
+			id: 0
+		} as Choice
+	] as Choice []
+}
+
+export const mockPoint3: DecisionPoint = {
+	enabled: true,
+	disabledBy: [],
+	price: 0,
+	isPastCutOff: false,
+	viewed: false,
+	hasPointToPointRules: false,
+	hasPointToChoiceRules: false,
+	id: 17,
+	subGroupId: 721123,
+	divPointCatalogId: 666,
+	pointPickTypeId: 1,
+	pointPickTypeLabel: 'Pick 1',
+	sortOrder: 1,
+	isQuickQuoteItem: true,
+	isStructuralItem: true,
+	isHiddenFromBuyerView: false,
+	edhConstructionStageId: null,
+	cutOffDays: -14,
+	label: 'Cabinets',
+	description: '',
+	treeVersionId: 45471,
+	dPointTypeId: 1,
+	subGroupCatalogId: 0,
+	completed: false,
+	status: PointStatus.COMPLETED,
+	choices: [
+		{
+			id: 0
+		} as Choice
+	] as Choice []
+}
+
+export const choiceToChoiceMustHaveRulePoint: DecisionPoint = {
+	enabled: true,
+	disabledBy: [],
+	price: 0,
+	isPastCutOff: false,
+	hasPointToPointRules: false,
+	hasPointToChoiceRules: false,
+	id: 888218,
+	subGroupId: 206630,
+	divPointCatalogId: 2269,
+	pointPickTypeId: 2,
+	pointPickTypeLabel: 'Pick 0 or 1',
 	sortOrder: 8,
 	isQuickQuoteItem: false,
 	isStructuralItem: false,
@@ -981,7 +1082,18 @@ export const mockGroup1: Group = {
 			subGroupCatalogId: 3,
 			sortOrder: 0,
 			useInteractiveFloorplan: true,
-			treeVersionId: 111,
+			treeVersionId: 1,
+			points: [choiceToChoiceMustHaveRulePoint],
+			status: 1,
+		},
+		{
+			id: 4,
+			groupId: 4,
+			label: 'Outdoor',
+			subGroupCatalogId: 4,
+			sortOrder: 0,
+			useInteractiveFloorplan: true,
+			treeVersionId: 1,
 			points: [choiceToChoiceMustHaveRulePoint],
 			status: 1,
 		},
@@ -1012,6 +1124,292 @@ export const testTreeVersion: TreeVersion = {
 	lastModifiedDate: undefined,
 	includedOptions: [],
 };
+
+export const testDecisionPoint: DecisionPoint = {
+	enabled: true,
+	disabledBy: [],
+	price: 0,
+	isPastCutOff: false,
+	viewed: false,
+	hasPointToPointRules: false,
+	hasPointToChoiceRules: false,
+	id: 3321984,
+	subGroupId: 721123,
+	divPointCatalogId: 2215,
+	pointPickTypeId: 1,
+	pointPickTypeLabel: 'Pick 1',
+	sortOrder: 1,
+	isQuickQuoteItem: true,
+	isStructuralItem: false,
+	isHiddenFromBuyerView: false,
+	edhConstructionStageId: null,
+	cutOffDays: -14,
+	label: 'Elevation',
+	description: '',
+	treeVersionId: 45471,
+	dPointTypeId: 1,
+	subGroupCatalogId: 0,
+	choices: [
+		{
+			mappedAttributeGroups: [],
+			mappedLocationGroups: [],
+			attributeGroups: [],
+			locationGroups: [],
+			disabledBy: [],
+			enabled: true,
+			maxQuantity: 1,
+			options: [
+				{
+					id: 4352444,
+					name: 'Elevation A',
+					isActive: true,
+					listPrice: 0,
+					maxOrderQuantity: 1,
+					isBaseHouse: false,
+					isBaseHouseElevation: false,
+					attributeGroups: [],
+					locationGroups: [],
+					financialOptionIntegrationKey: '70500',
+					description: 'Refer to plans and collateral for details.',
+					optionImages: [
+						{
+							integrationKey: '70500',
+							imageURL: 'https://pultegroup.picturepark.com/Go/UrmIElQ4/V/445352/1',
+							sortKey: 0
+						}
+					],
+					planId: 14219,
+					communityId: 0,
+					calculatedPrice: 0
+				}
+			],
+			price: 0,
+			quantity: 0,
+			selectedAttributes: [],
+			lockedInOptions: [],
+			changedDependentChoiceIds: [],
+			lockedInChoice: null,
+			mappingChanged: false,
+			isRequired: false,
+			disabledByHomesite: false,
+			disabledByReplaceRules: [],
+			disabledByBadSetup: false,
+			disabledByRelocatedMapping: [],
+			choiceImages: [],
+			hasChoiceRules: false,
+			hasOptionRules: true,
+			overrideNote: '',
+			id: 11762294,
+			treePointId: 3321984,
+			divChoiceCatalogId: 6198,
+			sortOrder: 1,
+			isSelectable: false,
+			isDecisionDefault: true,
+			isHiddenFromBuyerView: false,
+			priceHiddenFromBuyerView: false,
+			label: 'Elevation A',
+			imagePath: '',
+			hasImage: false,
+			treeVersionId: 45471,
+			choiceMaxQuantity: null,
+			description: null
+		},
+		{
+			mappedAttributeGroups: [],
+			mappedLocationGroups: [],
+			attributeGroups: [],
+			locationGroups: [],
+			disabledBy: [],
+			enabled: true,
+			maxQuantity: 1,
+			options: [
+				{
+					id: 4352443,
+					name: 'Elevation B',
+					isActive: true,
+					listPrice: 6550,
+					maxOrderQuantity: 1,
+					isBaseHouse: false,
+					isBaseHouseElevation: false,
+					attributeGroups: [],
+					locationGroups: [],
+					financialOptionIntegrationKey: '70501',
+					description: 'Refer to plans and collateral for details.',
+					optionImages: [
+						{
+							integrationKey: '70501',
+							imageURL: 'https://pultegroup.picturepark.com/Go/WhMOQt6L/V/445353/1',
+							sortKey: 0
+						}
+					],
+					planId: 14219,
+					communityId: 0,
+					calculatedPrice: 6550
+				}
+			],
+			price: 6550,
+			quantity: 0,
+			selectedAttributes: [],
+			lockedInOptions: [],
+			changedDependentChoiceIds: [],
+			lockedInChoice: null,
+			mappingChanged: false,
+			isRequired: false,
+			disabledByHomesite: false,
+			disabledByReplaceRules: [],
+			disabledByBadSetup: false,
+			disabledByRelocatedMapping: [],
+			choiceImages: [],
+			hasChoiceRules: false,
+			hasOptionRules: true,
+			overrideNote: '',
+			id: 11762295,
+			treePointId: 3321984,
+			divChoiceCatalogId: 6199,
+			sortOrder: 2,
+			isSelectable: false,
+			isDecisionDefault: false,
+			isHiddenFromBuyerView: false,
+			priceHiddenFromBuyerView: false,
+			label: 'Elevation B',
+			imagePath: '',
+			hasImage: false,
+			treeVersionId: 45471,
+			choiceMaxQuantity: null,
+			description: null
+		},
+		{
+			mappedAttributeGroups: [],
+			mappedLocationGroups: [],
+			attributeGroups: [],
+			locationGroups: [],
+			disabledBy: [],
+			enabled: true,
+			maxQuantity: 1,
+			options: [
+				{
+					id: 4352442,
+					name: 'Elevation C',
+					isActive: true,
+					listPrice: 11625,
+					maxOrderQuantity: 1,
+					isBaseHouse: false,
+					isBaseHouseElevation: false,
+					attributeGroups: [],
+					locationGroups: [],
+					financialOptionIntegrationKey: '70503',
+					description: 'Refer to plans and collateral for details.',
+					optionImages: [
+						{
+							integrationKey: '70503',
+							imageURL: 'https://pultegroup.picturepark.com/Go/45ffPWWV/V/445354/1',
+							sortKey: 0
+						}
+					],
+					planId: 14219,
+					communityId: 0,
+					calculatedPrice: 11625
+				}
+			],
+			price: 11625,
+			quantity: 0,
+			selectedAttributes: [],
+			lockedInOptions: [],
+			changedDependentChoiceIds: [],
+			lockedInChoice: null,
+			mappingChanged: false,
+			isRequired: false,
+			disabledByHomesite: false,
+			disabledByReplaceRules: [],
+			disabledByBadSetup: false,
+			disabledByRelocatedMapping: [],
+			choiceImages: [],
+			hasChoiceRules: false,
+			hasOptionRules: true,
+			overrideNote: '',
+			id: 11762296,
+			treePointId: 3321984,
+			divChoiceCatalogId: 6200,
+			sortOrder: 3,
+			isSelectable: false,
+			isDecisionDefault: false,
+			isHiddenFromBuyerView: false,
+			priceHiddenFromBuyerView: false,
+			label: 'Elevation C',
+			imagePath: '',
+			hasImage: false,
+			treeVersionId: 45471,
+			choiceMaxQuantity: null,
+			description: null
+		},
+		{
+			mappedAttributeGroups: [],
+			mappedLocationGroups: [],
+			attributeGroups: [],
+			locationGroups: [],
+			disabledBy: [],
+			enabled: true,
+			maxQuantity: 1,
+			options: [
+				{
+					id: 4352441,
+					name: 'Elevation D',
+					isActive: true,
+					listPrice: 5075,
+					maxOrderQuantity: 1,
+					isBaseHouse: false,
+					isBaseHouseElevation: false,
+					attributeGroups: [],
+					locationGroups: [],
+					financialOptionIntegrationKey: '70505',
+					description: 'Refer to plans and collateral for details.',
+					optionImages: [
+						{
+							integrationKey: '70505',
+							imageURL: 'https://pultegroup.picturepark.com/Go/ZbqrsX0f/V/447186/1',
+							sortKey: 0
+						}
+					],
+					planId: 14219,
+					communityId: 0,
+					calculatedPrice: 5075
+				}
+			],
+			price: 5075,
+			quantity: 0,
+			selectedAttributes: [],
+			lockedInOptions: [],
+			changedDependentChoiceIds: [],
+			lockedInChoice: null,
+			mappingChanged: false,
+			isRequired: false,
+			disabledByHomesite: false,
+			disabledByReplaceRules: [],
+			disabledByBadSetup: false,
+			disabledByRelocatedMapping: [],
+			choiceImages: [],
+			hasChoiceRules: false,
+			hasOptionRules: true,
+			overrideNote: '',
+			id: 11762297,
+			treePointId: 3321984,
+			divChoiceCatalogId: 26413,
+			sortOrder: 4,
+			isSelectable: false,
+			isDecisionDefault: false,
+			isHiddenFromBuyerView: false,
+			priceHiddenFromBuyerView: false,
+			label: 'Elevation D',
+			imagePath: '',
+			hasImage: false,
+			treeVersionId: 45471,
+			choiceMaxQuantity: null,
+			description: null
+		}
+	],
+	completed: false,
+	status: 0
+}
 
 export const testMyFavorite: MyFavorite = {
 	id: 1,
@@ -1061,6 +1459,98 @@ export const mockPriceBreakdown: PriceBreakdown = {
 	changePrice: 0,
 	favoritesPrice: 800,
 };
+
+export const mockSalesChoices: JobChoice[] = [
+	{
+		id: 1302842,
+		choiceLabel: 'Elevation LS201',
+		dpChoiceId: 10585308,
+		dpChoiceCalculatedPrice: 0,
+		divChoiceCatalogId: 2082,
+		dpChoiceQuantity: 1,
+		jobChoiceAttributes: [],
+		jobChoiceLocations: []
+	},
+	{
+		id: 1302843,
+		choiceLabel: 'Bistro Brown',
+		dpChoiceId: 10585314,
+		dpChoiceCalculatedPrice: 0,
+		divChoiceCatalogId: 2090,
+		dpChoiceQuantity: 1,
+		jobChoiceAttributes: [],
+		jobChoiceLocations: []
+	}
+];
+
+export const mockMyFavoritePointDeclined: MyFavoritesPointDeclined = {
+	id: 3,
+	myFavoriteId: -1,
+	dPointId: 17,
+	divPointCatalogId: 666,
+}
+
+export const testMyFavoriteStateWithoutSalesChoices = {
+	myFavorites: [
+		{
+			id: -1,
+			name: 'Default Favorite',
+			salesAgreementId: -1,
+			myFavoritesChoice: [
+				{
+					id: -11762350,
+					myFavoriteId: -1,
+					choiceDescription: 'Timberlake Fairfield Recessed Panel Birch.',
+					dpChoiceId: 11762350,
+					dpChoiceQuantity: 1,
+					decisionPointLabel: 'Cabinets',
+					subGroupLabel: 'Kitchen',
+					groupLabel: 'Rooms',
+					divChoiceCatalogId: 22457,
+					myFavoritesChoiceAttributes: [],
+					myFavoritesChoiceLocations: []
+				  } as MyFavoritesChoice
+			],
+			myFavoritesPointDeclined: []
+		}
+	],
+	selectedFavoritesId: -1,
+	isLoading: false,
+	saveError: false,
+	salesChoices: [],
+	includeContractedOptions: false
+}
+
+export const testMyFavoriteStateWithSalesChoices = {
+	myFavorites: [
+		{
+			id: -1,
+			name: 'Default Favorite',
+			salesAgreementId: -1,
+			myFavoritesChoice: [
+				{
+					id: -11762350,
+					myFavoriteId: -1,
+					choiceDescription: 'Timberlake Fairfield Recessed Panel Birch.',
+					dpChoiceId: 11762350,
+					dpChoiceQuantity: 1,
+					decisionPointLabel: 'Cabinets',
+					subGroupLabel: 'Kitchen',
+					groupLabel: 'Rooms',
+					divChoiceCatalogId: 22457,
+					myFavoritesChoiceAttributes: [],
+					myFavoritesChoiceLocations: []
+				} as MyFavoritesChoice
+			],
+			myFavoritesPointDeclined: [mockMyFavoritePointDeclined]
+		}
+	],
+	selectedFavoritesId: -1,
+	isLoading: false,
+	saveError: false,
+	salesChoices: mockSalesChoices,
+	includeContractedOptions: false
+}
 
 export const mockPlan: Plan = {
 	id: 111,

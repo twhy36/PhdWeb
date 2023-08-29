@@ -15,7 +15,6 @@ import { MobileComponent } from '../mobile.component';
 import { LandingComponent } from '../landing/landing.component';
 import { BrandService } from '../../core/services/brand.service';
 
-
 describe('GlobalHeaderComponent', () => 
 {
 	let component: GlobalHeaderComponent;

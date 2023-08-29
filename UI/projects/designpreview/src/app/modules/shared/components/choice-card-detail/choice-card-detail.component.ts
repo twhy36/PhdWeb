@@ -31,7 +31,8 @@ import { Constants } from '../../classes/constants.class';
 	selector: 'choice-card-detail',
 	templateUrl: 'choice-card-detail.component.html',
 	styleUrls: ['choice-card-detail.component.scss']
-	})
+// eslint-disable-next-line indent
+})
 export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild('imageCarousel') imageCarousel: NgbCarousel;

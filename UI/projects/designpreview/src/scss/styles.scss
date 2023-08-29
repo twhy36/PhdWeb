@@ -20,7 +20,9 @@
 // Mobile component themes
 @use './themes/components/estimated-totals-theme' as estimated-totals;
 @use './themes/components/global-header-theme' as global-header;
+@use './themes/components/group-list-theme' as group-list;
 @use './themes/components/landing-theme' as landing;
+@use './themes/components/options-theme' as options;
 
 @import "@angular/material/theming";
 @import '../../../phd-common/src/lib/scss/color-pallet.scss';
@@ -39,9 +41,13 @@
 	$primary-palette: map.get($color-config, 'primary');
 	$accent-palette: map.get($color-config, 'accent');
 
-	@include mat.menu-theme($theme);
 	@include mat.button-theme($theme);
+	@include mat.checkbox-theme($theme);
 	@include mat.dialog-theme($theme);
+	@include mat.form-field-theme($theme);
+	@include mat.menu-theme($theme);
+	@include mat.option-theme($theme);
+	@include mat.select-theme($theme);
 	@include mat.typography-hierarchy($typography-config);
 
 	@include action-bar.theme($theme);
@@ -57,10 +63,13 @@
 	@include summary.theme($theme);
 	@include summary-header.theme($theme);
 	@include welcome-modal.theme($theme);
+
 	// Mobile component themes
 	@include estimated-totals.theme($theme);
 	@include global-header.theme($theme);
+	@include group-list.theme($theme);
 	@include landing.theme($theme);
+	@include options.theme($theme);
 
 	font-family: mat.font-family($typography-config);
 
@@ -103,10 +112,34 @@
 		}
 	}
 
+	.fa-heart {
+		color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	.phd-button {
+		border-radius: 35px;
+		min-height: 2.5rem;
+		min-width: 5rem;
+		max-width: 15rem;
+	}
+
+	.phd-back-button {
+		border: 2px solid mat.get-color-from-palette($accent-palette, 500) !important;
+		color: mat.get-color-from-palette($accent-palette, 500) !important;
+	}
+
 	// This has to be outside the component because the mat menu is part of the overlay container
 	.fa-check {
 		color: mat.get-color-from-palette($accent-palette, 'A200') !important;
 		padding-right: 5px;
+	}
+
+	.phd-accent-text {
+		color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	.phd-primary-text {
+		color: mat.get-color-from-palette($primary-palette, 500);
 	}
 
 	.phd-attribute-item-image-selected {
@@ -158,6 +191,19 @@
 		padding-left: 19px;
 	}
 
+	.phd-subgroup-list-item-label {
+		color: mat.get-color-from-palette($accent-palette, 500) !important;
+	}
+
+	.phd-subgroup-list-item-label-selected {
+		color: mat.get-color-from-palette($primary-palette, 500) !important;
+	}
+
+	.phd-subgroup-menu {
+		border-radius: 0;
+		min-width: 8rem;
+	}
+	
 	.phd-icon-accent {
 		color: mat.get-color-from-palette($accent-palette, 500);
 	}
@@ -186,6 +232,27 @@
 		.phd-dialog-header-text {
 			color: mat.get-color-from-palette($primary-palette, '500-contrast') !important;
 		}
+	}
+
+	.mdc-checkbox__background {
+		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
+	}
+
+	// Outline for the decision point selection
+	.mdc-notched-outline__leading, .mdc-notched-outline__trailing {
+		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
+		border-radius: 0 !important;
+	}
+
+	// Colors for the decision point selection text and arrow
+	.mat-mdc-select-arrow {
+		color: mat.get-color-from-palette($accent-palette, 500);
+		font-size: mat.font-size($typography-config, 'headline-3');
+	}
+
+	.mat-mdc-select-value-text {
+		color: mat.get-color-from-palette($accent-palette, 500);
+		font-size: mat.font-size($typography-config, 'headline-3');
 	}
 }
 
@@ -295,6 +362,11 @@ a:focus {
 	transition: all 0.5s;
 }
 
+// Override base label styles from bootstrap _reboot.scss
+label {
+	margin-bottom: 0 !important;
+}
+
 ul {
 	list-style-type: none;
 }
@@ -312,6 +384,24 @@ ul {
 
 .mat-expansion-panel-body {
 	padding-bottom: 6px !important;
+}
+
+// Override default material styles
+.mat-mdc-form-field-infix {
+	display: flex;
+	min-height: 40px !important;
+	max-height: 40px;
+	padding: 0 !important;
+	align-items: center;
+}
+
+// .mat-mdc-select-value-text {
+// 	font-size: 12px;
+// }
+
+.mat-mdc-menu-content {
+	border-radius: 0 !important;
+	padding: 0 !important;
 }
 
 // ngb-modal has an inline style bug. see more here: https://github.com/ng-bootstrap/ng-bootstrap/issues/2686
@@ -375,14 +465,14 @@ ngb-modal-backdrop {
 	position: -webkit-sticky; // needed for safari
 	position: sticky;
 	top: 0;
-	z-index: 1;
+	z-index: 10;
 }
 
 .phd-sticky-content {
 	// top position is determined dynamically (depends on if there is pricing or not)
 	position: sticky;
 	background-color: white;
-	flex: 1;
+	// flex: 1;
 	z-index: 10;
 }
 

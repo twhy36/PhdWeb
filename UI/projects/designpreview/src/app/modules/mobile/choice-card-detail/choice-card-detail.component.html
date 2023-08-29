@@ -1,14 +1,10 @@
-<div class="container-fluid d-flex flex-column px-0 min-vh-100">
-	<div>
-		<!----price block-->
-		<div #estimatedTotals class="phd-sticky-header">
-			<estimated-totals
-				*ngIf="(isPresalePricingEnabled || !isPresale)"
-				[isPresale]="isPresale"
-				[isPresalePricingEnabled]="isPresalePricingEnabled"
-				[isDesignComplete]="isDesignComplete">
-			</estimated-totals>
-		</div>
+<div class="phd-choice-card-detail container-fluid d-flex flex-column px-0">
+	<div #estimatedTotals class="phd-sticky-header">
+		<estimated-totals *ngIf="(isPresalePricingEnabled || !isPresale)"
+						  [isPresale]="isPresale"
+						  [isPresalePricingEnabled]="isPresalePricingEnabled">
+		</estimated-totals>
+	</div>
 
 		<!----top disclaimer-->
 		<span class="phd-info-text d-flex px-3 pt-3"  data-testid="selected-options-disclaimer">
@@ -98,7 +94,7 @@
 	</div>
 
 	<!----description-->
-	<div class="px-3 pt-2">
+	<div class="px-3 pt-2 phd-not-sticky">
 		<div
 			*ngIf="choiceDescriptions?.length && !optionDisabled"
 			class="phd-description"
@@ -120,12 +116,11 @@
 	</div>
 	
 	<!-- Attributes: when has attribute groups -->
-	<div class="phd-attributes" [ngStyle]="{ top: stickyHeaderHeight + 'px', 'height': divAttributesHeight + 'px'}">
-		<attribute-group [currentChoice]="choice"></attribute-group>				
+	<div class="phd-not-sticky phd-attributes" [ngStyle]="{ 'max-height': attributesHeight + 'px' }">
+		<attribute-group-mobile [currentChoice]="choice"></attribute-group-mobile>
 	</div>
 
-
 	<div #actionBar class="phd-sticky-footer">
-		<action-bar [showBack]="true"></action-bar>
+		<action-bar-mobile [showBack]="true"></action-bar-mobile>
 	</div>
 </div>

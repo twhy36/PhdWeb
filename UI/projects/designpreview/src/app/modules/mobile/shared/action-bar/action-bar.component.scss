@@ -1,0 +1,12 @@
+.phd-action-bar {
+	box-shadow: 0px 0px 10px #0000005d;
+	background-color: white;
+}
+
+.phd-ellipsis-text {
+	display: block;
+	overflow: hidden;
+	max-width: 12rem;
+	text-overflow: ellipsis !important;
+	white-space: nowrap;
+}

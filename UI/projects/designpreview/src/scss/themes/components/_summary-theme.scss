@@ -16,10 +16,6 @@
 		color: mat.get-color-from-palette($primary-palette, 'A100');
 	}
 
-	.phd-fav-disclaimer {
-		color: mat.get-color-from-palette($accent-palette, 'A700');
-	}
-
 	input[type=checkbox] {
 		accent-color: mat.get-color-from-palette($primary-palette, 'A100');
 	}
@@ -59,7 +55,6 @@
 	// Get the typography config from the theme.
 	$typography-config: mat.get-typography-config($theme);
 
-	.phd-fav-container,
 	.phd-fav-subtotal {
 		@include mat.typography-level($typography-config, 'body-2');
 	}

@@ -22,28 +22,31 @@ import
 	testMyFavorite,
 	testTreeVersion,
 } from '../../shared/classes/mockdata.class';
-import { MockCloudinaryImage } from '../../shared/mock-components/mock-cloudinary-image';
+import { MockCloudinaryImageComponent } from '../../shared/mocks/mock-cloudinary-image';
+import { MockEstimatedTotalsComponent } from '../../shared/mocks/mock-estimated-totals-component';
+import { ChoiceExt } from '../../shared/models/choice-ext.model';
 
-@Component({ selector: 'estimated-totals', template: '' })
-class EstimatedTotalsStubComponent
-{
-	@Input() isPresale = false;
-	@Input() isPresalePricingEnabled = false;
-	@Input() isDesignComplete = false;
-}
-
-@Component({ selector: 'action-bar', template: '' })
+@Component({ selector: 'action-bar-mobile', template: '' })
 class ActionBarStubComponent
 {
 	@Input() showBack: boolean;
 }
+
+@Component({ selector: 'attribute-group-mobile', template: ''})
+class AttributeGroupStubComponent
+{
+	@Input() currentChoice: ChoiceExt;
+}
+
+@Component({ selector: 'location-group', template: ''})
+class LocationGroupStubComponent { }
 
 describe('ChoiceCardDetailComponent', () => 
 {
 	let component: ChoiceCardDetailComponent;
 	let fixture: ComponentFixture<ChoiceCardDetailComponent>;
 
-	let mockStore;
+	let mockStore: MockStore;
 	const initialState = {
 		favorite: fromFavorite.initialState,
 		scenario: {
@@ -72,7 +75,14 @@ describe('ChoiceCardDetailComponent', () =>
 	beforeEach(async () => 
 	{
 		await TestBed.configureTestingModule({
-			declarations: [ChoiceCardDetailComponent, EstimatedTotalsStubComponent, ActionBarStubComponent, MockCloudinaryImage],
+			declarations: [
+				ChoiceCardDetailComponent,
+				MockEstimatedTotalsComponent,
+				ActionBarStubComponent,
+				MockCloudinaryImageComponent,
+				AttributeGroupStubComponent,
+				LocationGroupStubComponent,
+			],
 			imports: [MatIconModule, NgbModule],
 			providers: [
 				provideMockStore({ initialState }),
@@ -81,9 +91,9 @@ describe('ChoiceCardDetailComponent', () =>
 					useValue: {
 						paramMap: of(
 							convertToParamMap({
-								subGroupCatalogId: testTreeVersion.groups[0].subGroups[0].subGroupCatalogId,
-								decisionPointCatalogId: testTreeVersion.groups[0].subGroups[0].points[0].divPointCatalogId,
-								choiceCatalogId: testTreeVersion.groups[0].subGroups[0].points[0].choices[0].divChoiceCatalogId,
+								subGroupId: testTreeVersion.groups[0].subGroups[0].id,
+								decisionPointId: testTreeVersion.groups[0].subGroups[0].points[0].id,
+								choiceId: testTreeVersion.groups[0].subGroups[0].points[0].choices[0].id,
 							})
 						),
 					},

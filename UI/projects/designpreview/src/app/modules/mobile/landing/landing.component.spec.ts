@@ -13,10 +13,10 @@ import { BrandService } from '../../core/services/brand.service';
 import { BuildMode } from '../../shared/models/build-mode.model';
 import { findElementByTestId } from '../../shared/classes/test-utils.class';
 import { LandingComponent } from './landing.component';
-import { MockCloudinaryImage } from '../../shared/mock-components/mock-cloudinary-image';
+import { MockCloudinaryImageComponent } from '../../shared/mocks/mock-cloudinary-image';
 import { mockPlan } from '../../shared/classes/mockdata.class';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ViewOptionsLinkComponent } from '../view-options-link/view-options-link.component';
+import { ViewOptionsLinkComponent } from '../shared/view-options-link/view-options-link.component';
 
 describe('LandingComponent', () => 
 {
@@ -39,7 +39,7 @@ describe('LandingComponent', () =>
 		await TestBed.configureTestingModule({
 			declarations: [
 				LandingComponent,
-				MockCloudinaryImage,
+				MockCloudinaryImageComponent,
 				ViewOptionsLinkComponent,
 			],
 			imports: [MatIconModule, RouterTestingModule.withRoutes([])],
@@ -56,7 +56,7 @@ describe('LandingComponent', () =>
 		instanceBrandService = TestBed.inject(BrandService);
 		mockStore = TestBed.inject(MockStore);
 
-		elevationImageUrlSelector = mockStore.overrideSelector(
+		mockStore.overrideSelector(
 			fromRoot.elevationImageUrl,
 			expectedElevationImageUrl
 		);
@@ -142,7 +142,10 @@ describe('LandingComponent', () =>
 		spyOn(instanceBrandService, 'getBrandImage').and.returnValue(
 			'test-brand-url'
 		);
-		elevationImageUrlSelector.setResult(null);
+		mockStore.overrideSelector(
+			fromRoot.elevationImageUrl,
+			null
+		);
 		mockStore.refreshState();
 		fixture.detectChanges();
 

@@ -1,9 +1,10 @@
+import { Component, Input } from '@angular/core';
 import {  ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { provideMockStore } from '@ngrx/store/testing';
 
-import { ModalService, PointStatus } from 'phd-common';
+import { ImagePlugins, ModalService, PointStatus } from 'phd-common';
 import { instance, mock } from 'ts-mockito';
 
 import * as fromApp from '../../../ngrx-store/app/reducer';
@@ -19,6 +20,15 @@ import { ActionBarComponent } from '../action-bar/action-bar.component';
 import { AdobeService } from '../../../core/services/adobe.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { ChoicePriceWithRangeCheckPipe } from '../../pipes/choicePriceWithRangeCheck.pipe';
+
+@Component({ selector: 'image', template: ''})
+class ImageStubComponent
+{
+	
+	@Input() defaultImage: string;
+	@Input() imageUrl: string;
+	@Input() imagePlugins: ImagePlugins[];
+}
 
 describe('ChoiceCardComponent', () => 
 {
@@ -45,7 +55,8 @@ describe('ChoiceCardComponent', () =>
 			declarations: [
 				ChoiceCardComponent,
 				ActionBarComponent,
-				ChoicePriceWithRangeCheckPipe
+				ChoicePriceWithRangeCheckPipe,
+				ImageStubComponent
 			],
 			imports: [ BrowserAnimationsModule ],
 			providers: [

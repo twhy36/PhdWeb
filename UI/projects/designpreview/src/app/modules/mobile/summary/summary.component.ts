@@ -1,38 +1,36 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatAccordion } from '@angular/material/expansion';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+import { Store, select } from '@ngrx/store';
 
+import { DecisionPoint, Group, JobChoice, MyFavorite, PlanOption, PriceBreakdown, Tree, TreeVersionRules, UnsubscribeOnDestroy } from 'phd-common';
 import { Observable, combineLatest } from 'rxjs';
 import { distinctUntilChanged, take } from 'rxjs/operators';
-import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromPlan from '../../ngrx-store/plan/reducer';
-import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromFavorite from '../../ngrx-store/favorite/reducer';
 import * as FavoriteActions from '../../ngrx-store/favorite/actions';
-
-import { DecisionPoint, Group, JobChoice, MyFavorite, PlanOption, PriceBreakdown, Tree, TreeVersionRules, UnsubscribeOnDestroy } from 'phd-common';
-
 import { BrandService } from '../../core/services/brand.service';
 
 import { GroupExt } from '../../shared/models/group-ext.model';
 import { BuildMode } from '../../shared/models/build-mode.model';
 import { Constants } from '../../shared/classes/constants.class';
-import { MatAccordion } from '@angular/material/expansion';
 
 @Component({
 	selector: 'summary',
 	templateUrl: './summary.component.html',
 	styleUrls: ['./summary.component.scss']
 	})
-export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
+export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
 {
+	@ViewChild('stickyHeader') stickyHeader: ElementRef
+
 	summaryTitle: string = '';
 	buildMode: string;
 	communityName: string = '';
 	planName: string = '';
-	lotAddress: string = '';
 	brandTheme: string;
 	showOptionText: string = Constants.SHOW_OPTIONS_TEXT;
 	favoritesId: number;
@@ -40,12 +38,13 @@ export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	isDesignComplete: boolean = false;
 	isPresalePricingEnabled: boolean = false;
 	hasAgreement: boolean = false;
-	groupExpended = false;
+	groupExpanded = false;
 	showDetailPrice = true;
 	isPresale: boolean;
 	isEmptyFavorites: boolean;
 	includeContractedOptions: boolean = false;
 	isSticky: boolean = false;
+	stickyHeaderOffset: number = 0;
 
 	groups: GroupExt[];
 	priceBreakdown: PriceBreakdown;
@@ -57,6 +56,11 @@ export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 
 	@ViewChild(MatAccordion) accordion: MatAccordion;
 
+	get showPendingAndContractedToggle(): boolean
+	{
+		return (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.BuyerPreview) && !this.isDesignComplete;
+	}
+
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
 		private cd: ChangeDetectorRef,
@@ -67,12 +71,6 @@ export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		super();
 
 		this.brandTheme = this.brandService.getBrandTheme();
-	}
-
-	@HostListener('window:scroll', [])
-	onWindowScroll()
-	{
-		this.isSticky = window.pageYOffset > 80;
 	}
 
 	ngOnInit()
@@ -93,23 +91,6 @@ export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe(planData =>
 		{
 			this.planName = planData?.salesName;
-		});
-
-		//get lot for lot address when lot is not empty
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(fromSalesAgreement.selectSelectedLot)
-		).subscribe(lot =>
-		{
-			if (lot && (lot.streetAddress1 && lot.streetAddress1.length)
-				&& (lot.city && lot.city.length)
-				&& (lot.stateProvince && lot.stateProvince.length)
-				&& (lot.postalCode && lot.postalCode.length))
-			{
-				const address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
-
-				this.lotAddress = `LOT ${lot.lotBlock}, ${lot.streetAddress1}${address2}, ${lot.city}, ${lot.stateProvince} ${lot.postalCode}`;
-			}
 		});
 
 		//get prices
@@ -168,16 +149,22 @@ export class SummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				return new Observable<never>();
 			}
 
-			//read variables
+			// read variables
 			this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
 			this.buildMode = scenarioState.buildMode;
 			this.isPresale = this.buildMode === BuildMode.Presale;
 			this.isDesignComplete = salesAgreementState?.isDesignComplete || false;
-			this.hasAgreement = salesAgreementState && salesAgreementState.id > 0;
-			//RULE: preview='Preview Favorites'	presale='My Favoirtes'	buyer/buyerPreview(from state title)=LastName?'LastName Favorites':'Favorites'
+			// RULE: preview='Preview Favorites'	presale='My Favoirtes'	buyer/buyerPreview(from state title)=LastName?'LastName Favorites':'Favorites'
 			this.summaryTitle = this.buildMode === BuildMode.Preview ? 'Preview Favorites' : (this.isPresale ? 'My Favorites' : title);
 		});
 
+	}
+
+	ngAfterViewInit(): void
+	{
+		// Calculate the sticky header size to offset the sticky content
+		this.stickyHeaderOffset = this.stickyHeader.nativeElement.offsetHeight;
+		this.cd.detectChanges();
 	}
 
 	onPrint() 

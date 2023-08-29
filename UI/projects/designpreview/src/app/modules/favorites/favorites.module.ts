@@ -1,3 +1,6 @@
+// There is currently a bug in eslint with angular decorators and expected indentation
+// For more information see this github issue: https://github.com/typescript-eslint/typescript-eslint/issues/1824
+/* eslint-disable indent */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
