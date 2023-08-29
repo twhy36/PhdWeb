@@ -372,9 +372,28 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				});
 	}
 
-	previewFile(templateId: number)
+	downloadFile(templateId: number)
 	{
 		this._contractService.getTemplateUrl(templateId)
+			.subscribe(data =>
+			{
+				var el = document.createElement("a");
+
+				el.href = data;
+
+				el.dispatchEvent(new MouseEvent("click"));
+
+				this._msgService.add({ severity: 'success', summary: 'Document', detail: `has been downloaded` });
+			},
+				error =>
+				{
+					this._msgService.add({ severity: 'info', summary: `Document not found` });
+				});
+	}
+
+	previewFile(templateId: number)
+	{
+		this._contractService.getTemplatePreview(this.currentMktId, templateId)
 			.subscribe(data =>
 			{
 				var el = document.createElement("a");

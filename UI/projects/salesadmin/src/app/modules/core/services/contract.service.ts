@@ -69,6 +69,19 @@ export class ContractService
 		);
 	}
 
+	getTemplatePreview(marketId: number, templateId: number): Observable<string>
+	{
+		let url = this.settings.apiUrl + `GetTemplatePreview(MarketId=${marketId},TemplateId=${templateId})`;
+
+		return this._http.get(url).pipe(
+			map(response =>
+			{
+				return response['value'];
+			}),
+			catchError(this.handleError)
+		);
+	}
+
 	getCommunitiesWithExistingTemplate(marketId: number, templateTypeId: number, isPhd?: boolean, isTho?: boolean): Observable<Array<number>>
 	{
 		/* isPhd	isTho	Condition
