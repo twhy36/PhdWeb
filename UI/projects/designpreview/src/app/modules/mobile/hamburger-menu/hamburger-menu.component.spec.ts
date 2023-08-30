@@ -22,11 +22,11 @@ import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 
 import { HamburgerMenuComponent } from './hamburger-menu.component';
-import { BuildMode } from '../../shared/models/build-mode.model';
 import { BrandService } from '../../core/services/brand.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { Constants } from '../../shared/classes/constants.class';
 import { choiceToChoiceMustHaveRulePoint, testTreeVersion } from '../../shared/classes/mockdata.class';
+import { BuildMode } from '../../shared/models/build-mode.model';
 
 describe('HamburgerMenuComponent', () => 
 {

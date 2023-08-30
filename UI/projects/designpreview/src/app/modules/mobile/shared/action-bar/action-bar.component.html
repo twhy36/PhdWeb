@@ -1,0 +1,23 @@
+<nav>
+	<div class="phd-action-bar d-flex justify-content-around py-2">
+		<a
+			*ngIf="showBack"
+			mat-flat-button
+			class="phd-button phd-back-button"
+			routerLink=".."
+			queryParamsHandling="merge"
+			data-testid="back-btn">
+			Back
+		</a>
+		<a
+			*ngIf="actionLabel"
+			mat-flat-button
+			color="accent"
+			class="phd-button phd-accent-button"
+			[routerLink]="actionLink"
+			queryParamsHandling="merge"
+			data-testid="next-btn">
+			<span class="phd-ellipsis-text">{{actionLabel}}</span>
+		</a>
+	</div>
+</nav>

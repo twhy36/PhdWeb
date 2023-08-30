@@ -9,10 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { DummyComponent } from '../../shared/mock-components/mock-dummy-component';
-import { findElementByTestId } from '../../shared/classes/test-utils.class';
-import { LandingComponent } from '../landing/landing.component';
+import { findElementByTestId } from '../../../shared/classes/test-utils.class';
+import { LandingComponent } from '../../landing/landing.component';
 import { ViewOptionsLinkComponent } from './view-options-link.component';
+import { OptionsComponent } from '../../options/options.component';
 
 describe('ViewOptionsLinkComponent', () => 
 {
@@ -29,7 +29,7 @@ describe('ViewOptionsLinkComponent', () =>
 			imports: [
 				RouterTestingModule.withRoutes([
 					{ path: 'home', component: LandingComponent },
-					{ path: 'options', component: DummyComponent },
+					{ path: 'options', component: OptionsComponent },
 				]),
 				MatIconModule,
 			],

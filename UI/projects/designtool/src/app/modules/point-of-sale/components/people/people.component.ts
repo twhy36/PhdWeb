@@ -305,10 +305,11 @@ export class PeopleComponent extends UnsubscribeOnDestroy implements OnInit, Con
 
 			this._actions$.pipe(
 				ofType<SalesAgreementActions.SalesAgreementInfoNASaved>(SalesAgreementActions.SalesAgreementActionTypes.SalesAgreementInfoNASaved),
-				take(1)).subscribe(() =>
-				{
-					this.store.dispatch(new ChangeOrderActions.SavePendingJio());
-				});
+				take(1)
+			).subscribe(() =>
+			{
+				this.store.dispatch(new ChangeOrderActions.SavePendingJio());
+			});
 		}
 		else
 		{

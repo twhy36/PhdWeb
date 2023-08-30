@@ -767,6 +767,15 @@ export const choicePriceRanges = createSelector(
 	}
 );
 
+export const selectUnfilteredPoint = (divPointCatalogId: number) => createSelector(
+	selectScenario,
+	(state) =>
+	{
+		return state?.tree?.treeVersion?.groups
+			.flatMap(g => g.subGroups).flatMap(sg => sg.points)
+			.find(up => up.divPointCatalogId === divPointCatalogId);
+	}
+);
 
 export const getCurrentAttribute = createSelector(
 	selectScenario,

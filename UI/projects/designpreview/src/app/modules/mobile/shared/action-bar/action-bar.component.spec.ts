@@ -8,13 +8,9 @@ import { SpyLocation } from '@angular/common/testing';
 import { of } from 'rxjs';
 
 import { ActionBarComponent } from './action-bar.component';
-import { ChoiceCardDetailComponent } from '../choice-card-detail/choice-card-detail.component';
-import { findElementByTestId } from '../../shared/classes/test-utils.class';
-
-@Component({
-	template: ''
-	})
-class DummyComponent { }
+import { ChoiceCardDetailComponent } from '../../choice-card-detail/choice-card-detail.component';
+import { findElementByTestId } from '../../../shared/classes/test-utils.class';
+import { OptionsComponent } from '../../options/options.component';
 
 describe('ActionBarComponent', () => 
 {
@@ -26,10 +22,10 @@ describe('ActionBarComponent', () =>
 	beforeEach(async () => 
 	{
 		await TestBed.configureTestingModule({
-			declarations: [ActionBarComponent, ChoiceCardDetailComponent, DummyComponent],
+			declarations: [ActionBarComponent, ChoiceCardDetailComponent],
 			imports: [RouterTestingModule.withRoutes([
-				{ path: 'options/:subGroupCatalogId/:decisionPointCatalogId', component: DummyComponent },
-				{ path: 'options/:subGroupCatalogId/:decisionPointCatalogId/:choiceCatalogId', component: ChoiceCardDetailComponent }
+				{ path: 'options/:subGroupId/:decisionPointId', component: OptionsComponent },
+				{ path: 'options/:subGroupId/:decisionPointId/:choiceId', component: ChoiceCardDetailComponent }
 			])],
 			providers: [{ provide: Location, useClass: SpyLocation }, { provide: ActivatedRoute, useValue: { params: of({ subGroupCatalogId: 1, decisionPointCatalogId: 2, choiceCatalogId: 3 }) } }],
 		}).compileComponents();

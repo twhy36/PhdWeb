@@ -29,7 +29,11 @@
 
 					<ul class="pl-2">
 						<li *ngFor="let group of groups" class="py-2">
-							<a>{{ group.label }}</a>
+							<a
+								[routerLink]="['/options', group.subGroups[0]?.id]"
+								queryParamsHandling="merge">
+								{{ group.label }}
+							</a>
 						</li>
 					</ul>
 				</mat-expansion-panel>
@@ -38,7 +42,9 @@
 				<span class="d-flex" aria-hidden="true">
 					<mat-icon>favorite</mat-icon>
 				</span>
-				<a id="myFavoritesLink" [routerLink]="['/favorites/summary']" class="d-flex pl-2">My Favorites</a>
+				<a class="d-flex pl-2" [routerLink]="['/favorites/summary']" queryParamsHandling="merge">
+					My Favorites
+				</a>
 			</li>
 			<li>
 				<mat-expansion-panel #resourcesPanel hideToggle>

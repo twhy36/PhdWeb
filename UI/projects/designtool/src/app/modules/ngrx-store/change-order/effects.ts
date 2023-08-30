@@ -18,7 +18,7 @@ import
 	ChangeOrderActionTypes, LoadError, CurrentChangeOrderLoaded, SetChangingOrder, ChangeInputInitialized,
 	CreateJobChangeOrders, ChangeOrdersCreated, SaveError, CancelJobChangeOrder, CreateSalesChangeOrder, CreateNonStandardChangeOrder, CreatePlanChangeOrder, CancelPlanChangeOrder,
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
-	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending, CurrentChangeOrderOutForSignature
+	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending, CurrentChangeOrderOutForSignature, SetIsChangeOrderComplete
 } from './actions';
 import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob, JobUpdated } from '../job/actions';
@@ -104,7 +104,7 @@ export class ChangeOrderEffects
 				{
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
@@ -155,7 +155,8 @@ export class ChangeOrderEffects
 							}
 							else
 							{
-								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+								const jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+
 								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices, true).pipe(
 									map(choices => { return changeOrder })
 								);
@@ -165,12 +166,13 @@ export class ChangeOrderEffects
 						switchMap(changeOrder => from([
 							new ChangeOrdersCreatedForJob([changeOrder]),
 							new ChangeOrdersCreated([changeOrder]),
-							new SetChangingOrder(!!changeOrder, null, true)
+							new SetChangingOrder(!!changeOrder, null, true),
+							new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 						])
 						)
 					);
 				})
-			), SaveError, "Error creating construction change order!!"),
+			), SaveError, 'Error creating construction change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -218,7 +220,7 @@ export class ChangeOrderEffects
 				}),
 				switchMap(([changeOrder, changeInput, salesAgreement]) =>
 				{
-					let newInput = _.cloneDeep(changeInput);
+					const newInput = _.cloneDeep(changeInput);
 					const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(salesAgreement, changeOrder);
 
 					if (trust)
@@ -231,10 +233,11 @@ export class ChangeOrderEffects
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
 						new ChangeInputInitialized(newInput),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					]);
 				})
-			), SaveError, "Error creating sales change order!!"),
+			), SaveError, 'Error creating sales change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -313,7 +316,7 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
@@ -342,10 +345,11 @@ export class ChangeOrderEffects
 					from([
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					])
 				)
-			), SaveError, "Error creating non-standard change order!!"),
+			), SaveError, 'Error creating non-standard change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -402,7 +406,7 @@ export class ChangeOrderEffects
 				{
 					const isPhdLite = store.lite.isPhdLite;
 
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
@@ -463,7 +467,8 @@ export class ChangeOrderEffects
 							}
 							else
 							{
-								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+								const jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+
 								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices, true).pipe(
 									map(choices => { return changeOrder })
 								);
@@ -475,10 +480,11 @@ export class ChangeOrderEffects
 					from([
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					])
 				)
-			), SaveError, "Error creating plan change order!!"),
+			), SaveError, 'Error creating plan change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -523,7 +529,7 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
@@ -547,10 +553,11 @@ export class ChangeOrderEffects
 					from([
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					])
 				)
-			), SaveError, "Error creating lot transfer change order!!"),
+			), SaveError, 'Error creating lot transfer change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)

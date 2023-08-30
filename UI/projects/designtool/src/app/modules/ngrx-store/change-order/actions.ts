@@ -1,9 +1,9 @@
 import { Action } from '@ngrx/store';
 import
-	{
-		ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding, Note, SalesAgreement,
-		SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer, Log
-	} from 'phd-common';
+{
+	ChangeOrderGroup, ChangeInput, ChangeOrderNonStandardOption, ChangeOrderHanding, Note, SalesAgreement,
+	SalesChangeOrderPriceAdjustment, SalesChangeOrderSalesProgram, ChangeOrderBuyer, Log
+} from 'phd-common';
 import { ErrorAction } from '../error.action';
 import { SalesAgreementLoaded, JobLoaded, ESignEnvelopesLoaded, ChangeOrderEnvelopeCreated, ChangeOrdersUpdated } from '../actions';
 
@@ -11,7 +11,7 @@ export enum ChangeOrderActionTypes
 {
 	AddChangeOrderCoBuyer = 'Add Change Order Co Buyer',
 	CancelJobChangeOrder = 'Cancel Job Change Order',
-	CancelNonStandardChangeOrder = "Cancel Non Standard Change Order",
+	CancelNonStandardChangeOrder = 'Cancel Non Standard Change Order',
 	CancelPlanChangeOrder = 'Cancel Plan Change Order',
 	CancelLotTransferChangeOrder = 'Cancel Lot Transfer Change Order',
 	CancelSalesChangeOrder = 'Cancel Sales Change Order',

@@ -1,0 +1,51 @@
+<div class="phd-options container-fluid d-flex flex-column px-0">
+	<div class="d-flex flex-column py-1">
+		<div class="phd-options-header d-flex flex-row align-items-center justify-content-between px-3">
+			<h2 class="mat-headline-1 d-flex mb-0">{{planName}} Options</h2>
+			<button class="d-flex pl-4 pr-0" mat-icon-button aria-label="">
+				<mat-icon>search</mat-icon>
+			</button>
+		</div>
+		<plan-summary class="px-3 py-2"></plan-summary>
+		<pending-and-contracted-toggle *ngIf="showPendingAndContractedToggle" class="px-1"></pending-and-contracted-toggle>
+	</div>
+	<div class="phd-sticky-header">
+		<estimated-totals 
+			*ngIf="(isPresalePricingEnabled || !(buildMode === 'presale'))"
+			[isPresale]="buildMode === 'presale'"
+			[isPresalePricingEnabled]="isPresalePricingEnabled">
+		</estimated-totals>
+		<group-list [selectedSubGroupId]="selectedSubGroupId"></group-list>
+		<div class="phd-primary-text d-flex flex-row align-items-center justify-content-between p-3">
+			<div *ngIf="selectedSubGroup" class="d-flex flex-column justify-content-start">
+				<span class="font-weight-bold mat-headline-3 mb-0">{{selectedSubGroup.label}}: {{selectedDecisionPoint.label}}</span>
+				<span class="mat-caption">({{selectedSubGroup.points.length}} decisions)</span>
+			</div>
+			<mat-form-field *ngIf="selectedSubGroup"  class="phd-decision-select" appearance="outline" subscriptSizing="dynamic">
+				<mat-select matInput [(value)]="selectedDecisionPoint" hideSingleSelectionIndicator>
+					<mat-option *ngFor="let dp of selectedSubGroup.points" [routerLink]="['/options', selectedSubGroup.id, dp.id]" [value]="dp" queryParamsHandling="merge" class="phd-decision-select-option">{{dp.label}}</mat-option>
+				</mat-select>
+			</mat-form-field>
+		</div>
+		<div *ngIf="selectedDecisionPoint" class="phd-options-section d-flex flex-column px-3 py-1">
+			<span class="phd-decision-point-label mat-headline-1 mb-0">{{selectedDecisionPoint.label}}</span>
+			<span class="mat-headline-3 mb-0">{{subTitle}}</span>
+		</div>
+	</div>
+	<ul class="d-flex flex-wrap flex-grow-1 align-content-start justify-content-around px-2">
+		<li *ngFor="let choice of selectedDecisionPoint?.choices" class="m-a py-1">
+			<choice-card-mobile
+				[routerLink]="['/options', selectedSubGroupId, selectedDecisionPoint.id, choice.id]"
+				[choice]="choice"
+				[point]="selectedDecisionPoint"
+				queryParamsHandling="merge"
+				class="py-1"
+				data-testid="choice-card-link">
+			</choice-card-mobile>
+		</li>
+		<li *ngIf="showDeclineCard">
+			<choice-decline-card-mobile [decisionPoint]="selectedDecisionPoint"></choice-decline-card-mobile>
+		</li>
+	</ul>
+	<action-bar-mobile class="phd-sticky-footer" showBack="true" [actionLabel]="actionLabel" [actionLink]="actionLink"></action-bar-mobile>
+</div>

@@ -79,7 +79,7 @@ export class ContractEffects
 
 					const currentSnapshot = this.contractService.createContractSnapshot(store, priceBreakdown, isSpecSalePending, selectLot, elevationDP, coPrimaryBuyer, coCoBuyers, selectedLiteElevation, selectedLiteColorScheme, legacyColorScheme, planPrice);
 
-					let jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
+					const jobChangeOrderGroups = store.job.changeOrderGroups.map(o =>
 					{
 						return {
 							id: o.id,
@@ -100,7 +100,7 @@ export class ContractEffects
 					});
 
 					// Fetches SalesJIO, SpecJIO and Spec Customer JIO since they will be the first on the agreement. Not checking for pending since SpecJIO would be approved at this point.
-					let activeChangeOrderGroup = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
+					const activeChangeOrderGroup = jobChangeOrderGroups[jobChangeOrderGroups.length - 1];
 
 					const lockedSnapshot = this.contractService.getSnapShot(store.job.id, activeChangeOrderGroup.id);
 
@@ -216,7 +216,7 @@ export class ContractEffects
 				}),
 				switchMap(data =>
 				{
-					let actions = [];
+					const actions = [];
 
 					if (!data.isPreview && data.eSignEnvelope.eSignEnvelopeId && data.eSignEnvelope.eSignEnvelopeId !== 0)
 					{
@@ -249,12 +249,12 @@ export class ContractEffects
 						return store.contract.templates.find(t => t.templateId === id);
 					}).sort((a, b) => a.displayOrder < b.displayOrder ? -1 : a.displayOrder > b.displayOrder ? 1 : 0);
 
-					let salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
-					let termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
+					const salesAgreementNotes = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId !== 10).map(n => n.noteContent).join(', ') : '';
+					const termsAndConditions = !!store.salesAgreement.notes && store.salesAgreement.notes.length ? store.salesAgreement.notes.filter(n => n.targetAudiences.find(x => x.name === 'Public') && n.noteSubCategoryId === 10).map(n => n.noteContent).join() : '';
 
 					const currentHouseSelections = templates.some(t => t.templateId === 0) ? getCurrentHouseSelections(store.scenario.tree.treeVersion.groups) : [];
 
-					let jioSelections = {
+					const jioSelections = {
 						currentHouseSelections: currentHouseSelections,
 						salesAgreementNotes: salesAgreementNotes
 					};
@@ -285,7 +285,7 @@ export class ContractEffects
 							a.jobChangeOrderGroupDescription === 'Homebuilder Generated Job Initiation Order'
 						);
 
-						let jobBuyerHeaderInfo = {
+						const jobBuyerHeaderInfo = {
 							homePhone: customerHomePhone ? isNull(formatPhoneNumber(customerHomePhone.phone.phoneNumber), '') : '',
 							workPhone: customerWorkPhone ? isNull(formatPhoneNumber(customerWorkPhone.phone.phoneNumber), '') : '',
 							email: customerEmail ? isNull(customerEmail.email.emailAddress, '') : '',
@@ -293,7 +293,7 @@ export class ContractEffects
 							cityStateZip: customerAddress && customerAddress.address ? `${isNull(customerAddress.address.city, '').trim()}, ${isNull(customerAddress.address.stateProvince, '').trim()} ${isNull(customerAddress.address.postalCode, '').trim()}` : ''
 						};
 
-						let jobAgreementHeaderInfo = {
+						const jobAgreementHeaderInfo = {
 							agreementNumber: store.salesAgreement.salesAgreementNumber,
 							agreementCreatedDate: new Date(store.salesAgreement.createdUtcDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
 							agreementApprovedDate: !!store.salesAgreement.approvedDate ? (new Date(store.salesAgreement.approvedDate.toString().replace(/-/g, '\/').replace(/T.+/, ''))).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : null,
@@ -313,12 +313,12 @@ export class ContractEffects
 							salesDescription: jio ? jio.jobChangeOrderGroupDescription : ''
 						};
 
-						var envelopeInfo: EnvelopeInfo = {
+						const envelopeInfo: EnvelopeInfo = {
 							oldHanding: store.job.handing,
 							newHanding: store.changeOrder?.changeInput?.handing?.handing,
 							buildType: store.job.lot ? store.job.lot.lotBuildTypeDesc : '',
-							primaryBuyerName: isNull(store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
-							primaryBuyerTrustName: isNull(store.changeOrder && store.changeOrder.changeInput && store.changeOrder.changeInput.trustName && store.changeOrder.changeInput.trustName.length > 20 ? `${store.changeOrder.changeInput.trustName.substring(0, 20)}...` : store.changeOrder && store.changeOrder.changeInput ? store.changeOrder.changeInput.trustName : null, `${primaryBuyer.firstName ? primaryBuyer.firstName : ''}${primaryBuyer.middleName ? ' ' + primaryBuyer.middleName : ''} ${primaryBuyer.lastName ? ' ' + primaryBuyer.lastName : ''}${primaryBuyer.suffix ? ' ' + primaryBuyer.suffix : ''}`),
+							primaryBuyerName: isNull(store.changeOrder?.changeInput ? store.changeOrder.changeInput.trustName : null, this.contractService.getFormattedContactName(primaryBuyer)),
+							primaryBuyerTrustName: isNull(store.changeOrder?.changeInput?.trustName?.length > 100 ? `${store.changeOrder.changeInput.trustName.substring(0, 100)}` : store.changeOrder?.changeInput ? store.changeOrder.changeInput.trustName : null, this.contractService.getFormattedContactName(primaryBuyer)),
 							salesAgreementNotes: salesAgreementNotes,
 							termsAndConditions: termsAndConditions,
 							coBuyers: coBuyers ? coBuyers.map(result =>
@@ -384,6 +384,7 @@ export class ContractEffects
 						nonStandardChangeOrderSelections: null,
 						lotTransferChangeOrderSelections: null
 					};
+
 					return this.contractService.createEnvelope(snapShotData, null, data.isPhdLite);
 				}),
 				switchMap(envelopeId =>

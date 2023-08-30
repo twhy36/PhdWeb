@@ -1,0 +1,32 @@
+.phd-group-button {
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+	font-size: 14px;
+	font-weight: bold;
+	max-height: 2rem;
+}
+
+.phd-group-list-item {
+	min-width: fit-content;
+	box-shadow: 0 2px 2px #00000029;
+	-webkit-box-shadow: 0 2px 2px #00000029;
+}
+
+.phd-group-open {
+	background-color: #dfdfdf !important;
+}
+
+.phd-expansion-icon {
+	transform: scale(1.4);
+}
+
+.phd-subgroup-list-item {
+	min-height: 2rem;
+}
+
+.phd-subgroup-list-item-label {
+	letter-spacing: 0.22px;
+	line-height: 20px;
+	font-weight: bold;
+}

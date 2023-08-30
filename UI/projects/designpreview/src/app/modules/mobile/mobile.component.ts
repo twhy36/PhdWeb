@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import * as fromRoot from '../ngrx-store/reducers';
-import * as ErrorActions from '../ngrx-store/error.action';
 import { filter } from 'rxjs/operators';
 
+import * as fromRoot from '../ngrx-store/reducers';
+import * as ErrorActions from '../ngrx-store/error.action';
 
 @Component({
 	selector: 'mobile',
@@ -40,7 +40,4 @@ export class MobileComponent
 				}
 			});
 	}
-
-
-
 }

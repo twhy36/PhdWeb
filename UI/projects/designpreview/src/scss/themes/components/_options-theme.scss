@@ -1,0 +1,32 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin color($theme) {
+	$color-config: mat.get-color-config($theme);
+
+	$primary-palette: map.get($color-config, 'primary');
+	$accent-palette: map.get($color-config, 'accent');
+
+	.phd-options-header {
+		color: mat.get-color-from-palette($primary-palette, 500);
+
+		mat-icon {
+			color: mat.get-color-from-palette($accent-palette, 500);
+		}
+	}
+
+	.phd-decision-select-option {
+		color: mat.get-color-from-palette($accent-palette, 500) !important;
+	}
+
+	.phd-decision-point-label {
+		color: mat.get-color-from-palette($primary-palette, 500);
+	}
+}
+
+@mixin theme($theme) {
+	$color-config: mat.get-color-config($theme);
+	@if $color-config != null {
+		@include color($theme);
+	}
+}

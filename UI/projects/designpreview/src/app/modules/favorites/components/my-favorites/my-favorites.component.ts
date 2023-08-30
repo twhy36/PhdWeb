@@ -314,7 +314,7 @@ export class MyFavoritesComponent extends UnsubscribeOnDestroy implements OnInit
 				this.selectedPointId = subGroup.points[0].id;
 			}
 
-			if ((nav.selectedSubGroup !== this.selectedSubGroup?.id) && subGroup)
+			if ((nav?.selectedSubGroup !== this.selectedSubGroup?.id) && subGroup)
 			{
 				if (!!this.selectedSubGroup)
 				{

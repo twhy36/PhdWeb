@@ -23,7 +23,7 @@ export class LoggedInGuard
 			{
 				return sessionStorage.getItem('presale_issuer') === environment.authConfigs['presale'].issuer;
 			}
-			else 
+			else
 			{
 				return this.presaleGuard.canActivate(route);
 			}

@@ -11,10 +11,10 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { AttributeService } from '../../../core/services/attribute.service';
 import { testUpdatedChoiceAttributeGroups } from '../../../shared/classes/mockdata.class';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MockCloudinaryImage } from '../../../shared/mock-components/mock-cloudinary-image';
+import { MockCloudinaryImageComponent } from '../../../shared/mocks/mock-cloudinary-image';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatIconModule } from '@angular/material/icon';
-import { findElementByTestId, findAllElementByTestId } from '../../../shared/classes/test-utils.class';
+import { findAllElementsByTestId } from '../../../shared/classes/test-utils.class';
 
 describe('AttributeGroupComponent', () =>
 {
@@ -33,7 +33,7 @@ describe('AttributeGroupComponent', () =>
 	beforeEach(async () =>
 	{
 		await TestBed.configureTestingModule({
-			declarations: [AttributeGroupComponent, MockCloudinaryImage],
+			declarations: [AttributeGroupComponent, MockCloudinaryImageComponent],
 			imports: [
 				BrowserAnimationsModule,
 				MatExpansionModule,
@@ -47,8 +47,7 @@ describe('AttributeGroupComponent', () =>
 				{ provide: AdobeService, useFactory: () => instance(mockAdobeService) },
 				{ provide: AttributeService, useFactory: () => instance(mockAttributeService) },
 			]
-		})
-			.compileComponents();
+		}).compileComponents();
 		mockStore = TestBed.inject(MockStore);
 
 		fixture = TestBed.createComponent(AttributeGroupComponent);
@@ -72,7 +71,7 @@ describe('AttributeGroupComponent', () =>
 		component.hasAttributes = true;
 		fixture.detectChanges();
 		const numAttributeGroups = component.updatedAttributeGroups.length;	
-		const groupPanels = findAllElementByTestId(
+		const groupPanels = findAllElementsByTestId(
 			fixture,
 			'attribute-group-panel'
 		);
@@ -82,18 +81,15 @@ describe('AttributeGroupComponent', () =>
 	it('should display attribute group name in accordion header', () =>
 	{
 		component.updatedAttributeGroups = testUpdatedChoiceAttributeGroups;
-		const groupPanels = findAllElementByTestId(
-			fixture,
-			'attribute-group-panel'
-		);
 		component.hasAttributes = true;
 		fixture.detectChanges();
 
+		const groupPanels = findAllElementsByTestId(fixture, 'attribute-group-panel');
+
+		expect(groupPanels.length).toBeGreaterThan(0);
 		groupPanels.forEach((item, index) =>
 		{
-			const header = item.querySelector('.mat-expansion-panel-header');
-			const groupName = header.querySelector('.mat-expansion-panel-header-title').textContent;
-			expect(groupName).toContain(testUpdatedChoiceAttributeGroups[index].label);
+			expect(item.nativeElement.innerText).toBe(testUpdatedChoiceAttributeGroups[index].label);
 		});
 	});
 
@@ -103,8 +99,8 @@ describe('AttributeGroupComponent', () =>
 		component.hasAttributes = true;
 		fixture.detectChanges();
 
-		const attributeElements = fixture.nativeElement.querySelectorAll('.phd-attribute-item');
-		expect(attributeElements.length).toEqual(11);
+		const attributeItems = findAllElementsByTestId(fixture, 'attribute-item');
+		expect(attributeItems.length).toEqual(11);
 	});
 
 	it('should init to expand and collapse/expand accordion items', () =>

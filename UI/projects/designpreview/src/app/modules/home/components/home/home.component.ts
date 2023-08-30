@@ -20,7 +20,8 @@ import { ScrollTop } from '../../../shared/classes/utils.class';
 	selector: 'home',
 	templateUrl: 'home.component.html',
 	styleUrls: ['home.component.scss']
-	})
+// eslint-disable-next-line indent
+})
 export class HomeComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	communityName: string = '';

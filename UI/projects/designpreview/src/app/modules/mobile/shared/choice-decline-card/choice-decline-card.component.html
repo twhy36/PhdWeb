@@ -1,0 +1,16 @@
+<div class="phd-choice-card d-flex flex-row m-1 p-2 justify-content-between">
+	<div class="d-flex flex-column">
+		<image [defaultImage]="defaultImage" height="117" width="200" alt=""></image>
+	</div>
+	<div class="phd-choice-card-info d-flex flex-column justify-content-between pl-2">
+		<h1 class="mat-headline-3 mb-0 justify-content-start">No Selections</h1>
+		<div class="d-flex flex-row align-items-end justify-content-end">
+			<button mat-icon-button class="phd-accent-text d-flex justify-content-end pl-4 pr-0 pt-4 pb-0" data-testid="favorite-button" (click)="declineDecisionPoint()">
+				<mat-icon *ngIf="decisionPoint.enabled" attr.aria-pressed="{{ isDeclined }}" data-testid="favorite-icon">
+					{{ isDeclined ? "favorite" : "favorite_outline" }}
+				</mat-icon>
+				<mat-icon *ngIf="!decisionPoint.enabled" data-testid="blocked-icon">block</mat-icon>
+			</button>
+		</div>
+	</div>
+</div>

@@ -26,10 +26,12 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
-	})
+// eslint-disable-next-line indent
+})
 export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	mobileBreakpoint: string = '(max-width: 480px)';
+	favoritesId: number;
+	mobileBreakpoint: string = '(max-width: 926px)';
 	environment: IEnvironment = environment;
 	isMobile: boolean = false;
 	title: string = 'Design Preview';
@@ -82,9 +84,13 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(fromFavorite.currentMyFavoriteChoices),
-			withLatestFrom(this.store.pipe(select(state => state.scenario)))
-		).subscribe(([fav, scenario]) => 
+			withLatestFrom(
+				this.store.pipe(select(state => state.scenario)),
+				this.store.pipe(select(fromFavorite.currentMyFavorite))
+			)
+		).subscribe(([fav, scenario, favorites]) => 
 		{
+			this.favoritesId = favorites && favorites.id;
 			this.buildMode = scenario.buildMode;
 			if ((this.buildMode === BuildMode.Presale) && fav?.length > 0) 
 			{
@@ -259,18 +265,43 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 	private handleMobileNavigation(): void
 	{
-		const url = this.router.url.indexOf('?') > 0 ? this.router.url.substring(0, this.router.url.indexOf('?')) : this.router.url;
+		const currentUrl = this.router.url.indexOf('?') > 0 ? this.router.url.substring(0, this.router.url.indexOf('?')) : this.router.url;
 
 		// TODO: remove flag when mobile optimization is ready for production
 		// Until then this prevents the app from moving to mobile experience on each route navigation
 		// and when breakpoints are detected 
-		if (this.isMobile && !url.includes('mobile') && !environment.production)
+		let newUrl = currentUrl;
+
+		// Handles the different routing structure for options and my-favorites
+		// This doesn't go to the exact subgroup/decision point, but this scenario is not an intended use
+		if (this.router.url.includes('options') || this.router.url.includes('my-favorites'))
 		{
-			this.router.navigate(['/mobile' + url], { queryParamsHandling: 'merge' });
+			newUrl = this.optionsPageConverter(newUrl);
 		}
-		else if (!this.isMobile && url.includes('mobile'))
+
+		if (this.isMobile && !currentUrl.includes('mobile') && !environment.production)
 		{
-			this.router.navigate([url.replace('/mobile', '')], { queryParamsHandling: 'merge' });
+			newUrl = '/mobile' + newUrl;
+			this.router.navigate([newUrl], { queryParamsHandling: 'merge' });
 		}
+		else if (!this.isMobile && currentUrl.includes('mobile'))
+		{
+			newUrl = newUrl.replace('/mobile', '');
+			this.router.navigate([newUrl], { queryParamsHandling: 'merge' });
+		}
+	}
+
+	private optionsPageConverter(url: string): string
+	{
+		if (this.router.url.includes('options') && !this.isMobile)
+		{
+			return `/favorites/my-favorites/${this.favoritesId}`;
+		}
+		else if (this.router.url.includes('my-favorites') && this.isMobile)
+		{
+			return '/options';
+		}
+
+		return url;
 	}
 }

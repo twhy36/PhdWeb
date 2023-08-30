@@ -8,22 +8,21 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
+import { TreeVersion } from 'phd-common';
 import { instance, mock } from 'ts-mockito';
 
 import * as fromRoot from '../../ngrx-store/reducers';
 import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
 import * as fromScenario from '../../ngrx-store/scenario/reducer';
 import * as fromFavorite from '../../ngrx-store/favorite/reducer';
-import * as NavActions from '../../ngrx-store/nav/actions';
 
+import { GlobalFooterComponent } from './global-footer.component';
+import { OptionsComponent } from '../options/options.component';
 import { BrandService } from '../../core/services/brand.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { BuildMode } from '../../shared/models/build-mode.model';
 import { Constants } from '../../shared/classes/constants.class';
-import { DialogService } from '../../core/services/dialog.service';
-import { GlobalFooterComponent } from './global-footer.component';
-import { TreeVersion } from 'phd-common';
-import
-{
+import {
 	choiceToChoiceMustHaveRulePoint,
 	testMyFavorite,
 	testTreeVersion,
@@ -52,7 +51,12 @@ describe('GlobalFooterComponent', () =>
 		TestBed.configureTestingModule({
 			declarations: [GlobalFooterComponent],
 			imports: [
-				RouterTestingModule.withRoutes([]),
+				RouterTestingModule.withRoutes([
+					{
+						path: 'options/:subGroupId/:decisionPointId',
+						component: OptionsComponent
+					}
+				]),
 				MatExpansionModule,
 				BrowserAnimationsModule,
 				MatIconModule,
@@ -115,8 +119,7 @@ describe('GlobalFooterComponent', () =>
 	{
 		it('navigates to selected group', () => 
 		{
-			const storeSpy = spyOn(mockStore, 'dispatch').and.callThrough();
-			const navigateSpy = spyOn(router, 'navigate');
+			const navigateSpy = spyOn(router, 'navigateByUrl');
 
 			const viewOptionsMenuItem = fixture.debugElement.query(
 				By.css('[data-testid="viewOptions-button"]')
@@ -127,13 +130,8 @@ describe('GlobalFooterComponent', () =>
 			viewOptionsMenuItem.click();
 			firstGroupLink.click();
 
-			expect(navigateSpy).toHaveBeenCalledWith(
-				['favorites', 'my-favorites', testMyFavorite.id, testTreeVersion.groups[0].subGroups[0].subGroupCatalogId],
-				{ queryParamsHandling: 'merge' }
-			);
-			expect(storeSpy).toHaveBeenCalledWith(
-				new NavActions.SetSelectedSubgroup(testTreeVersion.groups[0].subGroups[0].subGroupCatalogId, testTreeVersion.groups[0].subGroups[0].points[0].id, null)
-			);
+			const url = navigateSpy.calls.first().args[0].toString();
+			expect(url).toBe('/options/3/888218');
 		});
 
 		it('navigates to my favorites', () => 
