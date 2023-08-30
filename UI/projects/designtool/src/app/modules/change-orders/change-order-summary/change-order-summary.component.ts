@@ -267,7 +267,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.isLockedIn = salesAgreement.isLockedIn;
 			this.isDesignComplete = salesAgreement.isDesignComplete;
 
-			let index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === "SpecJIO" || c.jobChangeOrderTypeDescription === "SalesJIO")) !== undefined);
+			const index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === 'SpecJIO' || c.jobChangeOrderTypeDescription === 'SalesJIO')) !== undefined);
 			let changeOrders = [];
 
 			if (index > -1)
@@ -282,7 +282,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.changeOrders = changeOrders.map(o =>
 			{
 				let actionTypes = [];
-				let signedStatusHistory = o.jobChangeOrderGroupSalesStatusHistories.find(t => t?.salesStatusId === 2);
+				const signedStatusHistory = o.jobChangeOrderGroupSalesStatusHistories.find(t => t?.salesStatusId === 2);
 
 				if (o.salesStatusDescription === 'Pending')
 				{
@@ -1064,7 +1064,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	onGenerateDocument(changeOrder: any, showPDF: boolean = true)
 	{
-		let activeChangeOrder = this.activeChangeOrders.find(co => co.id === changeOrder.id);
+		const activeChangeOrder = this.activeChangeOrders.find(co => co.id === changeOrder.id);
+
 		if (this.isChangingOrder && this.isChangeDirty && activeChangeOrder)
 		{
 			if (this.changeInput.type === ChangeTypeEnum.CONSTRUCTION)
@@ -1097,13 +1098,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				take(1)
 			).subscribe(() =>
 			{
-				let changeOrder = this.changeOrders.find(co => co.id === activeChangeOrder.id);
+				const changeOrder = this.changeOrders.find(co => co.id === activeChangeOrder.id);
+
 				this.generateDocument(changeOrder, showPDF);
 			});
 		}
 		else
 		{
-			this.generateDocument(changeOrder, showPDF)
+			this.generateDocument(changeOrder, showPDF);
 		}
 	}
 
@@ -1350,31 +1352,37 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 	updateChangeOrderPending(job: Job, changeOrders: ChangeOrderGroup[], cancelledChangeOrder: ChangeOrderGroup, eSignEnvelopeId: number)
 	{
-		let updatedJob = _.cloneDeep(job);
-		let updatedChangeOrders = _.cloneDeep(changeOrders);
+		const updatedJob = _.cloneDeep(job);
+		const updatedChangeOrders = _.cloneDeep(changeOrders);
 
-		let updatedChangeOrder = updatedChangeOrders?.find(co => co.id === cancelledChangeOrder.id);
+		const updatedChangeOrder = updatedChangeOrders?.find(co => co.id === cancelledChangeOrder.id);
+
 		if (updatedChangeOrder)
 		{
-			let envelopes = _.cloneDeep(cancelledChangeOrder.eSignEnvelopes) as Array<any>;
+			const envelopes = _.cloneDeep(cancelledChangeOrder.eSignEnvelopes) as Array<any>;
 			const envelopeIndex = envelopes?.findIndex(e => e.eSignEnvelopeId === eSignEnvelopeId);
+
 			if (envelopeIndex > -1)
 			{
 				envelopes.splice(envelopeIndex, 1);
 			}
+
 			updatedChangeOrder.eSignEnvelopes = envelopes;
 
-			let jobChangeOrderGroup = updatedJob.changeOrderGroups.find(co => co.id === cancelledChangeOrder.id);
+			const jobChangeOrderGroup = updatedJob.changeOrderGroups.find(co => co.id === cancelledChangeOrder.id);
+
 			if (jobChangeOrderGroup)
 			{
 				jobChangeOrderGroup.salesStatusDescription = updatedChangeOrder.salesStatusDescription;
 				jobChangeOrderGroup.salesStatusUTCDate = updatedChangeOrder.salesStatusUTCDate;
+
 				jobChangeOrderGroup.jobChangeOrderGroupSalesStatusHistories.push({
 					jobChangeOrderGroupId: jobChangeOrderGroup.id,
 					salesStatusId: SalesStatusEnum.Pending,
 					createdUtcDate: updatedChangeOrder.salesStatusUTCDate,
 					salesStatusUtcDate: updatedChangeOrder.salesStatusUTCDate
 				});
+
 				jobChangeOrderGroup.eSignEnvelopes = envelopes;
 			}
 		}
@@ -1389,12 +1397,14 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 
 		// Reload sales agreement and update price on change order
 		this.store.dispatch(new CommonActions.LoadSalesAgreement(this.salesAgreementId, false));
+
 		this._actions$.pipe(
 			ofType<LotsLoaded>(LotActionTypes.LotsLoaded),
-			take(1)).subscribe(() =>
-			{
-				this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
-			});
+			take(1)
+		).subscribe(() =>
+		{
+			this.store.dispatch(new ChangeOrderActions.CreateJobChangeOrders());
+		});
 	}
 
 	toggleDesignComplete()
