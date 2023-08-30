@@ -29,8 +29,6 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	loadingJob = false;
 	loadingInfo = false;
 	discountExpired = false;
-
-
 	projectedFinalDate: Date;
 	fullBathsDefault: number;
 	halfBathsDefault: number;
@@ -155,8 +153,8 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 					this.pulteInfo = new SpecInformation(pulteInfo);
 					this.pulteInfo.discountExpirationDate = this.formatDate(this.pulteInfo.discountExpirationDate);
 
-						this.discountExpired = true;
-					}
+					const minDate = new Date();
+					this.minDate = new Date(minDate.setDate(minDate.getDate() + 1));
 				}
 
 				this.qmiSalesProgram = programs.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));

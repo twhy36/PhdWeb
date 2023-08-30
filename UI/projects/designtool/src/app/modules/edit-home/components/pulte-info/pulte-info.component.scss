@@ -2,59 +2,64 @@
 @import "../../../../../scss/sizes.scss";
 
 .phd-pulteinfo-flexbox {
-  display: flex;
-  justify-content: flex-start;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  margin: 12px 12px 100px 50px;
-  padding-bottom: $action-bar;
+	display: flex;
+	justify-content: flex-start;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	align-items: flex-start;
+	margin: 12px 12px 100px 50px;
+	padding-bottom: $action-bar;
 }
 
 .phd-info {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
-
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-end;
 }
 
 .phd-items {
-  min-width: 240px;
-  margin: 4px 0 4px 0;
+	min-width: 240px;
+	margin: 4px 0 4px 0;
 }
 
 .phd-items-default {
-  width: 83px;
-  margin: 4px;
+	width: 83px;
+	margin: 4px;
 }
 
 .phd-items-checkbox {
-  width: 20px;
-  height: 20px;
+	width: 20px;
+	height: 20px;
 }
 
 .phd-underline {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .phd-flex-buttons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-end;
 }
 
 .phd-button {
-    margin: 4px 10px 20px;
-    padding-bottom: 10px;
+	margin: 4px 10px 20px;
+	padding-bottom: 10px;
+}
+
+.phd-discount-expired {
+	color: red;
+	font-weight: bold;
+	margin: 5px;
 }
 
 h2 {
-    margin-top: 60px;
-    text-align: center;
+	margin-top: 60px;
+	text-align: center;
 }
 
 .ng-invalid:not(form):not(p-calendar):not(div) {
-  border: solid 1px $darkish-pink;
-  border-left-width: 5px;
-  box-shadow: none;
+	border: solid 1px $darkish-pink;
+	border-left-width: 5px;
+	box-shadow: none;
 }
