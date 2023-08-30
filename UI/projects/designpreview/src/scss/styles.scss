@@ -102,6 +102,10 @@
 		padding-right: 5px;
 	}
 
+	.fa-heart {
+		color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
 	.phd-attribute-item-image-selected {
 		border-color: mat.get-color-from-palette($accent-palette, 500) !important;
 	}
