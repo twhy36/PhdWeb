@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { CalendarModule } from 'primeng/calendar';
 
@@ -30,51 +30,51 @@ const moduleRoutes: Routes = [
 		data: { isPreview: false },
 		children: []
 	},
-    {
-        path: 'edit-home/:scenarioId',
-        component: EditHomeComponent,
-        canActivate: [],
-        data: { isPreview: false },
-        children: []
-    },
-    {
-        path: 'preview/:treeVersionId',
-        component: EditHomeComponent,
-        canActivate: [],
-        data: { isPreview: true },
+	{
+		path: 'edit-home/:scenarioId',
+		component: EditHomeComponent,
+		canActivate: [],
+		data: { isPreview: false },
 		children: []
-    },
-    {
-        path: 'spec/:jobId',
-        component: PulteInfoComponent,
-        canDeactivate: [ConfirmNavigationGuard]
-    }
+	},
+	{
+		path: 'preview/:treeVersionId',
+		component: EditHomeComponent,
+		canActivate: [],
+		data: { isPreview: true },
+		children: []
+	},
+	{
+		path: 'spec/:jobId',
+		component: PulteInfoComponent,
+		canDeactivate: [ConfirmNavigationGuard]
+	}
 ];
 
 @NgModule({
-    exports: [
-        NormalExperienceComponent,
-        EditHomeComponent,
-        PulteInfoComponent
-    ],
-    declarations: [
-        NormalExperienceComponent,
-        EditHomeComponent,
-        FloorOptionsPipe,
-        PulteInfoComponent
-    ],
+	exports: [
+		NormalExperienceComponent,
+		EditHomeComponent,
+		PulteInfoComponent
+	],
+	declarations: [
+		NormalExperienceComponent,
+		EditHomeComponent,
+		FloorOptionsPipe,
+		PulteInfoComponent
+	],
 	imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        SharedModule,
-        CalendarModule,
+		CommonModule,
+		FormsModule,
+		ReactiveFormsModule,
+		SharedModule,
+		CalendarModule,
 		DragScrollModule,
 		PhdCommonModule,
-        RouterModule.forChild(moduleRoutes),
-        CloudinaryModule
-    ],
-    providers: []
+		RouterModule.forChild(moduleRoutes),
+		CloudinaryModule
+	],
+	providers: []
 })
 export class EditHomeModule 
 {
