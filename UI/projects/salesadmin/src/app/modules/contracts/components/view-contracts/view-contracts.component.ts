@@ -391,16 +391,15 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 				});
 	}
 
-	previewFile(templateId: number)
+	previewFile(templateId: number, documentName: string)
 	{
 		this._contractService.getTemplatePreview(this.currentMktId, templateId)
 			.subscribe(data =>
 			{
-				var el = document.createElement("a");
-
-				el.href = data;
-
-				el.dispatchEvent(new MouseEvent("click"));
+				const link = document.createElement('a');
+				link.href = window.URL.createObjectURL(data);
+				link.download = `${documentName}.pdf`;
+				link.click();
 
 				this._msgService.add({ severity: 'success', summary: 'Document', detail: `has been downloaded` });
 			},

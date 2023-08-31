@@ -60,7 +60,7 @@ export class ContractService
 	{
 		let url = this.settings.apiUrl + `GetTemplateSasUrl(TemplateId=${templateId})`;
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url).pipe(
 			map(response =>
 			{
 				return response['value'];
@@ -69,14 +69,18 @@ export class ContractService
 		);
 	}
 
-	getTemplatePreview(marketId: number, templateId: number): Observable<string>
+	getTemplatePreview(marketId: number, templateId: number): Observable<Blob>
 	{
-		let url = this.settings.apiUrl + `GetTemplatePreview(MarketId=${marketId},TemplateId=${templateId})`;
+		const url = this.settings.apiUrl + `GetTemplatePreview(MarketId=${marketId},TemplateId=${templateId})`;
+		const headers = new HttpHeaders({
+			'Content-Type': 'application/json',
+			'Accept': 'application/pdf'
+		});
 
-		return this._http.get(url).pipe(
+		return withSpinner(this._http).get(url, { headers: headers, responseType: 'blob' }).pipe(
 			map(response =>
 			{
-				return response['value'];
+				return response;
 			}),
 			catchError(this.handleError)
 		);

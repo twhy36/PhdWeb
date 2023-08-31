@@ -87,7 +87,7 @@
 								(click)="downloadFile(template.templateId)"></i>
 							<i class="fa fa-search-plus fa-fw"
 								title="Preview document with sample data"
-								(click)="previewFile(template.templateId)"></i>
+								(click)="previewFile(template.templateId, template.documentName)"></i>
 						</div>
 						<div *ngIf="template.childContractTemplate !== undefined"
 							class="phd-icon-container mt-3">
@@ -104,7 +104,7 @@
 								(click)="downloadFile(template.childContractTemplate.templateId)"></i>
 							<i class="fa fa-search-plus fa-fw"
 								title="Preview document with sample data"
-								(click)="previewFile(template.childContractTemplate.templateId)"></i>
+								(click)="previewFile(template.childContractTemplate.templateId, template.documentName)"></i>
 						</div>
 					</ng-template>
 					<ng-template #body
