@@ -106,10 +106,11 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
-			select(fromJob.isCancelled)).subscribe(cancelled =>
-			{
-				this.specCancelled = cancelled;
-			});
+			select(fromJob.isCancelled)
+		).subscribe(cancelled =>
+		{
+			this.specCancelled = cancelled;
+		});
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
@@ -153,12 +154,12 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			select(state => state.changeOrder)
 		).subscribe(changeOrder =>
 		{
-			this.inChangeOrder = changeOrder && changeOrder.isChangingOrder;
-			this.changeOrderType = changeOrder && changeOrder.changeInput ? changeOrder.changeInput.type : null;
-			this.changeOrderPlanId = changeOrder && changeOrder.changeInput ? changeOrder.changeInput.changeOrderPlanId : null;
+			this.inChangeOrder = changeOrder?.isChangingOrder;
+			this.changeOrderType = changeOrder?.changeInput ? changeOrder.changeInput.type : null;
+			this.changeOrderPlanId = changeOrder?.changeInput ? changeOrder.changeInput.changeOrderPlanId : null;
 			this.isChangeOrderComplete = changeOrder?.isChangeOrderComplete;
 
-			const currentChangeOrder = changeOrder && changeOrder.currentChangeOrder;
+			const currentChangeOrder = changeOrder?.currentChangeOrder;
 
 			if (currentChangeOrder)
 			{
@@ -169,6 +170,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 					[Constants.AGREEMENT_STATUS_PENDING, Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE, Constants.AGREEMENT_STATUS_SIGNED].indexOf(this.salesAgreementStatus) === -1;
 
 				this.currentChangeOrderSalesStatus = currentChangeOrder.salesStatusDescription;
+
 				this.setVisibilityOfOptionsAndColorsMenu();
 			}
 		});
@@ -181,9 +183,9 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 			if (navItems)
 			{
 				// Find plan/lot/qmi based on id and label to avoid id conflicts
-				let plan = navItems.find(x => x.id === PhdSubMenu.ChoosePlan && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChoosePlan).label);
-				let lot = navItems.find(x => x.id === PhdSubMenu.ChooseLot && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChooseLot).label);
-				let qmi = navItems.find(x => x.id === PhdSubMenu.QuickMoveIns && x.label === SubNavItems.find(item => item.id === PhdSubMenu.QuickMoveIns).label);
+				const plan = navItems.find(x => x.id === PhdSubMenu.ChoosePlan && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChoosePlan).label);
+				const lot = navItems.find(x => x.id === PhdSubMenu.ChooseLot && x.label === SubNavItems.find(item => item.id === PhdSubMenu.ChooseLot).label);
+				const qmi = navItems.find(x => x.id === PhdSubMenu.QuickMoveIns && x.label === SubNavItems.find(item => item.id === PhdSubMenu.QuickMoveIns).label);
 
 				if (plan || lot || qmi)
 				{
@@ -355,7 +357,7 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 
 		if (!this.currentRoute.startsWith(newPath.join('/')) || newPath.length && newPath[0] === '/change-orders')
 		{
-			if (newPath.join('/').includes("new-home"))
+			if (newPath.join('/').includes('new-home'))
 			{
 				if ((this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL))
 				{

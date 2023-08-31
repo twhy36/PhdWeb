@@ -18,7 +18,7 @@ import
 	ChangeOrderActionTypes, LoadError, CurrentChangeOrderLoaded, SetChangingOrder, ChangeInputInitialized,
 	CreateJobChangeOrders, ChangeOrdersCreated, SaveError, CancelJobChangeOrder, CreateSalesChangeOrder, CreateNonStandardChangeOrder, CreatePlanChangeOrder, CancelPlanChangeOrder,
 	CancelLotTransferChangeOrder, CancelSalesChangeOrder, SetCurrentChangeOrder, CancelNonStandardChangeOrder, SavePendingJio, CreateCancellationChangeOrder, CreateLotTransferChangeOrder,
-	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending, CurrentChangeOrderOutForSignature
+	ResubmitChangeOrder, ChangeOrderOutForSignature, SetSalesChangeOrderTermsAndConditions, CurrentChangeOrderPending, CurrentChangeOrderOutForSignature, SetIsChangeOrderComplete
 } from './actions';
 import { TreeLoadedFromJob, SelectChoices, SetLockedInChoices } from '../scenario/actions';
 import { ChangeOrdersCreatedForJob, JobUpdated } from '../job/actions';
@@ -104,12 +104,12 @@ export class ChangeOrderEffects
 				{
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
 					const baseHouseOption = store.job.jobPlanOptions ? store.job.jobPlanOptions.find(x => x.jobOptionTypeName === 'BaseHouse') : null;
-					let inputData = isPhdLite
+					const inputData = isPhdLite
 						? this.liteService.getJobChangeOrderInputDataLite(
 							store.changeOrder.currentChangeOrder,
 							store.job,
@@ -129,11 +129,6 @@ export class ChangeOrderEffects
 							store.salesAgreement.id,
 							baseHouseOption,
 							store.scenario.rules.optionRules);
-
-					const pendingJobSummary = isPhdLite
-						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 					const data = this.changeOrderService.mergePosData(
 						inputData,
@@ -155,7 +150,8 @@ export class ChangeOrderEffects
 							}
 							else
 							{
-								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+								const jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+
 								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices, true).pipe(
 									map(choices => { return changeOrder })
 								);
@@ -165,12 +161,13 @@ export class ChangeOrderEffects
 						switchMap(changeOrder => from([
 							new ChangeOrdersCreatedForJob([changeOrder]),
 							new ChangeOrdersCreated([changeOrder]),
-							new SetChangingOrder(!!changeOrder, null, true)
+							new SetChangingOrder(!!changeOrder, null, true),
+							new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 						])
 						)
 					);
 				})
-			), SaveError, "Error creating construction change order!!"),
+			), SaveError, 'Error creating construction change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -196,19 +193,12 @@ export class ChangeOrderEffects
 				{
 					const changePrice = priceBreakdown.totalPrice - store.salesAgreement.salePrice;
 
-					let data = this.changeOrderService.getSalesChangeOrderData(
+					const data = this.changeOrderService.getSalesChangeOrderData(
 						store.changeOrder.currentChangeOrder,
 						store.salesAgreement,
 						store.changeOrder.changeInput,
 						store.job.id,
 						action.specSales);
-
-					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
-					const pendingJobSummary = isPhdLite
-						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-
-					data = { ...data, pendingJobSummary: pendingJobSummary };
 
 					return forkJoin(
 						this.changeOrderService.createJobChangeOrder(data, changePrice),
@@ -218,7 +208,7 @@ export class ChangeOrderEffects
 				}),
 				switchMap(([changeOrder, changeInput, salesAgreement]) =>
 				{
-					let newInput = _.cloneDeep(changeInput);
+					const newInput = _.cloneDeep(changeInput);
 					const trust = this.changeOrderService.mergeSalesChangeOrderTrusts(salesAgreement, changeOrder);
 
 					if (trust)
@@ -231,10 +221,11 @@ export class ChangeOrderEffects
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
 						new ChangeInputInitialized(newInput),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					]);
 				})
-			), SaveError, "Error creating sales change order!!"),
+			), SaveError, 'Error creating sales change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -313,39 +304,33 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
-					let inputData = this.changeOrderService.getNonStandardChangeOrderData(
+					const inputData = this.changeOrderService.getNonStandardChangeOrderData(
 						store.job.id,
 						store.salesAgreement.id,
 						store.changeOrder.currentChangeOrder,
 						action.options);
-
-					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
-					const pendingJobSummary = isPhdLite
-						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
-
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
 						store.salesAgreement,
 						store.changeOrder.changeInput,
 						store.job.id);
-
+						
 					return this.changeOrderService.createJobChangeOrder(data, changePrice);
 				}),
 				switchMap(changeOrder =>
 					from([
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					])
 				)
-			), SaveError, "Error creating non-standard change order!!"),
+			), SaveError, 'Error creating non-standard change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -402,7 +387,7 @@ export class ChangeOrderEffects
 				{
 					const isPhdLite = store.lite.isPhdLite;
 
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
@@ -437,12 +422,6 @@ export class ChangeOrderEffects
 						};
 					});
 					inputData.nonStandardOptions = nonStandardOptions;
-
-					const pendingJobSummary = isPhdLite
-						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
-
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -463,7 +442,8 @@ export class ChangeOrderEffects
 							}
 							else
 							{
-								let jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+								const jobChangeOrderChoices = this.changeOrderService.getJobChangeOrderChoices([changeOrder]);
+
 								return this.treeService.getChoiceCatalogIds(jobChangeOrderChoices, true).pipe(
 									map(choices => { return changeOrder })
 								);
@@ -475,10 +455,11 @@ export class ChangeOrderEffects
 					from([
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					])
 				)
-			), SaveError, "Error creating plan change order!!"),
+			), SaveError, 'Error creating plan change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -523,7 +504,7 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					let changePrice = !!store.salesAgreement
+					const changePrice = !!store.salesAgreement
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
@@ -547,10 +528,11 @@ export class ChangeOrderEffects
 					from([
 						new ChangeOrdersCreatedForJob([changeOrder]),
 						new ChangeOrdersCreated([changeOrder]),
-						new SetChangingOrder(!!changeOrder, null, true)
+						new SetChangingOrder(!!changeOrder, null, true),
+						new SetIsChangeOrderComplete(false) // reset value since changes have been saved
 					])
 				)
-			), SaveError, "Error creating lot transfer change order!!"),
+			), SaveError, 'Error creating lot transfer change order!!'),
 			switchMap((action: any) =>
 			{
 				if (action instanceof SaveError)
@@ -787,7 +769,7 @@ export class ChangeOrderEffects
 						const currentHanding = action.handing || (isSpecSalePending ? this.changeOrderService.getSelectedHanding(store.job) : jobHanding);
 
 						const baseHouseOption = store.scenario.options ? store.scenario.options.find(o => o.isBaseHouse) : null;
-						let inputData = isPhdLite
+						const inputData = isPhdLite
 							? this.liteService.getJobChangeOrderInputDataLite(
 								jio as ChangeOrderGroup,
 								store.job,
@@ -809,11 +791,6 @@ export class ChangeOrderEffects
 								store.scenario.rules.optionRules,
 								!isSpecSalePending,
 								priceBreakdown.baseHouse);
-
-						const pendingJobSummary = isPhdLite
-							? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
-							: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
-						inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 						if (isSpecSalePending)
 						{

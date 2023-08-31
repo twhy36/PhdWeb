@@ -702,6 +702,7 @@ export class ActionBarComponent extends UnsubscribeOnDestroy implements OnInit, 
 		{
 			this.store.dispatch(new ChangeOrderActions.SetIsChangeOrderComplete(isComplete));
 		}
+
 		return isComplete;
 	}
 }

@@ -112,10 +112,6 @@
 		}
 	}
 
-	.fa-heart {
-		color: mat.get-color-from-palette($accent-palette, 500);
-	}
-
 	.phd-button {
 		border-radius: 35px;
 		min-height: 2.5rem;
@@ -180,6 +176,10 @@
 
 	.phd-expand-text {
 		color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	.phd-icon-selected {
+		color: mat.get-color-from-palette($accent-palette, 'A400');
 	}
 
 	.phd-group-completed {
