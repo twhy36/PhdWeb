@@ -15,7 +15,8 @@ import
 	SalesAgreement, ISalesAgreement, ModalService, Job, ChangeOrderGroup, JobPlanOptionAttribute,
 	JobPlanOption, ChangeOrderPlanOption, SummaryData, defaultOnNotFound,
 	ChangeOrderHanding, ChangeTypeEnum, ChangeInput, SelectedChoice, ConstructionStageTypes,
-	ScenarioOption, ScenarioOptionColor, Scenario, IJob, FeatureSwitchService, Constants
+	ScenarioOption, ScenarioOptionColor, Scenario, IJob, FeatureSwitchService, PriceBreakdown,
+	IPendingJobSummary, Constants
 } from 'phd-common';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -632,7 +633,8 @@ export class LiteService
 		baseHousePrice: number,
 		jobPlanOptions: JobPlanOption[],
 		isSpecSale: boolean,
-		legacyColorScheme: LegacyColorScheme
+		legacyColorScheme: LegacyColorScheme,
+		pendingJobSummary: IPendingJobSummary
 	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForLiteScenario`;
@@ -664,7 +666,8 @@ export class LiteService
 					baseHousePrice,
 					overrideNote),
 			elevationOptions: isSpecSale ? this.mapChangedOptions(changedOptions, true) : [],
-			salePrice: salePrice
+			salePrice: salePrice,
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return this._http.post<ISalesAgreement>(url, data).pipe(
@@ -1461,7 +1464,8 @@ export class LiteService
 		financialCommunityId: number,
 		buildMode: string,
 		options: LitePlanOption[],
-		selectedElevation: LitePlanOption
+		selectedElevation: LitePlanOption,
+		pendingJobSummary: IPendingJobSummary
 	): Observable<Job>
 	{
 		const action = `CreateJIOForSpecLite`;
@@ -1495,7 +1499,8 @@ export class LiteService
 				planId: scenario.planId,
 				handing: scenario.handing ? scenario.handing.handing : null,
 				buildMode: buildMode
-			}
+			},
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return (withSpinner(this._http)).post(url, data).pipe(
@@ -1684,6 +1689,26 @@ export class LiteService
 				}
 			});
 		});
+	}
+
+	mapPendingJobSummaryLite(jobId: number, priceBreakdown: PriceBreakdown, selectedOptions: ScenarioOption[], options: LitePlanOption[]): IPendingJobSummary
+	{
+		const elevationOption = options?.find(option => selectedOptions?.find(selectedOption => selectedOption.edhPlanOptionId === option.id)
+			&& (option.optionSubCategoryId === Elevation.Detached || option.optionSubCategoryId === Elevation.Attached));
+
+		return {
+			jobId: jobId,
+			planPrice: priceBreakdown.baseHouse,
+			elevationPlanOptionId: elevationOption?.id,
+			elevationPrice: elevationOption?.listPrice,
+			totalOptionsPrice: priceBreakdown.selections,
+			salesProgramAmount: priceBreakdown.salesProgram,
+			totalDiscounts: priceBreakdown.salesProgram + priceBreakdown.priceAdjustments,
+			totalPriceAdjustmentsAmount: priceBreakdown.priceAdjustments,
+			totalNonStandardOptionsPrice: priceBreakdown.nonStandardSelections,
+			totalBuyerClosingCosts: priceBreakdown.closingIncentive + priceBreakdown.closingCostAdjustment,
+			netHousePrice: priceBreakdown.totalPrice
+		} as IPendingJobSummary;
 	}
 
 	addJobColors(jobId: number)

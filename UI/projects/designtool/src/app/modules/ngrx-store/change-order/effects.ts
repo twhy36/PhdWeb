@@ -109,7 +109,7 @@ export class ChangeOrderEffects
 						: 0;
 
 					const baseHouseOption = store.job.jobPlanOptions ? store.job.jobPlanOptions.find(x => x.jobOptionTypeName === 'BaseHouse') : null;
-					const inputData = isPhdLite
+					let inputData = isPhdLite
 						? this.liteService.getJobChangeOrderInputDataLite(
 							store.changeOrder.currentChangeOrder,
 							store.job,
@@ -129,6 +129,11 @@ export class ChangeOrderEffects
 							store.salesAgreement.id,
 							baseHouseOption,
 							store.scenario.rules.optionRules);
+
+					const pendingJobSummary = isPhdLite
+						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 					const data = this.changeOrderService.mergePosData(
 						inputData,
@@ -193,12 +198,19 @@ export class ChangeOrderEffects
 				{
 					const changePrice = priceBreakdown.totalPrice - store.salesAgreement.salePrice;
 
-					const data = this.changeOrderService.getSalesChangeOrderData(
+					let data = this.changeOrderService.getSalesChangeOrderData(
 						store.changeOrder.currentChangeOrder,
 						store.salesAgreement,
 						store.changeOrder.changeInput,
 						store.job.id,
 						action.specSales);
+
+					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
+					const pendingJobSummary = isPhdLite
+						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+
+					data = { ...data, pendingJobSummary: pendingJobSummary };
 
 					return forkJoin(
 						this.changeOrderService.createJobChangeOrder(data, changePrice),
@@ -308,18 +320,25 @@ export class ChangeOrderEffects
 						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
 						: 0;
 
-					const inputData = this.changeOrderService.getNonStandardChangeOrderData(
+					let inputData = this.changeOrderService.getNonStandardChangeOrderData(
 						store.job.id,
 						store.salesAgreement.id,
 						store.changeOrder.currentChangeOrder,
 						action.options);
+
+					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
+					const pendingJobSummary = isPhdLite
+						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
+
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
 						store.salesAgreement,
 						store.changeOrder.changeInput,
 						store.job.id);
-						
+
 					return this.changeOrderService.createJobChangeOrder(data, changePrice);
 				}),
 				switchMap(changeOrder =>
@@ -422,6 +441,12 @@ export class ChangeOrderEffects
 						};
 					});
 					inputData.nonStandardOptions = nonStandardOptions;
+
+					const pendingJobSummary = isPhdLite
+						? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
+						: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+					inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
+
 					const data = this.changeOrderService.mergePosData(
 						inputData,
 						store.changeOrder.currentChangeOrder,
@@ -769,7 +794,7 @@ export class ChangeOrderEffects
 						const currentHanding = action.handing || (isSpecSalePending ? this.changeOrderService.getSelectedHanding(store.job) : jobHanding);
 
 						const baseHouseOption = store.scenario.options ? store.scenario.options.find(o => o.isBaseHouse) : null;
-						const inputData = isPhdLite
+						let inputData = isPhdLite
 							? this.liteService.getJobChangeOrderInputDataLite(
 								jio as ChangeOrderGroup,
 								store.job,
@@ -791,6 +816,11 @@ export class ChangeOrderEffects
 								store.scenario.rules.optionRules,
 								!isSpecSalePending,
 								priceBreakdown.baseHouse);
+
+						const pendingJobSummary = isPhdLite
+							? this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options)
+							: this.changeOrderService.mapPendingJobSummary(store.job.id, priceBreakdown, store.scenario.tree, store.scenario.options);
+						inputData = { ...inputData, pendingJobSummary: pendingJobSummary };
 
 						if (isSpecSalePending)
 						{

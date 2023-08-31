@@ -494,3 +494,18 @@ export enum ChangeTypeEnum
 	NON_STANDARD,
 	LOT_TRANSFER
 }
+
+export interface IPendingJobSummary
+{
+	jobId: number;
+	planPrice: number;
+	elevationPlanOptionId: number;
+	elevationPrice: number;
+	totalOptionsPrice: number;
+	salesProgramAmount: number;
+	totalDiscounts: number;
+	totalPriceAdjustmentsAmount: number;
+	totalNonStandardOptionsPrice: number;
+	totalBuyerClosingCosts: number;
+	netHousePrice: number;	
+}

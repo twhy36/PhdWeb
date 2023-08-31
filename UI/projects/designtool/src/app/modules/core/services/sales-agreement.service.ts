@@ -12,7 +12,7 @@ import
 		removeProperty, withSpinner, Buyer, IBuyer, Contact, Job, IJob, Note, PlanOption, SalesAgreement, ISalesAgreement,
 		SalesAgreementInfo, Realtor, ISalesAgreementInfo, IRealtor, SalesAgreementProgram, SalesAgreementDeposit, SalesAgreementContingency,
 		ISalesAgreementCancelVoidInfo, SalesAgreementCancelVoidInfo, Consultant, ISalesAgreementSalesConsultantDto,
-		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint
+		Scenario, SelectedChoice, Tree, Choice, IdentityService, OptionRule, DecisionPoint, IPendingJobSummary
 	} from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -206,7 +206,8 @@ export class SalesAgreementService
 		tree: Tree, 
 		baseHouseOption: PlanOption, 
 		salePrice: number, 
-		optionRules: OptionRule[]
+		optionRules: OptionRule[],
+		pendingJobSummary: IPendingJobSummary
 	): Observable<SalesAgreement>
 	{
 		const action = `CreateSalesAgreementForScenario`;
@@ -256,7 +257,8 @@ export class SalesAgreementService
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
 			},
-			salePrice: salePrice
+			salePrice: salePrice,
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return this._http.post<ISalesAgreement>(url, data).pipe(
@@ -980,7 +982,8 @@ export class SalesAgreementService
 		communityId: number, 
 		buildMode: string, 
 		baseHouseOption: PlanOption, 
-		optionRules: OptionRule[]
+		optionRules: OptionRule[], 
+		pendingJobSummary: IPendingJobSummary
 	): Observable<Job>
 	{
 		const action = `CreateJIOForSpec`;
@@ -1041,7 +1044,8 @@ export class SalesAgreementService
 				quantity: 1,
 				optionSalesName: baseHouseOption.name,
 				optionDescription: baseHouseOption.description
-			}
+			},
+			pendingJobSummary: pendingJobSummary
 		};
 
 		return (withSpinner(this._http)).post(url, data).pipe(
