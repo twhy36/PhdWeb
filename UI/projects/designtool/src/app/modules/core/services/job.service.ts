@@ -8,7 +8,7 @@ import
 {
 	newGuid, createBatchGet, createBatchHeaders, createBatchBody, withSpinner, Contact, ESignEnvelope,
 	ChangeOrderGroup, Job, IJob, SpecInformation, FloorPlanImage, IdentityService, JobPlanOption, TimeOfSaleOptionPrice,
-	IPendingJobSummary, Constants
+	Constants
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -613,15 +613,6 @@ export class JobService
 	{
 		return this._http.post<any>(`${environment.apiUrl}UpdateJobPricing`, { lotId: lotId }).pipe(
 			map(response => response.value)
-		);
-	}
-
-	updatePendingJobSummary(pendingJobSummary: IPendingJobSummary)
-	{
-		const url = `${environment.apiUrl}pendingJobSummary(${pendingJobSummary.jobId})`;
-
-		return this._http.patch(url, pendingJobSummary).pipe(
-			map(resp => resp as IPendingJobSummary)
 		);
 	}
 }

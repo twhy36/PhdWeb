@@ -36,7 +36,7 @@ export const environment: IEnvironment = {
 		salesTally: 'https://salesportal.staging.pulte.com/salesportal/salestally'
 	},
 	appInsights: {
-		connectionString: 'InstrumentationKey=858d9527-b103-4d11-86b2-4d3db2e630c1;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/',
+		connectionString: 'InstrumentationKey=cf19cbb8-e39b-4e28-8199-3d06eaf051f0;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/',
 		enableAutoRouteTracking: true
 	},
 	production: false,

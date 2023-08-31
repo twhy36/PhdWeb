@@ -307,7 +307,7 @@ export class EditHomeComponent extends UnsubscribeOnDestroy implements OnInit
 					}
 					else if (filteredTree && !this.isPhdLite)
 					{
-						this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId]);
+						this.router.navigate([filteredTree.groups[0].subGroups[0].points[0].divPointCatalogId], { relativeTo: this.route });
 					}
 					else if (this.isPhdLite && !this.plan && !!plan)
 					{

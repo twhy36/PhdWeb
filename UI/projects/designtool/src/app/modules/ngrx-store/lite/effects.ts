@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 import { Observable, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
-import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError, skipWhile } from 'rxjs/operators';
+import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
 
 import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService, Constants } from 'phd-common';
 
@@ -32,9 +32,6 @@ import { CreateEnvelope } from '../contract/actions';
 import { JIOForSpecCreated } from '../sales-agreement/actions';
 import * as fromLite from '../lite/reducer';
 import * as LiteActions from './actions';
-import { SetPermissions, UserActionTypes } from '../user/actions';
-import { JobService } from '../../core/services/job.service';
-import { JobPlanOptionsUpdated } from '../job/actions';
 
 @Injectable()
 export class LiteEffects
@@ -883,23 +880,15 @@ export class LiteEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreateJIOForSpecLite>(LiteActionTypes.CreateJIOForSpecLite),
-			withLatestFrom(
-				this.store,
-				this.store.pipe(select(fromLite.selectedElevation)),
-				this.store.pipe(select(fromRoot.priceBreakdown)),
-			),
-			exhaustMap(([action, store, selectedElevation, priceBreakdown]) =>
-			{
-				const pendingJobSummary = this.liteService.mapPendingJobSummaryLite(store.job.id, priceBreakdown, store.lite.scenarioOptions, store.lite.options);
-
-				return this.liteService.createJioForSpecLite(
+			withLatestFrom(this.store, this.store.pipe(select(fromLite.selectedElevation))),
+			exhaustMap(([action, store, selectedElevation]) =>
+				this.liteService.createJioForSpecLite(
 					store.scenario.scenario,
 					store.lite.scenarioOptions,
 					store.lot.selectedLot?.financialCommunity.id,
 					store.scenario.buildMode,
 					store.lite.options,
-					selectedElevation,
-					pendingJobSummary
+					selectedElevation
 				)
 					.pipe(
 						tap(sag => this.router.navigateByUrl('/change-orders')),
@@ -928,7 +917,7 @@ export class LiteEffects
 							return of(new SaveError(error))
 						})
 					)
-			})
+			)
 		);
 	});
 
@@ -1129,106 +1118,6 @@ export class LiteEffects
 		);
 	});
 
-	updateSpecJobPricingLite$: Observable<Action> = createEffect(() =>
-		this.actions$.pipe(
-			ofType<SalesAgreementLoaded | ScenarioLoaded | JobLoaded | SetPermissions | LiteOptionsLoaded | OptionCategoriesLoaded>
-				(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, UserActionTypes.SetPermissions, LiteActionTypes.LiteOptionsLoaded, LiteActionTypes.OptionCategoriesLoaded),
-			scan((prev, action) => (
-				{
-					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded,
-					userPermissions: prev.userPermissions || action instanceof SetPermissions,
-					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? action : prev.action,
-					optionsLoaded: prev.optionsLoaded || action instanceof LiteOptionsLoaded, 
-					categoriesLoaded: prev.categoriesLoaded || action instanceof OptionCategoriesLoaded
-				}), { sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded | JobLoaded>null, optionsLoaded: false, categoriesLoaded: false }),
-			skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions || !result.optionsLoaded || !result.categoriesLoaded),
-			map(result => result.action),
-			switchMap(action =>
-				this.store.pipe(
-					take(1),
-					switchMap(state =>
-					{
-						if (!state.user.canSell)
-						{
-							return NEVER;
-						}
-
-						if (state.job.jobTypeName !== 'Spec' && state.job.jobTypeName !== 'Model')
-						{
-							return NEVER;
-						}
-						
-						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== Constants.AGREEMENT_STATUS_PENDING)
-						{
-							return NEVER;
-						}
-
-						const currentChangeOrderGroup = state.job?.changeOrderGroups?.length > 0 ? state.job.changeOrderGroups[0] : null;
-						const isPhdLite = this.liteService.checkLiteAgreement(state.job, currentChangeOrderGroup);
-						if (!isPhdLite)
-						{
-							return NEVER;
-						}
-
-						let shouldUpdateSpecChangeOrder = false;
-						
-						// Make sure the latest change order is valid before checking against the construction status.
-						// Should NOT use simplified version currentChangeOrderGroup?.constructionStatusDescription !== Constants.AGREEMENT_STATUS_APPROVED
-						// because it will satisfy the condition if currentChangeOrderGroup is null which is not expected.						
-						if (currentChangeOrderGroup && currentChangeOrderGroup.constructionStatusDescription !== Constants.AGREEMENT_STATUS_APPROVED)
-						{
-							const changeOrderPlanOptions = currentChangeOrderGroup.jobChangeOrders.flatMap(co => co.jobChangeOrderPlanOptions);
-
-							shouldUpdateSpecChangeOrder = changeOrderPlanOptions.some(copo => state.lite.options.find(o => o.id === copo.planOptionId && o.listPrice !== copo.listPrice));
-						}
-
-						const updateSpecJobPricing = state.job && state.lite?.options && state.job.jobPlanOptions.some(jpo => state.lite.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice)) 
-							? this.jobService.updateSpecJobPricing(state.job.lotId) 
-							: of(null);
-						
-						return updateSpecJobPricing.pipe
-						(
-							map(jobPlanOptions => 
-							{
-								return { jobPlanOptions: jobPlanOptions, shouldUpdateSpecChangeOrder: shouldUpdateSpecChangeOrder, changeOrderGroup: currentChangeOrderGroup };
-							})
-						);
-					})
-
-				)
-			),
-			switchMap(result => 
-			{
-				let actions = [];
-				if (result.jobPlanOptions)
-				{
-					actions.push(new JobPlanOptionsUpdated(result.jobPlanOptions));
-				}
-
-				if (result.shouldUpdateSpecChangeOrder)
-				{
-					const specChangeOrders = result.changeOrderGroup.jobChangeOrders;
-
-					if (specChangeOrders.some(co => co.jobChangeOrderTypeDescription === 'Plan'))
-					{
-						actions.push(new CreatePlanChangeOrder());
-					}
-					else if (specChangeOrders.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
-					{
-						actions.push(new CreateJobChangeOrders());
-					}
-				}
-
-				if (actions.length > 0)
-				{
-					return from(actions);
-				}
-
-				return NEVER;
-			})
-		)
-	);	
-
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
@@ -1237,7 +1126,6 @@ export class LiteEffects
 		private planService: PlanService,
 		private identityService: IdentityService,
 		private router: Router,
-		private modalService: ModalService,
-		private jobService: JobService
+		private modalService: ModalService
 	) { }
 }

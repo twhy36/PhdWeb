@@ -16,13 +16,10 @@ import { tryCatch } from '../error.action';
 import * as fromRoot from '../reducers';
 import * as _ from "lodash";
 import { JobService } from '../../core/services/job.service';
-import { LiteService } from '../../core/services/lite.service';
 import { LoadError, LoadSpec, ChangeOrderEnvelopeCreated, SalesAgreementLoaded, ScenarioLoaded, CommonActionTypes, JobLoaded } from '../actions';
 import { SetPermissions, UserActionTypes } from '../user/actions';
 import { SnapShotData } from '../../shared/models/envelope-info.model';
 import { SetIsPhdLiteByFinancialCommunity } from '../lite/actions';
-import { CreateJobChangeOrders, CreatePlanChangeOrder } from '../change-order/actions';
-
 
 @Injectable()
 export class JobEffects
@@ -33,8 +30,7 @@ export class JobEffects
 		private jobService: JobService,
 		private toastr: ToastrService,
 		private changeOrderService: ChangeOrderService,
-		private _featureSwitchService: FeatureSwitchService,
-		private liteService: LiteService) { }
+		private _featureSwitchService: FeatureSwitchService) { }
 
 	loadSpecs$: Observable<Action> = createEffect(() =>
 	{
@@ -219,7 +215,7 @@ export class JobEffects
 					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded,
 					userPermissions: prev.userPermissions || action instanceof SetPermissions,
 					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? action : prev.action
-				}), { sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded | JobLoaded>null }),
+				}), { sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded>null }),
 			skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions),
 			map(result => result.action),
 			switchMap(action =>
@@ -231,81 +227,26 @@ export class JobEffects
 						{
 							return NEVER;
 						}
-
 						if (state.job.jobTypeName !== 'Spec' && state.job.jobTypeName !== 'Model')
 						{
 							return NEVER;
 						}
-
 						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== Constants.AGREEMENT_STATUS_PENDING)
 						{
 							return NEVER;
 						}
 
-						const currentChangeOrderGroup = state.job?.changeOrderGroups?.length > 0 ? state.job.changeOrderGroups[0] : null;
-						const isPhdLite = this.liteService.checkLiteAgreement(state.job, currentChangeOrderGroup);
-						if (isPhdLite)
+						if (state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice)))
 						{
-							// Spec price update will be handled by updateSpecJobPricingLite$() in lite effects.
-							return NEVER;
+							return this.jobService.updateSpecJobPricing(state.job.lotId);
 						}
 
-						let shouldUpdateSpecChangeOrder = false;
-						
-						// Make sure the latest change order is valid before checking against the construction status.
-						// Should NOT use simplified version currentChangeOrderGroup?.constructionStatusDescription !== Constants.AGREEMENT_STATUS_APPROVED
-						// because it will satisfy the condition if currentChangeOrderGroup is null which is not expected.
-						if (currentChangeOrderGroup && currentChangeOrderGroup.constructionStatusDescription !== Constants.AGREEMENT_STATUS_APPROVED)
-						{
-							const changeOrderPlanOptions = currentChangeOrderGroup.jobChangeOrders.flatMap(co => co.jobChangeOrderPlanOptions);
-
-							shouldUpdateSpecChangeOrder = changeOrderPlanOptions.some(copo => state.scenario.options.find(o => o.id === copo.planOptionId && o.listPrice !== copo.listPrice));
-						}
-
-						const updateSpecJobPricing = state.job && state.scenario?.options && state.job.jobPlanOptions.some(jpo => state.scenario.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice)) 
-							? this.jobService.updateSpecJobPricing(state.job.lotId) 
-							: of(null);
-						
-						return updateSpecJobPricing.pipe
-						(
-							map(jobPlanOptions => 
-							{
-								return { jobPlanOptions: jobPlanOptions, shouldUpdateSpecChangeOrder: shouldUpdateSpecChangeOrder, changeOrderGroup: currentChangeOrderGroup };
-							})
-						);
+						return NEVER;
 					})
 
 				)
 			),
-			switchMap(result => 
-			{
-				let actions = [];
-				if (result.jobPlanOptions)
-				{
-					actions.push(new JobPlanOptionsUpdated(result.jobPlanOptions));
-				}
-
-				if (result.shouldUpdateSpecChangeOrder)
-				{
-					const specChangeOrders = result.changeOrderGroup.jobChangeOrders;
-
-					if (specChangeOrders.some(co => co.jobChangeOrderTypeDescription === 'Plan'))
-					{
-						actions.push(new CreatePlanChangeOrder());
-					}
-					else if (specChangeOrders.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
-					{
-						actions.push(new CreateJobChangeOrders());
-					}
-				}
-
-				if (actions.length > 0)
-				{
-					return from(actions);
-				}
-
-				return NEVER;
-			})
+			map(jobPlanOptions => new JobPlanOptionsUpdated(jobPlanOptions))
 		)
 	);
 
