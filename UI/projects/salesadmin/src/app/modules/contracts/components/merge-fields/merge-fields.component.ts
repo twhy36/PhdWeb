@@ -64,7 +64,7 @@ export class MergeFieldsComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit(): void
 	{
-		let mkt$ = this._orgService.currentMarket$.pipe(
+		let mkt$ = this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			distinctUntilChanged(),
 			filter(mkt => !!mkt)

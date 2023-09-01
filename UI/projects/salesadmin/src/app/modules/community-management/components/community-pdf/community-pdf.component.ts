@@ -55,7 +55,7 @@ export class CommunityPdfComponent extends UnsubscribeOnDestroy implements OnIni
 
 	ngOnInit()
 	{
-		this._orgService.currentMarket$.subscribe(mkt =>
+		this._orgService.getCurrentMarket().subscribe(mkt =>
 		{
 			this.selectedMarket = mkt;
 			this.selectedCommunity = null;
