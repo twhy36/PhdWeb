@@ -1,0 +1,13 @@
+<ul class="phd-summary-attribute-group px-3 py-2">
+	<li *ngFor="let attr of mappedSelectedAttributes">
+		<!-- location -->
+		<div class="phd-location-group d-flex flex-column" *ngIf="!!attr.locationGroupId || !!attr.locationId">
+			<div data-testid="location-name"><span class="phd-label">{{ attr.locationGroupLabel }}: </span>{{ attr.locationName }}</div>
+			<div data-testid="location-quantity"><span class="phd-label">Quantity: </span>{{ attr.locationQuantity }}</div>
+		</div>
+		<!-- attribute -->
+		<ng-container *ngIf="attr.attributes.length && consolidatedAttributes(attr.attributes).length">
+			<div *ngFor="let consolidatedAttribute of consolidatedAttributes(attr.attributes)" class="phd-location-group" data-testid="attribute-info"><span class="phd-label">{{consolidatedAttribute.attributeGroupLabel}}:</span> {{consolidatedAttribute.attributeGroupNames.join(', ')}}</div>
+		</ng-container>
+	</li>
+</ul>

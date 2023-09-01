@@ -29,13 +29,14 @@
 				<ng-container *ngIf="!isPresale || isPresalePricingEnabled">
 					<span class="phd-price-label mr-2" *ngIf="choice && choice?.price">{{ choice.price * (choice.quantity > 0 ? choice.quantity : 1) | currency: "USD" : "symbol" : "0.0-0" }}</span>
 				</ng-container>
-				<ng-container *ngIf="choice && choice.choiceStatus === 'Available' && choice.enabled">
-					<button class="phd-clickable phd-favorite-selector phd-icon-accent p-0" (click)="toggleChoice(choice)">
-						<mat-icon attr.aria-pressed="{{ choice.isFavorite }}" data-testid="favorite-icon">
-							{{ choice.isFavorite ? "favorite" : "favorite_outline" }}
-						</mat-icon>
-					</button>
-				</ng-container>
+				<button *ngIf="choice.choiceStatus === 'Contracted'" class="phd-favorite-selector phd-icon-accent">
+					<mat-icon data-testid="check-icon">check</mat-icon>
+				</button>
+				<button *ngIf="choice.choiceStatus === 'Available' && choice.enabled" class="phd-favorite-selector phd-icon-accent p-0" [class.phd-clickable]="!isReadonly" (click)="toggleChoice(choice)">
+					<mat-icon attr.aria-pressed="{{ choice.isFavorite }}" data-testid="favorite-icon">
+						{{ choice.isFavorite ? "favorite" : "favorite_outline" }}
+					</mat-icon>
+				</button>
 				<ng-container *ngIf="choice?.choiceStatus === 'Available' && !choice?.enabled">
 					<button class="phd-clickable phd-favorite-selector phd-icon-accent" data-testid="blocked-icon">
 						<mat-icon attr.aria-label="{{ choice.label + ' is blocked' }}">block</mat-icon>

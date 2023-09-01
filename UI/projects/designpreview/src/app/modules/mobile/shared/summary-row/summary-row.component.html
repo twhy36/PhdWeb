@@ -1,3 +1,63 @@
-<div class="phd-fav-row-container" attr.aria-label="{{decisionPoint?.label}}">
-	{{decisionPoint?.label}}
+<div class="phd-fav-decision-point-container d-flex flex-column"
+	attr.aria-label="{{decisionPoint?.label}}">
+	<span class="phd-decision-point-label mb-2" data-testid="dp-label">{{decisionPoint?.label}}</span>
+	<ul class="phd-choices-container mb-3">
+		<ng-container *ngFor="let choice of choicesCustom; last as isLast">
+			<li>
+				<div class="d-flex flex-column">
+					<div class="d-flex flex-row align-items-center justify-content-between">
+						<div class="d-flex flex-row align-items-center">
+							<button mat-icon-button
+								*ngIf="choice.hasMappedAttributes && isChoiceComplete(choice) && choice.selectedAttributes.length"
+								(click)="toggleCollapsedAttribute(choice)"
+								class="d-flex phd-expand-location-button mr-1" data-testid="show-attributes-btn">
+								<mat-icon class='phd-icon-accent'>{{choice.showAttributes ?
+									'add' : 'remove'}}</mat-icon>
+							</button>
+							<span class="phd-choice-label" data-testid="choice-label">{{choice.label}}</span>
+						</div>
+
+						<ng-container
+							*ngIf="!choice.priceHiddenFromBuyerView && (!isPresale || isPresalePricingEnabled)">
+							<span class="phd-price" data-testid="price">{{choice.price *
+								choice.quantity | currency:'USD':'symbol':'0.0-0'}}</span>
+						</ng-container>
+						<ng-container
+							*ngIf="choice.priceHiddenFromBuyerView && (!isPresale || isPresalePricingEnabled)">
+							<span class="phd-pricing-varies d-flex align-items-center" data-testid="pricing-varies">
+								<mat-icon class="phd-tooltip-icon phd-icon-accent">info_outline</mat-icon>Pricing Varies
+							</span>
+						</ng-container>
+					</div>
+					<summary-attribute-location-row
+						*ngIf="(choice.showAttributes && !isChoiceComplete(choice) || (!choice.showAttributes && isChoiceComplete(choice))) && (choice.selectedAttributes.length || isDesignComplete)"
+						[mappedSelectedAttributes]="choice.mappedSelectedAttributes" data-testid="attribute-location-details"></summary-attribute-location-row>
+					<div class="phd-additional-selections-warning d-flex align-items-center"
+						*ngIf="choice.hasMappedAttributes && (!isChoiceComplete(choice) || !choice.selectedAttributes.length)">
+						<mat-icon
+							fontSet="material-symbols-outlined">warning</mat-icon>
+						<a [routerLink]="['/options', subGroup.id, decisionPoint.id, choice.id]" queryParamsHandling="merge" data-testid="additional-selections-warning">Additional Selections Required</a>
+					</div>
+					<div
+						class="d-flex flex-row justify-content-between align-items-end mt-2">
+						<span class="phd-quantity-label" data-testid="quantity">
+							Quantity: ({{choice.quantity}})
+						</span>
+						
+						<div *ngIf="!contractedOptionsPage" class="d-flex phd-summary-actions phd-icon-accent">
+							<a *ngIf="!isReadOnly" class="d-flex align-items-end" data-testid="delete-icon">
+								<mat-icon class="mr-3" fontSet="material-symbols-outlined">delete</mat-icon>
+							</a>
+							<a *ngIf="!isReadOnly" class="d-flex align-items-end" data-testid="edit-icon">
+								<mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+							</a>
+							<a *ngIf="isReadOnly" [routerLink]="['/options', subGroup.id, decisionPoint.id]" queryParamsHandling="merge" data-testid="view-link">View</a>
+						</div>
+					</div>
+				</div>
+				<hr *ngIf="!isLast" class="my-2" />
+			</li>
+		</ng-container>
+
+	</ul>
 </div>

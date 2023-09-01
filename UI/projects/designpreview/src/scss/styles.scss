@@ -19,6 +19,7 @@
 
 // Mobile component themes
 @use './themes/components/estimated-totals-theme' as estimated-totals;
+@use './themes/components/floorplan-image-tabs-theme' as floorplan-tabs;
 @use './themes/components/global-header-theme' as global-header;
 @use './themes/components/group-list-theme' as group-list;
 @use './themes/components/landing-theme' as landing;
@@ -66,6 +67,7 @@
 
 	// Mobile component themes
 	@include estimated-totals.theme($theme);
+	@include floorplan-tabs.theme($theme);
 	@include global-header.theme($theme);
 	@include group-list.theme($theme);
 	@include landing.theme($theme);
@@ -134,6 +136,10 @@
 		color: mat.get-color-from-palette($accent-palette, 500);
 	}
 
+	.phd-additional-selections-warning {
+		color: mat.get-color-from-palette($accent-palette, 'A700');
+	}
+	
 	.phd-primary-text {
 		color: mat.get-color-from-palette($primary-palette, 500);
 	}
@@ -206,6 +212,11 @@
 	
 	.phd-icon-accent {
 		color: mat.get-color-from-palette($accent-palette, 500);
+	}
+
+	// Overriding default mat-expansion-panel padding in summary mobile component to match designs
+	.phd-remove-mat-expansion-panel-padding .mat-expansion-panel-content .mat-expansion-panel-body {
+		padding: 0 16px !important;
 	}
 
 	.phd-sub-menu-selected {

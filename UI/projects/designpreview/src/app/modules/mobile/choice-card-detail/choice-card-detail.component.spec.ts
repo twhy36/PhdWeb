@@ -170,13 +170,20 @@ describe('ChoiceCardDetailComponent', () =>
 		});
 	});
 
-	it('shows blocked icon when choice is available but not enabled', () => 
+	it('shows blocked icon when choice status is available but not enabled', () => 
 	{
 		component.choice.choiceStatus = 'Available';
 		component.choice.enabled = false;
 		fixture.detectChanges();
 		const blockedIcon = findElementByTestId(fixture, 'blocked-icon');
 		expect(blockedIcon).toBeTruthy();
+	});
+
+	it('shows checked icon when choice status is contracted', () =>
+	{
+		component.choice.choiceStatus = 'Contracted';
+		fixture.detectChanges();
+		expect(findElementByTestId(fixture, 'check-icon')).toBeTruthy();
 	});
 
 	describe('description text', () => 

@@ -1,0 +1,11 @@
+<div class="d-flex justify-content-end">
+	<button mat-icon-button class="phd-close-button phd-icon-accent"
+		(click)="cancel()" data-testid="close-btn">
+		<mat-icon>close</mat-icon>
+	</button>
+</div>
+<div mat-dialog-content class="overflow-visible">
+	<floorplan-image-tabs imageHeight="100%"
+		[selectedIndex]="data.selectedIndex"
+		data-testid="floorplan-image-tabs"></floorplan-image-tabs>
+</div>

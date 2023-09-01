@@ -63,7 +63,8 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 	isPreview: boolean;
 	isPresale: boolean = true;
 	isDesignComplete: boolean;
-	isPresalePricingEnabled: boolean = false;
+	isPresalePricingEnabled: boolean;
+	isReadonly: boolean = false;
 
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
@@ -164,6 +165,7 @@ export class ChoiceCardDetailComponent extends UnsubscribeOnDestroy implements O
 			this.isPreview = scenarioState.buildMode === BuildMode.Preview;
 			this.isPresale = scenarioState.buildMode === BuildMode.Presale;
 			this.isDesignComplete = sag?.isDesignComplete || false;
+			this.isReadonly = scenarioState.buildMode === BuildMode.BuyerPreview;
 
 			if (filteredTree && this.subGroupId > 0) 
 			{
