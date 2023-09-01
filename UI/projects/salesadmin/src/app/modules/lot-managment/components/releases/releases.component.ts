@@ -72,7 +72,7 @@ export class ReleasesComponent extends UnsubscribeOnDestroy implements OnInit
 
 	ngOnInit()
 	{
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
+		this.activeCommunities = this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
 			{

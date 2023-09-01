@@ -4,26 +4,32 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { tap, switchMap, finalize, combineLatest } from 'rxjs/operators';
 
-import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
-import { FinancialCommunity, FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
-import { SalesProgram } from '../../../shared/models/salesPrograms.model';
-import { SalesService } from '../../../core/services/sales.service';
-import { MessageService } from 'primeng/api';
-import { OrganizationService } from '../../../core/services/organization.service';
-import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmModalComponent, Constants, PhdTableComponent, SpecDiscountService } from 'phd-common';
-import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
+
+import { MessageService } from 'primeng/api';
 
 import * as moment from 'moment';
+
+import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
+
+import { FinancialCommunity, FinancialCommunityInfo } from '../../../shared/models/financialCommunity.model';
+import { SalesProgram } from '../../../shared/models/salesPrograms.model';
+import { FinancialCommunityViewModel } from '../../../shared/models/plan-assignment.model';
 import { Org } from '../../../shared/models/org.model';
+
+import { ConfirmModalComponent, Constants, PhdTableComponent, SpecDiscountService } from 'phd-common';
+
+import { SalesProgramsSidePanelComponent } from '../sales-programs-side-panel/sales-programs-side-panel.component';
+
+import { OrganizationService } from '../../../core/services/organization.service';
+import { StorageService } from '../../../core/services/storage.service';
+import { SalesService } from '../../../core/services/sales.service';
 
 @Component({
 	selector: 'sales-programs',
 	templateUrl: './sales-programs.component.html',
 	styleUrls: ['./sales-programs.component.scss']
 })
-
 export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@ViewChild(SalesProgramsSidePanelComponent)
@@ -37,10 +43,16 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	selectedCommunity: FinancialCommunityViewModel = null;
 	canEdit: boolean = false;
 	salesPrograms: Array<SalesProgram>;
+	filteredSalesPrograms: Array<SalesProgram>;
 	_loading: boolean = true;
 	financialCommunityInfo: FinancialCommunityInfo; // DELETEME when THO columns are migrated to EDH
 	internalOrgs: Array<Org>;
 	orgId: number;
+
+	get selectedAvailabilityFilter(): string
+	{
+		return this._storageService.getLocal<string>('SA_SALES_PROGRAM_FILTER') ?? 'Show All';
+	}
 
 	constructor(
 		private _salesService: SalesService,
@@ -48,7 +60,8 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		private _modalService: NgbModal,
 		private _msgService: MessageService,
 		private _specDiscountService: SpecDiscountService,
-		private _route: ActivatedRoute
+		private _route: ActivatedRoute,
+		private _storageService: StorageService
 	)
 	{
 		super();
@@ -62,7 +75,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	ngOnInit()
 	{
-		this._orgService.currentMarket$.pipe(
+		this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
 			{
@@ -96,19 +109,19 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 						)
 						.subscribe(([programs, fcInfo]) =>
 						{
-							this.salesPrograms = programs;
-
 							// DELETEME when THO columns are migrated to EDH
 							this.financialCommunityInfo = fcInfo;
 
 							if (this.financialCommunityInfo)
 							{
-								this.salesPrograms.map(sp =>
+								programs.map(sp =>
 								{
 									sp.isWebSaleable = this.financialCommunityInfo.thoBuyerClosingCostId === sp.id || this.financialCommunityInfo.thoDiscountFlatAmountId === sp.id;
 								});
 							}
 							//end DELETEME
+
+							this.setSalesPrograms(programs);
 
 							this.loading = false;
 						});
@@ -134,7 +147,8 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	{
 		if (load)
 		{
-			this.salesPrograms = null;
+			this.setSalesPrograms(null);
+
 			this.onSidePanelToggle(false);
 		}
 
@@ -199,6 +213,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 					this.salesPrograms.find(sp => sp.id === dto.id).dto = dto;
 				}
 
+				this.setSalesPrograms(this.salesPrograms);
 				this.sort();
 				this.onSidePanelToggle(false);
 
@@ -211,15 +226,15 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 					this._msgService.add({ severity: 'success', summary: `${salesProgram.name}`, detail: `has been saved!` });
 				}
 			},
-				error =>
-				{
-					this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
-				});
+			error =>
+			{
+				this._msgService.add({ severity: 'error', summary: 'Error', detail: error.message });
+			});
 	}
 
 	sort()
 	{
-		this.salesPrograms.sort((a, b) =>
+		this.filteredSalesPrograms.sort((a, b) =>
 		{
 			const strA = a.name.toUpperCase();
 			const strB = b.name.toUpperCase();
@@ -245,8 +260,8 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			if (result == Constants.CONTINUE)
 			{
-				let currDate = new Date(moment.parseZone(moment()).toISOString()).toISOString().split('T')[0];
-				let prevDate = moment(new Date(currDate).toISOString()).subtract(1, 'days').toISOString().split('T')[0];
+				const currDate = new Date(moment.parseZone(moment()).toISOString()).toISOString().split('T')[0];
+				const prevDate = moment(new Date(currDate).toISOString()).subtract(1, 'days').toISOString().split('T')[0];
 
 				// set expiration date to yesterdays date
 				salesProgram.dto.endDate = prevDate;
@@ -261,13 +276,13 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 			}
 		}, (reason) =>
 		{
-			console.log("Error:", reason);
+			console.log('Error:', reason);
 		});
 	}
 
 	convertDate(date)
 	{
-		return moment.parseZone(date).format("M/DD/YYYY");
+		return moment.parseZone(date).format('M/DD/YYYY');
 	}
 
 	create()
@@ -342,6 +357,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 					if (existingClosingCostProgramForTho)
 					{
 						existingClosingCostProgramForTho.dto.isWebSaleable = existingClosingCostProgramForTho.isWebSaleable = !existingClosingCostProgramForTho.isWebSaleable;
+
 						this.save(existingClosingCostProgramForTho.dto, false);
 					}
 
@@ -359,13 +375,14 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 				}
 			}, (reason) =>
 			{
-				console.log("Error:", reason);
+				console.log('Error:', reason);
 			});
 		}
 		else
 		{
 			// DELETEME when THO columns are migrated to EDH
 			this.financialCommunityInfo.thoBuyerClosingCostId = salesProgram.isWebSaleable ? null : salesProgram.id;
+
 			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
 			{
 				// logic moved...
@@ -392,6 +409,7 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 				{
 					// DELETEME when THO columnns are migrated to EDH
 					this.financialCommunityInfo.thoDiscountFlatAmountId = salesProgram.isWebSaleable ? null : salesProgram.id;
+
 					this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(x =>
 					{
 						// logic moved
@@ -410,13 +428,14 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 				}
 			}, (reason) =>
 			{
-				console.log("Error:", reason);
+				console.log('Error:', reason);
 			});
 		}
 		else
 		{
 			// DELETEME when THO columnns are migrated to EDH
 			this.financialCommunityInfo.thoDiscountFlatAmountId = salesProgram.isWebSaleable ? null : salesProgram.id;
+
 			this._orgService.saveFinancialCommunityInfo(this.financialCommunityInfo, this.orgId).subscribe(fc =>
 			{
 				// logic moved...
@@ -433,13 +452,13 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 
 	private getConfirmModal(msgBody: string): NgbModalRef
 	{
-		let ngbModalOptions: NgbModalOptions = {
+		const ngbModalOptions: NgbModalOptions = {
 			centered: true,
 			backdrop: 'static',
 			keyboard: false
 		};
 
-		let confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
+		const confirm = this._modalService.open(ConfirmModalComponent, ngbModalOptions);
 
 		confirm.componentInstance.title = Constants.WARNING;
 		confirm.componentInstance.body = msgBody;
@@ -451,5 +470,27 @@ export class SalesProgramsComponent extends UnsubscribeOnDestroy implements OnIn
 	checkSpecDiscountName(name: string): boolean
 	{
 		return this._specDiscountService.checkIfSpecDiscount(name);
+	}
+
+	onAvailabilityFilterChanged(event: any)
+	{
+		this._storageService.setLocal('SA_SALES_PROGRAM_FILTER', event ?? '');
+
+		this.filterSalesPrograms();
+	}
+
+	filterSalesPrograms()
+	{
+		this.filteredSalesPrograms =
+			this.salesPrograms !== null && this.selectedAvailabilityFilter !== 'Show All' ?
+				this.salesPrograms.filter(x => x.availability === this.selectedAvailabilityFilter) :
+				this.salesPrograms;
+	}
+
+	setSalesPrograms(salesPrograms: SalesProgram[])
+	{
+		this.salesPrograms = salesPrograms;
+
+		this.filterSalesPrograms();
 	}
 }

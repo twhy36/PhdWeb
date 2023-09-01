@@ -109,7 +109,7 @@ export class ManageHomesitesComponent extends UnsubscribeOnDestroy implements On
 	{
 		this.settings = this._settingsService.getSettings();
 
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
+		this.activeCommunities = this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
 			{

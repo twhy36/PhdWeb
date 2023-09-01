@@ -13,37 +13,50 @@ import { filter, map } from 'rxjs/operators';
 export class NavigationBarComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() canAccessSalesAdmin: boolean;
-	hideMarket:  boolean;
 
-    constructor(
-		public orgService: OrganizationService,
+	hideMarket: boolean;
+	market: FinancialMarket;
+
+	constructor(
+		public _orgService: OrganizationService,
 		private router: Router,
-		private route: ActivatedRoute )  { super(); }
+		private route: ActivatedRoute) { super(); }
 
 	ngOnInit() 
 	{
-        this.router.events.pipe(
+		this.router.events.pipe(
 			this.takeUntilDestroyed(),
-            filter(evt => evt instanceof NavigationEnd),
-            map(() => {
-                let snapshot = this.route.snapshot;
-                do {
-                    if (snapshot.data['hideMarket']){
-                        return snapshot.data['hideMarket'];
-                    } 
-                    snapshot = snapshot.children?.find(c => c.outlet === 'primary');
-                }
-                while (snapshot);
- 
-                return false;
-            })
-        ).subscribe(hideMarket => {
-            this.hideMarket = hideMarket
-        });
-	}
-	onSelectedMarketChange(value: FinancialMarket) {
-        console.log("Market: ", value);
-        this.orgService.selectMarket(value);
-    }
-}//
+			filter(evt => evt instanceof NavigationEnd),
+			map(() =>
+			{
+				let snapshot = this.route.snapshot;
 
+				do
+				{
+					if (snapshot.data['hideMarket'])
+					{
+						return snapshot.data['hideMarket'];
+					}
+
+					snapshot = snapshot.children?.find(c => c.outlet === 'primary');
+				}
+				while (snapshot);
+
+				return false;
+			})
+		).subscribe(hideMarket =>
+		{
+			this.hideMarket = hideMarket
+		});
+
+		this._orgService.getCurrentMarket().subscribe(data =>
+		{
+			this.market = data;
+		});
+	}
+
+	onSelectedMarketChange(value: FinancialMarket)
+	{
+		this._orgService.selectMarket(value);
+	}
+}

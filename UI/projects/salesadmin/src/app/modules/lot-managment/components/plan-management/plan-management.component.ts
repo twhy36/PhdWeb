@@ -34,7 +34,7 @@ export class PlanManagementComponent extends UnsubscribeOnDestroy implements OnI
 
 	ngOnInit()
 	{
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
+		this.activeCommunities = this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			switchMap(mkt =>
 			{
