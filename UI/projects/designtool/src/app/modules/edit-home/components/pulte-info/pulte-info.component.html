@@ -1,7 +1,7 @@
 <h2>Spec Information</h2>
 <form *ngIf="pulteInfoSet" [formGroup]="pulteInfoForm">
     <div class="phd-pulteinfo-flexbox">
-       <div>
+        <div>
             <div class="phd-info">
                 <div class="phd-items">
                     <label>Projected Final Date</label>
@@ -13,21 +13,23 @@
                     <input class="phd-items form-control" type="text" readonly>
                 </div>
             </div>
-		   <div class="phd-info">
-			   <div class="phd-items">
-				   <label>Construction Stage</label>
-			   </div>
-			   <div class="phd-items">
-				   <input class="phd-items form-control" type="text" readonly [value]="job?.constructionStageName">
-			   </div>
-		   </div>
             <div class="phd-info">
                 <div class="phd-items">
+                    <label>Construction Stage</label>
+                </div>
+                <div class="phd-items">
+                    <input class="phd-items form-control" type="text" readonly [value]="job?.constructionStageName">
+                </div>
+            </div>
+            <div class="phd-info">
+                <div class="phd-items align-items-center">
                     <label>Tagline</label>
                 </div>
                 <div class="phd-items">
-                    <input formControlName="tagLines" class="form-control" type="text" id="tagLines"
-                    maxlength="250" [value]="pulteInfo.webSiteDescription"/>
+                    <span>For 3rd party sites only</span>
+                    <textarea formControlName="tagLines" cols="50" class="form-control" type="text" id="tagLines"
+                              maxlength="250" [value]="pulteInfo.webSiteDescription" autoSizeTextarea>
+                    </textarea>
                 </div>
             </div>
             <div class="phd-info">
@@ -36,7 +38,7 @@
                 </div>
                 <div class="phd-items">
                     <input formControlName="displayOnPulte" type="checkbox" class="phd-items-checkbox" [value]="pulteInfo.isPublishOnWebSite"
-                        id="displayOnPulte">
+                           id="displayOnPulte">
                 </div>
             </div>
             <div class="phd-info">
@@ -57,7 +59,10 @@
                 </div>
                 <div class="phd-items">
                     <p-calendar formControlName="discountExpirationDate" dateFormat="mm/dd/yy"
-                        [minDate]="minDate" [showClear]="true"></p-calendar>
+                        [minDate]="minDate" [(ngModel)]="pulteInfo.discountExpirationDate" *ngIf="canEdit; else readonlyDiscExpDate"></p-calendar>
+					<ng-template #readonlyDiscExpDate>
+						<input type="text" class="form-control" [value]="pulteInfo.discountExpirationDate" disabled/>
+					</ng-template>
                 </div>
             </div>
             <div class="phd-info">
@@ -75,16 +80,16 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint1" [value]="pulteInfo.hotHomeBullet1"
-                        formControlName="keySellingPoint1" maxlength="40"/>
+                        formControlName="keySellingPoint1" maxlength="40" autoResizeInput />
                 </div>
             </div>
             <div class="phd-info">
                 <div class="phd-items">
                     <label>Key Selling Point #2</label>
                 </div>
-                <div class="phd-items">
+                <div class="phd-info">
                     <input type="text" class="form-control" id="keySellingPoint2" [value]="pulteInfo.hotHomeBullet2"
-                        formControlName="keySellingPoint2" maxlength="40"/>
+                        formControlName="keySellingPoint2" maxlength="40" autoResizeInput />
                 </div>
             </div>
             <div class="phd-info">
@@ -93,7 +98,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint3" [value]="pulteInfo.hotHomeBullet3"
-                        formControlName="keySellingPoint3" maxlength="40"/>
+                        formControlName="keySellingPoint3" maxlength="40" autoResizeInput />
                 </div>
             </div>
             <div class="phd-info">
@@ -102,7 +107,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint4" [value]="pulteInfo.hotHomeBullet4"
-                        formControlName="keySellingPoint4" maxlength="40"/>
+                        formControlName="keySellingPoint4" maxlength="40" autoResizeInput />
                 </div>
             </div>
             <div class="phd-info">
@@ -111,7 +116,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint5" [value]="pulteInfo.hotHomeBullet5"
-                        formControlName="keySellingPoint5" maxlength="40"/>
+                        formControlName="keySellingPoint5" maxlength="40" autoResizeInput />
                 </div>
             </div>
             <div class="phd-info">
@@ -120,7 +125,7 @@
                 </div>
                 <div class="phd-items">
                     <input type="text" class="form-control" id="keySellingPoint6" [value]="pulteInfo.hotHomeBullet6"
-                        formControlName="keySellingPoint6" maxlength="40"/>
+                        formControlName="keySellingPoint6" maxlength="40" autoResizeInput />
                 </div>
             </div>
             <br>
@@ -143,7 +148,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="fullBaths" [value]="pulteInfo.numberFullBathOverride"
-                        maxlength="25" min="0" formControlName="fullBaths"/>
+                           maxlength="25" min="0" formControlName="fullBaths" />
                 </div>
             </div>
             <div class="phd-info">
@@ -155,7 +160,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="halfBaths" [value]="pulteInfo.numberHalfBathOverride"
-                        maxlength="25" min="0" formControlName="halfBaths"/>
+                           maxlength="25" min="0" formControlName="halfBaths" />
                 </div>
             </div>
             <div class="phd-info">
@@ -167,7 +172,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="bedrooms" [value]="pulteInfo.numberBedOverride"
-                        maxlength="25" min="0" formControlName="bedrooms"/>
+                           maxlength="25" min="0" formControlName="bedrooms" />
                 </div>
             </div>
             <div class="phd-info">
@@ -179,7 +184,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="squareFeet" [value]="pulteInfo.squareFeetOverride"
-                        maxlength="25" min="0" formControlName="squareFeet"/>
+                           maxlength="25" min="0" formControlName="squareFeet" />
                 </div>
             </div>
             <div class="phd-info">
@@ -191,7 +196,7 @@
                 </div>
                 <div class="phd-items-default">
                     <input type="number" class="form-control" id="numberOfGarages" min="0"
-                        [value]="pulteInfo.numberGarageOverride" maxlength="25" formControlName="numberOfGarages"/>
+                           [value]="pulteInfo.numberGarageOverride" maxlength="25" formControlName="numberOfGarages" />
                 </div>
             </div>
             <br>
