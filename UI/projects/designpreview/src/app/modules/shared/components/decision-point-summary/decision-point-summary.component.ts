@@ -6,6 +6,7 @@ import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, DesignToolAttribute } from 'phd-common';
 import { isChoiceAttributesComplete } from '../../classes/utils.class';
 import { BuildMode } from '../../models/build-mode.model';
+import { MappedAttribute } from '../../models/attribute-ext.model';
 
 @Component({
 	selector: 'decision-point-summary',
@@ -156,7 +157,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	
 }
 
-class ConsolidatedAttributeGroup
+export class ConsolidatedAttributeGroup
 {
 	attributeGroupLabel: string;
 	attributeGroupNames: string[] = [];
@@ -175,10 +176,10 @@ class ConsolidatedAttributeGroup
 	}
 }
 
-class ChoiceCustom extends Choice
+export class ChoiceCustom extends Choice
 {
 	showAttributes: boolean;
-	mappedSelectedAttributes = [];
+	mappedSelectedAttributes: MappedAttribute[] = [];
 
 	get hasMappedAttributes(): boolean
 	{

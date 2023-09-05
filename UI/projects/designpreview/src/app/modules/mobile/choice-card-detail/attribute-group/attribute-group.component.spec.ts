@@ -109,20 +109,19 @@ describe('AttributeGroupComponent', () =>
 		component.hasAttributes = true;
 		fixture.detectChanges();
 
-		const expansionPanels = fixture.nativeElement.querySelectorAll('mat-expansion-panel');
-		const header = expansionPanels[0].querySelector('.mat-expansion-panel-header');
+		const header = findAllElementsByTestId(fixture, 'attribute-group-panel-header')[0];
 
 		// Simulate clicking to expand
-		header.click();
+		header.nativeElement.click();
 		component.panelStates[0] = false;
 		fixture.detectChanges();
-		expect(expansionPanels[0].classList).not.toContain('mat-expanded');
+		expect(header.nativeElement.classList).not.toContain('mat-expanded');
 
 		// Simulate clicking to collapse
-		header.click();
+		header.nativeElement.click();
 		component.panelStates[0] = true;
 		fixture.detectChanges();
-		expect(expansionPanels[0].classList).toContain('mat-expanded');
+		expect(header.nativeElement.classList).toContain('mat-expanded');
 	});
 
 });

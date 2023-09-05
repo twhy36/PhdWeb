@@ -56,7 +56,7 @@ export class PhasePricingComponent extends UnsubscribeOnDestroy implements OnIni
 
 	ngOnInit(): void
 	{
-		this.activeCommunities = this._orgService.currentMarket$.pipe(
+		this.activeCommunities = this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			tap(mkt =>
 			{

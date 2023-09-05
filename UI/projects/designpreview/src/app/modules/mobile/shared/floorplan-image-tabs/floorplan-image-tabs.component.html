@@ -1,0 +1,50 @@
+<mat-tab-group fitInkBarToContent
+	*ngIf="floorPlanImages?.length > 1; else oneFloorplanImage"
+	class="phd-floorplan-tabs" [(selectedIndex)]="selectedIndex">
+	<mat-tab *ngFor="let fpImage of floorPlanImages; let i = index"
+		[label]="fpImage.floorName" class="phd-accent-text">
+		<div *ngIf="fpImage.svg"
+			[class.phd-floorplan-image-container]="showImageContainerBorder"
+			data-testid="image-container-tabs">
+			<div class='phd-floorplan-image m-2' id="{{getIfpId(fpImage)}}"
+				[innerHTML]="sanitizer.bypassSecurityTrustHtml(fpImage.svg)"
+				[ngStyle]="{'height': imageHeight}">
+			</div>
+			<button *ngIf="showExpandImageIcons"
+				class="phd-expand-floorplan-icon phd-icon-accent"
+				(click)="expandFloorplanImage(i)"
+				data-testid="expand-image-icon-tabs">
+				<mat-icon fontSet="material-symbols-outlined">open_in_full</mat-icon>
+			</button>
+		</div>
+	</mat-tab>
+</mat-tab-group>
+
+<ng-template #oneFloorplanImage>
+	<div *ngIf="floorPlanImages?.[0].svg"
+		[class.phd-floorplan-image-container]="showImageContainerBorder"
+		data-testid="single-floorplan-image-container">
+		<div class='phd-floorplan-image m-2'
+			id="{{getIfpId(floorPlanImages?.[0])}}"
+			[innerHTML]="sanitizer.bypassSecurityTrustHtml(floorPlanImages[0].svg)"
+			[ngStyle]="{'height': imageHeight}">
+		</div>
+		<button *ngIf="showExpandImageIcons"
+			class="phd-expand-floorplan-icon phd-icon-accent"
+			(click)="expandFloorplanImage()"
+			data-testid="expand-image-icon-single">
+			<mat-icon fontSet="material-symbols-outlined">open_in_full</mat-icon>
+		</button>
+	</div>
+</ng-template>
+
+<div class="phd-hide-from-print">
+	<floor-plan 
+		[planId$]="marketingPlanId"
+		[subGroup]="IFPsubGroup"
+		[isFlipped]="isFloorplanFlipped"
+		[ifpID]="'firstDisplayedFloor'"
+		(floorPlanSaved)="onFloorPlanSaved($event)"
+		[height]="'0'">
+	</floor-plan>
+</div>

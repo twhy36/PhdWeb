@@ -33,9 +33,9 @@
 			<span>{{isDesignComplete ? 'Options Total:' : 'Pending & Contracted Options:'}}</span>
 			<span>{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
 		</div>
-		<div class="d-flex justify-content-between" *ngIf="priceBreakdown.salesProgram && showDetailPrice">
+		<div class="d-flex justify-content-between" *ngIf="priceBreakdown?.salesProgram && showDetailPrice">
 			<span>Sales Incentive:</span>
-			<span>({{priceBreakdown?.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
+			<span>({{priceBreakdown.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
 		</div>
 		<div class="d-flex justify-content-between" *ngIf="priceBreakdown.priceAdjustments && !isPresale && showDetailPrice">
 			<span>Price Adjustments:</span>
@@ -62,7 +62,7 @@
 	</header>
 
 	<!-- group section -->
-	<ng-container *ngIf="groups?.length > 0 && !isEmptyFavorites">
+	<ng-container *ngIf="groups?.length && (!isEmptyFavorites || includeContractedOptions)">
 		<!-- expand/collapse all links -->
 		<div class="phd-fav-text-end phd-show-in-print phd-sticky-content px-3 py-2" [ngStyle]="{ top: stickyHeaderOffset + 'px' }" data-testid="expand-collapse-button">
 			<button class="phd-fav-link-button" *ngIf="!groupExpanded" mat-button (click)="accordion.openAll();groupExpanded = true;">Expand All</button>
@@ -70,45 +70,63 @@
 		</div>
 			
 		<!-- Group/Subgroup/Summary Row -->
-		<mat-accordion multi>   
-			<ng-container *ngFor="let group of groups">
-				<div role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups?.length > 0">  
-					<mat-expansion-panel>
-						<mat-expansion-panel-header class="phd-fav-group">
-							<mat-panel-title class="d-flex justify-content-between phd-fav-test">
-									{{group?.label}}
-									<span class="text-bold" *ngIf="!isPresale || isPresalePricingEnabled">
-										Subtotal : {{group?.price | currency:'USD':'symbol':'0.0-0'}}                                
-									</span>
-							</mat-panel-title>  
-						</mat-expansion-panel-header> 
-						
-						<div  class="phd-fav-group-content">
-							TODO: Placeholder below for Subgroups/summary
+		<div class="mat-accordion-container">
+			<mat-accordion multi>   
+				<ng-container *ngFor="let group of groups">
+					<div role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups?.length > 0">  
+						<mat-expansion-panel class="phd-remove-mat-expansion-panel-padding" expanded>
+							<mat-expansion-panel-header class="phd-fav-group">
+								<mat-panel-title class="d-flex justify-content-between">
+										{{group?.label}}
+										<span class="phd-fav-subtotal" *ngIf="!isPresale || isPresalePricingEnabled">
+											Subtotal : {{group?.price | currency:'USD':'symbol':'0.0-0'}}                                
+										</span>
+								</mat-panel-title>  
+							</mat-expansion-panel-header> 
+							
 							<ng-container
-								*ngFor="let subGroup of group.subGroups">
+								*ngFor="let subGroup of group.subGroups; last as isLast">
 								<div role="group" attr.aria-label="{{subGroup.label}}">
-									<div class="phd-fav-subgroup">
+									<div class="phd-fav-subgroup my-3">
 										{{subGroup.label}}
 									</div>
-									<ng-container *ngFor="let dp of subGroup.points">
-										<div *ngIf="displayPoint(dp)">
-										<summary-row
-										[decisionPoint]="dp"
-										[subGroup]="subGroup"
-										[group]="group"
-										[contractedOptionsPage]="false"
-										>
-										</summary-row>
-										</div>
+									<ng-container *ngIf="displaySubGroupPoints(subGroup); else no_selections">
+										<ng-container *ngFor="let dp of subGroup.points">
+											<div *ngIf="displayPoint(dp)">
+												<summary-row 
+													[decisionPoint]="dp"
+													[subGroup]="subGroup"
+													[group]="group"
+													[contractedOptionsPage]="false">
+												</summary-row>
+											</div>
+										</ng-container>
 									</ng-container>
+									<ng-template #no_selections>
+										<div class="d-flex flex-column phd-fav-subgroup text-center pb-3">
+											No Selections For {{subGroup.label}}
+											<a [routerLink]="['/options', subGroup.id, subGroup.points[0].id]" queryParamsHandling="merge" class="phd-accent-text">View Options</a>
+										</div>
+									</ng-template>
 								</div>
+								<hr class="phd-subgroup-divider" *ngIf="!isLast" />
 							</ng-container>
-						</div>
-					</mat-expansion-panel>
-				</div>
-			</ng-container>
-		</mat-accordion>
+						</mat-expansion-panel>
+					</div>
+				</ng-container>
+				<!-- floorplan section -->
+				<mat-expansion-panel *ngIf="visibleFP" class="phd-remove-mat-expansion-panel-padding" expanded data-testid="floorplan-expansion-panel">
+					<mat-expansion-panel-header class="phd-fav-group">
+						<mat-panel-title class="d-flex justify-content-between" data-testid="panel-title">
+							Floorplan Image
+						</mat-panel-title>
+					</mat-expansion-panel-header>
+					<div class="phd-floorplan-disclaimer py-3" data-testid="floorplan-disclaimer">
+						{{floorplanDisclaimerText}}</div>
+					<floorplan-image-tabs showExpandImageIcons="true" showImageContainerBorder="true" imageHeight="200px" data-testid="floorplan-image-tabs"></floorplan-image-tabs>
+				</mat-expansion-panel>
+			</mat-accordion>
+		</div>
 	</ng-container>
 
 	<!-- no group section -->         
@@ -120,10 +138,8 @@
         <button *ngIf="showPendingAndContractedToggle" class="py-3 phd-fav-link-button" (click)="onContractedOptionsToggled($event)">{{showOptionText}}</button>
     </div>
 
-	<!-- floorplan section -->
-
 	<!-- bottom disclaimer -->
-	<span class="phd-fav-disclaimer px-3 pt-1">
+	<span class="phd-fav-disclaimer px-3">
 		{{disclaimerText}}
 	</span>
 </div> 

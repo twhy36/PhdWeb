@@ -297,8 +297,7 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 		const selectedAttributes: DesignToolAttribute[] = [...this.currentChoice.selectedAttributes];
 
 		const attributeIndex = this.currentChoice.selectedAttributes.findIndex(x =>
-			x.attributeId === attribute.id &&
-			x.attributeGroupId === attributeGroup.id);
+			x.attributeId === attribute.id && x.attributeGroupId === attributeGroup.id);
 
 		if (attributeIndex > -1)
 		{

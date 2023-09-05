@@ -105,7 +105,7 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			this.takeUntilDestroyed(),
 		).subscribe(canEdit => this.canEdit = canEdit);
 
-		combineLatest([this._orgService.currentMarket$, this._orgService.currentCommunity$]).pipe(
+		combineLatest([this._orgService.getCurrentMarket(), this._orgService.currentCommunity$]).pipe(
 			this.takeUntilDestroyed(),
 			switchMap(([mkt, comm]) =>
 			{

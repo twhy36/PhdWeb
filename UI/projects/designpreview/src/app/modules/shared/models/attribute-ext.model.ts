@@ -1,4 +1,4 @@
-import { Attribute, AttributeGroup } from 'phd-common'
+import { Attribute, AttributeGroup, DesignToolAttribute } from 'phd-common';
 
 export class AttributeExt implements Attribute
 {
@@ -51,4 +51,28 @@ export class ChoiceAttributeGroup
 {
 	id: number;
 	sortOrder: number;
+}
+
+export class MappedAttribute implements DesignToolAttribute
+{
+	attributeGroupId: number;
+	attributeGroupLabel: string;
+	attributeGroupName: string;
+	attributeId: number;
+	attributeImageUrl: string;
+	attributeName: string;
+	manufacturer: string;
+	sku: string;
+	locationGroupId: number;
+	locationGroupLabel: string;
+	locationGroupName: string;
+	locationId: number;
+	locationName: string;
+	locationQuantity: number;
+	scenarioChoiceLocationId: number;
+	scenarioChoiceLocationAttributeId: number;
+	selected?: boolean;
+	action?: string;
+	attributeReassignmentFromChoiceId?: number;
+	attributes?: DesignToolAttribute[];
 }

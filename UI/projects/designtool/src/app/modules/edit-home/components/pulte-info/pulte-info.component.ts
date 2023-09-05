@@ -13,13 +13,15 @@ import _ from 'lodash';
 import { SalesInfoService } from '../../../core/services/sales-info.service';
 import { SalesProgram } from '../../../shared/models/sales-program.model';
 
+
 @Component({
 	selector: 'pulte-info',
 	templateUrl: './pulte-info.component.html',
 	styleUrls: ['./pulte-info.component.scss']
 	})
 export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
-{
+{	
+
 	params$ = new ReplaySubject<{ jobId: number }>(1);
 	job: Job;
 	jobId: number;
@@ -45,6 +47,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	priceBreakdown$: Observable<PriceBreakdown>;
 	isChangingOrder$: Observable<boolean>;
 	isChangingOrder: boolean;
+	textareaStyleClass: string;
 
 	get actionBarStatus(): string
 	{
@@ -73,7 +76,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		this.canSell$ = this.store.pipe(select(fromRoot.canSell));
 		this.priceBreakdown$ = this.store.pipe(select(fromRoot.priceBreakdown));
-
+		
 		this.isChangingOrder$ = this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.changeOrder),
@@ -152,7 +155,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 
 					this.pulteInfo = new SpecInformation(pulteInfo);
 					this.pulteInfo.discountExpirationDate = this.formatDate(this.pulteInfo.discountExpirationDate);
-
+					
 					const minDate = new Date();
 					this.minDate = new Date(minDate.setDate(minDate.getDate() + 1));
 				}
@@ -160,7 +163,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 				this.qmiSalesProgram = programs.find(x => this.specDiscountService.checkIfSpecDiscount(x.name));
 				this.loadingInfo = false;
 				this.pulteInfoSet = true;
-				this.createForm();
+				this.createForm();				
 			}
 			else if (job.id && !this.loadingInfo)
 			{
@@ -169,7 +172,7 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			}
 		});
 	}
-
+	
 	createForm()
 	{
 		this.pulteInfoForm = new UntypedFormGroup({
@@ -201,16 +204,21 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 			this.checkDiscountAmount();
 		});
 
+		this.pulteInfoForm.controls['displayOnPulte'].valueChanges.subscribe((value: boolean) =>
+		{
+			this.checkIsPublishedOnWebSite();
+		});
+				
 		this.toggleFormControls();
 	}
-
+			
 	toggleFormControls()
 	{
 		this.cd.detectChanges();
-
+		
 		for (const control in this.pulteInfoForm.controls)
 		{
-			if (!this.canEdit || ((control == 'discountExpirationDate' || control == 'discountAmount') && !this.canEditSpecDiscount))
+			if (!this.canEdit || ((control == 'discountExpirationDate' || control == 'discountAmount' || control == 'displayOnPulte') && !this.canEditSpecDiscount))
 			{
 				this.pulteInfoForm.controls[control].disable();
 			}
@@ -307,8 +315,40 @@ export class PulteInfoComponent extends UnsubscribeOnDestroy implements OnInit
 		this.pulteInfoForm.controls['discountExpirationDate'].updateValueAndValidity();
 	}
 
+	checkIsPublishedOnWebSite()
+	{
+
+		if (this.pulteInfoForm.get('displayOnPulte').value as boolean)
+		{
+			this.pulteInfoForm.controls['keySellingPoint1'].setValidators([Validators.required]);
+			this.pulteInfoForm.controls['keySellingPoint2'].setValidators([Validators.required]);
+			this.pulteInfoForm.controls['keySellingPoint3'].setValidators([Validators.required]);
+			this.pulteInfoForm.controls['keySellingPoint4'].setValidators([Validators.required]);
+			this.pulteInfoForm.controls['keySellingPoint5'].setValidators([Validators.required]);
+			this.pulteInfoForm.controls['keySellingPoint6'].setValidators([Validators.required]);
+		}
+		else
+		{
+			this.pulteInfoForm.controls['keySellingPoint1'].clearValidators();
+			this.pulteInfoForm.controls['keySellingPoint2'].clearValidators();
+			this.pulteInfoForm.controls['keySellingPoint3'].clearValidators();
+			this.pulteInfoForm.controls['keySellingPoint4'].clearValidators();
+			this.pulteInfoForm.controls['keySellingPoint5'].clearValidators();
+			this.pulteInfoForm.controls['keySellingPoint6'].clearValidators();
+		}
+
+		this.pulteInfoForm.controls['keySellingPoint1'].updateValueAndValidity();
+		this.pulteInfoForm.controls['keySellingPoint2'].updateValueAndValidity();
+		this.pulteInfoForm.controls['keySellingPoint3'].updateValueAndValidity();
+		this.pulteInfoForm.controls['keySellingPoint4'].updateValueAndValidity();
+		this.pulteInfoForm.controls['keySellingPoint5'].updateValueAndValidity();
+		this.pulteInfoForm.controls['keySellingPoint6'].updateValueAndValidity();
+
+	}
+
 	allowNavigation(): boolean
 	{
 		return !this.pulteInfoForm?.dirty;
 	}
+	
 }

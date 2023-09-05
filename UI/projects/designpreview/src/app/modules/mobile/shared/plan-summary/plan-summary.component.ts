@@ -18,6 +18,7 @@ export class PlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 	communityName: string;
 	planName: string;
 	lotAddress: string;
+	lotNumber: string;
 
 	constructor(private store: Store<fromRoot.State>)
 	{
@@ -55,8 +56,8 @@ export class PlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 				&& (lot.postalCode && lot.postalCode.length))
 			{
 				const address2 = lot.streetAddress2 ? ' ' + lot.streetAddress2 : '';
-
-				this.lotAddress = `LOT ${lot.lotBlock}, ${lot.streetAddress1}${address2}, ${lot.city}, ${lot.stateProvince} ${lot.postalCode}`;
+				this.lotAddress = `${lot.streetAddress1}${address2}, ${lot.city}, ${lot.stateProvince} ${lot.postalCode}`;
+				this.lotNumber = `LOT ${lot.lotBlock}`;
 			}
 		});
 	}

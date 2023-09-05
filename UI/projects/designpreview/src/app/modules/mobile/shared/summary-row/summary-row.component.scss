@@ -1,7 +1,61 @@
-.phd-fav-row-container {
-	margin: 0 10px;
+.phd-fav-decision-point-container {
 	transition: all .3s;
 	min-height: 60px;
-	display: flex;
-	justify-content: flex-start;
+}
+
+.phd-decision-point-label {
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.phd-choices-container {
+	padding-left: 24px;
+}
+
+.phd-choice-label {
+	font-size: 12px;
+}
+
+.phd-quantity-label, .phd-price, .phd-pricing-varies {
+	font-size: 12px;
+	letter-spacing: 0.3px;
+}
+
+.phd-price {
+	font-weight: bold;
+}
+
+.phd-additional-selections-warning {
+	font-size: 11px;
+
+	mat-icon {
+		transform: scale(0.6);
+	}
+}
+
+.phd-summary-actions {
+	font-size: 14px;
+
+	mat-icon {
+		transform: scale(1.1);
+	}
+}
+
+.phd-expand-location-button {
+	height: 1.4rem;
+	width: 1.5rem;
+	margin: 0;
+	padding: 0;
+
+	mat-icon {
+		transform: scale(0.8);
+	}
+}
+
+.phd-tooltip-icon {
+	transform: scale(0.7)
+}
+
+hr {
+	border-top: 2px solid rgba(0, 0, 0, .1);
 }
