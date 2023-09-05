@@ -12,10 +12,10 @@ import { BuildMode } from '../../models/build-mode.model';
 	templateUrl: './decision-point-summary.component.html',
 	styleUrls: ['./decision-point-summary.component.scss'],
 	animations: [
-	flipOver2
+		flipOver2
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush
-	})
+})
 export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {
 	@Input() decisionPoint: DecisionPoint;
@@ -75,6 +75,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 		const choices = this.includeContractedOptions || this.contractedOptionsPage
 			? this.decisionPoint.choices
 			: this.decisionPoint.choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
+
 		this.choicesCustom = choices.map(c => new ChoiceCustom(c));
 	}
 
@@ -108,7 +109,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 	{
 		if (name)
 		{
-			if (name.charAt(name.length-1) === ':')
+			if (name.charAt(name.length - 1) === ':')
 			{
 				return name;
 			}
@@ -153,7 +154,7 @@ export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implemen
 			this.router.navigate(['favorites', 'my-favorites', this.favoritesId, this.subGroup.subGroupCatalogId, choice.divChoiceCatalogId], { queryParamsHandling: 'merge' });
 		}
 	}
-	
+
 }
 
 class ConsolidatedAttributeGroup
@@ -190,7 +191,7 @@ class ChoiceCustom extends Choice
 		super(c);
 
 		this.showAttributes = this.hasMappedAttributes;
-		this.mappedSelectedAttributes = this.selectedAttributes.filter(attr => attr.attributeId === null).map(attr => ({...attr, attributes: []}));
+		this.mappedSelectedAttributes = this.selectedAttributes.filter(attr => attr.attributeId === null).map(attr => ({ ...attr, attributes: [] }));
 
 		this.selectedAttributes.filter(attr => attr.attributeId !== null).forEach(selectedAttribute =>
 		{
@@ -202,9 +203,9 @@ class ChoiceCustom extends Choice
 			}
 			else
 			{
-				this.mappedSelectedAttributes.push({...selectedAttribute, attributes: [selectedAttribute]})
+				this.mappedSelectedAttributes.push({ ...selectedAttribute, attributes: [selectedAttribute] })
 			}
-		})
+		});
 	}
 }
 
