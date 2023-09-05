@@ -4,13 +4,13 @@
 
 <portal-item title="Buyer Tracker" icon="tasks" [action]="buyerTrackerAction"></portal-item>
 
-<portal-item title="Pulte Home Designer - Create Spec or Model Homes" icon="home" *requiresClaim="'SpecOrModel'; permission: Permission.Create" #spec>
+<portal-item title="Create Specs and Models" icon="home" *requiresClaim="'SpecOrModel'; permission: Permission.Create" #spec>
 	<ng-template>
 		<spec-homes [action]="specAction" (onClose)="spec.close()"></spec-homes>
 	</ng-template>
 </portal-item>
 
-<portal-item title="Pulte Home Designer - Choice Admin" icon="wrench" [action]="choiceAdminAction" *requiresClaim="'NationalCatalog'; permission: Permission.Read"></portal-item>
+<portal-item title="Choice Admin" icon="wrench" [action]="choiceAdminAction" *requiresClaim="'NationalCatalog'; permission: Permission.Read"></portal-item>
 
 <portal-item title="Reporting" icon="chart-pie" *ngIf="canAccessReports" [action]="reportsAction" #reporting></portal-item>
 
