@@ -59,6 +59,10 @@ import { PhoneNumberDirective } from './directives';
 import { InputFilterDirective } from './directives/input-filter.directive';
 import { FloorPlanComponent } from './components/floor-plan/floor-plan.component';
 import { NewHomeService } from '../new-home/services/new-home.service';
+import { AutoResizeTextareaDirective } from './directives/auto-size-textarea.directive';
+import { AutoResizeInputDirective } from './directives/auto-size-input.directive';
+
+ 
 
 @NgModule({
 	exports: [
@@ -99,6 +103,8 @@ import { NewHomeService } from '../new-home/services/new-home.service';
 		PlanComponent,
 		PlanCardComponent,
 		InputFilterDirective,
+		AutoResizeTextareaDirective,
+		AutoResizeInputDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
 		PriceRangePipe,
@@ -145,6 +151,8 @@ import { NewHomeService } from '../new-home/services/new-home.service';
 		PlanComponent,
 		PlanCardComponent,
 		InputFilterDirective,
+		AutoResizeTextareaDirective,
+		AutoResizeInputDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
 		PriceRangePipe,
