@@ -8,9 +8,9 @@
 	</div>
 
     <div *ngIf="canAccessSalesAdmin && !hideMarket">
-        <select class="form-control ml-3" [ngModel]="orgService.currentMarket$ | async" (ngModelChange)="onSelectedMarketChange($event)">
+        <select class="form-control ml-3" [ngModel]="market" (ngModelChange)="onSelectedMarketChange($event)">
             <option [ngValue]="null" disabled="disabled">Division</option>
-            <option *ngFor="let market of (orgService.salesMarkets | async)" [ngValue]="market">{{market.name}}</option>
+            <option *ngFor="let market of (_orgService.salesMarkets | async)" [ngValue]="market">{{market.name}}</option>
         </select>
     </div>
 </nav>

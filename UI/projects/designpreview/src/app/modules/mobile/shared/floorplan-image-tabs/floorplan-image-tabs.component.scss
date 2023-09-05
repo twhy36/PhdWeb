@@ -1,0 +1,19 @@
+.phd-floorplan-image-container {
+	border: 1px solid #707070;
+	position: relative;
+
+	.phd-expand-floorplan-icon {
+		position: absolute;
+		top: 5px;
+		right: 0;
+		border: none;
+		background-color: transparent;
+	}
+}
+
+@media print {
+	.phd-hide-from-print {
+		display: none;
+		height: 0;
+	}
+}

@@ -52,7 +52,8 @@ export class OrganizationService
 	}
 
 	private readonly _currentMarket = new Subject<FinancialMarket>();
-	get currentMarket$(): Observable<FinancialMarket>
+
+	getCurrentMarket(): Observable<FinancialMarket>
 	{
 		return this.salesMarkets.pipe(
 			// provide an initial value by waiting for the market list to come back and returning the
@@ -136,7 +137,9 @@ export class OrganizationService
 		if (this.currentFinancialCommunityId !== commId)
 		{
 			this.currentFinancialCommunityId = commId;
+
 			this._homesiteService.loadCommunityLots(commId);
+
 			this._finCommObs.pipe(
 				take(1),
 				map(comms => comms.find(comm => comm.id === commId)),
@@ -157,19 +160,22 @@ export class OrganizationService
 		this._salesMarketsObs = this.getMarkets().pipe(
 			publishReplay(1)
 		) as ConnectableObservable<Array<FinancialMarket>>;
+
 		this._salesMarketsObs.connect();
+
 		this.salesMarkets = this._salesMarketsObs;
 
 		// initialize selected community
-		this.currentMarket$.pipe(
+		this.getCurrentMarket().pipe(
 			take(1),
 			switchMap(mkt =>
 			{
 				return mkt ? this.getFinancialCommunities(mkt.id) : of([]);
-			})).subscribe(comms =>
-			{
-				return this._currentComm.next(comms.find(comm => comm.id === this.currentFinancialCommunityId));
-			});
+			})
+		).subscribe(comms =>
+		{
+			return this._currentComm.next(comms.find(comm => comm.id === this.currentFinancialCommunityId));
+		});
 
 		// do this to make sure new subscribers always get the most recently selected community
 		this.currentCommunity$ = this._currentComm.pipe(
@@ -262,7 +268,7 @@ export class OrganizationService
 
 	createInternalOrg(edhOrg: FinancialCommunity | FinancialMarket): Observable<any>
 	{
-		let obs = this.isCommunity(edhOrg) ? this.getFinancialCommunity(edhOrg.id, true).pipe(map(comm => comm.market)) : of(edhOrg);
+		const obs = this.isCommunity(edhOrg) ? this.getFinancialCommunity(edhOrg.id, true).pipe(map(comm => comm.market)) : of(edhOrg);
 
 		return obs.pipe(
 			switchMap(mkt =>
@@ -271,7 +277,7 @@ export class OrganizationService
 
 				url += `orgs`;
 
-				let org: { edhMarketId: number, edhFinancialCommunityId: number, integrationKey: string } = <any>{};
+				const org: { edhMarketId: number, edhFinancialCommunityId: number, integrationKey: string } = <any>{};
 
 				if (this.isCommunity(edhOrg))
 				{
@@ -345,7 +351,8 @@ export class OrganizationService
 				salesCommunityId: financialCommunity.salesCommunityId
 			};
 			return this._http.patch(endpoint, payload).pipe(
-				map((response: Object) => {
+				map((response: Object) =>
+				{
 					return response as FinancialCommunity;
 				}),
 				catchError(this.handleError));
@@ -357,7 +364,7 @@ export class OrganizationService
 		let url = settings.apiUrl;
 
 		const filter = `financialCommunityId eq ${id}`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
 		url += `financialCommunityInfos?${qryStr}`;
 
@@ -377,7 +384,8 @@ export class OrganizationService
 			url += `financialCommunityInfos(${financialCommunityInfo.financialCommunityId})`;
 
 			return this._http.patch(url, financialCommunityInfo).pipe(
-				map((response: Object) => {
+				map((response: Object) =>
+				{
 					return response as FinancialCommunityInfo;
 				}),
 				catchError(this.handleError));
@@ -388,7 +396,8 @@ export class OrganizationService
 			url += `financialCommunityInfos`;
 
 			return this._http.post(url, financialCommunityInfo).pipe(
-				map((response: Object) => {
+				map((response: Object) =>
+				{
 					return response as FinancialCommunityInfo;
 				}),
 				catchError(this.handleError));
@@ -400,7 +409,7 @@ export class OrganizationService
 		const entity = `salesCommunities`;
 		const filter = `id eq ${salesCommunityId}`;
 
-		let qryStr = `${this._ds}filter=${encodeURIComponent(filter)}`;
+		const qryStr = `${this._ds}filter=${encodeURIComponent(filter)}`;
 
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
@@ -424,7 +433,8 @@ export class OrganizationService
 		if (salesCommunity.id > 0)
 		{
 			return this._http.patch(endpoint, salesCommunity).pipe(
-				map((response: Object) => {
+				map((response: Object) =>
+				{
 					return response as SalesCommunity;
 				}),
 				catchError(this.handleError));
@@ -437,7 +447,7 @@ export class OrganizationService
 		const expand = `salesCommunityWebSiteCommunityAssocs($select=webSiteCommunity;$filter=(webSiteCommunity/orgStatusDescription eq 'Active') and websiteCommunity/webSiteIntegrationKey ne '';$expand=websiteCommunity($select=id,name,websiteIntegrationKey))`;
 		const select = `id`;
 
-		let qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}`;
+		const qryStr = `${this._ds}select=${encodeURIComponent(select)}&${this._ds}expand=${encodeURIComponent(expand)}`;
 
 		const endpoint = `${settings.apiUrl}${entity}?${qryStr}`;
 
@@ -446,7 +456,7 @@ export class OrganizationService
 			{
 				const r = response.salesCommunityWebSiteCommunityAssocs as ISalesCommunityWebSiteCommunityAssoc[];
 
-				let websiteCommunities = r.map(x => x.webSiteCommunity).filter(x =>
+				const websiteCommunities = r.map(x => x.webSiteCommunity).filter(x =>
 				{
 					if (x.webSiteIntegrationKey)
 					{
@@ -467,14 +477,14 @@ export class OrganizationService
 		let url = settings.apiUrl;
 
 		const filter = `edhMarketId eq ${marketId}`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
 		url += `orgs?${qryStr}`;
 
 		this._internalOrgs$ = this._http.get(url).pipe(
 			map(response =>
 			{
-				let orgs = response['value'] as Array<Org>;
+				const orgs = response['value'] as Array<Org>;
 
 				return orgs;
 			}),
@@ -489,18 +499,19 @@ export class OrganizationService
 
 	getOrgs(reorgs: Array<IReOrg>): Observable<Array<IReOrg>>
 	{
-		let targetOrgs = reorgs.map(x => x.targetMarketId);
-		let sourceOrgs = reorgs.map(x => x.sourceMarketId);
-		let orgIds = [...new Set([...targetOrgs, ...sourceOrgs])];
+		const targetOrgs = reorgs.map(x => x.targetMarketId);
+		const sourceOrgs = reorgs.map(x => x.sourceMarketId);
+		const orgIds = [...new Set([...targetOrgs, ...sourceOrgs])];
 		let url = settings.apiUrl;
 		const filter = `OrgId in (${orgIds.join(',')})`;
-		const qryStr = `${encodeURIComponent("$")}filter=${encodeURIComponent(filter)}`;
+		const qryStr = `${encodeURIComponent('$')}filter=${encodeURIComponent(filter)}`;
 
 		url += `orgs?${qryStr}`;
 		return this._http.get(url).pipe(
 			map(response =>
 			{
-				let orgs = response['value'] as Array<Org>;
+				const orgs = response['value'] as Array<Org>;
+
 				reorgs.map(reorg =>
 				{
 					reorg.sourceMarketId = orgs.find(org => org.orgID === reorg.sourceMarketId).edhMarketId;
@@ -522,7 +533,7 @@ export class OrganizationService
 
 	canEdit(claimType: ClaimTypes): Observable<boolean>
 	{
-		return this.currentMarket$.pipe(
+		return this.getCurrentMarket().pipe(
 			switchMap(mkt => this._identityService.hasClaimWithPermission(claimType, Permission.Edit).pipe(
 				combineLatest(this._identityService.hasMarket(mkt.number))
 			)),

@@ -14,23 +14,27 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, Routes } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { PhdCommonModule } from 'phd-common';
 import { CarouselModule } from 'primeng/carousel';
 
 // External Modules
+import { PhdCommonModule } from 'phd-common';
+import { BuildMode } from '../shared/models/build-mode.model';
 import { LoggedInGuard } from '../core/guards/logged-in.guard';
 import { SharedModule } from '../shared/shared.module';
-import { BuildMode } from '../shared/models/build-mode.model';
 
 // Mobile Module
 import { ActionBarComponent } from './shared/action-bar/action-bar.component';
 import { ChoiceCardDetailComponent } from './choice-card-detail/choice-card-detail.component';
+import { CloudinaryModule } from '@cloudinary/ng';
 import { EstimatedTotalsComponent } from './shared/estimated-totals/estimated-totals.component';
+import { FloorplanImageDialogComponent } from './shared/floorplan-image-dialog/floorplan-image-dialog.component';
+import { FloorplanImageTabsComponent } from './shared/floorplan-image-tabs/floorplan-image-tabs.component';
 import { GlobalFooterComponent } from './global-footer/global-footer.component';
 import { GlobalHeaderComponent } from './global-header/global-header.component';
 import { HamburgerMenuComponent } from './hamburger-menu/hamburger-menu.component';
@@ -38,6 +42,7 @@ import { LandingComponent } from './landing/landing.component';
 import { MobileComponent } from './mobile.component';
 import { OptionsComponent } from './options/options.component';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+import { SummaryAttributeLocationRowComponent } from './shared/summary-attribute-location-row/summary-attribute-location-row.component';
 import { GroupListComponent } from './shared/group-list/group-list.component';
 import { ChoiceCardComponent } from './shared/choice-card/choice-card.component';
 import { SummaryComponent } from './summary/summary.component';
@@ -120,33 +125,34 @@ const moduleRoutes: Routes = [
 @NgModule({
 	exports: [LandingComponent],
 	declarations: [
-		MobileComponent,
-		GlobalHeaderComponent,
-		HamburgerMenuComponent,
-		LandingComponent,
-		MobileComponent,
-		HamburgerMenuComponent,
-		GlobalHeaderComponent,
-		GlobalFooterComponent,
-		ConfirmDialogComponent,
-		OptionsComponent,
-		GroupListComponent,
+		ActionBarComponent,
+		AttributeGroupComponent,
 		ChoiceCardComponent,
 		ChoiceCardDetailComponent,
-		ActionBarComponent,
-		EstimatedTotalsComponent,
+		ChoiceDeclineCardComponent,
 		ConfirmDialogComponent,
+		EstimatedTotalsComponent,
+		FloorplanImageDialogComponent,
+		FloorplanImageTabsComponent,
+		GlobalFooterComponent,
+		GlobalHeaderComponent,
+		GroupListComponent,
+		HamburgerMenuComponent,
+		LandingComponent,
+		LocationGroupComponent,
+		MobileComponent,
+		OptionsComponent,
+		PlanSummaryComponent,
+		PendingAndContractedToggleComponent,
+		SummaryAttributeLocationRowComponent,
 		SummaryComponent,
 		SummaryRowComponent,
 		ViewOptionsLinkComponent,
-		PlanSummaryComponent,
-		ChoiceDeclineCardComponent,
-  		PendingAndContractedToggleComponent,
-		AttributeGroupComponent,
-		LocationGroupComponent,
 	],
 	imports: [
 		BrowserAnimationsModule,
+		CarouselModule,
+		CloudinaryModule,
 		CommonModule,
 		FormsModule,
 		MatButtonModule,
@@ -155,15 +161,13 @@ const moduleRoutes: Routes = [
 		MatExpansionModule,
 		MatFormFieldModule,
 		MatIconModule,
-		MatMenuModule,
-		MatSidenavModule,
-		NgbModule,
-		CarouselModule,
 		MatListModule,
 		MatMenuModule,
 		MatSelectModule,
 		MatSidenavModule,
+		MatTabsModule,
 		MatTooltipModule,
+		NgbModule,
 		PhdCommonModule,
 		RouterModule.forChild(moduleRoutes),
 		SharedModule,

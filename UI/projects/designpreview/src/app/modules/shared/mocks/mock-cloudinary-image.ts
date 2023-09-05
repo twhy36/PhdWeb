@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { ImagePlugins } from 'phd-common';
 
 @Component({
 	selector: 'image',
@@ -7,6 +8,7 @@ import { Component, Input } from '@angular/core';
 })
 export class MockCloudinaryImageComponent
 {
-	@Input() 'imageUrl': string;
-	@Input() 'defaultImage': string;
+	@Input() imageUrl: string;
+	@Input() defaultImage: string;
+	@Input() imagePlugins: ImagePlugins[];
 }

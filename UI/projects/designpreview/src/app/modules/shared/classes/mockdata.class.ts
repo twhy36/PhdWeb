@@ -2,8 +2,10 @@ import
 {
 	Choice,
 	DecisionPoint,
+	DesignToolAttribute,
 	Group,
 	JobChoice,
+	LotExt,
 	MyFavorite,
 	MyFavoritesChoice,
 	MyFavoritesPointDeclined,
@@ -14,6 +16,8 @@ import
 	TreeVersion,
 } from 'phd-common';
 import { ChoiceExt } from '../models/choice-ext.model';
+import * as fromFavorite from '../../ngrx-store/favorite/reducer';
+import * as fromPlan from '../../ngrx-store/plan/reducer';
 import { AttributeGroupExt } from '../models/attribute-ext.model';
 
 export const testUpdatedChoiceAttributeGroups: AttributeGroupExt[] = 
@@ -352,7 +356,7 @@ export const mockPoint1: DecisionPoint = {
 	status: 4,
 	choices: [],
 	viewed: false,
-}
+};
 
 export const mockPoint2: DecisionPoint = {
 	enabled: true,
@@ -384,8 +388,8 @@ export const mockPoint2: DecisionPoint = {
 		{
 			id: 0
 		} as Choice
-	] as Choice []
-}
+	] as Choice[]
+};
 
 export const mockPoint3: DecisionPoint = {
 	enabled: true,
@@ -417,8 +421,8 @@ export const mockPoint3: DecisionPoint = {
 		{
 			id: 0
 		} as Choice
-	] as Choice []
-}
+	] as Choice[]
+};
 
 export const choiceToChoiceMustHaveRulePoint: DecisionPoint = {
 	enabled: true,
@@ -853,8 +857,8 @@ export const choiceToChoiceMustNotHaveRulePoint: DecisionPoint = {
 			enabled: false,
 			maxQuantity: 1,
 			options: [],
-			price: 0,
-			quantity: 0,
+			price: 650,
+			quantity: 1,
 			selectedAttributes: [],
 			lockedInOptions: [],
 			changedDependentChoiceIds: [],
@@ -1409,7 +1413,7 @@ export const testDecisionPoint: DecisionPoint = {
 	],
 	completed: false,
 	status: 0
-}
+};
 
 export const testMyFavorite: MyFavorite = {
 	id: 1,
@@ -1488,7 +1492,7 @@ export const mockMyFavoritePointDeclined: MyFavoritesPointDeclined = {
 	myFavoriteId: -1,
 	dPointId: 17,
 	divPointCatalogId: 666,
-}
+};
 
 export const testMyFavoriteStateWithoutSalesChoices = {
 	myFavorites: [
@@ -1509,7 +1513,7 @@ export const testMyFavoriteStateWithoutSalesChoices = {
 					divChoiceCatalogId: 22457,
 					myFavoritesChoiceAttributes: [],
 					myFavoritesChoiceLocations: []
-				  } as MyFavoritesChoice
+				} as MyFavoritesChoice
 			],
 			myFavoritesPointDeclined: []
 		}
@@ -1519,7 +1523,7 @@ export const testMyFavoriteStateWithoutSalesChoices = {
 	saveError: false,
 	salesChoices: [],
 	includeContractedOptions: false
-}
+};
 
 export const testMyFavoriteStateWithSalesChoices = {
 	myFavorites: [
@@ -1550,7 +1554,7 @@ export const testMyFavoriteStateWithSalesChoices = {
 	saveError: false,
 	salesChoices: mockSalesChoices,
 	includeContractedOptions: false
-}
+};
 
 export const mockPlan: Plan = {
 	id: 111,
@@ -1665,3 +1669,89 @@ export const testGroups: Group[] =[{
 	}],
 	status: PointStatus.REQUIRED
 }];
+
+export const mockDesignToolAttribute: DesignToolAttribute = {
+	attributeGroupId: 0,
+	attributeGroupLabel: 'attribute label',
+	attributeGroupName: 'attribute group name',
+	attributeId: 0,
+	attributeImageUrl: 'attribute image url',
+	attributeName: 'attribute name',
+	manufacturer: 'attribute manufacturer',
+	sku: 'attribute sku',
+	locationGroupId: 0,
+	locationGroupLabel: 'attribute group label',
+	locationGroupName: 'attribute location group name',
+	locationId: 0,
+	locationName: 'attribute location name',
+	locationQuantity: 0,
+	scenarioChoiceLocationId: 0,
+	scenarioChoiceLocationAttributeId: 0
+};
+
+export const mockPlanState: fromPlan.State = {
+	plans: [],
+	hasError: false,
+	marketingPlanId: [1],
+	selectedPlanLoading: false,
+	plansLoading: false
+};
+
+export const mockMyFavoritesChoice: MyFavoritesChoice = {
+	id: 0,
+	myFavoriteId: 0,
+	choiceDescription: '',
+	dpChoiceId: 0,
+	dpChoiceQuantity: 0,
+	groupLabel: '',
+	subGroupLabel: '',
+	decisionPointLabel: '',
+	sortOrder: 0,
+	divChoiceCatalogId: 0,
+};
+
+export const mockFavoriteState: fromFavorite.State = {
+	myFavorites: [{ id: 1, name: 'name', salesAgreementId: 1, myFavoritesChoice: [mockMyFavoritesChoice] }],
+	selectedFavoritesId: 0,
+	isLoading: false,
+	saveError: false,
+	salesChoices: [],
+	includeContractedOptions: false,
+};
+
+export const mockLot: LotExt = {
+	viewAdjacency: [],
+	streetAddress1: 'Street Address 1',
+	streetAddress2: 'Street Address 2',
+	city: 'Atlanta',
+	stateProvince: 'GA',
+	postalCode: '33333',
+	lotPhysicalLotTypeAssocs: [],
+	financialCommunity: undefined,
+	unitNumber: '',
+	salesBldgNbr: '',
+	alternateLotBlock: '',
+	constructionPhaseNbr: '',
+	salesPhase: undefined,
+	county: '',
+	closeOfEscrow: undefined,
+	fieldManagerLotAssocs: [],
+	customerCareManagerLotAssocs: [],
+	fieldManager: [],
+	customerCareManager: undefined,
+	physicalLotTypes: [],
+	id: 0,
+	lotBlock: '1001',
+	premium: 0,
+	lotStatusDescription: '',
+	lotHandingAssocs: [],
+	foundationType: '',
+	lotBuildTypeDesc: '',
+	planAssociations: [],
+	monotonyRules: [],
+	jobs: [],
+	financialCommunityId: 0,
+	isMasterUnit: false,
+	handings: []
+};
+

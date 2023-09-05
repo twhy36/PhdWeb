@@ -13,7 +13,12 @@ export function findElementByTestId<T>(
 export function findAllElementsByTestId<T>(
 	fixture: ComponentFixture<T>,
 	testId: string
-): DebugElement[]
+): DebugElement[] 
 {
 	return fixture.debugElement.queryAll(By.css(`[data-testid='${testId}']`));
+}
+
+export function findAllElementsByRole<T>(fixture: ComponentFixture<T>, role: string): DebugElement[]
+{
+	return fixture.debugElement.queryAll(By.css(`[role="${role}"]`));
 }

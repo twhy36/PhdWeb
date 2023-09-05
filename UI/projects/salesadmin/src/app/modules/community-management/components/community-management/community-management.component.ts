@@ -41,7 +41,7 @@ export class CommunityManagementComponent extends UnsubscribeOnDestroy implement
 
 	ngOnInit(): void
 	{
-		this._orgService.currentMarket$.pipe(
+		this._orgService.getCurrentMarket().pipe(
 			this.takeUntilDestroyed(),
 			switchMap(mkt =>
 			{
