@@ -70,6 +70,7 @@ export class PlanViewModel
 	financialCommunityName: string;
 	details: string;
 	loadingLots: boolean = true;
+	hasPublishedTree: boolean = false;
 
 	constructor(dto: IPlanDto, selectedCommunity: FinancialCommunityViewModel)
 	{
