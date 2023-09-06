@@ -208,6 +208,20 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 
 				// Point-To-Choice && Point-To-Point
 				hidePointsByStructuralItems(newState.rules.pointRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);
+
+				// check/update post contract pricing visibility for all selected choices
+				if (action.type === CommonActionTypes.SalesAgreementLoaded)
+				{
+					newState.tree.treeVersion.groups.map(g => g.subGroups.map(sg => sg.points.map(p =>
+						p.choices.map(c =>
+						{
+							if (c.priceHiddenFromBuyerView && c.quantity)
+							{
+								c.priceHiddenFromBuyerView = false;
+							}
+						})
+					)));
+				}
 			}
 
 			return { ...state, ...newState };
@@ -423,13 +437,11 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 		}
 
 		case ScenarioActionTypes.SetPresalePricingEnabled:
-		{
 			return { ...state, presalePricingEnabled: action.isEnabled };
-		}
 
 		case ScenarioActionTypes.SetChoicePriceRanges:
 			return { ...state, priceRanges: action.priceRanges };
-			
+
 		case ScenarioActionTypes.CurrentAttribute:
 			return { ...state, currentAttribute: action.curAttribute };
 

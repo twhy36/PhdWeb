@@ -309,32 +309,32 @@ export class CommonEffects
 		prev: boolean;
 		current: boolean;
 	}> = createEffect(
-		() => this.actions$.pipe(
-			withLatestFrom(this.store.pipe(select(showSpinner))),
-			map(([action, showSpinner]) =>
-			{
-				return showSpinner;
-			}),
-			scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
-			tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
-			{
-				if (showSpinnerScan.prev !== showSpinnerScan.current)
+			() => this.actions$.pipe(
+				withLatestFrom(this.store.pipe(select(showSpinner))),
+				map(([action, showSpinner]) =>
 				{
-					this.spinnerService.showSpinner(showSpinnerScan.current);
-				}
-			})),
-		{ dispatch: false }
-	);
+					return showSpinner;
+				}),
+				scan((prev, current) => ({ prev: prev.current, current: current }), { prev: false, current: false }),
+				tap((showSpinnerScan: { prev: boolean; current: boolean; }) =>
+				{
+					if (showSpinnerScan.prev !== showSpinnerScan.current)
+					{
+						this.spinnerService.showSpinner(showSpinnerScan.current);
+					}
+				})),
+			{ dispatch: false }
+		);
 
 	hasError$: Observable<Action> = createEffect(
 		() => this.actions$.pipe(
 			scan((prev, action) =>
-			({
-				prev: prev.action,
-				action: action instanceof (ErrorAction),
-				err: action
-			}),
-				{ prev: false, action: false, err: <ErrorAction>null }
+				({
+					prev: prev.action,
+					action: action instanceof (ErrorAction),
+					err: action
+				}),
+			{ prev: false, action: false, err: <ErrorAction>null }
 			),
 			filter((errorScan: { prev: boolean; action: boolean; err: Action; }) => !errorScan.prev && errorScan.action),
 			map((errorScan: { prev: boolean; action: boolean; err: Action; }) =>
