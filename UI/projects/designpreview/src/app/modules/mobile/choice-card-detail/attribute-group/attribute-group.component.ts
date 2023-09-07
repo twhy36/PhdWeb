@@ -1,16 +1,12 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-
 import { Observable, combineLatest, of } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { map, switchMap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-
 import { ChoiceExt } from '../../../shared/models/choice-ext.model';
 import { AttributeGroup, DesignToolAttribute, LocationGroup, MyFavorite, UnsubscribeOnDestroy, Attribute, MyFavoritesPointDeclined } from 'phd-common';
-
 import { AdobeService } from '../../../core/services/adobe.service';
 import { AttributeService } from '../../../core/services/attribute.service';
-
 import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as FavoriteActions from '../../../ngrx-store/favorite/actions';

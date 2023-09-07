@@ -15,7 +15,7 @@ import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 import { mergeLocations } from '../../../shared/classes/tree.utils';
 
 @Component({
-	selector: 'location-group',
+	selector: 'location-group-mobile',
 	templateUrl: './location-group.component.html',
 	styleUrls: ['./location-group.component.scss']
 	})
@@ -114,6 +114,7 @@ export class LocationGroupComponent extends UnsubscribeOnDestroy implements OnIn
 
 	updateChoiceAttributes()
 	{
+		this.populateLocationGroups(this.updatedLocationGroups);
 		this.hasLocations = this.updatedLocationGroups.length > 0;
 
 		// if the choice has selected attributes then fill in the location/group/attribute names at this time
@@ -178,5 +179,10 @@ export class LocationGroupComponent extends UnsubscribeOnDestroy implements OnIn
 				}
 			});
 		}
+	}
+
+	get optionDisabled(): boolean
+	{
+		return this.currentChoice?.quantity <= 0 && this.currentChoice?.options ? this.currentChoice?.options.some(option => !option.isActive) : false;
 	}
 }

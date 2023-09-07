@@ -1,3 +1,54 @@
-<p>location-group works! Placeholder for Detail page reference with locationgroups</p>
+<!-- <ng-container *ngIf="!optionDisabled && (updatedLocationGroups?.length || (!updatedLocationGroups?.length && attributeGroups?.length))"> -->
+<ng-container *ngIf="!optionDisabled && updatedLocationGroups?.length">
+    <div class="phd-attribute-location px-3 pt-3" *ngFor="let location of updatedLocationGroups">
+        <div class="phd-location d-flex justify-content-between py-3" *ngFor="let loc of location?.locations">
+		    <h3 class="phd-location-name" title="{{loc.name}}">{{loc.name}}</h3>
+            <div class="phd-qty">
+                <span aria-label="QTY">Quantity:</span>
+            </div>
+        </div>
+    </div>
+<!--
+			
+			<div class="phd-qty-input">
+				<quantity-input [min]="0" [max]="maxQuantity"
+					[quantity]="locationQuantityTotal"
+					[canEdit]="choice.choiceStatus === 'Available'"
+					[isBlocked]="isBlocked || isReadonly"
+					(quantityChange)="quantityChangeHandler($event)">
+				</quantity-input>
+			</div>
+		</div>
+	</div>
+	<div class="phd-attribute-group-container">
+		<ng-container *ngFor="let attributeGroup of attributeGroups">
+			<attribute-group [attributeGroup]="attributeGroup"
+							[isLocationAttribute]="true"
+							[isBlocked]="isBlocked"
+							[highlightedAttributeId]="getHighlightedAttributeId(attributeGroup)"
+							[isReadonly]="isReadonly"
+							[isDesignComplete]="isDesignComplete"
+							(attributeClick)="attributeClick($event)"
+							(toggleAttribute)="attributeGroupSelected($event)">
+			</attribute-group>
+		</ng-container>
+	</div>
+ -->
 
-hasLocations = {{hasLocations}}
+
+<!--<ng-template #maxQuantityModal let-c="close" let-d="dismiss">
+	<div aria-label="Max Quantity Modal" role="dialog" aria-modal="true" aria-labelledby="quantity-modal-header">
+		<div class="modal-header">
+			<span class="modal-title" id="quantity-modal-header"></span>
+			<button type="button" class="close" aria-label="Close" (click)="closeClicked()">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="modal-body">
+			<div>You won't need that many for your home. Max quantity is {{currentChoice.maxQuantity !== null ? currentChoice.maxQuantity : 0}}.</div>
+		</div>
+		<div class="modal-footer">
+		</div>
+	</div>
+</ng-template> -->
+</ng-container>

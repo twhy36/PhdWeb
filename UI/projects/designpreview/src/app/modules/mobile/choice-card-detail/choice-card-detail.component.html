@@ -115,6 +115,9 @@
 			{{ this.isTextOverflow("descriptionText") ? "See More" : "See Less" }}
 		</button>
 	</div>
+
+	<!-- Locations: when choice has location groups -->
+	<location-group-mobile [currentChoice]="choice"></location-group-mobile>
 	
 	<!-- Attributes: when has attribute groups -->
 	<div class="phd-not-sticky phd-attributes" [ngStyle]="{ 'max-height': attributesHeight + 'px' }">
