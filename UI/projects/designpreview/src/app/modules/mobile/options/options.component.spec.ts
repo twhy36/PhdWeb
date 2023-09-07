@@ -301,4 +301,11 @@ describe('OptionsComponent', () =>
 			expect(component.showDeclineCard).toBeFalse();
 		});
 	});
+
+	it('shows correct group and subgroup label', () =>
+	{
+		const groupSubGroupLabel = findElementByTestId(fixture, 'group-subgroup-label').nativeElement.innerText;
+
+		expect(groupSubGroupLabel).toBe(`${component.selectedGroup.label}: ${component.selectedSubGroup.label}`);
+	})
 });

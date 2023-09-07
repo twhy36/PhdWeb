@@ -6,13 +6,14 @@
 	border-collapse: unset;
 	font-size: 88%;
 
-	th, td {
+	th,
+	td {
 		width: 10%;
 		max-width: 152px;
 		font-weight: normal;
 		text-align: center;
+		vertical-align: middle;
 
-		&:nth-child(3),
 		&:nth-child(5) {
 			text-align: left;
 			overflow: visible;
@@ -35,7 +36,7 @@
 	}
 }
 
-.phd-orderId-header {
+.phd-order-id-header {
 	margin-left: 25px;
 }
 
@@ -44,6 +45,7 @@
 }
 
 .phd-sales-status {
+
 	a,
 	a:hover,
 	a:focus {
@@ -76,11 +78,16 @@
 	margin-top: -5px;
 }
 
+.phd-view-change-order-button {
+	padding-top: 9px;
+}
+
 ::ng-deep .phd-tooltip-table,
 ::ng-deep .phd-tooltip-table-message {
 	font-size: 88%;
 
-	th, td {
+	th,
+	td {
 		font-weight: normal;
 		white-space: nowrap;
 		text-align-last: center;
@@ -114,22 +121,26 @@
 
 ::ng-deep .phd-tooltip-table-message {
 	.tooltip-inner {
-		max-width: 480px !important; /* Increased width for auto respond message column */
+		max-width: 480px !important;
+		/* Increased width for auto respond message column */
 	}
 
 	td {
-		vertical-align: middle; /* Align text to the middle for when the auto respond message wraps* */
+		vertical-align: middle;
+		/* Align text to the middle for when the auto respond message wraps* */
 	}
 
 	td:last-child {
-		white-space: pre-wrap; 
-		width: 60% !important; /* set width of auto respond column to 60% */
+		white-space: pre-wrap;
+		width: 60% !important;
+		/* set width of auto respond column to 60% */
 	}
 }
 
 ::ng-deep .phd-tooltip-table {
 	.tooltip-inner {
-		max-width: 360px !important; /* Default width for table without auto respond message */
+		max-width: 360px !important;
+		/* Default width for table without auto respond message */
 	}
 }
 
