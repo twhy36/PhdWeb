@@ -25,7 +25,7 @@ import * as fromJob from '../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum,
-	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants, ConfirmModalComponent
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -79,6 +79,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	isChangeDirty: boolean;
 	changeInput: ChangeInput;
 	treeGroups: Array<Group>;
+	actionType: string;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -544,7 +545,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		return null;
 	}
 
-	onActionSelected(event)
+	async onActionSelected(event)
 	{
 		let changeOrder;
 
@@ -571,14 +572,22 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 				}
 				this.onGenerateDocument(changeOrder, false)
 				this.createForm(changeOrder, this.ACTION_TYPES.WITHDRAW);
+				this.actionType = this.ACTION_TYPES.WITHDRAW;
 
-				this.openModal(this.updateChangeOrderModal);
+				if (await this.showConfirmModal(Constants.WITHDRAW_CHANGE_ORDER, 'Withdraw Change Order', Constants.CONTINUE))
+				{
+					this.openModal(this.updateChangeOrderModal);
+				}
 
 				break;
 			case this.ACTION_TYPES.REJECT:
 				this.createForm(changeOrder, this.ACTION_TYPES.REJECT);
+				this.actionType = this.ACTION_TYPES.REJECT;
 
-				this.openModal(this.updateChangeOrderModal);
+				if (await this.showConfirmModal(Constants.REJECT_CHANGE_ORDER, 'Reject Change Order', Constants.CONTINUE))
+				{
+					this.openModal(this.updateChangeOrderModal);
+				}
 
 				break;
 			case this.ACTION_TYPES.SIGN:
@@ -705,28 +714,37 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			case this.ACTION_TYPES.APPROVE:
 				// Compare snapshots for spec approval
 				if (this.buildMode === Constants.BUILD_MODE_SPEC || this.buildMode === Constants.BUILD_MODE_MODEL)
-				{					
-					this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(currentSnapshot =>
+				{
+					this._contractService.compareSnapshots(this.jobId, changeOrder).subscribe(async currentSnapshot =>
 					{
 						if (currentSnapshot)
 						{
 							this._actions$.pipe(
 								ofType<CommonActions.ChangeOrderEnvelopeCreated>(CommonActions.CommonActionTypes.ChangeOrderEnvelopeCreated),
-								take(1)).subscribe(() =>
+								take(1)).subscribe(async () =>
 								{
-									this.approveChangeOrder(changeOrder);
+									if (await this.showConfirmModal(Constants.APPROVE_CHANGE_ORDER, 'Approve Change Order', Constants.CONTINUE))
+									{
+										this.approveChangeOrder(changeOrder);
+									}
 								});
 							this.store.dispatch(new JobActions.CreateChangeOrderEnvelope(currentSnapshot));
 						}
 						else
 						{
-							this.approveChangeOrder(changeOrder);
+							if (await this.showConfirmModal(Constants.APPROVE_CHANGE_ORDER, 'Approve Change Order', Constants.CONTINUE))
+							{
+								this.approveChangeOrder(changeOrder);
+							}
 						}
 					});
 				}
 				else
 				{
-					this.approveChangeOrder(changeOrder);
+					if (await this.showConfirmModal(Constants.APPROVE_CHANGE_ORDER, 'Approve Change Order', Constants.CONTINUE))
+					{
+						this.approveChangeOrder(changeOrder);
+					}
 				}
 
 				break;
@@ -747,6 +765,31 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.isModalOpen = true;
 
 		this.modalReference.result.catch(err => console.log(err));
+	}
+
+	get reasonTitle(): string
+	{
+		if (this.actionType === this.ACTION_TYPES.WITHDRAW)
+		{
+			return 'Withdraw Reason';
+		}
+		else if (this.actionType === this.ACTION_TYPES.REJECT)
+		{
+			return 'Reject Reason';
+		}
+		return 'Reason';
+	}
+
+	private async showConfirmModal(body: string, title: string, defaultButton: string): Promise<boolean>
+	{
+		const confirm = this.modalService.open(ConfirmModalComponent);
+
+		confirm.componentInstance.title = title;
+		confirm.componentInstance.body = body;
+		confirm.componentInstance.defaultOption = defaultButton;
+
+		const response = await confirm.result;
+		return response === Constants.CONTINUE;
 	}
 
 	private approveChangeOrder(changeOrder: any)

@@ -49,10 +49,12 @@
 </div>
 
 <ng-template #updateChangeOrderModal>
+	<div class="modal-header">
+		<span class="modal-title">{{reasonTitle}}</span>
+	</div>
 	<div class="modal-body">
 		<form [formGroup]="updateChangeOrderForm">
 			<div class="form-group">
-				<label>Reason</label>
 				<textarea class="form-control phd-field-required " rows="8" maxlength="500" formControlName="salesStatusReason" required></textarea>
 			</div>
 		</form>
