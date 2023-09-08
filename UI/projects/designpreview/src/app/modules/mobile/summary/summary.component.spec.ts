@@ -19,7 +19,7 @@ import * as fromScenario from '../../ngrx-store/scenario/reducer';
 
 import { SummaryComponent } from './summary.component';
 import { BrandService } from '../../core/services/brand.service';
-import { mockPlanState, testGroups, testMyFavoriteStateWithSalesChoices, testTreeVersion } from '../../shared/classes/mockdata.class';
+import { mockPlanState, mockPriceBreakdown, testGroups, testMyFavoriteStateWithSalesChoices, testTreeVersion } from '../../shared/classes/mockdata.class';
 import { GroupExt } from '../../shared/models/group-ext.model';
 import { BuildMode } from '../../shared/models/build-mode.model';
 import { findElementByTestId } from '../../shared/classes/test-utils.class';
@@ -75,6 +75,7 @@ describe('SummaryComponent', () =>
 		mockStore = TestBed.inject(MockStore);
 		mockStore.overrideSelector(fromRoot.filteredTree, testTreeVersion);
 		mockStore.overrideSelector(fromFavorite.favoriteState, testMyFavoriteStateWithSalesChoices);
+		mockStore.overrideSelector(fromRoot.priceBreakdown, mockPriceBreakdown);
 
 		fixture = TestBed.createComponent(SummaryComponent);
 		component = fixture.componentInstance;

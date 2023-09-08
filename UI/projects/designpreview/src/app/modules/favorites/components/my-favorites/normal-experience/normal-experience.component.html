@@ -1,10 +1,10 @@
-<div class="phd-error-msg-body" *ngIf="errorMessage.length > 0">
+<div class="phd-error-msg-body" *ngIf="errorMessage?.length > 0">
 	<error-message [@flipOver]>
 		<ng-template #body>{{ errorMessage }}</ng-template>
 	</error-message>
 </div>
 
-<div class="phd-normal-experience" [class.phd-hide]="errorMessage.length > 0">
+<div class="phd-normal-experience" [class.phd-hide]="errorMessage?.length > 0">
 	<div class="d-flex flex-row phd-point-panel">
 		<div *ngIf="!isPointPanelCollapsed" class="d-flex flex-column">
 			<h3 class="phd-visually-hidden">
@@ -35,7 +35,7 @@
 			<div class="phd-point-container">
 				<ng-container *ngFor="let point of points; trackBy:pointTrackBy">
 					<ng-container *ngIf="displayDecisionPoint(point)">
-						<h2 class="phd-point-label" [attr.id]="'point-card-' + point.id">{{point?.label}}</h2>
+						<h2 class="phd-point-label" [attr.id]="'point-card-' + point.id" data-testid="point-label">{{point?.label}}</h2>
 						<h3 class="phd-point-title">{{getSubTitle(point)}}</h3>
 						<ul class="d-flex flex-wrap phd-choice-cards">
 							<ng-container *ngFor="let choice of point.choices; trackBy:choiceTrackBy">
@@ -48,7 +48,8 @@
 										[isPresale]="isPresale"
 										[isPresalePricingEnabled]="isPresalePricingEnabled"
 										(toggled)="choiceToggleHandler($event)"
-										(viewChoiceDetail)="viewChoiceDetailHandler($event)">
+										(viewChoiceDetail)="viewChoiceDetailHandler($event)"
+										data-testid="choice-card">
 								</choice-card>
 							</ng-container>
 							<choice-decline-card *ngIf="showDeclineCard(point)"
