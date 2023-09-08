@@ -342,12 +342,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			return false;
 		}
 
-		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
+		const choices = dp?.choices?.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) ?? [];
 		const favoriteChoices = choices.filter(c => !this.salesChoices || this.salesChoices.findIndex(sc => sc.divChoiceCatalogId === c.divChoiceCatalogId) === -1);
 
 		return this.includeContractedOptions
-			? choices && !!choices.length
-			: favoriteChoices && !!favoriteChoices.length;
+			? !!choices.length
+			: !!favoriteChoices.length;
 	}
 
 	onSubgroupSelected(id: number)

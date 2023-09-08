@@ -10,7 +10,7 @@
 						<div class="icon">
 							<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="isPointComplete(point)"></i>
 						</div>
-						<h2 class="phd-point-label" [attr.id]="'ifp-decision-bar-' + point.id">
+						<h2 class="phd-point-label" [attr.id]="'ifp-decision-bar-' + point.id" data-testid="point-label">
 							{{point.label}}
 							<div class="sub-title">{{getSubTitle(point)}}</div>
 						</h2>
@@ -26,7 +26,8 @@
 							[isPresalePricingEnabled]="isPresalePricingEnabled"
 							(toggleChoice)="clickToggleChoice($event)"
 							(viewChoiceDetail)="clickViewChoiceDetail($event)"
-							(selectDecisionPoint)="clickSelectDecisionPoint($event)">
+							(selectDecisionPoint)="clickSelectDecisionPoint($event)"
+							data-testid="decision-bar-choice">
 						</decision-bar-choice>
 					</ng-container>
 					<decision-bar-decline-choice *ngIf="showDeclineChoice(point)"

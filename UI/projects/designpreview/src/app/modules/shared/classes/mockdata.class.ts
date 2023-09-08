@@ -1,4 +1,21 @@
-import { DecisionPoint, MyFavorite, PointStatus, TreeVersion } from 'phd-common';
+import
+{
+	Choice,
+	DecisionPoint,
+	DesignToolAttribute,
+	Group,
+	JobChoice,
+	LotExt,
+	MyFavorite,
+	MyFavoritesChoice,
+	MyFavoritesPointDeclined,
+	Plan,
+	PlanOption,
+	PointStatus,
+	PriceBreakdown,
+	SubGroup,
+	TreeVersion,
+} from 'phd-common';
 import { ChoiceExt } from '../models/choice-ext.model';
 
 export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
@@ -758,7 +775,7 @@ export const dpToDpRulesPoint: DecisionPoint =
 			overrideNote: null,
 			price: 250,
 			priceHiddenFromBuyerView: false,
-			quantity: 0,
+			quantity: 1,
 			selectedAttributes: [],
 			sortOrder: 1,
 			treePointId: 888260,
@@ -855,3 +872,408 @@ export const testMyFavorite: MyFavorite = {
 	name: 'Smith Favorites',
 	salesAgreementId: 123,
 };
+
+export const mockOption1: PlanOption = {
+	id: 3620530,
+	name: 'Cabinet Hardware - Level 1 - Whole House - G',
+	isActive: true,
+	listPrice: 900,
+	maxOrderQuantity: 1,
+	isBaseHouse: false,
+	isBaseHouseElevation: false,
+	attributeGroups: [17941, 17942],
+	locationGroups: [],
+	financialOptionIntegrationKey: '73298',
+	description:
+		'Select pulls and/or knobs for your cabinet doors and drawers throughout house. All doors must match, all drawers must match.',
+	optionImages: [
+		{
+			imageURL:
+				'https://pultegroup.picturepark.com/Go/QLEH95YR/V/369615/15',
+			sortKey: 1,
+		},
+	],
+	planId: 12068,
+	communityId: 0,
+	calculatedPrice: 900,
+};
+
+export const mockPriceBreakdown: PriceBreakdown = {
+	baseHouse: 0,
+	homesite: 0,
+	selections: 0,
+	salesProgram: 0,
+	closingIncentive: 0,
+	nonStandardSelections: 0,
+	priceAdjustments: 0,
+	closingCostAdjustment: 0,
+	homesiteEstimate: 0,
+	designEstimate: 0,
+	totalPrice: 650000,
+	changePrice: 0,
+	favoritesPrice: 800,
+};
+
+export const mockSalesChoices: JobChoice[] = [
+	{
+		id: 1302842,
+		choiceLabel: 'Elevation LS201',
+		dpChoiceId: 10585308,
+		dpChoiceCalculatedPrice: 0,
+		divChoiceCatalogId: 2082,
+		dpChoiceQuantity: 1,
+		jobChoiceAttributes: [],
+		jobChoiceLocations: []
+	},
+	{
+		id: 1302843,
+		choiceLabel: 'Bistro Brown',
+		dpChoiceId: 10585314,
+		dpChoiceCalculatedPrice: 0,
+		divChoiceCatalogId: 2090,
+		dpChoiceQuantity: 1,
+		jobChoiceAttributes: [],
+		jobChoiceLocations: []
+	}
+];
+
+export const mockMyFavoritePointDeclined: MyFavoritesPointDeclined = {
+	id: 3,
+	myFavoriteId: -1,
+	dPointId: 17,
+	divPointCatalogId: 666,
+};
+
+export const testMyFavoriteStateWithoutSalesChoices = {
+	myFavorites: [
+		{
+			id: -1,
+			name: 'Default Favorite',
+			salesAgreementId: -1,
+			myFavoritesChoice: [
+				{
+					id: -11762350,
+					myFavoriteId: -1,
+					choiceDescription: 'Timberlake Fairfield Recessed Panel Birch.',
+					dpChoiceId: 11762350,
+					dpChoiceQuantity: 1,
+					decisionPointLabel: 'Cabinets',
+					subGroupLabel: 'Kitchen',
+					groupLabel: 'Rooms',
+					divChoiceCatalogId: 22457,
+					myFavoritesChoiceAttributes: [],
+					myFavoritesChoiceLocations: []
+				} as MyFavoritesChoice
+			],
+			myFavoritesPointDeclined: []
+		}
+	],
+	selectedFavoritesId: -1,
+	isLoading: false,
+	saveError: false,
+	salesChoices: [],
+	includeContractedOptions: false
+};
+
+export const testMyFavoriteStateWithSalesChoices = {
+	myFavorites: [
+		{
+			id: -1,
+			name: 'Default Favorite',
+			salesAgreementId: -1,
+			myFavoritesChoice: [
+				{
+					id: -11762350,
+					myFavoriteId: -1,
+					choiceDescription: 'Timberlake Fairfield Recessed Panel Birch.',
+					dpChoiceId: 11762350,
+					dpChoiceQuantity: 1,
+					decisionPointLabel: 'Cabinets',
+					subGroupLabel: 'Kitchen',
+					groupLabel: 'Rooms',
+					divChoiceCatalogId: 22457,
+					myFavoritesChoiceAttributes: [],
+					myFavoritesChoiceLocations: []
+				} as MyFavoritesChoice
+			],
+			myFavoritesPointDeclined: [mockMyFavoritePointDeclined]
+		}
+	],
+	selectedFavoritesId: -1,
+	isLoading: false,
+	saveError: false,
+	salesChoices: mockSalesChoices,
+	includeContractedOptions: false
+};
+
+export const mockPlan: Plan = {
+	id: 111,
+	salesName: '2630-1 Test Sales Name',
+	numBed: 4,
+	numFullBath: 2,
+	numHalfBath: 0,
+	squareFeet: 2500,
+	title: '',
+	subtitle: '',
+	feature: '',
+	description: '',
+	price: 0,
+	communityId: 0,
+	foundation: 'test foundation',
+	garageConfiguration: 'test garage config',
+	masterBedLocation: 'test master bed location',
+	productConfiguration: 'test product config',
+	productType: 'test product type',
+	integrationKey: 0,
+	salesDescription: '',
+	treeVersionId: 0,
+	treePlanId: 0,
+	marketingPlanId: [],
+	baseHouseElevationImageUrl: '',
+	lotAssociations: [],
+	isActive: false
+};
+
+export const testGroups: Group[] =[{
+	id: 1,
+	groupCatalogId: 1,
+	treeVersionId: 1,
+	sortOrder: 0,
+	label: 'test group 1',
+	subGroups: [{
+		id: 4,
+		groupId: 1,
+		subGroupCatalogId: 3,
+		sortOrder: 0,
+		label: 'testing sub group',
+		useInteractiveFloorplan: false,
+		treeVersionId: 1,
+		points: [{
+			id: 10,
+			hasPointToPointRules: false,
+			hasPointToChoiceRules: false,
+			subGroupId: 1,
+			divPointCatalogId: 11,
+			pointPickTypeId: 1,
+			pointPickTypeLabel: '',
+			sortOrder: 0,
+			isQuickQuoteItem: false,
+			isStructuralItem: false,
+			label: 'test point 10',
+			description: '',
+			treeVersionId: 1,
+			choices: [],
+			completed: false,
+			viewed: false,
+			enabled: true,
+			disabledBy: [],
+			status: PointStatus.REQUIRED,
+			price: 0,
+			dPointTypeId: 10,
+			subGroupCatalogId: 3,
+			isPastCutOff: false
+		}],
+		status: PointStatus.REQUIRED
+	}],
+	status: PointStatus.REQUIRED
+}, {
+	id: 2,
+	groupCatalogId: 1,
+	treeVersionId: 1,
+	sortOrder: 0,
+	label: 'test group 1',
+	subGroups: [{
+		id: 5,
+		groupId: 2,
+		subGroupCatalogId: 3,
+		sortOrder: 0,
+		label: 'testing sub group',
+		useInteractiveFloorplan: false,
+		treeVersionId: 1,
+		points: [{
+			id: 11,
+			hasPointToPointRules: false,
+			hasPointToChoiceRules: false,
+			subGroupId: 1,
+			divPointCatalogId: 11,
+			pointPickTypeId: 1,
+			pointPickTypeLabel: '',
+			sortOrder: 0,
+			isQuickQuoteItem: false,
+			isStructuralItem: false,
+			label: 'test point 10',
+			description: '',
+			treeVersionId: 1,
+			choices: [],
+			completed: false,
+			viewed: false,
+			enabled: true,
+			disabledBy: [],
+			status: PointStatus.REQUIRED,
+			price: 0,
+			dPointTypeId: 10,
+			subGroupCatalogId: 3,
+			isPastCutOff: false
+		}],
+		status: PointStatus.REQUIRED
+	}],
+	status: PointStatus.REQUIRED
+}];
+
+export const mockSubGroup: SubGroup = {
+	id: 3,
+	groupId: 3,
+	label: 'Curb Appeal',
+	subGroupCatalogId: 3,
+	sortOrder: 0,
+	useInteractiveFloorplan: true,
+	treeVersionId: 111,
+	points: [dpToDpRulesPoint],
+	status: 1,
+};
+
+
+export const mockDecisionPoint: DecisionPoint = {
+	id: 0,
+	hasPointToPointRules: false,
+	hasPointToChoiceRules: false,
+	subGroupId: 0,
+	divPointCatalogId: 0,
+	pointPickTypeId: 1,
+	pointPickTypeLabel: '',
+	sortOrder: 0,
+	isQuickQuoteItem: false,
+	isStructuralItem: false,
+	label: '',
+	description: '',
+	treeVersionId: 0,
+	choices: [],
+	completed: false,
+	viewed: false,
+	enabled: false,
+	disabledBy: [],
+	status: 4,
+	price: 0,
+	dPointTypeId: 0,
+	subGroupCatalogId: 0,
+	isPastCutOff: false
+};
+
+export const mockGroup: Group = {
+	id: 0,
+	groupCatalogId: 0,
+	treeVersionId: 0,
+	sortOrder: 0,
+	label: '',
+	subGroups: [mockSubGroup],
+	status: PointStatus.REQUIRED,
+};
+
+export const mockTreeVersionSingleGroup: TreeVersion = {
+	id: 0,
+	treeId: 0,
+	planKey: '',
+	name: '',
+	groups: [mockGroup],
+	communityId: 0,
+	description: '',
+	publishStartDate: undefined,
+	publishEndDate: undefined,
+	lastModifiedDate: undefined,
+	includedOptions: []
+};
+
+export const mockSalesChoice: JobChoice = {
+	id: 0,
+	dpChoiceId: 0,
+	dpChoiceQuantity: 0,
+	dpChoiceCalculatedPrice: 0,
+	choiceLabel: '',
+	divChoiceCatalogId: 7403,
+};
+
+export const mockDesignToolAttribute: DesignToolAttribute = {
+	attributeGroupId: 0,
+	attributeGroupLabel: 'attribute label',
+	attributeGroupName: 'attribute group name',
+	attributeId: 0,
+	attributeImageUrl: 'attribute image url',
+	attributeName: 'attribute name',
+	manufacturer: 'attribute manufacturer',
+	sku: 'attribute sku',
+	locationGroupId: 0,
+	locationGroupLabel: 'attribute group label',
+	locationGroupName: 'attribute location group name',
+	locationId: 0,
+	locationName: 'attribute location name',
+	locationQuantity: 0,
+	scenarioChoiceLocationId: 0,
+	scenarioChoiceLocationAttributeId: 0
+};
+
+export const mockPlanState: fromPlan.State = {
+	plans: [],
+	hasError: false,
+	marketingPlanId: [1],
+	selectedPlanLoading: false,
+	plansLoading: false
+};
+
+export const mockMyFavoritesChoice: MyFavoritesChoice = {
+	id: 0,
+	myFavoriteId: 0,
+	choiceDescription: '',
+	dpChoiceId: 0,
+	dpChoiceQuantity: 0,
+	groupLabel: '',
+	subGroupLabel: '',
+	decisionPointLabel: '',
+	sortOrder: 0,
+	divChoiceCatalogId: 0,
+};
+
+export const mockFavoriteState: fromFavorite.State = {
+	myFavorites: [{ id: 1, name: 'name', salesAgreementId: 1, myFavoritesChoice: [mockMyFavoritesChoice] }],
+	selectedFavoritesId: 0,
+	isLoading: false,
+	saveError: false,
+	salesChoices: [],
+	includeContractedOptions: false,
+};
+
+export const mockLot: LotExt = {
+	viewAdjacency: [],
+	streetAddress1: 'Street Address 1',
+	streetAddress2: 'Street Address 2',
+	city: 'Atlanta',
+	stateProvince: 'GA',
+	postalCode: '33333',
+	lotPhysicalLotTypeAssocs: [],
+	financialCommunity: undefined,
+	unitNumber: '',
+	salesBldgNbr: '',
+	alternateLotBlock: '',
+	constructionPhaseNbr: '',
+	salesPhase: undefined,
+	county: '',
+	closeOfEscrow: undefined,
+	fieldManagerLotAssocs: [],
+	customerCareManagerLotAssocs: [],
+	fieldManager: [],
+	customerCareManager: undefined,
+	physicalLotTypes: [],
+	id: 0,
+	lotBlock: '1001',
+	premium: 0,
+	lotStatusDescription: '',
+	lotHandingAssocs: [],
+	foundationType: '',
+	lotBuildTypeDesc: '',
+	planAssociations: [],
+	monotonyRules: [],
+	jobs: [],
+	financialCommunityId: 0,
+	isMasterUnit: false,
+	handings: []
+};
+

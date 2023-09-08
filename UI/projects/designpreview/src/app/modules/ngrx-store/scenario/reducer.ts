@@ -207,17 +207,40 @@ export function reducer(state: State = initialState, action: ScenarioActions): S
 				// Point-To-Choice && Point-To-Point
 				hidePointsByStructuralItems(newState.rules.pointRules, choices, points, newState.hiddenChoiceIds, newState.hiddenPointIds);
 
-				// check/update post contract pricing visibility for all selected choices
+				// check/update post contract choice and pricing visibility for all selected choices
 				if (action.type === CommonActionTypes.SalesAgreementLoaded)
 				{
 					newState.tree.treeVersion.groups.map(g => g.subGroups.map(sg => sg.points.map(p =>
+					{
+						const pointHasVisibleChoices = p.choices.some(c => c.isHiddenFromBuyerView && c.quantity);
 						p.choices.map(c =>
 						{
+							const isHiddenContractedChoice = c.isHiddenFromBuyerView && c.quantity;
+							if (isHiddenContractedChoice)
+							{
+								c.isHiddenFromBuyerView = false;
+							}
+							else
+							{
+								// If point was previously hidden but is now unhidden because it has a hidden contracted choice, make sure to hide
+								// any other choices it has that were hidden before
+								if (pointHasVisibleChoices && p.isHiddenFromBuyerView)
+								{
+									c.isHiddenFromBuyerView = true;
+								}
+							}
+							
 							if (c.priceHiddenFromBuyerView && c.quantity)
 							{
 								c.priceHiddenFromBuyerView = false;
 							}
-						})
+						});
+						
+						if (pointHasVisibleChoices && p.isHiddenFromBuyerView) 
+						{
+							p.isHiddenFromBuyerView = false;
+						}        
+					}
 					)));
 				}
 			}
