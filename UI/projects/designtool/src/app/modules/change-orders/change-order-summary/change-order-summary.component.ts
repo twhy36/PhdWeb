@@ -80,6 +80,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	changeInput: ChangeInput;
 	treeGroups: Array<Group>;
 	actionType: string;
+	isAgreementSold: boolean;
+	changeOrderAmount: any;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -267,6 +269,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.signedDate = salesAgreement.signedDate;
 			this.isLockedIn = salesAgreement.isLockedIn;
 			this.isDesignComplete = salesAgreement.isDesignComplete;
+			this.isAgreementSold = this.salesAgreementId !== 0 && (this.buildMode != 'spec' && this.buildMode != 'model');
 
 			const index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === 'SpecJIO' || c.jobChangeOrderTypeDescription === 'SalesJIO')) !== undefined);
 			let changeOrders = [];
@@ -284,6 +287,17 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			{
 				let actionTypes = [];
 				const signedStatusHistory = o.jobChangeOrderGroupSalesStatusHistories.find(t => t?.salesStatusId === 2);
+
+				if (!this.isAgreementSold)
+				{
+					// Calculate the sum of the decisionPointChoiceCalculatedPrice property
+					this.changeOrderAmount = o.jobChangeOrders.reduce((accumulator, jobChangeOrder) => {
+						const choices = jobChangeOrder.jobChangeOrderChoices || [];
+						const choicePrices = choices.map(choice => choice.decisionPointChoiceCalculatedPrice || 0);
+						const choiceSum = choicePrices.reduce((choiceAccumulator, price) => choiceAccumulator + price, 0);
+						return accumulator + choiceSum;
+					}, 0);
+				}
 
 				if (o.salesStatusDescription === 'Pending')
 				{
@@ -342,7 +356,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					createdBy: o.contact ? o.contact.displayName : o.createdBy,
 					createdByContactId: o.createdByContactId,
 					actionTypes: actionTypes,
-					amount: o.amount,
+					amount: this.isAgreementSold ? o.amount : this.changeOrderAmount,
 					envelopeId: o.envelopeId,
 					salesChangeOrderBuyers: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderBuyers)),
 					salesChangeOrderPriceAdjustments: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderPriceAdjustments)),
