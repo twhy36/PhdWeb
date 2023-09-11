@@ -33,19 +33,8 @@ export class DecisionBarComponent extends UnsubscribeOnDestroy
 		{
 			return false;
 		}
-		else 
-		{
-			const choices = _.flatMap(point.choices);
-			let aChoiceExists = false;
-			choices.forEach(c => 
-			{
-				if (!c.isHiddenFromBuyerView) 
-				{
-					aChoiceExists = true;
-				}
-			})
-			return aChoiceExists;
-		}
+		
+		return point?.choices?.some(c => !c.isHiddenFromBuyerView) ?? false;
 	}
 
 	getPointCardId(point: DecisionPoint) 

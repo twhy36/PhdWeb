@@ -13,6 +13,8 @@ import * as fromOrg from '../../../ngrx-store/org/reducer';
 import * as fromJob from '../../../ngrx-store/job/reducer';
 import * as fromChangeOrder from '../../../ngrx-store/change-order/reducer';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
+import * as fromNav from '../../../ngrx-store/nav/reducer';
+
 import { MyFavoritesComponent } from './my-favorites.component';
 import { ModalService, NavigationService, PointStatus, TreeService } from 'phd-common';
 import { BrandService } from '../../../core/services/brand.service';
@@ -30,7 +32,8 @@ describe('MyFavoritesComponent', () =>
 		org: fromOrg.initialState,
 		job: fromJob.initialState,
 		changeOrder: fromChangeOrder.initialState,
-		scenario: fromScenario.initialState
+		scenario: fromScenario.initialState,
+		nav: fromNav.initialState,
 	};
 	const mockActivatedRoute = mock(ActivatedRoute);
 	const mockRouter = mock(Router);

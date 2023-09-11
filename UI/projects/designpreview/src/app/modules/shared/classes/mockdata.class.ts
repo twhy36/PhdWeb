@@ -13,6 +13,7 @@ import
 	PlanOption,
 	PointStatus,
 	PriceBreakdown,
+	SubGroup,
 	TreeVersion,
 } from 'phd-common';
 import { ChoiceExt } from '../models/choice-ext.model';
@@ -1025,7 +1026,7 @@ export const dpToDpRulesPoint: DecisionPoint = {
 			overrideNote: null,
 			price: 250,
 			priceHiddenFromBuyerView: false,
-			quantity: 0,
+			quantity: 1,
 			selectedAttributes: [],
 			sortOrder: 1,
 			treePointId: 888260,
@@ -1669,6 +1670,78 @@ export const testGroups: Group[] =[{
 	}],
 	status: PointStatus.REQUIRED
 }];
+
+export const mockSubGroup: SubGroup = {
+	id: 3,
+	groupId: 3,
+	label: 'Curb Appeal',
+	subGroupCatalogId: 3,
+	sortOrder: 0,
+	useInteractiveFloorplan: true,
+	treeVersionId: 111,
+	points: [dpToDpRulesPoint],
+	status: 1,
+};
+
+
+export const mockDecisionPoint: DecisionPoint = {
+	id: 0,
+	hasPointToPointRules: false,
+	hasPointToChoiceRules: false,
+	subGroupId: 0,
+	divPointCatalogId: 0,
+	pointPickTypeId: 1,
+	pointPickTypeLabel: '',
+	sortOrder: 0,
+	isQuickQuoteItem: false,
+	isStructuralItem: false,
+	label: '',
+	description: '',
+	treeVersionId: 0,
+	choices: [],
+	completed: false,
+	viewed: false,
+	enabled: false,
+	disabledBy: [],
+	status: 4,
+	price: 0,
+	dPointTypeId: 0,
+	subGroupCatalogId: 0,
+	isPastCutOff: false
+};
+
+export const mockGroup: Group = {
+	id: 0,
+	groupCatalogId: 0,
+	treeVersionId: 0,
+	sortOrder: 0,
+	label: '',
+	subGroups: [mockSubGroup],
+	status: PointStatus.REQUIRED,
+};
+
+export const mockTreeVersionSingleGroup: TreeVersion = {
+	id: 0,
+	treeId: 0,
+	planKey: '',
+	name: '',
+	groups: [mockGroup],
+	communityId: 0,
+	description: '',
+	publishStartDate: undefined,
+	publishEndDate: undefined,
+	lastModifiedDate: undefined,
+	includedOptions: []
+};
+
+export const mockSalesChoice: JobChoice = {
+	id: 0,
+	dpChoiceId: 0,
+	dpChoiceQuantity: 0,
+	dpChoiceCalculatedPrice: 0,
+	choiceLabel: '',
+	divChoiceCatalogId: 7403,
+};
 
 export const mockDesignToolAttribute: DesignToolAttribute = {
 	attributeGroupId: 0,

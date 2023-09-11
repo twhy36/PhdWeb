@@ -15,6 +15,7 @@ import * as FavoriteActions from '../../ngrx-store/favorite/actions';
 import * as ScenarioActions from '../../ngrx-store/scenario/actions';
 
 import { ChoiceCardDetailComponent } from './choice-card-detail.component';
+import { ChoiceExt } from '../../shared/models/choice-ext.model';
 import { findElementByTestId } from '../../shared/classes/test-utils.class';
 import
 {
@@ -24,7 +25,6 @@ import
 } from '../../shared/classes/mockdata.class';
 import { MockCloudinaryImageComponent } from '../../shared/mocks/mock-cloudinary-image';
 import { MockEstimatedTotalsComponent } from '../../shared/mocks/mock-estimated-totals-component';
-import { ChoiceExt } from '../../shared/models/choice-ext.model';
 
 @Component({ selector: 'action-bar-mobile', template: '' })
 class ActionBarStubComponent
@@ -79,8 +79,8 @@ describe('ChoiceCardDetailComponent', () =>
 				ChoiceCardDetailComponent,
 				MockEstimatedTotalsComponent,
 				ActionBarStubComponent,
-				MockCloudinaryImageComponent,
 				AttributeGroupStubComponent,
+				MockCloudinaryImageComponent,
 				LocationGroupStubComponent,
 			],
 			imports: [MatIconModule, NgbModule],

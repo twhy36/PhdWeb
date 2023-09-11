@@ -35,6 +35,8 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 	@Output() declineDecisionPoint = new EventEmitter<DecisionPoint>();
 	@Output() selectDecisionPoint = new EventEmitter<number>();
 
+	choicesToDisplay: Choice[] = [];
+
 	constructor() { super(); }
 
 	getSubTitle(point: DecisionPoint): string
@@ -155,10 +157,8 @@ export class DetailedDecisionBarComponent extends UnsubscribeOnDestroy
 		{
 			return false;
 		}
-
-		const choices = point && point.choices ? point.choices.filter(c => !c.isHiddenFromBuyerView) : [];
-
-		return choices && !!choices.length;
+		
+		return point?.choices?.some(c => !c.isHiddenFromBuyerView) ?? false;
 	}
 
 	pointById(index: number, point: DecisionPoint)
