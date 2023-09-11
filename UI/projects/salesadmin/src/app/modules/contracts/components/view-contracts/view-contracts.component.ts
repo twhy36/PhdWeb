@@ -15,7 +15,8 @@ import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { UnsubscribeOnDestroy } from '../../../shared/utils/unsubscribe-on-destroy';
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { ViewContractsSidePanelComponent } from '../view-contracts-side-panel/view-contracts-side-panel.component';
-import { ConfirmModalComponent, PhdTableComponent, Constants } from 'phd-common';
+import { ConfirmModalComponent, PhdTableComponent, Constants, PDFViewerComponent, ModalRef, ModalService } from 'phd-common';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'view-contracts',
@@ -49,6 +50,8 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	@ViewChild(SearchBarComponent)
 	private searchBar: SearchBarComponent;
 
+	pdfViewer: ModalRef;
+
 	get selected(): ContractTemplate
 	{
 		return this._selected;
@@ -64,7 +67,8 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 		private _msgService: MessageService,
 		private _orgService: OrganizationService,
 		private _modalService: NgbModal,
-		private _route: ActivatedRoute
+		private _route: ActivatedRoute,
+		private _commonModalService: ModalService,
 	) { super() }
 
 	@HostListener('window:beforeunload')
@@ -394,14 +398,18 @@ export class ViewContractsComponent extends UnsubscribeOnDestroy implements OnIn
 	previewFile(templateId: number, documentName: string)
 	{
 		this._contractService.getTemplatePreview(this.currentMktId, templateId)
-			.subscribe(data =>
+			.subscribe(pdfObjectUrl =>
 			{
-				const link = document.createElement('a');
-				link.href = window.URL.createObjectURL(data);
-				link.download = `${documentName}.pdf`;
-				link.click();
+				this.pdfViewer = this._commonModalService.open(PDFViewerComponent, { backdrop: 'static', windowClass: 'phd-pdf-modal', size: 'lg' });
 
-				this._msgService.add({ severity: 'success', summary: 'Document', detail: `has been downloaded` });
+				this.pdfViewer.componentInstance.pdfModalTitle = documentName;
+				this.pdfViewer.componentInstance.pdfData = pdfObjectUrl;
+				this.pdfViewer.componentInstance.pdfBaseUrl = `${environment.pdfViewerBaseUrl}`;
+
+				this.pdfViewer.componentInstance.onAfterPrint.subscribe(() =>
+				{
+					this.pdfViewer.close();
+				});
 			},
 				error =>
 				{

@@ -69,7 +69,7 @@ export class ContractService
 		);
 	}
 
-	getTemplatePreview(marketId: number, templateId: number): Observable<Blob>
+	getTemplatePreview(marketId: number, templateId: number): Observable<string>
 	{
 		const url = this.settings.apiUrl + `GetTemplatePreview(MarketId=${marketId},TemplateId=${templateId})`;
 		const headers = new HttpHeaders({
@@ -80,7 +80,7 @@ export class ContractService
 		return withSpinner(this._http).get(url, { headers: headers, responseType: 'blob' }).pipe(
 			map(response =>
 			{
-				return response;
+				return window.URL.createObjectURL(response);
 			}),
 			catchError(this.handleError)
 		);

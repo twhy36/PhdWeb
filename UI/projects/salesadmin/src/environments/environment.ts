@@ -39,4 +39,5 @@ export const environment = {
 		centex: 'tho.dev.centex.com/',
 		johnWieland: 'tho.dev.jwhomes.com/'
 	},
+	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
 };

@@ -28,7 +28,9 @@ div.phd-custom-control-right .custom-control-label::after {
 
 /*******************************************/
 
-html, body, app-root {
+html,
+body,
+app-root {
 	margin: 0;
 	padding: 0;
 	height: 100%;
@@ -42,7 +44,8 @@ body {
 	flex-direction: column;
 }
 
-contracts, pricing {
+contracts,
+pricing {
 	width: 100%;
 }
 
@@ -84,7 +87,7 @@ a:focus {
 
 .phd-router-outlet {
 	flex: 1;
-	overflow:hidden; //might be bad...will see
+	overflow: hidden; //might be bad...will see
 }
 
 .phd-tab-container {
@@ -125,6 +128,7 @@ $toggle-default-font-size: .75rem;
 // Content
 $toggle-content-before: 'Must Not Have';
 $toggle-content-after: 'Must Have';
+
 // Mixin for Default Switch Styles
 // Variables: $size, $margin, $color, $bg, $active-bg, $font-size
 @mixin toggle-mixin($size-width: $toggle-default-size-width, $size: $toggle-default-size, $margin: $toggle-default-label-width, $font-size: $toggle-default-font-size, $content-before: $toggle-content-before, $content-after: $toggle-content-after ) {
@@ -138,6 +142,7 @@ $toggle-content-after: 'Must Have';
 
 	&:focus,
 	&.focus {
+
 		&,
 		&.active {
 			outline: none;
@@ -169,7 +174,7 @@ $toggle-content-after: 'Must Have';
 		opacity: .5;
 	}
 
-	> .handle {
+	>.handle {
 		position: absolute;
 		top: math.div($size * .25, 2);
 		left: math.div($size * .25, 2);
@@ -183,7 +188,7 @@ $toggle-content-after: 'Must Have';
 	&.active {
 		transition: background-color .25s;
 
-		> .handle {
+		>.handle {
 			left: ($size-width * 2) - 1.5;
 			transition: left .25s;
 		}
@@ -198,6 +203,7 @@ $toggle-content-after: 'Must Have';
 	}
 
 	&.btn-sm {
+
 		&:before,
 		&:after {
 			line-height: $size - .125rem;
@@ -228,6 +234,7 @@ $toggle-content-after: 'Must Have';
 	}
 
 	&.btn-secondary {
+
 		&:after,
 		&:before {
 			color: #000;
@@ -296,7 +303,7 @@ $toggle-content-after: 'Must Have';
 	color: #888888;
 	margin: auto;
 	text-align: center;
-	background-color: hsla(0,0*1%,50*1%,0.2);
+	background-color: hsla(0, 0*1%, 50*1%, 0.2);
 
 	i {
 		margin-top: 40px;
@@ -314,19 +321,21 @@ $toggle-content-after: 'Must Have';
 	color: #888888;
 	margin: auto;
 	text-align: center;
-	background-color: hsla(0,0*1%,50*1%,0.2);
+	background-color: hsla(0, 0*1%, 50*1%, 0.2);
 
 	i {
 		margin-top: 40px;
 	}
 }
 
-.phd-btn-save, .phd-btn-left {
+.phd-btn-save,
+.phd-btn-left {
 	margin-right: 15px;
 }
 
 /* bootstrap override start */
-.btn-secondary, .btn-secondary.dropdown-toggle {
+.btn-secondary,
+.btn-secondary.dropdown-toggle {
 	color: #000;
 	background-color: #D7DBDD;
 	border-color: #D7DBDD;
@@ -334,23 +343,24 @@ $toggle-content-after: 'Must Have';
 
 .btn-secondary:not(:disabled):not(.disabled).active,
 .btn-secondary:not(:disabled):not(.disabled):active,
-.show > .btn-secondary.dropdown-toggle {
+.show>.btn-secondary.dropdown-toggle {
 	color: #000;
 	background-color: #BDC3C7;
 	border-color: #A6ACAF;
 }
 
-.btn-secondary.focus, .btn-secondary:focus {
+.btn-secondary.focus,
+.btn-secondary:focus {
 	color: #000;
 	background-color: #CACFD2;
 	border-color: #BDC3C7;
-	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185,.5);
+	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185, .5);
 }
 
 .btn-secondary:not(:disabled):not(.disabled).active:focus,
 .btn-secondary:not(:disabled):not(.disabled):active:focus,
-.show > .btn-secondary.dropdown-toggle:focus {
-	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185,.5);
+.show>.btn-secondary.dropdown-toggle:focus {
+	box-shadow: 0 0 0 0.2rem rgba(185, 185, 185, .5);
 }
 
 .btn-secondary:hover {
@@ -421,7 +431,7 @@ $toggle-content-after: 'Must Have';
 }
 
 .phd-tagsinput .phd-tag:hover {
-	background-color: lighten($brand-primary,10%);
+	background-color: lighten($brand-primary, 10%);
 	color: #ffffff;
 }
 
@@ -450,7 +460,8 @@ $toggle-content-after: 'Must Have';
 	width: 100%;
 	display: block;
 
-	&:hover, &:focus {
+	&:hover,
+	&:focus {
 		text-decoration: none;
 	}
 }
@@ -459,6 +470,26 @@ $toggle-content-after: 'Must Have';
 	color: #ffffff;
 	content: "\f00d";
 	font-family: "FontAwesome";
+}
+
+.modal-header {
+	background: $twilight-blue;
+	border-top-left-radius: 0.2rem;
+	border-top-right-radius: 0.2rem;
+	color: #fff;
+
+	.close {
+		color: #fff;
+	}
+}
+
+.modal-title {
+	font-size: 1.25em;
+}
+
+.modal-content a {
+	color: #007bff;
+	text-decoration: underline;
 }
 
 /*Tag Input (from Nice Admin Theme) - END*/

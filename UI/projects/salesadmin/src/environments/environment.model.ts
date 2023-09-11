@@ -1,7 +1,8 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
 import { IConfiguration, IConfig } from '@microsoft/applicationinsights-web';
 
-export interface IEnvironment {
+export interface IEnvironment
+{
 	production: boolean;
 	apiUrl: string;
 	hubUrl: string;

@@ -39,4 +39,5 @@ export const environment = {
 		johnWieland: 'localhost:4001/',
 		centex: 'localhost:4001/',
 	},
+	pdfViewerBaseUrl: 'assets/pdfjs-dist/web/viewer.html',
 };
