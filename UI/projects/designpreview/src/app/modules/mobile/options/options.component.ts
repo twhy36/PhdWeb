@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
-import { DecisionPoint, JobChoice, PickType, SubGroup, UnsubscribeOnDestroy } from 'phd-common';
+import { DecisionPoint, Group, JobChoice, PickType, SubGroup, UnsubscribeOnDestroy } from 'phd-common';
 import { combineLatest } from 'rxjs';
 
 import * as fromRoot from '../../ngrx-store/reducers';
@@ -31,6 +31,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 	selectedSubGroupId: number;
 	selectedDecisionPoint: DecisionPoint;
 	selectedDecisionPointId: number;
+	selectedGroup: Group;
 	unfilteredPoints: DecisionPoint[];
 
 	get showDeclineCard(): boolean
@@ -95,6 +96,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 
 			this.selectedSubGroup = subGroups.find(sg => sg.id === this.selectedSubGroupId);
 			this.selectedDecisionPoint = subGroups.flatMap(sg => sg.points).find(dp => dp.id === this.selectedDecisionPointId);
+			this.selectedGroup = tree?.groups.find(g => g.subGroups.flatMap(sg => sg.id).includes(this.selectedSubGroupId));
 
 			if (this.selectedSubGroup)
 			{
@@ -121,7 +123,7 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 				if (lastDecisionPoint.id === this.selectedDecisionPoint.id)
 				{
 					// go to my favorites if last subgroup, otherwise nextSubGroup
-					this.actionLabel += lastSubGroup.id === this.selectedSubGroup.id ? 'My Favorites' : nextSubGroup.points[0].label;
+					this.actionLabel += lastSubGroup.id === this.selectedSubGroup.id ? 'My Favorites' : nextSubGroup.label;
 					this.actionLink = lastSubGroup.id === this.selectedSubGroup.id ? ['/favorites/summary'] : ['/options', nextSubGroup.id, nextSubGroup.points[0].id];
 				}
 				else

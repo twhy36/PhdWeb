@@ -422,24 +422,47 @@ export class CommunitySettingsTabComponent extends UnsubscribeOnDestroy implemen
 			// get promise plans for the financial community
 			const plansObs = this._planService.getCommunityPlans(commId);
 
-			const obs = forkJoin(lotDtosObs, plansObs).pipe(map(([lotDto, plansDto]) =>
-			{
-				fc.lots = lotDto.filter(l => l.lotStatusDescription !== 'Closed').map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
-				fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);
-
-				// add lots to plans
-				fc.plans.forEach(p =>
+			forkJoin(lotDtosObs, plansObs).pipe(
+				switchMap(([lotDto, plansDto]) =>
 				{
-					p.lots = fc.lots.filter(l => l.plans.some(lp => lp === p.id));
+					const planKeys = plansDto.map(p => p.integrationKey);
+					const getPlansWithTree = planKeys.length > 0 
+						? this._treeService.getPlansWithTree(commId, planKeys)
+						: of([]);
+
+					return getPlansWithTree.pipe(
+						map(planKeys => ([ lotDto, plansDto, planKeys ]))
+					);
+				}),
+				map(([lotDto, plansDto, planKeys]) =>
+				{
+					fc.lots = lotDto.filter(l => l.lotStatusDescription !== 'Closed').map(l => new HomeSiteViewModel(l, fc.dto)).sort(HomeSiteViewModel.sorter);
+					fc.plans = plansDto.map(p => new PlanViewModel(p, fc)).sort(PlanViewModel.sorter);
+
+					// add lots to plans
+					fc.plans.forEach(p =>
+					{
+						p.lots = fc.lots.filter(l => l.plans.some(lp => lp === p.id));
+						p.hasPublishedTree = planKeys.includes(p.integrationKey);
+					});
+				}),
+				finalize(() =>
+				{
+					this.loading = false;
+				}))
+				.subscribe(() =>
+				{
+					fc.inited = true;
 				});
-			}));
-
-			obs.subscribe(() =>
-			{
-				fc.inited = true;
-
-				this.loading = false;
-			});
 		}
+	}
+
+	disabledDesignPreviewSettings() : boolean
+	{
+		// A phd lite community has the phd lite feature switch enabled
+		// and none of the plans in the community has published tree
+		const isPhdLiteCommunity = this.isPhdLite && this.selectedCommunity.plans.every(p => !p.hasPublishedTree);
+		
+		return isPhdLiteCommunity || this.isSalesAdminReadOnly;
 	}
 }

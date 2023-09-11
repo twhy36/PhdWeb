@@ -83,9 +83,8 @@ export class ContractedSummaryComponent extends UnsubscribeOnDestroy implements 
 		{
 			return false;
 		}
-		const choices = dp && dp.choices ? dp.choices.filter(c => c.quantity > 0 && !c.isHiddenFromBuyerView) : [];
-
-		return choices && !!choices.length
+		
+		return dp?.choices?.some(c => c.quantity > 0 && !c.isHiddenFromBuyerView) ?? false;
 	}
 
 	getGroupExts(groups: Group[]) : GroupExt[]

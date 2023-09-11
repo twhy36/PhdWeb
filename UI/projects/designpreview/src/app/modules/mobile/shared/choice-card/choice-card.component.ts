@@ -68,7 +68,6 @@ export class ChoiceCardComponent extends UnsubscribeOnDestroy implements OnInit
 		).subscribe((state) => 
 		{
 			this.isPresalePricingEnabled = state.presalePricingEnabled;
-			this.isPresalePricingEnabled = true;
 			if (state.buildMode === BuildMode.Presale) 
 			{
 				this.isPresale = true;

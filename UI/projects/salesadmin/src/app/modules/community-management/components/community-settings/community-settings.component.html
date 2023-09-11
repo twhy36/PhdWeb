@@ -89,7 +89,7 @@
 						<div class="font-weight-bold">Enable Design Preview Post-Contract</div>
 						<div class="col-md">
 							<button class="btn btn-sm btn-toggle btn-auto-approval"
-								[disabled]="isPhdLite || isSalesAdminReadOnly"
+								[disabled]="disabledDesignPreviewSettings()"
 								[ngClass]="{'active': !isPreviewEnabled, 'btn-success': isPreviewEnabled, 'btn-secondary': !isPreviewEnabled}"
 								(click)="togglePreviewEnabled()">
 							</button>
@@ -102,7 +102,7 @@
 					<div class="phd-line">
 						<div class="font-weight-bold">Design Preview Pre-Sale Link by Plan</div>
 						<select class="form-control ml-1" [(ngModel)]="selectedOption"
-							[disabled]="isPhdLite || isSalesAdminReadOnly"
+							[disabled]="disabledDesignPreviewSettings()"
 							(ngModelChange)="onPlanSelectionChanged($event)">
 							<option [ngValue]="null" disabled="true" selected>Choose a Plan</option>
 							<option *ngFor="let plan of plans" [ngValue]="plan">{{ plan.displayName }}</option>

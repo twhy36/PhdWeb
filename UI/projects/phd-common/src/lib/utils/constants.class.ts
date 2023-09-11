@@ -23,7 +23,10 @@ export abstract class Constants
     static readonly CANCEL = `Cancel`;
     static readonly CLOSE = `Close`;
     static readonly CONTINUE = `Continue`;
-    static readonly DO_YOU_WISH_TO_CONTINUE = `Do you wish to continue?`;
+	static readonly DO_YOU_WISH_TO_CONTINUE = `Do you wish to continue?`;
+	static readonly WITHDRAW_CHANGE_ORDER = `You are about to withdraw this change order.<br/><br/>Do you wish to continue?`;
+	static readonly APPROVE_CHANGE_ORDER = `You are about to approve this change order.<br/><br/>Do you wish to continue?`;
+	static readonly REJECT_CHANGE_ORDER = `You are about to reject this change order.<br/><br/>Do you wish to continue?`;
     static readonly LOSE_CHANGES = `If you continue you will lose your changes.<br/><br/>Do you wish to continue?`;
     static readonly MODAL_ERROR = `An error has occurred while saving your changes. Please try again.`;
     static readonly MODAL_SUCCESS = `Changes have been saved successfully.`;

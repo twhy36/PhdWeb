@@ -25,7 +25,8 @@ import { CurrentAttribute } from '../../../shared/models/current-attribute.model
 	selector: 'attribute-group-mobile',
 	templateUrl: './attribute-group.component.html',
 	styleUrls: ['./attribute-group.component.scss']
-	})
+// eslint-disable-next-line indent
+})
 export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnInit
 {
 	@Input() currentChoice: ChoiceExt;
@@ -329,6 +330,4 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 
 		return selectedAttributes;
 	}
-
-
 }

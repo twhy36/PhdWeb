@@ -1,11 +1,10 @@
 import { Component, OnInit, OnChanges, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef, SimpleChanges, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-
 import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
+import { BuildMode } from '../../models/build-mode.model';
 import { DecisionPoint, Group, SubGroup, Choice, JobChoice, UnsubscribeOnDestroy, flipOver2, DesignToolAttribute } from 'phd-common';
 import { isChoiceAttributesComplete } from '../../classes/utils.class';
-import { BuildMode } from '../../models/build-mode.model';
 import { MappedAttribute } from '../../models/attribute-ext.model';
 
 @Component({
@@ -13,9 +12,11 @@ import { MappedAttribute } from '../../models/attribute-ext.model';
 	templateUrl: './decision-point-summary.component.html',
 	styleUrls: ['./decision-point-summary.component.scss'],
 	animations: [
+	// eslint-disable-next-line indent
 		flipOver2
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush
+// eslint-disable-next-line indent
 })
 export class DecisionPointSummaryComponent extends UnsubscribeOnDestroy implements OnInit, OnChanges
 {

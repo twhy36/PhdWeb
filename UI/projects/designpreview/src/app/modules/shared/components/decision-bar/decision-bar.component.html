@@ -12,7 +12,7 @@
 					<div class="icon">
 						<i class="fa fa-check" attr.aria-label="{{point.label + ' Completed'}}" *ngIf="point.completed" aria-label="Checkmark"></i>
 					</div>
-					<div class="label" title="{{point.label}}" [attr.id]="'decision-bar-' + point.id">{{point.label | ellipsis: 40}}</div>
+					<div class="label" title="{{point.label}}" [attr.id]="'decision-bar-' + point.id" data-testid="point-label">{{point.label | ellipsis: 40}}</div>
 				</li>
 			</a>
 		</ng-container>
