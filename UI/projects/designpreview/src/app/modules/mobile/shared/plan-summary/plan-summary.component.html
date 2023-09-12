@@ -1,5 +1,5 @@
 <div class="phd-plan-summary">
 	<span class="text-uppercase" data-testid="community-label">{{communityName}},</span><br>
 	<span data-testid="plan-label">{{planName}} </span>
-	<span *ngIf="lotAddress" data-testid="lot-address-label">{{lotNumber}}<br>{{lotAddress}}</span>
+	<span *ngIf="!hideAddress && lotAddress" data-testid="lot-address-label">{{lotNumber}}<br>{{lotAddress}}</span>
 </div>

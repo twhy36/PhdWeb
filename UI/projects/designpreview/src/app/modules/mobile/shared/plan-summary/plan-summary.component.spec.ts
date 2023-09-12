@@ -56,4 +56,19 @@ describe('PlanSummaryComponent', () =>
 		const lotAddressLabel = findElementByTestId(fixture, 'lot-address-label');
 		expect(lotAddressLabel.nativeElement.innerText).toBe(`LOT ${mockLot.lotBlock}\n${mockLot.streetAddress1} ${mockLot.streetAddress2}, ${mockLot.city}, ${mockLot.stateProvince} ${mockLot.postalCode}`);
 	});
+
+	it('address should appear by default', () =>
+	{
+		const addressLabel = findElementByTestId(fixture, 'address-label');
+		expect(addressLabel).toBeDefined();
+	});
+
+	it('address should be hidden if hideAddress is true', () =>
+	{
+		component.hideAddress = true;
+		fixture.detectChanges();
+
+		const addressLabel = findElementByTestId(fixture, 'address-label');
+		expect(addressLabel).toBeNull();
+	});
 });

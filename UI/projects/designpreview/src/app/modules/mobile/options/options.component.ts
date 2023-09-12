@@ -105,33 +105,35 @@ export class OptionsComponent extends UnsubscribeOnDestroy implements OnInit
 				{
 					this.router.navigate(['/options', this.selectedSubGroup.id, this.selectedSubGroup.points[0]?.id], { queryParamsHandling: 'merge' })
 				}
-
-				this.store.dispatch(new NavActions.SetSelectedSubgroup(
-					this.selectedSubGroup.id,
-					this.selectedDecisionPoint.id,
-					null
-				));
-
-				// Provide routerLink to the action bar
-				const selectedSubGroupIndex = subGroups.findIndex(sg => sg.id === this.selectedSubGroupId);
-				const lastSubGroup = subGroups[subGroups.length - 1];
-				const lastDecisionPoint = this.selectedSubGroup.points[this.selectedSubGroup.points.length - 1];
-				const nextSubGroup = subGroups[selectedSubGroupIndex + 1] ?? null;
-				this.actionLabel = 'Next: ';
-
-				// last decision point, go to next subgroup
-				if (lastDecisionPoint.id === this.selectedDecisionPoint.id)
-				{
-					// go to my favorites if last subgroup, otherwise nextSubGroup
-					this.actionLabel += lastSubGroup.id === this.selectedSubGroup.id ? 'My Favorites' : nextSubGroup.label;
-					this.actionLink = lastSubGroup.id === this.selectedSubGroup.id ? ['/favorites/summary'] : ['/options', nextSubGroup.id, nextSubGroup.points[0].id];
-				}
 				else
 				{
-					const nextDecisionPointIndex = this.selectedSubGroup.points.findIndex(dp => dp.id === this.selectedDecisionPointId) + 1;
-					const nextDecisionPoint = this.selectedSubGroup.points[nextDecisionPointIndex];
-					this.actionLabel += nextDecisionPoint.label;
-					this.actionLink = ['/options', this.selectedSubGroupId, nextDecisionPoint.id];
+					this.store.dispatch(new NavActions.SetSelectedSubgroup(
+						this.selectedSubGroup.id,
+						this.selectedDecisionPoint.id,
+						null
+					));
+	
+					// Provide routerLink to the action bar
+					const selectedSubGroupIndex = subGroups.findIndex(sg => sg.id === this.selectedSubGroupId);
+					const lastSubGroup = subGroups[subGroups.length - 1];
+					const lastDecisionPoint = this.selectedSubGroup.points[this.selectedSubGroup.points.length - 1];
+					const nextSubGroup = subGroups[selectedSubGroupIndex + 1] ?? null;
+					this.actionLabel = 'Next: ';
+	
+					// last decision point, go to next subgroup
+					if (lastDecisionPoint.id === this.selectedDecisionPoint.id)
+					{
+						// go to my favorites if last subgroup, otherwise nextSubGroup
+						this.actionLabel += lastSubGroup.id === this.selectedSubGroup.id ? 'My Favorites' : nextSubGroup.label;
+						this.actionLink = lastSubGroup.id === this.selectedSubGroup.id ? ['/favorites/summary'] : ['/options', nextSubGroup.id, nextSubGroup.points[0].id];
+					}
+					else
+					{
+						const nextDecisionPointIndex = this.selectedSubGroup.points.findIndex(dp => dp.id === this.selectedDecisionPointId) + 1;
+						const nextDecisionPoint = this.selectedSubGroup.points[nextDecisionPointIndex];
+						this.actionLabel += nextDecisionPoint.label;
+						this.actionLink = ['/options', this.selectedSubGroupId, nextDecisionPoint.id];
+					}
 				}
 			}
 			else
