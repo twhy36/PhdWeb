@@ -97,17 +97,16 @@ export class ChangeOrderEffects
 			withLatestFrom(
 				this.store,
 				this.store.pipe(select(priceBreakdown)),
-				this.store.pipe(select(fromRoot.legacyColorScheme))
+				this.store.pipe(select(fromRoot.legacyColorScheme)),
+				this.store.pipe(select(fromRoot.isSpecOrModel))
 			),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown, legacyColorScheme]) =>
+				switchMap(([action, store, priceBreakdown, legacyColorScheme, isSpecOrModel]) =>
 				{
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
-
+					const changePrice = this.changeOrderService.calculateChangePrice(priceBreakdown, store.salesAgreement, store.job, isSpecOrModel);
+					
 					const baseHouseOption = store.job.jobPlanOptions ? store.job.jobPlanOptions.find(x => x.jobOptionTypeName === 'BaseHouse') : null;
 					const inputData = isPhdLite
 						? this.liteService.getJobChangeOrderInputDataLite(
@@ -187,11 +186,12 @@ export class ChangeOrderEffects
 	createSalesChangeOrder$: Observable<Action> = createEffect(() =>
 		this.actions$.pipe(
 			ofType<CreateSalesChangeOrder>(ChangeOrderActionTypes.CreateSalesChangeOrder),
-			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
+			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown)),
+				this.store.pipe(select(fromRoot.isSpecOrModel))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
+				switchMap(([action, store, priceBreakdown, isSpecOrModel]) =>
 				{
-					const changePrice = priceBreakdown.totalPrice - store.salesAgreement.salePrice;
+					const changePrice = this.changeOrderService.calculateChangePrice(priceBreakdown, store.salesAgreement, store.job, isSpecOrModel);
 
 					const data = this.changeOrderService.getSalesChangeOrderData(
 						store.changeOrder.currentChangeOrder,
@@ -300,13 +300,11 @@ export class ChangeOrderEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreateNonStandardChangeOrder>(ChangeOrderActionTypes.CreateNonStandardChangeOrder),
-			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
+			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown)), this.store.pipe(select(fromRoot.isSpecOrModel))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
+				switchMap(([action, store, priceBreakdown, isSpecOrModel]) =>
 				{
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = this.changeOrderService.calculateChangePrice(priceBreakdown, store.salesAgreement, store.job, isSpecOrModel);
 
 					const inputData = this.changeOrderService.getNonStandardChangeOrderData(
 						store.job.id,
@@ -381,15 +379,13 @@ export class ChangeOrderEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreatePlanChangeOrder>(ChangeOrderActionTypes.CreatePlanChangeOrder),
-			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
+			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown)), this.store.pipe(select(fromRoot.isSpecOrModel))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
+				switchMap(([action, store, priceBreakdown, isSpecOrModel]) =>
 				{
 					const isPhdLite = store.lite.isPhdLite;
 
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = this.changeOrderService.calculateChangePrice(priceBreakdown, store.salesAgreement, store.job, isSpecOrModel);
 
 					let inputData = isPhdLite
 						? this.liteService.getPlanChangeOrderDataLite(
@@ -500,13 +496,11 @@ export class ChangeOrderEffects
 	{
 		return this.actions$.pipe(
 			ofType<CreateLotTransferChangeOrder>(ChangeOrderActionTypes.CreateLotTransferChangeOrder),
-			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown))),
+			withLatestFrom(this.store, this.store.pipe(select(priceBreakdown)), this.store.pipe(select(fromRoot.isSpecOrModel))),
 			tryCatch(source => source.pipe(
-				switchMap(([action, store, priceBreakdown]) =>
+				switchMap(([action, store, priceBreakdown, isSpecOrModel]) =>
 				{
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = this.changeOrderService.calculateChangePrice(priceBreakdown, store.salesAgreement, store.job, isSpecOrModel);
 
 					const handing = store.job.handing !== store.changeOrder.changeInput.handing.handing
 						? store.changeOrder.changeInput.handing

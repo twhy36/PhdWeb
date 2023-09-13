@@ -25,7 +25,7 @@ import * as fromJob from '../../ngrx-store/job/reducer';
 import
 {
 	UnsubscribeOnDestroy, ModalRef, ESignStatusEnum, ESignTypeEnum, ChangeOrderGroup, ChangeTypeEnum,
-	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants, ConfirmModalComponent
+	ChangeInput, SalesStatusEnum, Job, PDFViewerComponent, ModalService, convertDateToUtcString, ChangeOrderChoice, Group, Constants, ConfirmModalComponent, PriceBreakdown
 } from 'phd-common';
 
 import { ChangeOrderService } from '../../core/services/change-order.service';
@@ -80,8 +80,8 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 	changeInput: ChangeInput;
 	treeGroups: Array<Group>;
 	actionType: string;
-	isAgreementSold: boolean;
-	changeOrderAmount: any;
+	priceBreakdown: PriceBreakdown;
+	isPending: boolean = false;
 
 	// PHD Lite
 	isPhdLite: boolean;
@@ -211,53 +211,66 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 		this.activatedRoute.paramMap
 			.pipe(
 				combineLatest(this.store.pipe(select(state => state.salesAgreement)),
-					this.store.pipe(select(jobState => jobState.job))),
-			).subscribe(([params, salesAgreementState, jobState]) =>
+					this.store.pipe(select(jobState => jobState.job)),
+					this.store.pipe(select(state => state.job.specInformation))),
+		).subscribe(([params, salesAgreementState, jobState, pulteInfo]) =>
+		{			
+			if (!this.jobId)
 			{
-				if (!this.jobId)
+				const id = +params.get('id');
+				const isSpec = params.get(Constants.BUILD_MODE_SPEC);
+
+				if (!this.loaded && isSpec === Constants.BUILD_MODE_SPEC)
 				{
-					const id = +params.get('id');
-					const isSpec = params.get(Constants.BUILD_MODE_SPEC);
-
-					if (!this.loaded && isSpec === Constants.BUILD_MODE_SPEC)
+					if (jobState.jobLoading && jobState.id === id)
 					{
-						if (jobState.jobLoading && jobState.id === id)
-						{
-							return new Observable<never>();
-						}
-						else
-						{
-							this.loaded = true;
-
-							this.store.dispatch(new JobActions.LoadJobForJob(id));
-						}
+						return new Observable<never>();
 					}
-
-					if (!this.loaded && isSpec === 'salesagreement')
+					else
 					{
-						if (salesAgreementState.salesAgreementLoading || salesAgreementState.savingSalesAgreement || salesAgreementState.loadError)
-						{
-							return new Observable<never>();
-						}
-
-						if (id > 0 && salesAgreementState.id !== id)
-						{
-							this.loaded = true;
-
-							this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
-						}
+						this.loaded = true;
+						this.store.dispatch(new JobActions.LoadJobForJob(id));
+						this.store.dispatch(new JobActions.LoadPulteInfo(id));
 					}
 				}
+
+				if (!this.loaded && isSpec === 'salesagreement')
+				{
+					if (salesAgreementState.salesAgreementLoading || salesAgreementState.savingSalesAgreement || salesAgreementState.loadError)
+					{
+						return new Observable<never>();
+					}
+
+					if (id > 0 && salesAgreementState.id !== id)
+					{
+						this.loaded = true;
+
+						this.store.dispatch(new CommonActions.LoadSalesAgreement(id));
+					}
+				}
+			}
+			else if (this.jobId && !pulteInfo && !this.loaded)
+			{
+				this.loaded = true;
+				this.store.dispatch(new JobActions.LoadPulteInfo(this.jobId));
+			}
 			});
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromRoot.priceBreakdown)
+		).subscribe(pb => this.priceBreakdown = pb);
 
 		this.store.pipe(
 			this.takeUntilDestroyed(),
 			select(state => state.job),
 			combineLatest(
 				this.store.pipe(select(fromScenario.buildMode)),
-				this.store.pipe(select(fromSalesAgreement.salesAgreementState))
+				this.store.pipe(select(fromSalesAgreement.salesAgreementState)),
+				this.store,
+				this.store.pipe(select(fromRoot.isSpecOrModel))
 			)
-		).subscribe(([job, buildMode, salesAgreement]) =>
+		).subscribe(([job, buildMode, salesAgreement, store, isSpecOrModel]) =>
 		{
 			this.salesAgreementId = salesAgreement.id;
 			this.constructionStageName = job.constructionStageName;
@@ -269,11 +282,11 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.signedDate = salesAgreement.signedDate;
 			this.isLockedIn = salesAgreement.isLockedIn;
 			this.isDesignComplete = salesAgreement.isDesignComplete;
-			this.isAgreementSold = this.salesAgreementId !== 0 && (this.buildMode != 'spec' && this.buildMode != 'model');
 
 			const index = job.changeOrderGroups.findIndex(t => (t.jobChangeOrders.find(c => c.jobChangeOrderTypeDescription === 'SpecJIO' || c.jobChangeOrderTypeDescription === 'SalesJIO')) !== undefined);
 			let changeOrders = [];
-
+			let changePrice = 0;
+			
 			if (index > -1)
 			{
 				changeOrders = job.changeOrderGroups.slice(0, index + 1);
@@ -286,21 +299,15 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 			this.changeOrders = changeOrders.map(o =>
 			{
 				let actionTypes = [];
+				let changePrice = 0;
+				this.isPending = false;
 				const signedStatusHistory = o.jobChangeOrderGroupSalesStatusHistories.find(t => t?.salesStatusId === 2);
-
-				if (!this.isAgreementSold)
-				{
-					// Calculate the sum of the decisionPointChoiceCalculatedPrice property
-					this.changeOrderAmount = o.jobChangeOrders.reduce((accumulator, jobChangeOrder) => {
-						const choices = jobChangeOrder.jobChangeOrderChoices || [];
-						const choicePrices = choices.map(choice => choice.decisionPointChoiceCalculatedPrice || 0);
-						const choiceSum = choicePrices.reduce((choiceAccumulator, price) => choiceAccumulator + price, 0);
-						return accumulator + choiceSum;
-					}, 0);
-				}
-
+								
 				if (o.salesStatusDescription === 'Pending')
 				{
+					this.isPending = true;
+					changePrice = this._changeOrderService.calculateChangePrice(this.priceBreakdown, store.salesAgreement, store.job, isSpecOrModel);
+					
 					// changeOrders[changeOrders.length - 1].id  - First CO on the page - Sales JIO/Spec Customer JIO/Spec JIO
 
 					actionTypes = (o.id === changeOrders[changeOrders.length - 1].id) ? [] :
@@ -356,7 +363,7 @@ export class ChangeOrderSummaryComponent extends UnsubscribeOnDestroy implements
 					createdBy: o.contact ? o.contact.displayName : o.createdBy,
 					createdByContactId: o.createdByContactId,
 					actionTypes: actionTypes,
-					amount: this.isAgreementSold ? o.amount : this.changeOrderAmount,
+					amount: isSpecOrModel && this.isPending ? changePrice : o.amount,
 					envelopeId: o.envelopeId,
 					salesChangeOrderBuyers: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderBuyers)),
 					salesChangeOrderPriceAdjustments: _.flatten(o.jobChangeOrders.map(t => t.jobSalesChangeOrderPriceAdjustments)),

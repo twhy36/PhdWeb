@@ -113,6 +113,7 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 	opportunityId: string;
 	tree: Tree;
 	treeVersionRules: TreeVersionRules;
+	loadingInfo = false;
 
 	defaultImage: string = environment.defaultImageURL;
 
@@ -424,10 +425,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 		combineLatest([
 			this.store.pipe(select(state => state.job)),
 			this.params$,
-			this.store.pipe(select(fromScenario.selectScenario))
+			this.store.pipe(select(fromScenario.selectScenario)),
+			this.store.pipe(select(state => state.job.specInformation))
 		])
 			.pipe(this.takeUntilDestroyed())
-			.subscribe(([job, params, scenario]) =>
+			.subscribe(([job, params, scenario, pulteInfo]) =>
 			{
 				if (job && job.projectedDates && job.projectedDates.projectedStartDate)
 				{
@@ -451,6 +453,11 @@ export class ScenarioSummaryComponent extends UnsubscribeOnDestroy implements On
 				else
 				{
 					this.canDisplay = true;
+				}
+				if (job.id && !pulteInfo && !this.loadingInfo)
+				{
+					this.loadingInfo = true;
+					this.store.dispatch(new JobActions.LoadPulteInfo(job.id));
 				}
 			});
 

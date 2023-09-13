@@ -3,7 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable, throwError as _throw } from 'rxjs';
 import { map, catchError, tap, flatMap } from 'rxjs/operators';
-
+import * as fromSalesAgreement from '../../ngrx-store/sales-agreement/reducer';
+import * as fromJob from '../../ngrx-store/job/reducer';
 import * as _ from 'lodash';
 
 import
@@ -11,7 +12,7 @@ import
 	getNewGuid, createBatchPatch, createBatchBody, createBatchHeaders, withSpinner, DesignToolAttribute, Buyer, ESignEnvelope,
 	ChangeOrderGroup, ChangeOrderNonStandardOption, ChangeInput, ChangeOrderChoice, ChangeOrderPlanOption, ChangeOrderChoiceLocation,
 	ChangeOrderHanding, ChangeTypeEnum, Job, JobChoice, JobChoiceAttribute, JobChoiceLocation, JobPlanOption, PlanOption, Plan, SalesAgreement,
-	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, TreeService, isLocked
+	SalesChangeOrderTrust, Tree, DecisionPoint, Choice, IdentityService, OptionRule, TreeService, isLocked, PriceBreakdown
 } from 'phd-common';
 
 import { environment } from '../../../../environments/environment';
@@ -2019,5 +2020,21 @@ export class ChangeOrderService
 				return val;
 			}
 		}, null);
+	}
+
+	calculateChangePrice(priceBreakdown: PriceBreakdown, salesAgreement: fromSalesAgreement.State, job: fromJob.State, isSpecOrModel: boolean): number
+	{
+		let changePrice = 0;
+
+		if (salesAgreement?.id > 0)
+		{
+			changePrice = priceBreakdown.totalPrice - salesAgreement.salePrice;
+		}
+		else if (isSpecOrModel && job?.id > 0)
+		{			
+			changePrice = priceBreakdown.totalPrice - job.specInformation?.specPrice;			
+		}
+
+		return changePrice;
 	}
 }
