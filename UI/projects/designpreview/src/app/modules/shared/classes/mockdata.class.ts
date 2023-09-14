@@ -16,6 +16,8 @@ import
 	SubGroup,
 	TreeVersion,
 } from 'phd-common';
+import * as fromFavorite from '../../ngrx-store/favorite/reducer';
+import * as fromPlan from '../../ngrx-store/plan/reducer';
 import { ChoiceExt } from '../models/choice-ext.model';
 
 export const choiceToChoiceMustHaveRuleChoice: ChoiceExt =
