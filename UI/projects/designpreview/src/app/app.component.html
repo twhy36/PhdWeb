@@ -1,14 +1,28 @@
 <div [ngClass]="brandTheme" class="mat-typography">
-	<ng-container *ngIf="isMobile; else desktop">
-		<router-outlet></router-outlet>
-	</ng-container>
-	<ng-template #desktop>
+	<ng-container *ngIf="!isMobile; else mobile">
 		<nav-bar></nav-bar>
 		<div class="phd-main-container" clickDirective>
 			<router-outlet></router-outlet>
 		</div>
+	</ng-container>
+	<ng-template #mobile>
+		<mat-drawer-container hasBackdrop class="vh-100">
+			<mat-drawer mode="over" fixedInViewport #drawer class="phd-hamburger-menu">
+				<hamburger-menu-mobile (closeClicked)="drawer.close()"></hamburger-menu-mobile>
+			</mat-drawer>
+			<mat-drawer-content>
+				<header>
+					<nav-bar (hamburgerClicked)="drawer.toggle()"></nav-bar>
+				</header>
+				<main>
+					<router-outlet></router-outlet>
+				</main>
+				<footer>
+					<!-- <global-footer *ngIf="showFooter"></global-footer> -->
+				</footer>
+			</mat-drawer-content>
+		</mat-drawer-container>
 	</ng-template>
-	
 	<common-spinner></common-spinner>
 
 	<build-version class="phd-build-version" *ngIf="!environment.production" [branch]="branch" [version]="version"></build-version>

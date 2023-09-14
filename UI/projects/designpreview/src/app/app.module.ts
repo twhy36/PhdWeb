@@ -30,6 +30,8 @@ import { BrandService } from './modules/core/services/brand.service';
 import { DefaultErrorComponent } from './modules/core/components/default-error/default-error.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { PresaleInterceptor } from './modules/core/interceptors/presale.interceptor';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 const appRoutes: Routes = [
 	{ path: 'home', component: HomeModule },
@@ -86,6 +88,8 @@ const tryInitAuth = (authService: AuthService, identityService: IdentityService)
 	SharedModule,
 	HomeModule,
 	FavoritesModule,
+	MatIconModule,
+	MatSidenavModule,
 	MobileModule,
 	RouterModule.forRoot(appRoutes),
 	StoreModule,

@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
@@ -8,7 +8,6 @@ import * as fromRoot from '../../../ngrx-store/reducers';
 import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as ScenarioActions from '../../../ngrx-store/scenario/actions';
 import * as ErrorActions from '../../../ngrx-store/error.action';
-import * as FavoriteActions from '../../../ngrx-store/favorite/actions';
 
 import { Brands, BrandService } from '../../services/brand.service';
 import { BuildMode } from '../../../shared/models/build-mode.model';
@@ -33,6 +32,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	welcomeText: string = 'Welcome To Your Home';
 	sessionStorage: Storage = sessionStorage;
 	includedTree: TreeVersion;
+
+	@Output() hamburgerClicked = new EventEmitter();
 
 	@HostListener('window:resize', ['$event'])
 	onResize(event)
@@ -176,4 +177,10 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		return 'phd-nav-bar-' + this.brandService.getBrandName();
 	}
+
+	// toggleHamburgerMenu()
+	// {
+	// 	console.log('click menu icon');
+	// 	this.hamburgerClicked.emit();
+	// }
 }

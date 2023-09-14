@@ -512,7 +512,13 @@ ngb-modal-backdrop {
 	}
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (min-width: 1224px) {
+	.phd-mobile {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 1224px) {
 	.phd-image-carousel {
 		.phd-choice-image {
 			.phd-choice-image-selected {
@@ -528,8 +534,11 @@ ngb-modal-backdrop {
 			object-fit: contain;
 		}
 	}
-}
 
+	.phd-desktop {
+		display: none;
+	}
+}
 
 .phd-visually-hidden {
 	position: absolute;

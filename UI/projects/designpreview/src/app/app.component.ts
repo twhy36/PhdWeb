@@ -106,7 +106,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		{
 			if (event instanceof NavigationEnd)
 			{
-				this.handleMobileNavigation();
+				// this.handleMobileNavigation();
 			}
 		});
 
@@ -116,7 +116,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 
 			if (this.router.navigated)
 			{
-				this.handleMobileNavigation();
+				// this.handleMobileNavigation();
 			}
 		});
 	}
