@@ -51,7 +51,6 @@ describe('Reducers', () =>
 		floorPlanImages: [],
 		presalePricingEnabled: false,
 		priceRanges: [],
-		currentAttribute: undefined,
 	};
 
 	const testFavoriteState: fromFavorite.State = {
