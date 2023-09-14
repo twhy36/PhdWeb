@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
 import { UnsubscribeOnDestroy } from 'phd-common';
@@ -15,6 +15,8 @@ import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer
 })
 export class PlanSummaryComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	@Input() hideAddress: boolean = false;
+
 	communityName: string;
 	planName: string;
 	lotAddress: string;

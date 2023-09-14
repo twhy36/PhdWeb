@@ -3,22 +3,23 @@
 $detailed-point-panel-width: 300px;
 
 .phd-summary-container {
-	height: calc(100vh - 76px);
+	height: calc(100vh - 140px);
+	position: relative;
 
 	.phd-descriptive-text {
 		font-size: 11px;
 		font-weight: bold;
 		position: absolute;
-		margin-left: 10px;
-		bottom: 75px;
+		left: 10px;
+		bottom: 5px;
 		width: 33%;
 	}
 }
 
 .phd-floor-plan-summary {
 	display: flex;
-	flex-direction: row;
-	justify-content: space-evenly;
+	justify-content: center;
+	height: 100%;
 	overflow: hidden;
 
 	.phd-names {
@@ -48,8 +49,9 @@ $detailed-point-panel-width: 300px;
 	}
 
 	.phd-floorplan-container {
+		display: flex;
+		justify-content: center;
 		max-width: 100%;
-		margin-bottom: 60px;
 		overflow-y: hidden;
 		scrollbar-width: none; /* Firefox */
 		-ms-overflow-style: none;  /* Internet Explorer 10+ */
@@ -63,13 +65,9 @@ $detailed-point-panel-width: 300px;
 
 .phd-footer-bar {
 	padding-bottom: 70px;
-	margin-top: -64px;
 }
 
 .phd-default-ifp {
 	width: 70%;
-	margin-top: 40px;
-	margin-left: 15%;
-	margin-right: 15%;
 	align-self: center;
 }

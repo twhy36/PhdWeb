@@ -1827,4 +1827,3 @@ export const mockLot: LotExt = {
 	isMasterUnit: false,
 	handings: []
 };
-

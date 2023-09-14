@@ -1,7 +1,7 @@
 <div class="overflow-hidden">
 	<nav>
 		<mat-nav-list class="phd-group-list d-flex flex-row p-0 overflow-auto">
-			<mat-list-item class="phd-group-list-item d-flex flex-nowrap p-0" *ngFor="let group of groups">
+			<mat-list-item class="phd-group-list-item d-flex flex-nowrap p-0" *ngFor="let group of groups" [attr.id]="group.label" #groups>
 				<button mat-stroked-button class="phd-group-button w-100"
 					[matMenuTriggerFor]="subgroupMenu" #t="matMenuTrigger"
 					[class.phd-group-active]="isGroupActive(group)"
