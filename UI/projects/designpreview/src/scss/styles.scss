@@ -512,7 +512,7 @@ ngb-modal-backdrop {
 	}
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 1224px) {
 	.phd-image-carousel {
 		.phd-choice-image {
 			.phd-choice-image-selected {
@@ -526,6 +526,41 @@ ngb-modal-backdrop {
 			max-width: 100%;
 			height: 30vh;
 			object-fit: contain;
+		}
+	}
+}
+
+// This media query is used for mobile landscape styling changes
+@media (max-height: 480px) and (orientation:landscape) {
+	.phd-content-flex {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.phd-content-half-screen {
+		width: 50%;
+	}
+
+	.phd-options .phd-decision-point-label {
+		display: none;
+	}
+
+	.phd-primary-text {
+		// Override needed for mobile landscape options text
+		padding: .5rem 1rem !important;
+	}
+}
+
+@media (max-width: 1224px) and (orientation:landscape) {
+	.phd-choice-card-detail .phd-sticky-content {
+		position: unset;
+		z-index: unset;
+	}
+
+	.phd-elevation-image, .phd-image-content {
+		img {
+			height: 45vh;
 		}
 	}
 }
