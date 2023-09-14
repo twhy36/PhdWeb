@@ -1,29 +1,31 @@
-<div class="p-3">
-	<div class="d-flex justify-content-center">
-		<image
-			*ngIf="imageUrl"
-			[imageUrl]="imageUrl"
-			type="fetch"
-			class="phd-elevation-image"
-			alt=""
-			data-testid="elevation-image">
-        </image>
-		<img
-			class="phd-brand-logo"
-			*ngIf="!imageUrl"
-			[src]="getImageSrc()"
-			alt=""
-			data-testid="brand-logo"/>
+<div class="phd-content-flex p-3">
+	<div>
+		<div class="d-flex justify-content-center">
+			<image
+				*ngIf="imageUrl"
+				[imageUrl]="imageUrl"
+				type="fetch"
+				class="phd-elevation-image"
+				alt=""
+				data-testid="elevation-image">
+			</image>
+			<img
+				class="phd-brand-logo"
+				*ngIf="!imageUrl"
+				[src]="getImageSrc()"
+				alt=""
+				data-testid="brand-logo"/>
+		</div>
+		<div
+			class="phd-community-plan-info text-center mt-3 pb-2"
+			data-testid="elevation-info">
+			<ng-container *ngIf="communityName">
+				{{communityName}}<br/>
+			</ng-container>
+			{{planName}}
+		</div>
 	</div>
-	<div
-		class="phd-community-plan-info text-center mt-3 pb-2"
-		data-testid="elevation-info">
-		<ng-container *ngIf="communityName">
-			{{communityName}}<br/>
-		</ng-container>
-		{{planName}}
-	</div>
-	<div class="d-flex flex-column align-items-center text-center my-4">
+	<div class="phd-content-half-screen d-flex flex-column align-items-center text-center my-4">
 		<h1 class="phd-start-reviewing-title mb-3" data-testid="title">
 			Let's start personalizing your
 			<ng-container *ngIf="isPresale">future</ng-container> home.

@@ -307,5 +307,5 @@ describe('OptionsComponent', () =>
 		const groupSubGroupLabel = findElementByTestId(fixture, 'group-subgroup-label').nativeElement.innerText;
 
 		expect(groupSubGroupLabel).toBe(`${component.selectedGroup.label}: ${component.selectedSubGroup.label}`);
-	})
+	});
 });

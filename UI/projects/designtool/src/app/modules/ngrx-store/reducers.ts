@@ -663,7 +663,6 @@ export const priceBreakdown = createSelector(
 
 			if (currentChangeOrder && currentChangeOrder.jobChangeOrders)
 			{
-
 				//check price adjustment COs
 				const priceAdjustmentCO = currentChangeOrder.jobChangeOrders.find(x => x.jobChangeOrderTypeDescription === 'PriceAdjustment');
 
@@ -786,7 +785,15 @@ export const priceBreakdown = createSelector(
 				breakdown.selections = selections;
 			}
 
-			breakdown = setPriceBreakdown(breakdown, scenario.tree, scenario.options, scenario.lotPremium, salesAgreement.salePrice, planPrice);
+			// #403742 for unsold agreements, get the correct sale price
+			let salePrice = salesAgreement.salePrice;
+
+			if (!salesAgreement.id && !salePrice)
+			{
+				salePrice = job.jobSalesInfo?.specPrice || 0;
+			}
+
+			breakdown = setPriceBreakdown(breakdown, scenario.tree, scenario.options, scenario.lotPremium, salePrice, planPrice);
 		}
 
 		return breakdown;

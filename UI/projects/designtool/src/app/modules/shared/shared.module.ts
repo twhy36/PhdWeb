@@ -60,7 +60,6 @@ import { InputFilterDirective } from './directives/input-filter.directive';
 import { FloorPlanComponent } from './components/floor-plan/floor-plan.component';
 import { NewHomeService } from '../new-home/services/new-home.service';
 import { AutoResizeTextareaDirective } from './directives/auto-size-textarea.directive';
-import { AutoResizeInputDirective } from './directives/auto-size-input.directive';
 
  
 
@@ -104,7 +103,6 @@ import { AutoResizeInputDirective } from './directives/auto-size-input.directive
 		PlanCardComponent,
 		InputFilterDirective,
 		AutoResizeTextareaDirective,
-		AutoResizeInputDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
 		PriceRangePipe,
@@ -152,7 +150,6 @@ import { AutoResizeInputDirective } from './directives/auto-size-input.directive
 		PlanCardComponent,
 		InputFilterDirective,
 		AutoResizeTextareaDirective,
-		AutoResizeInputDirective,
 		DistributionListComponent,
 		ContactFullNamePipe,
 		PriceRangePipe,
