@@ -30,8 +30,8 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 })
 export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 {
+	mobileBreakpoint: string = '(max-width: 1224px)';
 	favoritesId: number;
-	mobileBreakpoint: string = '(max-width: 926px)';
 	environment: IEnvironment = environment;
 	isMobile: boolean = false;
 	title: string = 'Design Preview';
