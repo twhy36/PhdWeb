@@ -19,6 +19,7 @@ import * as fromApp from '../../../ngrx-store/app/reducer';
 import * as fromPlan from '../../../ngrx-store/plan/reducer';
 import * as fromFavorite from '../../../ngrx-store/favorite/reducer';
 import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
+import * as favoritesSummarySelector from './favorites-summary.selectors';
 
 import * as AppActions from '../../../ngrx-store/app/actions';
 import * as NavActions from '../../../ngrx-store/nav/actions';
@@ -121,11 +122,12 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		combineLatest([
 			this.activatedRoute.paramMap,
 			this.store.pipe(select(state => state.salesAgreement)),
-			this.store.pipe(select(state => state.scenario))
+			this.store.pipe(select(state => state.scenario)),
+			this.store.pipe(select(favoritesSummarySelector.selectFavoriteSummaryViewModel))
 		]).pipe(
-			switchMap(([params, salesAgreementState, scenarioState]) =>
+			switchMap(([params, salesAgreementState, scenarioState, favoriteSummary]) =>
 			{
-				if (salesAgreementState.salesAgreementLoading || salesAgreementState.loadError)
+				if (favoriteSummary.salesAgreementLoading || favoriteSummary.salesAgreementLoadError)
 				{
 					return new Observable<never>();
 				}
@@ -137,9 +139,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 				//BuyerPreview mode with querystring SA ID changes, or store buildMode != BuyerPreview
 				//reload SA and update store buildmode
 				if (salesAgreementId > 0 &&
-					(salesAgreementState.id !== salesAgreementId
-						|| !scenarioState.buildMode
-						|| scenarioState.buildMode !== BuildMode.BuyerPreview)
+					(favoriteSummary.sagId !== salesAgreementId
+						|| !favoriteSummary.buildMode
+						|| favoriteSummary.buildMode !== BuildMode.BuyerPreview)
 				)
 				{
 					this.store.dispatch(new CommonActions.LoadSalesAgreement(salesAgreementId, true, true));
@@ -147,8 +149,8 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 					return new Observable<never>();
 				}
 
-				this.isPresalePricingEnabled = scenarioState.presalePricingEnabled;
-				this.isPresale = scenarioState.buildMode === BuildMode.Presale;
+				this.isPresalePricingEnabled = favoriteSummary.presalePricingEnabled;
+				this.isPresale = favoriteSummary.buildMode === BuildMode.Presale;
 
 				return of(_.pick(salesAgreementState, _.keys(new SalesAgreement())));
 			}),
