@@ -1,165 +1,263 @@
-<div class="phd-hide-from-print">
-	<group-bar [communityName]="communityName" 
-		[planName]="planName" 
-		[groups]="groups"
-		(subgroupSelected)="onSubgroupSelected($event)">
-	</group-bar>
-</div>
+<div class="phd-desktop">
+	<div class="phd-hide-from-print">
+		<group-bar [communityName]="communityName" 
+			[planName]="planName" 
+			[groups]="groups"
+			(subgroupSelected)="onSubgroupSelected($event)">
+		</group-bar>
+	</div>
 
-<ng-template #content>
-	<main class="d-flex">
-		<div ngClass="phd-favorites-summary">
-			<summary-header class="phd-hide-from-print" 
-				[summaryHeader]="summaryHeader"
-				[priceBreakdown]="priceBreakdown" 
-				[includeContractedOptions]="includeContractedOptions"
-				[isDesignComplete]="isDesignComplete" 
-				(isStickyChanged)="onIsStickyChanged($event)"
-				(contractedOptionsToggled)="onContractedOptionsToggled()">
-			</summary-header>
-			<summary-header class="phd-show-on-print phd-print-header" 
-				[summaryHeader]="summaryHeader"
-				[priceBreakdown]="priceBreakdown" 
-				[includeContractedOptions]="includeContractedOptions"
-				[isDesignComplete]="isDesignComplete" 
-				[isPrintHeader]="true"
-				(isStickyChanged)="onIsStickyChanged($event)" 
-				(contractedOptionsToggled)="onContractedOptionsToggled()">
-			</summary-header>
+	<ng-template #content>
+		<main class="d-flex">
+			<div ngClass="phd-favorites-summary">
+				<summary-header class="phd-hide-from-print" 
+					[summaryHeader]="summaryHeader"
+					[priceBreakdown]="priceBreakdown" 
+					[includeContractedOptions]="includeContractedOptions"
+					[isDesignComplete]="isDesignComplete" 
+					(isStickyChanged)="onIsStickyChanged($event)"
+					(contractedOptionsToggled)="onContractedOptionsToggled()">
+				</summary-header>
+				<summary-header class="phd-show-on-print phd-print-header" 
+					[summaryHeader]="summaryHeader"
+					[priceBreakdown]="priceBreakdown" 
+					[includeContractedOptions]="includeContractedOptions"
+					[isDesignComplete]="isDesignComplete" 
+					[isPrintHeader]="true"
+					(isStickyChanged)="onIsStickyChanged($event)" 
+					(contractedOptionsToggled)="onContractedOptionsToggled()">
+				</summary-header>
 
-			<div class="phd-tree-view phd-tree-view-on-print" [class.phd-is-sticky]="isSticky"
-				[class.phd-tree-view-presale]="isPresale && !isPresalePricingEnabled">
-				<ul class="phd-group-list">
-					<ng-container *ngFor="let group of groups">
-						<span class="phd-show-on-print">&nbsp;</span>
-						<div class="phd-group" role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups.length > 0">
-							<div class="phd-label">
-								<h2>{{group.label}}</h2>
-								<div *ngIf="!isPresale || isPresalePricingEnabled" class="phd-group-detail">
-									<span class="phd-group-subtotal-label">Subtotal : </span>
-									<span class="phd-group-subtotal-amount"> {{group.price |
-										currency:'USD':'symbol':'0.0-0'}} </span>
-								</div>
-							</div>
-							<ul class="phd-sub-group d-flex flex-column justify-content-between"
-								*ngFor="let subGroup of group.subGroups">
-								<div role="group" attr.aria-label="{{subGroup.label}}">
-									<div class="phd-header d-flex justify-content-between align-items-center">
-										<h3>{{subGroup.label}}</h3>
+				<div class="phd-tree-view phd-tree-view-on-print" [class.phd-is-sticky]="isSticky"
+					[class.phd-tree-view-presale]="isPresale && !isPresalePricingEnabled">
+					<ul class="phd-group-list">
+						<ng-container *ngFor="let group of groups">
+							<span class="phd-show-on-print">&nbsp;</span>
+							<div class="phd-group" role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups.length > 0">
+								<div class="phd-label">
+									<h2>{{group.label}}</h2>
+									<div *ngIf="!isPresale || isPresalePricingEnabled" class="phd-group-detail">
+										<span class="phd-group-subtotal-label">Subtotal : </span>
+										<span class="phd-group-subtotal-amount"> {{group.price |
+											currency:'USD':'symbol':'0.0-0'}} </span>
 									</div>
-									<ng-container *ngFor="let dp of subGroup.points">
-										<div class="phd-decision-point-summary" *ngIf="displayPoint(dp)">
-											<decision-point-summary
-												[decisionPoint]="dp"
-												[subGroup]="subGroup"
-												[group]="group"
-												[salesChoices]="salesChoices"
-												[includeContractedOptions]="includeContractedOptions"
-												[buildMode]="buildMode"
-												[isDesignComplete]="isDesignComplete"
-												[isPresale]="isPresale"
-												[isPresalePricingEnabled]="isPresalePricingEnabled"
-												[favoritesId]="favoritesId" 
-												(viewFavorites)="onViewFavorites($event)"
-												(removeFavorites)="onRemoveFavorites($event)"
-												data-testid="decision-point-summary">
-											</decision-point-summary>
+								</div>
+								<ul class="phd-sub-group d-flex flex-column justify-content-between"
+									*ngFor="let subGroup of group.subGroups">
+									<div role="group" attr.aria-label="{{subGroup.label}}">
+										<div class="phd-header d-flex justify-content-between align-items-center">
+											<h3>{{subGroup.label}}</h3>
+										</div>
+										<ng-container *ngFor="let dp of subGroup.points">
+											<div class="phd-decision-point-summary" *ngIf="displayPoint(dp)">
+												<decision-point-summary
+													[decisionPoint]="dp"
+													[subGroup]="subGroup"
+													[group]="group"
+													[salesChoices]="salesChoices"
+													[includeContractedOptions]="includeContractedOptions"
+													[buildMode]="buildMode"
+													[isDesignComplete]="isDesignComplete"
+													[isPresale]="isPresale"
+													[isPresalePricingEnabled]="isPresalePricingEnabled"
+													[favoritesId]="favoritesId" 
+													(viewFavorites)="onViewFavorites($event)"
+													(removeFavorites)="onRemoveFavorites($event)"
+													data-testid="decision-point-summary">
+												</decision-point-summary>
+											</div>
+										</ng-container>
+									</div>
+								</ul>
+							</div>
+						</ng-container>
+					</ul>
+
+					<!-- Show Floorplan(s) -->
+					<ng-container *ngIf="!noVisibleFP">
+						<div class="phd-group ifp-group">
+							<div class="phd-floorplan-image-section">
+								<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
+									<button class="phd-expendable-circle" (click)="toggleCollapsed()" aria-controls="floorplans">
+										<span *ngIf="!showFloorplan" aria-expanded="false" aria-label="Expand Floorplan">
+											<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-hidden="true"></i>
+										</span>
+										<span *ngIf="showFloorplan" aria-expanded="true" aria-label="Collapse Floorplan">
+											<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-hidden="true"></i>
+										</span>
+									</button>
+									<h2 class="phd-label">floorplan image</h2>
+								</div>
+								<h2 *ngIf="isPresale" class="phd-label">floorplan image</h2>
+								<span id="floorplans" *ngIf="showFloorplan || isPresale">
+									<ng-container *ngFor="let fpImage of floorPlanImages">
+										<div class="phd-sub-group d-flex flex-column justify-content-between">
+											<div class="phd-header d-flex justify-content-between align-items-center">
+												<span>{{ fpImage.floorName }}</span>
+											</div>
+											<span *ngIf="fpImage.floorIndex === 0"
+												class="phd-floorplan-disclaimer">{{ floorPlanDisclaimer }}</span>
+											<div class="d-flex flex-row phd-ifp" id="{{ getIfpId(fpImage) }}"
+												[innerHTML]="sanitizer.bypassSecurityTrustHtml(fpImage.svg)"></div>
 										</div>
 									</ng-container>
-								</div>
-							</ul>
+									<div class="phd-hide-from-print">
+										<!-- hidden instance necessary for floorplan images and interactions with choice removal -->
+										<floor-plan
+											[height]="'0'"
+											[planId$]="marketingPlanId"
+											[selectedFloor]="firstDisplayedFloor"
+											[subGroup]="IFPsubGroup"
+											[isFlipped]="isFloorplanFlipped"
+											[ifpID]="'firstDisplayedFloor'"
+											(floorPlanSaved)="onFloorPlanSaved($event)"
+										></floor-plan>
+									</div>
+								</span>
+							</div>
 						</div>
 					</ng-container>
-				</ul>
+				</div>
+				<div class="phd-disclaimer phd-hide-from-print">{{ disclaimerText }}</div>
+				<div class="phd-footer-bar phd-hide-from-print">
+					<footer-bar></footer-bar>
+				</div>
+			</div>
+		</main>
+	</ng-template>
 
-				<!-- Show Floorplan(s) -->
-				<ng-container *ngIf="!noVisibleFP">
-					<div class="phd-group ifp-group">
-						<div class="phd-floorplan-image-section">
-							<div *ngIf="!isPresale" class="phd-choice-expand d-flex flex-row">
-								<button class="phd-expendable-circle" (click)="toggleCollapsed()" aria-controls="floorplans">
-									<span *ngIf="!showFloorplan" aria-expanded="false" aria-label="Expand Floorplan">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-right" aria-hidden="true"></i>
-									</span>
-									<span *ngIf="showFloorplan" aria-expanded="true" aria-label="Collapse Floorplan">
-										<i class="fa fa-fw phd-clickable fa-chevron-circle-down" aria-hidden="true"></i>
-									</span>
-								</button>
-								<h2 class="phd-label">floorplan image</h2>
-							</div>
-							<h2 *ngIf="isPresale" class="phd-label">floorplan image</h2>
-							<span id="floorplans" *ngIf="showFloorplan || isPresale">
-								<ng-container *ngFor="let fpImage of floorPlanImages">
-									<div class="phd-sub-group d-flex flex-column justify-content-between">
-										<div class="phd-header d-flex justify-content-between align-items-center">
-											<span>{{ fpImage.floorName }}</span>
-										</div>
-										<span *ngIf="fpImage.floorIndex === 0"
-											class="phd-floorplan-disclaimer">{{ floorPlanDisclaimer }}</span>
-										<div class="d-flex flex-row phd-ifp" id="{{ getIfpId(fpImage) }}"
-											[innerHTML]="sanitizer.bypassSecurityTrustHtml(fpImage.svg)"></div>
-									</div>
-								</ng-container>
-								<div class="phd-hide-from-print">
-									<!-- hidden instance necessary for floorplan images and interactions with choice removal -->
-									<floor-plan
-										[height]="'0'"
-										[planId$]="marketingPlanId"
-										[selectedFloor]="firstDisplayedFloor"
-										[subGroup]="IFPsubGroup"
-										[isFlipped]="isFloorplanFlipped"
-										[ifpID]="'firstDisplayedFloor'"
-										(floorPlanSaved)="onFloorPlanSaved($event)"
-									></floor-plan>
-								</div>
-							</span>
-						</div>
+	<div class="phd-hide-from-print">
+		<ng-container *ngTemplateOutlet="content"></ng-container>
+	</div>
+
+	<table class="phd-show-on-print">
+		<tbody>
+			<tr>
+				<td>
+					<div class="phd-print-content">
+						<ng-container *ngTemplateOutlet="content"></ng-container>
 					</div>
-				</ng-container>
-			</div>
-			<div class="phd-disclaimer phd-hide-from-print">{{ disclaimerText }}</div>
-			<div class="phd-footer-bar phd-hide-from-print">
-				<footer-bar></footer-bar>
-			</div>
-		</div>
-	</main>
-</ng-template>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td>
+					<div class="phd-print-footer-space">&nbsp;</div>
+				</td>
+			</tr>
+		</tfoot>
+	</table>
 
-<div class="phd-hide-from-print">
-	<ng-container *ngTemplateOutlet="content"></ng-container>
+	<action-bar class="phd-hide-from-print" 
+		[primaryAction]="'Back'" 
+		[favoritesPrice]="priceBreakdown.favoritesPrice"
+		[price]="priceBreakdown.totalPrice" 
+		[showPrint]="true" 
+		[showFavorites]="false" 
+		[isDesignComplete]="isDesignComplete"
+		[isPreview]="isPreview" 
+		[isPresale]="isPresale" 
+		[includeContractedOptions]="includeContractedOptions"
+		(callToAction)="onBack()" 
+		(toggleContractedOptions)="onContractedOptionsToggled()">
+	</action-bar>
+
+	<div class="phd-print-footer phd-show-on-print">{{ disclaimerText }}</div>
 </div>
 
-<table class="phd-show-on-print">
-	<tbody>
-		<tr>
-			<td>
-				<div class="phd-print-content">
-					<ng-container *ngTemplateOutlet="content"></ng-container>
-				</div>
-			</td>
-		</tr>
-	</tbody>
-	<tfoot>
-		<tr>
-			<td>
-				<div class="phd-print-footer-space">&nbsp;</div>
-			</td>
-		</tr>
-	</tfoot>
-</table>
 
-<action-bar class="phd-hide-from-print" 
-	[primaryAction]="'Back'" 
-	[favoritesPrice]="priceBreakdown.favoritesPrice"
-	[price]="priceBreakdown.totalPrice" 
-	[showPrint]="true" 
-	[showFavorites]="false" 
-	[isDesignComplete]="isDesignComplete"
-	[isPreview]="isPreview" 
-	[isPresale]="isPresale" 
-	[includeContractedOptions]="includeContractedOptions"
-	(callToAction)="onBack()" 
-	(toggleContractedOptions)="onContractedOptionsToggled()">
-</action-bar>
 
-<div class="phd-print-footer phd-show-on-print">{{ disclaimerText }}</div>
+<div class="phd-mobile">
+
+	<div class="phd-summary container-fluid d-flex flex-column px-0 py-2">
+		<summary-header class="phd-hide-from-print" [summaryHeader]="summaryHeader" [priceBreakdown]="priceBreakdown"
+			[includeContractedOptions]="includeContractedOptions" [isDesignComplete]="isDesignComplete" [hasAgreement]="hasAgreement"
+			(isStickyChanged)="onIsStickyChanged($event)" (contractedOptionsToggled)="onContractedOptionsToggled()">
+		</summary-header>
+
+		<!-- group section -->
+		<ng-container *ngIf="groups?.length && (!isEmptyFavorites || includeContractedOptions)">
+			<!-- expand/collapse all links -->
+			<div class="phd-fav-text-end phd-show-in-print phd-sticky-content px-3 py-2" [ngStyle]="{ top: stickyHeaderOffset + 'px' }"
+				data-testid="expand-collapse-button">
+				<button class="phd-fav-link-button" *ngIf="!groupExpanded" mat-button (click)="accordion.openAll();groupExpanded = true;">Expand All</button>
+				<button class="phd-fav-link-button" *ngIf="groupExpanded" mat-button (click)="accordion.closeAll();groupExpanded = false;">Collapse All</button>
+			</div>
+
+			<!-- Group/Subgroup/Summary Row -->
+			<div class="mat-accordion-container">
+				<mat-accordion multi>
+					<ng-container *ngFor="let group of groups">
+						<div role="group" attr.aria-label="{{group.label}}" *ngIf="group.subGroups?.length > 0">
+							<mat-expansion-panel class="phd-remove-mat-expansion-panel-padding" expanded>
+								<mat-expansion-panel-header class="phd-fav-group">
+									<mat-panel-title class="d-flex justify-content-between">
+										{{group?.label}}
+										<span class="phd-fav-subtotal" *ngIf="!isPresale || isPresalePricingEnabled">
+											Subtotal : {{group?.price | currency:'USD':'symbol':'0.0-0'}}
+										</span>
+									</mat-panel-title>
+								</mat-expansion-panel-header>
+
+								<ng-container *ngFor="let subGroup of group.subGroups; last as isLast">
+									<div role="group" attr.aria-label="{{subGroup.label}}">
+										<div class="phd-fav-subgroup my-3">
+											{{subGroup.label}}
+										</div>
+										<ng-container *ngIf="displaySubGroupPoints(subGroup); else no_selections">
+											<ng-container *ngFor="let dp of subGroup.points">
+												<div *ngIf="displayPoint(dp)">
+													<decision-point-summary [decisionPoint]="dp" [subGroup]="subGroup" [group]="group"
+														[salesChoices]="salesChoices" [includeContractedOptions]="includeContractedOptions"
+														[buildMode]="buildMode" [isDesignComplete]="isDesignComplete" [isPresale]="isPresale"
+														[isPresalePricingEnabled]="isPresalePricingEnabled" [favoritesId]="favoritesId"
+														(viewFavorites)="onViewFavorites($event)" (removeFavorites)="onRemoveFavorites($event)"
+														data-testid="decision-point-summary">
+													</decision-point-summary>
+												</div>
+											</ng-container>
+										</ng-container>
+										<ng-template #no_selections>
+											<div class="d-flex flex-column phd-fav-subgroup text-center pb-3">
+												No Selections For {{subGroup.label}}
+												<a [routerLink]="['/options', subGroup.id, subGroup.points[0].id]" queryParamsHandling="merge"
+													class="phd-accent-text">View Options</a>
+											</div>
+										</ng-template>
+									</div>
+									<hr class="phd-subgroup-divider" *ngIf="!isLast" />
+								</ng-container>
+							</mat-expansion-panel>
+						</div>
+					</ng-container>
+					<!-- floorplan section -->
+					<mat-expansion-panel *ngIf="!noVisibleFP" class="phd-remove-mat-expansion-panel-padding" expanded data-testid="floorplan-expansion-panel">
+						<mat-expansion-panel-header class="phd-fav-group">
+							<mat-panel-title class="d-flex justify-content-between" data-testid="panel-title">
+								Floorplan Image
+							</mat-panel-title>
+						</mat-expansion-panel-header>
+						<div class="phd-floorplan-disclaimer py-3" data-testid="floorplan-disclaimer">
+							{{floorPlanDisclaimer}}</div>
+						<!-- <floorplan-image-tabs showExpandImageIcons="true" showImageContainerBorder="true" imageHeight="200px" data-testid="floorplan-image-tabs"></floorplan-image-tabs> -->
+					</mat-expansion-panel>
+				</mat-accordion>
+			</div>
+		</ng-container>
+
+		<!-- no group section -->
+		<div class="d-flex flex-column justify-content-center align-items-center p-3" *ngIf="isEmptyFavorites && !includeContractedOptions">
+			<div class="phd-fav-title">You don't yet have any favorites!</div>
+
+			<!-- <view-options-link [isPresale]="isPresale" class="phd-fav-review"></view-options-link> -->
+
+			<!-- <button *ngIf="showPendingAndContractedToggle" class="py-3 phd-fav-link-button" (click)="onContractedOptionsToggled($event)">{{showOptionText}}</button> -->
+		</div>
+
+		<!-- bottom disclaimer -->
+		<span class="phd-fav-disclaimer px-3">
+			{{disclaimerText}}
+		</span>
+	</div>
+</div>

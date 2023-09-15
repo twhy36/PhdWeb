@@ -23,6 +23,8 @@ import { SummaryHeaderComponent } from './components/favorites-summary/summary-h
 import { FloorPlanExperienceComponent } from './components/my-favorites/floor-plan-experience/floor-plan-experience.component';
 import { LoggedInGuard } from '../core/guards/logged-in.guard';
 import { BuildMode } from '../shared/models/build-mode.model';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 
 const moduleRoutes: Routes = [
 	{
@@ -112,6 +114,8 @@ const moduleRoutes: Routes = [
 	imports: [
 	CommonModule,
 	FormsModule,
+	MatExpansionModule,
+	MatIconModule,
 	ReactiveFormsModule,
 	CloudinaryModule,
 	SharedModule,

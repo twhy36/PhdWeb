@@ -1,3 +1,4 @@
+<div class="phd-desktop">
 <header [ngClass]="(isPresale && !isPresalePricingEnabled) ? 'phd-summary-header-presale' : ''" class="phd-summary-header" [class.is-sticky]="isSticky">
 
 	<ng-container *ngIf="(isPresale && !isPresalePricingEnabled) || (!isPresale || isPresalePricingEnabled)">
@@ -134,3 +135,69 @@
 	<div class="phd-bottom-price-spacer"></div>
 	<div class="phd-divider"></div>
 </header>
+</div>
+
+
+<div class="phd-mobile">
+	<!-- sticky header section -->
+	<div #stickyHeader class="phd-sticky-header d-flex justify-content-between align-items-center phd-fav-title px-3 pt-2">
+		<h1>{{headerTitle}}</h1>
+		<!-- <button class="phd-fav-print-icon" [disabled]="isEmptyFavorites" aria-label="Print"> -->
+		<!-- <mat-icon (click)="onPrint()">print</mat-icon></button> -->
+	</div>
+
+	<!-- header section -->
+	<div class="d-flex flex-column">
+		<span class="phd-options-disclaimer px-3 py-1">
+			{{disclaimerText}}
+		</span>
+
+		<plan-summary class="px-3 py-2"></plan-summary>
+
+		<!-- only show when buyer or buyerpreview without designcompleted -->
+		<pending-and-contracted-toggle *ngIf="showPendingAndContractedToggle" class="p-1"></pending-and-contracted-toggle>
+	</div>  
+
+	<!-- price section -->
+	<header *ngIf="!isPresale || isPresalePricingEnabled" class="phd-fav-price-section p-3" >
+		<div class="d-flex justify-content-between" *ngIf="showDetailPrice">
+			<span>{{ isPresalePricingEnabled ? 'Estimated Base Price:' : 'Base Price:' }}</span>
+			<span>{{priceBreakdown?.baseHouse | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex justify-content-between" *ngIf="!isPresale && showDetailPrice">
+			<span>Lot Premium:</span>
+			<span>{{priceBreakdown?.homesite | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex justify-content-between" *ngIf="hasAgreement && showDetailPrice">
+			<span>{{isDesignComplete ? 'Options Total:' : 'Pending & Contracted Options:'}}</span>
+			<span>{{priceBreakdown?.selections | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex justify-content-between" *ngIf="priceBreakdown?.salesProgram && showDetailPrice">
+			<span>Sales Incentive:</span>
+			<span>({{priceBreakdown.salesProgram | currency:'USD':'symbol':'0.0-0'}})</span>
+		</div>
+		<div class="d-flex justify-content-between" *ngIf="priceBreakdown.priceAdjustments && !isPresale && showDetailPrice">
+			<span>Price Adjustments:</span>
+			<span>{{priceBreakdown?.priceAdjustments | currency:'USD':'symbol':'0.0-0' | minusSignToParens}}</span>
+		</div>
+		<div class="d-flex justify-content-between" *ngIf="priceBreakdown.nonStandardSelections && !isPresale && showDetailPrice">
+			<span>Non-Standard Options:</span>
+			<span>{{priceBreakdown?.nonStandardSelections | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex justify-content-between phd-fav-price-sum-row" *ngIf="!isDesignComplete">
+			<span class="phd-breakdown-label">Estimated Favorites Total:</span>
+			<span class="phd-breakdown-content">{{priceBreakdown?.favoritesPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex justify-content-between phd-fav-price-sum-row">               
+			<span>{{ getTotalPriceLabel() }}</span>
+			<span class="d-flex align-items-center"><mat-icon class="phd-tooltip-icon phd-icon-accent">info_outline</mat-icon>{{priceBreakdown?.totalPrice | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		<div class="d-flex justify-content-between" *ngIf="priceBreakdown.closingIncentive && !isPresale && showDetailPrice">
+			<span>Closing Cost Incentive:</span>
+			<span>{{(priceBreakdown?.closingIncentive + priceBreakdown.closingCostAdjustment) | currency:'USD':'symbol':'0.0-0'}}</span>
+		</div>
+		
+		<button class="phd-fav-link-button p-0" (click)="togglePriceDisplay();">See {{ showDetailPrice? 'Less' : 'More'}}</button>
+	</header>
+
+</div>

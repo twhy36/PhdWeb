@@ -39,6 +39,10 @@ import { FooterBarComponent } from './components/footer-bar/footer-bar.component
 import { ChoiceIdToNamePipe } from './pipes/choiceIdToName.pipe';
 import { PointIdToNamePipe } from './pipes/pointIdToName.pipe';
 import { ChoicePriceWithRangeCheckPipe } from './pipes/choicePriceWithRangeCheck.pipe';
+import { PlanSummaryComponent } from './components/plan-summary/plan-summary.component';
+import { PendingAndContractedToggleComponent } from './components/pending-and-contracted-toggle/pending-and-contracted-toggle.component';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
 	exports: [
@@ -61,7 +65,9 @@ import { ChoicePriceWithRangeCheckPipe } from './pipes/choicePriceWithRangeCheck
 	FooterBarComponent,
 	ChoiceIdToNamePipe,
 	PointIdToNamePipe,
-	ChoicePriceWithRangeCheckPipe
+	ChoicePriceWithRangeCheckPipe,
+	PlanSummaryComponent,
+	PendingAndContractedToggleComponent
 	],
 	declarations: [
 	ActionBarComponent,
@@ -88,7 +94,9 @@ import { ChoicePriceWithRangeCheckPipe } from './pipes/choicePriceWithRangeCheck
 	FooterBarComponent,
 	ChoiceIdToNamePipe,
 	PointIdToNamePipe,
-	ChoicePriceWithRangeCheckPipe
+	ChoicePriceWithRangeCheckPipe,
+ 	PlanSummaryComponent,
+  	PendingAndContractedToggleComponent
 	],
 	imports: [
 	BrowserModule,
@@ -102,7 +110,9 @@ import { ChoicePriceWithRangeCheckPipe } from './pipes/choicePriceWithRangeCheck
 	NgbTooltipModule,
 	MatMenuModule,
 	MatButtonModule,
-	PhdCommonModule
+	MatIconModule,
+	PhdCommonModule,
+	RouterModule
 	],
 	providers: []
 	})

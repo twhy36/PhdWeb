@@ -8,12 +8,13 @@ import { UnsubscribeOnDestroy, LotExt, PriceBreakdown, ImageTransformation, Imag
 import { BrandService } from '../../../../core/services/brand.service';
 import { BuildMode } from '../../../../shared/models/build-mode.model';
 import { Constants } from '../../../../shared/classes/constants.class';
+import { combineLatest } from 'rxjs';
 
 @Component({
 	selector: 'summary-header',
 	templateUrl: './summary-header.component.html',
 	styleUrls: ['./summary-header.component.scss']
-// eslint-disable-next-line indent
+	// eslint-disable-next-line indent
 })
 export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -22,6 +23,7 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	@Input() includeContractedOptions: boolean;
 	@Input() isDesignComplete: boolean = false;
 	@Input() isPrintHeader: boolean = false;
+	@Input() hasAgreement: boolean = false;
 
 	@Output() isStickyChanged = new EventEmitter<boolean>();
 	@Output() contractedOptionsToggled = new EventEmitter<boolean>();
@@ -34,6 +36,9 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 	headerTitle: string;
 	communityName: string;
 	planName: string;
+	buildMode: BuildMode;
+	showPendingAndContractedToggle: boolean = false;
+	showDetailPrice: boolean = true;
 	listener: () => void;
 
 	defaultImage: string = this.brandService.getBrandImage('logo');
@@ -84,11 +89,16 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 			this.planName = planData?.salesName;
 		});
 
-		this.store.pipe(
-			this.takeUntilDestroyed(),
-			select(state => state.scenario),
-		).subscribe((state) =>
+		combineLatest(
+			[this.store.pipe(
+				this.takeUntilDestroyed(),
+				select(state => state.scenario),
+			), this.store.pipe(select(fromRoot.favoriteTitle)),
+			]).subscribe(([state, title]) =>
 		{
+			this.headerTitle = state.buildMode === BuildMode.Preview ? 'Preview Favorites' : (this.isPresale ? 'My Favorites' : title);
+			this.showPendingAndContractedToggle = (this.buildMode === BuildMode.Buyer || this.buildMode === BuildMode.BuyerPreview) && !this.isDesignComplete;
+
 			switch (state.buildMode)
 			{
 				case (BuildMode.Preview):
@@ -231,6 +241,11 @@ export class SummaryHeaderComponent extends UnsubscribeOnDestroy implements OnIn
 		{
 			return 'Estimated Total Purchase Price:';
 		}
+	}
+
+	togglePriceDisplay()
+	{
+		this.showDetailPrice = !this.showDetailPrice;
 	}
 }
 

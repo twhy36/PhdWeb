@@ -1,0 +1,13 @@
+<div class="d-flex align-items-center">
+	<mat-checkbox
+		[(ngModel)]="includeContractedOptions"
+		[disabled]="isContractedOptionsDisabled"
+		(change)="toggleContractedOptions()"
+		data-testid="checkbox">
+		<span class="phd-label ml-n2">{{label}}</span>
+	</mat-checkbox>
+	<!-- TODO: WI: 403427 Add Tooltip -->
+	<div class="pl-2 d-flex align-items-center">
+		<mat-icon class="phd-tooltip-icon phd-icon-accent">info_outline</mat-icon>
+	</div>
+</div>

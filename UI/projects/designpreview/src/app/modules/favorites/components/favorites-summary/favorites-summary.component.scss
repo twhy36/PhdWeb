@@ -192,3 +192,136 @@
 @page {
     margin-top: 2cm;
  }
+
+
+
+// Mobile styles
+ .phd-fav-title,
+h1 {
+	font-weight: bold;
+	font-size: large;
+}
+
+.phd-fav-print-icon {
+	background-color: transparent;
+	border: 0;
+}
+
+.phd-floorplan-disclaimer {
+	font-size: 11px;
+	line-height: 14px;
+}
+
+.phd-fav-disclaimer {
+	font-size: 11px;
+	color: #676767;
+	line-height: 14px;
+	letter-spacing: -0.12px;
+	padding-top: 2.5rem;
+	padding-bottom: 2.5rem;
+}
+
+.phd-options-disclaimer {
+	font-size: 11px;
+	color: #676767;
+	line-height: 12px;
+}
+
+.phd-fav-pending-option {
+	padding: 5px 0;
+	font-size: 12px;
+}
+
+label {
+	margin-bottom: 0;
+}
+
+.phd-fav-price-section {
+	font-size: 12px;
+	letter-spacing: 0.3px;
+	line-height: 17px;
+}
+
+.phd-fav-price-sum-row {
+	font-weight: 600;
+}
+
+.phd-fav-link-button {
+	font-weight: 600;
+	font-size: 14px;
+	background-color: transparent;
+	border: 0;
+	padding: 5px 0;
+}
+
+.phd-fav-text-end {
+	text-align: end !important;
+}
+
+.phd-fav-group {
+	font-weight: bold;
+	border: 1px solid;
+	padding: 8px 16px;
+}
+
+.phd-fav-subtotal {
+	font-weight: 600;
+	font-size: 12px;
+}
+
+.phd-fav-subgroup {
+	font-size: 14px;
+}
+
+.phd-fav-review {
+	font-weight: 600;
+	padding: 25px 10px;
+	text-align: center;
+}
+
+mat-accordion {
+	mat-expansion-panel {
+		border-radius: 0 !important;
+	}
+}
+
+.mat-expansion-panel-spacing {
+	margin: 0;
+}
+
+.mat-accordion-container {
+	border: solid 1px #333333;
+}
+
+mat-expansion-panel-header.mat-expanded {
+	border: none;
+}
+
+.mat-expansion-panel-body {
+	padding: 0 16px !important;
+}
+
+hr {
+	margin-top: 0;
+}
+
+.phd-tooltip-icon {
+	transform: scale(0.8);
+}
+
+.phd-summary {
+	min-height: 94vh;
+}
+
+@media print {
+	// Remove sticky properties if printing
+	.phd-sticky-header {
+		position: inherit;
+	}
+	.phd-sticky-content {
+		position: inherit;
+	}
+	.phd-sticky-footer {
+		position: inherit;
+	}
+}

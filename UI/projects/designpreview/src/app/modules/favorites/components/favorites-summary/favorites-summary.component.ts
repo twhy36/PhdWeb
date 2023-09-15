@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
@@ -37,15 +37,18 @@ import { InfoModalComponent } from '../../../shared/components/info-modal/info-m
 import { WelcomeModalComponent } from '../../../core/components/welcome-modal/welcome-modal.component';
 import { ScrollTop } from '../../../shared/classes/utils.class';
 import { Constants } from '../../../shared/classes/constants.class';
+import { MatAccordion } from '@angular/material/expansion';
 
 @Component({
 	selector: 'favorites-summary',
 	templateUrl: './favorites-summary.component.html',
 	styleUrls: ['./favorites-summary.component.scss']
 	})
-export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit
+export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements OnInit, AfterViewInit
 {
 	@ViewChild(SummaryHeaderComponent) summaryHeaderComponent: SummaryHeaderComponent;
+	@ViewChild(MatAccordion) accordion: MatAccordion;
+	@ViewChild('stickyHeader') stickyHeader: ElementRef;
 
 	brandTheme: string;
 	communityName: string = '';
@@ -81,6 +84,9 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 	welcomeModal: ModalRef;
 	showWelcomeModal: boolean = true;
 	isPresalePricingEnabled: boolean = false;
+	hasAgreement: boolean = false;
+	stickyHeaderOffset: number = 0;
+	groupExpanded: boolean = true;
 
 	constructor(private store: Store<fromRoot.State>,
 		private activatedRoute: ActivatedRoute,
@@ -167,6 +173,7 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 			this.isDesignComplete = sag?.isDesignComplete || false;
 			this.buildMode = scenario.buildMode;
 			this.summaryHeader.favoritesListName = this.isPreview ? 'Preview Favorites' : title;
+			this.hasAgreement = sag?.id > 0;
 		});
 
 		this.store.pipe(
@@ -331,9 +338,21 @@ export class FavoritesSummaryComponent extends UnsubscribeOnDestroy implements O
 		ScrollTop();
 	}
 
+	ngAfterViewInit(): void
+	{
+		// Calculate the sticky header size to offset the sticky content
+		this.stickyHeaderOffset = this.stickyHeader.nativeElement.offsetHeight;
+		this.cd.detectChanges();
+	}
+
 	onBack()
 	{
 		this.location.back();
+	}
+
+	displaySubGroupPoints(sg: SubGroup)
+	{
+		return sg.points.some(p => this.displayPoint(p));
 	}
 
 	displayPoint(dp: DecisionPoint)

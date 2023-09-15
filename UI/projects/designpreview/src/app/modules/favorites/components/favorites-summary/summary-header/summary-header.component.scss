@@ -329,3 +329,84 @@
 		font-size: 22px !important;
 	}
 }
+
+
+// Mobile styles
+.phd-fav-title,
+h1 {
+	font-weight: bold;
+	font-size: large;
+}
+
+.phd-fav-print-icon {
+	background-color: transparent;
+	border: 0;
+}
+
+.phd-fav-disclaimer {
+	font-size: 11px;
+	color: #676767;
+	line-height: 14px;
+	letter-spacing: -0.12px;
+	padding-top: 2.5rem;
+	padding-bottom: 2.5rem;
+}
+
+.phd-options-disclaimer {
+	font-size: 11px;
+	color: #676767;
+	line-height: 12px;
+}
+
+.phd-fav-pending-option {
+	padding: 5px 0;
+	font-size: 12px;
+}
+
+label {
+	margin-bottom: 0;
+}
+
+.phd-fav-price-section {
+	font-size: 12px;
+	letter-spacing: 0.3px;
+	line-height: 17px;
+}
+
+.phd-fav-price-sum-row {
+	font-weight: 600;
+}
+
+.phd-fav-link-button {
+	font-weight: 600;
+	font-size: 14px;
+	background-color: transparent;
+	border: 0;
+	padding: 5px 0;
+}
+
+.phd-fav-text-end {
+	text-align: end !important;
+}
+
+.phd-tooltip-icon {
+	transform: scale(0.8);
+}
+
+.phd-summary {
+	min-height: 94vh;
+}
+
+@media print {
+	// Remove sticky properties if printing
+	.phd-sticky-header {
+		position: inherit;
+	}
+	.phd-sticky-content {
+		position: inherit;
+	}
+	.phd-sticky-footer {
+		position: inherit;
+	}
+}
+
