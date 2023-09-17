@@ -26,7 +26,7 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
-// eslint-disable-next-line indent
+	// eslint-disable-next-line indent
 })
 export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 {
@@ -39,6 +39,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	buildMode: BuildMode;
 	logoutModal: ModalRef;
 	browserModal: ModalRef;
+	watchIdleStarted: boolean = false;
 
 	readonly breakpoint$ = this.breakpointObserver
 		.observe([this.mobileBreakpoint])
@@ -70,12 +71,6 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	{
 		super();
 
-		// Start idle watch for user inactivities if an external user is logged in
-		if (sessionStorage.getItem('authProvider') === 'sitecoreSSO' && sessionStorage.getItem('uri_state').endsWith('home')) 
-		{
-			this.watchIdle();
-		}
-
 		this.brandTheme = this.brandService.getBrandTheme();
 
 		// Need to add brand class to the overlayContainer for mat menu to be correctly stylized
@@ -101,11 +96,20 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 				window.removeEventListener('beforeunload', this.createBeforeUnloadListener);
 			}
 		});
-		
+
 		this.router.events.subscribe((event) =>
 		{
 			if (event instanceof NavigationEnd)
 			{
+				// Start idle watch for user inactivities if an external user is logged in 
+				// only for buyer mode
+				if (!this.watchIdleStarted && sessionStorage.getItem('authProvider') === 'sitecoreSSO'
+					&& this.router.url.indexOf('/home') !== -1)
+				{
+					this.watchIdleStarted = true;
+					this.watchIdle();
+				}
+
 				this.handleMobileNavigation();
 			}
 		});
