@@ -31,13 +31,17 @@ import { PresaleGuard } from './guards/presale.guard';
 import { ClickDirective } from './directives/click-directive.directive';
 import { InfoDisclaimerComponent } from './components/info-disclaimer/info-disclaimer.component';
 import { LoggingService, PhdErrorHandler } from 'phd-common';
-
+import { HamburgerMenuComponent } from './components/nav-bar/hamburger-menu/hamburger-menu.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonModule } from '@angular/material/button';
 @NgModule({
 	exports: [
 	NavBarComponent,
 	IdleLogoutComponent,
 	ClickDirective,
-	BannerComponent
+	BannerComponent,
+	HamburgerMenuComponent
 	],
 	declarations: [
 	NavBarComponent,
@@ -46,13 +50,17 @@ import { LoggingService, PhdErrorHandler } from 'phd-common';
 	DefaultErrorComponent,
 	BannerComponent,
 	WelcomeModalComponent,
-	InfoDisclaimerComponent
+	InfoDisclaimerComponent,
+ 	HamburgerMenuComponent
 	],
 	imports: [
 	CommonModule,
 	HttpClientModule,
 	RouterModule,
-	SharedModule
+	SharedModule,
+	MatButtonModule,
+	MatIconModule,
+	MatExpansionModule
 	],
 	providers: [
 	ChangeOrderService,

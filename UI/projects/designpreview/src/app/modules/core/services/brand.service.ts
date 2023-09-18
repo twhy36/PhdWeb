@@ -21,6 +21,7 @@ export class BrandService
 	brandName: string;
 	brandTitle: string;
 	brandTheme: string;
+	isMobile: boolean;
 
 	constructor()
 	{
@@ -31,6 +32,8 @@ export class BrandService
 		this.brandMap[environment.brandMap.centex] = centex['default'];
 		this.brandMap[environment.brandMap.johnWieland] = johnWieland['default'];
 		this.initialize();
+
+		this.isMobile = window.matchMedia("(max-width: 1224px)").matches;
 	}
 
 	initialize(): void

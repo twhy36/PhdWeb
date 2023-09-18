@@ -27,6 +27,7 @@
 
 @import "@angular/material/theming";
 @import '../../../phd-common/src/lib/scss/color-pallet.scss';
+@import "../../../phd-common/src/lib/scss/sizes.scss";
 @import './themes/american-west-theme.scss';
 @import './themes/centex-theme.scss';
 @import './themes/del-webb-theme.scss';
@@ -512,7 +513,33 @@ ngb-modal-backdrop {
 	}
 }
 
-@media screen and (max-width: 1224px) {
+//handle desktop
+@media screen and (min-width: ($mobile-max-landscape-width +1)) {
+	.phd-mobile {
+		display: none;
+	}
+	.phd-desktop {
+		display: block;
+	}
+}
+
+//handle mobile portait: width <= 480 px
+@media screen and (max-width: $mobile-max-portait-width) {
+	.phd-desktop {
+		display: none;
+	}
+
+	.phd-main-container {
+		padding-top: 42px;
+	}
+}
+
+//handle mobile landscape and tablet: width 481-1224 px
+@media screen and (max-width: $mobile-max-landscape-width), (min-width: ($mobile-max-portait-width +1)) {
+	.phd-desktop {
+		display: none;
+	}
+
 	.phd-image-carousel {
 		.phd-choice-image {
 			.phd-choice-image-selected {
@@ -528,10 +555,7 @@ ngb-modal-backdrop {
 			object-fit: contain;
 		}
 	}
-}
-
-// This media query is used for mobile landscape styling changes
-@media (max-height: 480px) and (orientation:landscape) {
+	
 	.phd-content-flex {
 		display: flex;
 		align-items: center;
@@ -549,19 +573,6 @@ ngb-modal-backdrop {
 	.phd-primary-text {
 		// Override needed for mobile landscape options text
 		padding: .5rem 1rem !important;
-	}
-}
-
-@media (max-width: 1224px) and (orientation:landscape) {
-	.phd-choice-card-detail .phd-sticky-content {
-		position: unset;
-		z-index: unset;
-	}
-
-	.phd-elevation-image, .phd-image-content {
-		img {
-			height: 45vh;
-		}
 	}
 }
 

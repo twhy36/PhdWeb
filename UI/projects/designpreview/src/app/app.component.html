@@ -1,13 +1,26 @@
 <div [ngClass]="brandTheme" class="mat-typography">
-	<ng-container *ngIf="isMobile; else desktop">
-		<router-outlet></router-outlet>
-	</ng-container>
-	<ng-template #desktop>
+	<ng-container *ngIf="!isMobile; else mobile">
 		<nav-bar></nav-bar>
 		<div class="phd-main-container" clickDirective>
 			<router-outlet></router-outlet>
 		</div>
-	</ng-template>
+	</ng-container>
+	<ng-template #mobile>
+		<mat-drawer-container hasBackdrop class="vh-100">
+			<mat-drawer mode="over" fixedInViewport #drawer class="phd-hamburger-menu">
+				<hamburger-menu (closeClicked)="drawer.close()"></hamburger-menu>
+			</mat-drawer>
+			<mat-drawer-content>
+				<header>
+					<nav-bar (hamburgerClicked)="drawer.toggle()"></nav-bar>
+				</header>
+				<main>
+					<router-outlet></router-outlet>
+				</main>
+
+			</mat-drawer-content>
+		</mat-drawer-container>
+	</ng-template>	
 	
 	<common-spinner></common-spinner>
 

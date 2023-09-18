@@ -1,4 +1,4 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
+//import { BreakpointObserver } from '@angular/cdk/layout';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
@@ -30,7 +30,7 @@ import { BuildMode } from './modules/shared/models/build-mode.model';
 })
 export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 {
-	mobileBreakpoint: string = '(max-width: 1224px)';
+	//mobileBreakpoint: string = '(max-width: 1224px)';
 	favoritesId: number;
 	environment: IEnvironment = environment;
 	isMobile: boolean = false;
@@ -40,11 +40,11 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 	logoutModal: ModalRef;
 	browserModal: ModalRef;
 	watchIdleStarted: boolean = false;
-
+/* 
 	readonly breakpoint$ = this.breakpointObserver
 		.observe([this.mobileBreakpoint])
 		.pipe(distinctUntilChanged());
-
+ */
 	get branch(): string 
 	{
 		return build.branch.split('/').slice(2).join('/');
@@ -61,7 +61,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private idle: Idle,
 		private router: Router,
 		private store: Store<fromRoot.State>,
-		private breakpointObserver: BreakpointObserver,
+		//private breakpointObserver: BreakpointObserver,
 		private modalService: ModalService,
 		private identityService: IdentityService,
 		private brandService: BrandService,
@@ -72,6 +72,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		super();
 
 		this.brandTheme = this.brandService.getBrandTheme();
+		this.isMobile = this.brandService.isMobile;
 
 		// Need to add brand class to the overlayContainer for mat menu to be correctly stylized
 		this.overlayContainer.getContainerElement().classList.add(this.brandTheme);
@@ -110,11 +111,11 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 					this.watchIdle();
 				}
 
-				this.handleMobileNavigation();
+				//this.handleMobileNavigation();
 			}
 		});
 
-		this.breakpoint$.subscribe(() =>
+/* 		this.breakpoint$.subscribe(() =>
 		{
 			this.isMobile = this.breakpointObserver.isMatched(this.mobileBreakpoint);
 
@@ -122,7 +123,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			{
 				this.handleMobileNavigation();
 			}
-		});
+		}); */
 	}
 
 	ngOnInit()
@@ -267,7 +268,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		return window.location.toString().includes('localhost');
 	}
 
-	private handleMobileNavigation(): void
+/* 	private handleMobileNavigation(): void
 	{
 		const currentUrl = this.router.url.indexOf('?') > 0 ? this.router.url.substring(0, this.router.url.indexOf('?')) : this.router.url;
 
@@ -293,7 +294,7 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 			newUrl = newUrl.replace('/mobile', '');
 			this.router.navigate([newUrl], { queryParamsHandling: 'merge' });
 		}
-	}
+	} 
 
 	private optionsPageConverter(url: string): string
 	{
@@ -307,5 +308,5 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		}
 
 		return url;
-	}
+	}*/
 }

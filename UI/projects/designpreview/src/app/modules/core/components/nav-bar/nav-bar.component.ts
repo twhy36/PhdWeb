@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 
@@ -33,6 +33,8 @@ export class NavBarComponent extends UnsubscribeOnDestroy implements OnInit
 	welcomeText: string = 'Welcome To Your Home';
 	sessionStorage: Storage = sessionStorage;
 	includedTree: TreeVersion;
+
+	@Output() hamburgerClicked = new EventEmitter();
 
 	@HostListener('window:resize', ['$event'])
 	onResize(event)
