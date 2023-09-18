@@ -8,6 +8,7 @@ import * as fromRoot from '../../ngrx-store/reducers';
 import * as ScenarioActions from '../../ngrx-store/scenario/actions';
 
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Injectable()
 export class PresaleGuard
@@ -20,7 +21,7 @@ export class PresaleGuard
 		const planGuid = route.queryParams.plan;
 		if (planGuid)
 		{
-			return (sessionStorage.getItem('presale_guid') === planGuid)
+			return (sessionStorage.getItem('presale_issuer') === environment.authConfigs['presale'].issuer && sessionStorage.getItem('presale_guid') === planGuid && sessionStorage.getItem('authProvider') === 'presale')
 				|| this.authService.getIsPresaleAuthenticated(planGuid, window.location.hostname)
 					.pipe(
 						tap(isAuthenticated =>

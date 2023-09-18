@@ -20,6 +20,7 @@ import { AttributeExt, AttributeGroupExt } from '../../../shared/models/attribut
 import { BuildMode } from '../../../shared/models/build-mode.model';
 import * as fromScenario from '../../../ngrx-store/scenario/reducer';
 import { CurrentAttribute } from '../../../shared/models/current-attribute.model';
+import * as fromSalesAgreement from '../../../ngrx-store/sales-agreement/reducer';
 
 @Component({
 	selector: 'attribute-group-mobile',
@@ -58,9 +59,19 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 
 	ngOnInit()
 	{
+		this.store.dispatch(new ScenarioActions.CurrentAttribute(null));
+
 		const getAttributeGroups: Observable<AttributeGroup[]> = this.currentChoice?.mappedAttributeGroups.length > 0 ? this.attributeService.getAttributeGroups(this.currentChoice) : of([]);
 
 		this.isBlocked = this.currentChoice?.choiceStatus === 'Available' && !this.currentChoice.enabled;
+
+		this.store.pipe(
+			this.takeUntilDestroyed(),
+			select(fromSalesAgreement.salesAgreementState)
+		).subscribe(sag => 
+		{
+			this.isDesignComplete = sag?.isDesignComplete || false;
+		});
 
 		combineLatest([
 			getAttributeGroups,
@@ -250,8 +261,6 @@ export class AttributeGroupComponent extends UnsubscribeOnDestroy implements OnI
 	//triggered when attriute heart is clicked (favorited)
 	handleToggleAttributeFavorite(event: MouseEvent, attribute: AttributeExt, attributeGroup: AttributeGroupExt) 
 	{
-		this.handleAttributeClick(event, attribute);
-
 		if (!this.isReadonly)
 		{
 			this.currentChoice.selectedAttributes = this.getSelectedAttributes(attribute, attributeGroup);
