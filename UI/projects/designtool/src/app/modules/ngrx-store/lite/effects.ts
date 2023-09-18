@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store, select } from '@ngrx/store';
 import { Observable, of, combineLatest, from, EMPTY as empty, NEVER } from 'rxjs';
-import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError } from 'rxjs/operators';
+import { switchMap, withLatestFrom, map, scan, filter, distinct, exhaustMap, tap, take, concat, catchError, skipWhile } from 'rxjs/operators';
 
 import { ChangeOrderHanding, ScenarioOption, IdentityService, Permission, ModalService, Constants } from 'phd-common';
 
 import { LiteService } from '../../core/services/lite.service';
 import { ChangeOrderService } from '../../core/services/change-order.service';
 import { PlanService } from '../../core/services/plan.service';
+import { JobService } from '../../core/services/job.service';
 
 import { DeselectPlan, PlanActionTypes, PlansLoaded, SelectPlan } from '../plan/actions';
 import { LotConflict, SaveError, ScenarioActionTypes, ScenarioSaved } from '../scenario/actions';
@@ -32,6 +33,8 @@ import { CreateEnvelope } from '../contract/actions';
 import { JIOForSpecCreated } from '../sales-agreement/actions';
 import * as fromLite from '../lite/reducer';
 import * as LiteActions from './actions';
+import { SetPermissions, UserActionTypes } from '../user/actions';
+import { JobPlanOptionsUpdated } from '../job/actions';
 
 @Injectable()
 export class LiteEffects
@@ -1118,6 +1121,94 @@ export class LiteEffects
 		);
 	});
 
+	updateSpecJobPricingLite$: Observable<Action> = createEffect(() =>
+		this.actions$.pipe(
+			ofType<SalesAgreementLoaded | ScenarioLoaded | JobLoaded | PlansLoaded | LotsLoaded | SetPermissions | LiteOptionsLoaded | OptionCategoriesLoaded>
+				(CommonActionTypes.SalesAgreementLoaded, CommonActionTypes.ScenarioLoaded, CommonActionTypes.JobLoaded, PlanActionTypes.PlansLoaded, LotActionTypes.LotsLoaded, UserActionTypes.SetPermissions, LiteActionTypes.LiteOptionsLoaded, LiteActionTypes.OptionCategoriesLoaded),
+			scan((prev, action) => (
+				{
+					sagScenarioLoaded: prev.sagScenarioLoaded || action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded,
+					userPermissions: prev.userPermissions || action instanceof SetPermissions,
+					action: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? action : prev.action,
+					plansLoaded: prev.plansLoaded || action instanceof PlansLoaded,
+					lotsLoaded: prev.lotsLoaded || action instanceof LotsLoaded,				
+					isPhdLite: action instanceof SalesAgreementLoaded || action instanceof ScenarioLoaded || action instanceof JobLoaded ? !action.tree : prev.isPhdLite,
+					optionsLoaded: prev.optionsLoaded || action instanceof LiteOptionsLoaded, 
+					categoriesLoaded: prev.categoriesLoaded || action instanceof OptionCategoriesLoaded
+				}), { sagScenarioLoaded: false, userPermissions: false, action: <SalesAgreementLoaded | ScenarioLoaded | JobLoaded>null, plansLoaded: false, lotsLoaded: false, isPhdLite: false, optionsLoaded: false, categoriesLoaded: false }),
+			skipWhile(result => !result.sagScenarioLoaded || !result.userPermissions || !result.plansLoaded || !result.lotsLoaded || !result.isPhdLite || !result.optionsLoaded || !result.categoriesLoaded),
+			map(result => result.action),
+			distinct(result => result.job.id),
+			switchMap(action =>
+				this.store.pipe(
+					take(1),
+					switchMap(state =>
+					{
+						if (!state.user.canSell)
+						{
+							return NEVER;
+						}
+
+						if (state.job.jobTypeName?.toLowerCase() !== Constants.BUILD_MODE_SPEC && state.job.jobTypeName?.toLowerCase() !== Constants.BUILD_MODE_MODEL && state.job.lot?.lotBuildTypeDesc?.toLowerCase() !== Constants.BUILD_MODE_SPEC)
+						{
+							return NEVER;
+						}
+						
+						if (action instanceof SalesAgreementLoaded && action.salesAgreement.status !== Constants.AGREEMENT_STATUS_PENDING)
+						{
+							return NEVER;
+						}
+
+						const currentChangeOrderGroup = state.job?.changeOrderGroups?.length > 0 ? state.job.changeOrderGroups[0] : null;
+
+						const updateSpecJobPricing = state.job && state.lite?.options && state.job.jobPlanOptions.some(jpo => state.lite.options.find(o => o.id === jpo.planOptionId && o.listPrice !== jpo.listPrice)) 
+							? this.jobService.updateSpecJobPricing(state.job.lotId) 
+							: of(null);
+						
+						return updateSpecJobPricing.pipe
+						(
+							map(jobPlanOptions => 
+							{
+								return { jobPlanOptions: jobPlanOptions, changeOrderGroup: currentChangeOrderGroup, salesAgreement: state.salesAgreement };
+							})
+						);
+					})
+
+				)
+			),
+			switchMap(result => 
+			{
+				let actions = [];
+				if (result.jobPlanOptions)
+				{
+					actions.push(new JobPlanOptionsUpdated(result.jobPlanOptions));
+				}
+
+				if (!result.salesAgreement.id && result.changeOrderGroup?.salesStatusDescription === Constants.AGREEMENT_STATUS_PENDING)
+				{
+					const specChangeOrders = result.changeOrderGroup.jobChangeOrders;
+
+					if (specChangeOrders.some(co => co.jobChangeOrderTypeDescription === 'Plan'))
+					{
+						actions.push(new CreatePlanChangeOrder());
+					}
+					else if (specChangeOrders.some(co => co.jobChangeOrderTypeDescription === 'ChoiceAttribute' || co.jobChangeOrderTypeDescription === 'Elevation'))
+					{
+						actions.push(new CreateJobChangeOrders());
+					}
+				}
+
+				if (actions.length > 0)
+				{
+					return from(actions);
+				}
+
+				return NEVER;
+			})
+		)
+	);	
+
+
 	constructor(
 		private actions$: Actions,
 		private store: Store<fromRoot.State>,
@@ -1126,6 +1217,7 @@ export class LiteEffects
 		private planService: PlanService,
 		private identityService: IdentityService,
 		private router: Router,
-		private modalService: ModalService
+		private modalService: ModalService,
+		private jobService: JobService
 	) { }
 }

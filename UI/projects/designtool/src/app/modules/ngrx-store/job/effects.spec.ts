@@ -3,12 +3,14 @@ import { Store } from '@ngrx/store';
 import { of, from } from 'rxjs';
 import { SalesAgreementLoaded, ScenarioLoaded } from '../actions';
 import { SetPermissions } from '../user/actions';
-import { SalesAgreement, JobPlanOption, Constants } from 'phd-common';
+import { SalesAgreement, JobPlanOption, Constants, Tree, Job } from 'phd-common';
 import { JobEffects } from './effects';
 import { mock } from 'ts-mockito';
 import { JobService } from '../../core/services/job.service';
 import { State } from '../reducers';
 import { JobPlanOptionsUpdated } from './actions';
+import { PlansLoaded } from '../plan/actions';
+import { LotsLoaded } from '../lot/actions';
 
 function getDefaultState()
 {
@@ -42,7 +44,9 @@ describe('JobEffects', () =>
 			const actions = new Actions(
 				from([
 					new ScenarioLoaded(null, null, null, null, null, null, null, false, null, [], null, null),
-					new SetPermissions(null, [], 1)
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);
@@ -61,7 +65,9 @@ describe('JobEffects', () =>
 			const actions = new Actions(
 				from([
 					new ScenarioLoaded(null, null, null, null, null, null, null, false, null, [], null, null),
-					new SetPermissions(null, [], 1)
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);
@@ -80,7 +86,9 @@ describe('JobEffects', () =>
 			const actions = new Actions(
 				from([
 					new SalesAgreementLoaded(<SalesAgreement>{ status: Constants.AGREEMENT_STATUS_OUT_FOR_SIGNATURE }, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
-					new SetPermissions(null, [], 1)
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);
@@ -99,7 +107,9 @@ describe('JobEffects', () =>
 			const actions = new Actions(
 				from([
 					new ScenarioLoaded(null, null, null, null, null, null, null, false, null, [], null, null),
-					new SetPermissions(null, [], 1)
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);
@@ -115,10 +125,15 @@ describe('JobEffects', () =>
 		{
 			const state = getDefaultState();
 			const store = of(state) as Store<State>;
+			const tree = { id: 1 } as Tree;
+			const job = { id: 1 } as Job; 
+
 			const actions = new Actions(
 				from([
-					new ScenarioLoaded(null, null, null, null, null, null, null, false, null, [], null, null),
-					new SetPermissions(null, [], 1)
+					new ScenarioLoaded(null, tree, null, null, null, null, null, false, null, [], null, job),
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);
@@ -138,10 +153,15 @@ describe('JobEffects', () =>
 		{
 			const state = getDefaultState();
 			const store = of({ ...state, job: { ...state.job, jobTypeName: 'Model' } }) as Store<State>;
+			const tree = { id: 1 } as Tree;
+			const job = { id: 1 } as Job;
+
 			const actions = new Actions(
 				from([
-					new ScenarioLoaded(null, null, null, null, null, null, null, false, null, [], null, null),
-					new SetPermissions(null, [], 1)
+					new ScenarioLoaded(null, tree, null, null, null, null, null, false, null, [], null, job),
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);
@@ -157,14 +177,19 @@ describe('JobEffects', () =>
 			expect(jobService.updateSpecJobPricing).toHaveBeenCalledWith(5);
 		});
 
-		it('should save if sales agreement is out for signature', () =>
+		it('should save if sales agreement is pending', () =>
 		{
 			const state = getDefaultState();
 			const store = of(state) as Store<State>;
+			const tree = { id: 1 } as Tree;
+			const job = { id: 1 } as Job;
+			
 			const actions = new Actions(
 				from([
-					new SalesAgreementLoaded(<SalesAgreement>{ status: Constants.AGREEMENT_STATUS_PENDING }, null, null, null, null, null, null, null, null, null, null, null, null, null, null),
-					new SetPermissions(null, [], 1)
+					new SalesAgreementLoaded(<SalesAgreement>{ status: Constants.AGREEMENT_STATUS_PENDING }, null, job, null, null, null, null, tree, null, null, null, null, null, null, null),
+					new SetPermissions(null, [], 1),
+					new PlansLoaded([]),
+					new LotsLoaded([])
 				])
 			);
 			const jobService = mock(JobService);

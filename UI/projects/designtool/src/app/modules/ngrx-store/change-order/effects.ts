@@ -104,9 +104,7 @@ export class ChangeOrderEffects
 				{
 					const isPhdLite = store.lite.isPhdLite || !store.scenario.tree;
 
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = priceBreakdown.changePrice;
 
 					const baseHouseOption = store.job.jobPlanOptions ? store.job.jobPlanOptions.find(x => x.jobOptionTypeName === 'BaseHouse') : null;
 					const inputData = isPhdLite
@@ -191,7 +189,7 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					const changePrice = priceBreakdown.totalPrice - store.salesAgreement.salePrice;
+					const changePrice = priceBreakdown.changePrice;
 
 					const data = this.changeOrderService.getSalesChangeOrderData(
 						store.changeOrder.currentChangeOrder,
@@ -304,9 +302,7 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = priceBreakdown.changePrice;
 
 					const inputData = this.changeOrderService.getNonStandardChangeOrderData(
 						store.job.id,
@@ -387,9 +383,7 @@ export class ChangeOrderEffects
 				{
 					const isPhdLite = store.lite.isPhdLite;
 
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = priceBreakdown.changePrice;
 
 					let inputData = isPhdLite
 						? this.liteService.getPlanChangeOrderDataLite(
@@ -504,9 +498,7 @@ export class ChangeOrderEffects
 			tryCatch(source => source.pipe(
 				switchMap(([action, store, priceBreakdown]) =>
 				{
-					const changePrice = !!store.salesAgreement
-						? priceBreakdown.totalPrice - store.salesAgreement.salePrice
-						: 0;
+					const changePrice = priceBreakdown.changePrice;
 
 					const handing = store.job.handing !== store.changeOrder.changeInput.handing.handing
 						? store.changeOrder.changeInput.handing
