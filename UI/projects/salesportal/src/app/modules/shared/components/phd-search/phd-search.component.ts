@@ -208,13 +208,17 @@ export class PHDSearchComponent
 					if (result.salesAgreements && result.salesAgreements.length > 0 && (this.salesAgreementNumber || this.selectedSalesAgreementStatus.length > 0))
 					{
 						let addLot = false;
+						const hasBuyers = result.buyers?.length > 0;
 
 						result.salesAgreements.map(agreement =>
 						{
 							// if the salesAgreement number is truthy OR if found in the list of selected sales agreement statuses OR if selected Ready To Close check status of approved and isLockedIn
-							if ((this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) ||
-								(this.selectedSalesAgreementStatus.length > 0 &&
-									(this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || (this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === Constants.AGREEMENT_STATUS_APPROVED && agreement.isLockedIn)))
+							if (hasBuyers && 
+								(
+									(this.salesAgreementNumber && agreement.salesAgreementNumber.indexOf(this.salesAgreementNumber) >= 0) ||
+									(this.selectedSalesAgreementStatus.length > 0 && (this.selectedSalesAgreementStatus.indexOf(agreement.status) !== -1) || 
+									(this.selectedSalesAgreementStatus.indexOf('ReadyToClose') !== -1 && agreement.status === Constants.AGREEMENT_STATUS_APPROVED && agreement.isLockedIn))
+								))
 							{
 								// flag the lot as able to be added to the filtered lots
 								addLot = true;
@@ -641,9 +645,13 @@ export class PHDSearchComponent
 
 	shouldDisplayAgreement(lot: SearchResult, agreement: ISearchResultAgreement): boolean
 	{
+		const isActiveAgreement = !!agreement.jobSalesAgreementAssocs?.length ? agreement.jobSalesAgreementAssocs[0].isActive : false;
+		const isHSCancelledSAG = this.isHslMigrated(lot.jobCreatedBy) && agreement.salesAgreementNumber?.toUpperCase().startsWith('HB') && !isActiveAgreement;
+
 		return agreement
 			&& agreement.salesAgreementNumber
 			&& agreement.isOnFinalLot
-			&& (!!lot.buyers?.length || agreement.status === Constants.AGREEMENT_STATUS_CANCEL || agreement.status === Constants.AGREEMENT_STATUS_VOID);
+			&& (!!lot.buyers?.length || agreement.status === Constants.AGREEMENT_STATUS_CANCEL || agreement.status === Constants.AGREEMENT_STATUS_VOID)
+			&& !isHSCancelledSAG;
 	}
 }
