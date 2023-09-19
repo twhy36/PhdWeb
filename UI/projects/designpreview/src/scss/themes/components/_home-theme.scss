@@ -32,6 +32,20 @@
 		.phd-plan-name {
 			color: mat.get-color-from-palette($primary-palette, 'A700');
 		}
+
+		//mobile classes
+		.phd-start-reviewing-title {
+			color: mat.get-color-from-palette($primary-palette, 800);
+		}
+	
+		.phd-start-reviewing-heart {
+			color: mat.get-color-from-palette($accent-palette, 500);
+		}
+	
+		.phd-view-options-btn {
+			background-color: mat.get-color-from-palette($accent-palette, 500);
+			color: mat.get-color-from-palette($primary-palette, '500-contrast')
+		}
 	}
 }
 

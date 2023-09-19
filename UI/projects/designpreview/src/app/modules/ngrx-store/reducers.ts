@@ -700,3 +700,7 @@ export const getScenarioLoadError = createSelector(
 		return scenario.loadError;
 	}
 );
+
+//todo: create common/shared selectors here
+// select initial loaded un-changed/stable data: SG number, BuildMode, isDesignComplete, unfiltered tree
+// select changed data: isMobile, favorite list, filtered tree, selected group, choice, point, etc.

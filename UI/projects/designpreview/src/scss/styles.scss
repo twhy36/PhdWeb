@@ -513,33 +513,13 @@ ngb-modal-backdrop {
 	}
 }
 
-//handle desktop
 @media screen and (min-width: ($mobile-max-landscape-width +1)) {
 	.phd-mobile {
 		display: none;
 	}
-	.phd-desktop {
-		display: block;
-	}
 }
 
-//handle mobile portait: width <= 480 px
-@media screen and (max-width: $mobile-max-portait-width) {
-	.phd-desktop {
-		display: none;
-	}
-
-	.phd-main-container {
-		padding-top: 42px;
-	}
-}
-
-//handle mobile landscape and tablet: width 481-1224 px
-@media screen and (max-width: $mobile-max-landscape-width), (min-width: ($mobile-max-portait-width +1)) {
-	.phd-desktop {
-		display: none;
-	}
-
+@media screen and (max-width: $mobile-max-landscape-width) {
 	.phd-image-carousel {
 		.phd-choice-image {
 			.phd-choice-image-selected {
@@ -555,27 +535,15 @@ ngb-modal-backdrop {
 			object-fit: contain;
 		}
 	}
-	
-	.phd-content-flex {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
 
-	.phd-content-half-screen {
-		width: 50%;
-	}
-
-	.phd-options .phd-decision-point-label {
+	.phd-desktop {
 		display: none;
 	}
 
-	.phd-primary-text {
-		// Override needed for mobile landscape options text
-		padding: .5rem 1rem !important;
+	.phd-main-container {
+		padding-top: 0 !important;
 	}
 }
-
 
 .phd-visually-hidden {
 	position: absolute;

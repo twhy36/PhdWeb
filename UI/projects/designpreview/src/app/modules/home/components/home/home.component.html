@@ -1,42 +1,88 @@
-<div class="d-flex flex-column phd-home">
-	<banner class="phd-home-images-container"></banner>
-	<div class="phd-desktop">
-		desktop only contenthhhhhhhhhhhh
-	  </div>
-	  <div class="phd-mobile">
-		mobile only content
-	  </div>
-	<main class="d-flex flex-row phd-elevation-row">
-		<div class="d-flex flex-column align-items-center">
-			<image [imageUrl]="planImageUrl" [defaultImage]="defaultImage" [imagePlugins]="imagePlugins" alt=""
-				   [class.phd-logo-image]="!planImageUrl"
-				   [class.phd-elevation-image]="planImageUrl">
-			</image>
+<div class="phd-desktop">
+	<div class="d-flex flex-column phd-home">
+		<banner class="phd-home-images-container"></banner>
 
-			<ng-container *ngIf="isPresale">
-				<div class="phd-community-name">
-					{{communityName}}
-				</div>
-				<div class="phd-plan-name">
-					{{planName}}
-				</div>
-			</ng-container>
-		</div>
-		<div class="phd-vl"></div>
-		<div class="phd-review-section">
+		<main class="d-flex flex-row phd-elevation-row">
 			<div class="d-flex flex-column align-items-center">
-				<div class="phd-start-reviewing-title">
-					<h1>Let's start personalizing your <ng-container *ngIf="isPresale">future</ng-container> home.</h1>
+				<image [imageUrl]="planImageUrl" [defaultImage]="defaultImage" [imagePlugins]="imagePlugins" alt=""
+					[class.phd-logo-image]="!planImageUrl"
+					[class.phd-elevation-image]="planImageUrl">
+				</image>
+
+				<ng-container *ngIf="isPresale">
+					<div class="phd-community-name">
+						{{communityName}}
+					</div>
+					<div class="phd-plan-name">
+						{{planName}}
+					</div>
+				</ng-container>
+			</div>
+			<div class="phd-vl"></div>
+			<div class="phd-review-section">
+				<div class="d-flex flex-column align-items-center">
+					<div class="phd-start-reviewing-title">
+						<h1>Let's start personalizing your <ng-container *ngIf="isPresale">future</ng-container> home.</h1>
+					</div>
+					<div class="phd-start-reviewing-desc">
+						Browse the different options available for your home. Select the <span class="phd-start-reviewing-heart" aria-label="Heart">♡</span> symbols to add to your <strong>MY FAVORITES</strong> list<ng-container *ngIf="!isPresale"> and review them later</ng-container>.
+					</div>
 				</div>
-				<div class="phd-start-reviewing-desc">
-					Browse the different options available for your home. Select the <span class="phd-start-reviewing-heart" aria-label="Heart">♡</span> symbols to add to your <strong>MY FAVORITES</strong> list<ng-container *ngIf="!isPresale"> and review them later</ng-container>.
+				<div class="d-flex justify-content-center">
+					<a href="" class="btn phd-design-list-button" (click)="$event.preventDefault(); viewOptions()">View Options</a>
 				</div>
 			</div>
+		</main>
+	</div>
+</div>
+
+<div class="phd-mobile">
+	<div class="phd-content-flex p-3">
+		<div>
 			<div class="d-flex justify-content-center">
-				<a href="" class="btn phd-design-list-button" (click)="$event.preventDefault(); viewOptions()">View Options</a>
+				<image
+					*ngIf="planImageUrl"
+					[imageUrl]="planImageUrl"
+					type="fetch"
+					class="phd-elevation-image"
+					alt=""
+					data-testid="elevation-image">
+				</image>
+				<img
+					class="phd-brand-logo"
+					*ngIf="!planImageUrl"
+					[src]="getImageSrc()"
+					alt=""
+					data-testid="brand-logo"/>
+			</div>
+			<div
+				class="phd-community-plan-info text-center mt-3 pb-2"
+				data-testid="elevation-info">
+				<ng-container *ngIf="communityName">
+					{{communityName}}<br/>
+				</ng-container>
+				{{planName}}
 			</div>
 		</div>
-	</main>
+		<div class="phd-content-half-screen d-flex flex-column align-items-center text-center my-4">
+			<h1 class="phd-start-reviewing-title mb-3" data-testid="title">
+				Let's start personalizing your
+				<ng-container *ngIf="isPresale">future</ng-container> home.
+			</h1>
+			<div class="phd-description-container">
+				<div class="d-flex justify-content-center text-center">
+					<div class="phd-start-reviewing-desc mb-4" data-testid="description">
+						Browse the different options available for your home. Select the
+						<mat-icon class="phd-start-reviewing-heart">favorite_outline</mat-icon>symbols
+						to add to your MY FAVORITES list<ng-container *ngIf="!isPresale">
+							and review them later</ng-container>.
+					</div>
+				</div>
+				<a href="" class="btn phd-view-options-btn p-2" (click)="$event.preventDefault(); viewOptions()">View Options</a>
+				
+			</div>
+		</div>
+	</div>
 </div>
 
 <p>&nbsp;</p>

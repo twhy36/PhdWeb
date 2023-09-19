@@ -21,6 +21,7 @@ import { InfoModalComponent } from './modules/shared/components/info-modal/info-
 import { BrandService } from './modules/core/services/brand.service';
 import { AdobeService } from './modules/core/services/adobe.service';
 import { BuildMode } from './modules/shared/models/build-mode.model';
+import { ApplicationService } from './modules/core/services/application.service';
 
 @Component({
 	selector: 'app-root',
@@ -66,13 +67,14 @@ export class AppComponent extends UnsubscribeOnDestroy implements OnInit
 		private identityService: IdentityService,
 		private brandService: BrandService,
 		private adobeService: AdobeService,
+		private appService: ApplicationService,
 		private navService: NavigationService, // This needs to be initialized here to properly trace browser history
 		@Inject(DOCUMENT) private doc: Document) 
 	{
 		super();
 
 		this.brandTheme = this.brandService.getBrandTheme();
-		this.isMobile = this.brandService.isMobile;
+		this.isMobile = this.appService.isMobile;
 
 		// Need to add brand class to the overlayContainer for mat menu to be correctly stylized
 		this.overlayContainer.getContainerElement().classList.add(this.brandTheme);

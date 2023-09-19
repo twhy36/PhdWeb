@@ -14,6 +14,8 @@ import { HomeComponent } from './components/home/home.component';
 import { CoreModule } from '../core/core.module';
 import { PresaleGuard } from '../core/guards/presale.guard';
 import { BuildMode } from '../shared/models/build-mode.model';
+import { MatIconModule } from '@angular/material/icon';
+import { FooterBarComponent } from '../shared/components/footer-bar/footer-bar.component';
 
 // Temporarily add salesAgreementId in the route to facilitate testing in QA environment.
 // This will be removed once the SSO code is incorporated.
@@ -62,6 +64,7 @@ const moduleRoutes: Routes = [
 	CloudinaryModule,
 	SharedModule,
 	CoreModule,
+	MatIconModule,
 	PhdCommonModule,
 	RouterModule.forChild(moduleRoutes),
 	],
